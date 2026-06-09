@@ -1,0 +1,16 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{RootNamespace}}\{{ModuleName}}\Domain\Repositories;
+
+use {{RootNamespace}}\{{ModuleName}}\Domain\Models\{{SingularName}};
+use App\Core\Abstracts\ModelRepository;
+
+class {{SingularName}}Repository extends ModelRepository
+{
+    protected function getModel(): string
+    {
+        return {{SingularName}}::class;
+    }
+}

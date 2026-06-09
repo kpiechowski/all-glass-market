@@ -1,0 +1,13 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{RootNamespace}}\{{ModuleName}}\Application\Services;
+
+class {{ModuleName}}Service
+{
+    public function __construct()
+    {
+        //
+    }
+}

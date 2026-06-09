@@ -1,0 +1,27 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{RootNamespace}}\{{ModuleName}}\Domain\Models;
+
+use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Factories\{{SingularName}}Factory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+#[Fillable([])]
+class {{SingularName}} extends Model
+{
+    /** @use HasFactory<{{SingularName}}Factory> */
+    use HasFactory;
+
+    protected static function newFactory(): {{SingularName}}Factory
+    {
+        return {{SingularName}}Factory::new();
+    }
+
+    protected function casts(): array
+    {
+        return [];
+    }
+}

@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{RootNamespace}}\{{ModuleName}}\Application\Providers;
+
+use App\Core\Abstracts\CoreEventServiceProvider;
+use {{RootNamespace}}\{{ModuleName}}\Domain\Models\{{SingularName}};
+use {{RootNamespace}}\{{ModuleName}}\Domain\Observers\{{SingularName}}Observer;
+
+class {{ModuleName}}EventServiceProvider extends CoreEventServiceProvider
+{
+    protected $listen = [];
+
+    protected $observers = [
+        {{SingularName}}::class => {{SingularName}}Observer::class,
+    ];
+}
