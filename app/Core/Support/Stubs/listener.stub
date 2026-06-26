@@ -1,0 +1,13 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{RootNamespace}}\{{ModuleName}}\Application\Listeners;
+
+class {{SingularName}}DomainEventListener
+{
+    public function handle(object $event): void
+    {
+        //
+    }
+}

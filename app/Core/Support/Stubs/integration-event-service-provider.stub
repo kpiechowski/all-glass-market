@@ -1,0 +1,21 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{RootNamespace}}\{{ModuleName}}\Application\Providers;
+
+use App\Core\Abstracts\CoreEventServiceProvider;
+
+class {{ModuleName}}EventServiceProvider extends CoreEventServiceProvider
+{
+    // Register listeners for domain events this integration reacts to.
+    // Integration modules subscribe to domain events; they never publish back.
+    //
+    // Example:
+    //   \App\Modules\Offers\Domain\Events\OfferUpdatedEvent::class => [
+    //       \{{RootNamespace}}\{{ModuleName}}\Application\Listeners\{{SingularName}}DomainEventListener::class,
+    //   ],
+    protected $listen = [];
+
+    protected $observers = [];
+}

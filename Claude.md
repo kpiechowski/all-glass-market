@@ -18,6 +18,9 @@ important note: This current development is on laradock php 8.5 enviroment. To a
 
 Keep code tidy and clean, think about solid architecture patterns. Remember to not over-abstract things. Unless told so. Don't add comments to methods/objects that's purpose is generally readable from start.
 
+If you ever lost orientation of what to do next - use skill about refactor-plan to get context, udpate progress and plan forward.
+Same goes for architecture of application - follow existing patterns, check for skill if context is lost or new thing is building.
+
 === foundation rules ===
 
 # Laravel Boost Guidelines
@@ -103,12 +106,6 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - Read configuration values using dot notation: `php artisan config:show app.name`, `php artisan config:show database.default`. Or read config files directly from the `config/` directory.
 - To check environment variables, read the `.env` file directly.
 
-## Tinker
-
-- Execute PHP in app context for debugging and testing code. Do not create models without user approval, prefer tests with factories instead. Prefer existing Artisan commands over custom tinker code.
-- Always use single quotes to prevent shell expansion: `php artisan tinker --execute 'Your::code();'`
-  - Double quotes for PHP strings inside: `php artisan tinker --execute 'User::where("active", true)->count();'`
-
 === php rules ===
 
 # PHP
@@ -121,10 +118,6 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - Use array shape type definitions in PHPDoc blocks.
 
 === deployments rules ===
-
-# Deployment
-
-- Laravel can be deployed using [Laravel Cloud](https://cloud.laravel.com/), which is the fastest way to deploy and scale production Laravel applications.
 
 === laravel/core rules ===
 
@@ -146,40 +139,12 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - When generating links to other pages, prefer named routes and the `route()` function.
 
-## Testing
-
-- When creating models for tests, use the factories for the models. Check if the factory has custom states that can be used before manually setting up the model.
-- Faker: Use methods such as `$this->faker->word()` or `fake()->randomDigit()`. Follow existing conventions whether to use `$this->faker` or `fake()`.
-- When creating tests, make use of `php artisan make:test [options] {name}` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
-
-## Vite Error
-
-- If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `npm run build` or ask the user to run `npm run dev` or `composer run dev`.
-
 === pint/core rules ===
 
 # Laravel Pint Code Formatter
 
 - If you have modified any PHP files, you must run `vendor/bin/pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
 - Do not run `vendor/bin/pint --test --format agent`, simply run `vendor/bin/pint --format agent` to fix any formatting issues.
-
-=== phpunit/core rules ===
-
-# PHPUnit
-
-- This application uses PHPUnit for testing. All tests must be written as PHPUnit classes. Use `php artisan make:test --phpunit {name}` to create a new test.
-- If you see a test using "Pest", convert it to PHPUnit.
-- Every time a test has been updated, run that singular test.
-- When the tests relating to your feature are passing, ask the user if they would like to also run the entire test suite to make sure everything is still passing.
-- Tests should cover all happy paths, failure paths, and edge cases.
-- You must not remove any tests or test files from the tests directory without approval. These are not temporary or helper files; these are core to the application.
-
-## Running Tests
-
-- Run the minimal number of tests, using an appropriate filter, before finalizing.
-- To run all tests: `php artisan test --compact`.
-- To run all tests in a file: `php artisan test --compact tests/Feature/ExampleTest.php`.
-- To filter on a particular test name: `php artisan test --compact --filter=testName` (recommended after making a change to a related file).
 
 === filament/filament rules ===
 
@@ -205,13 +170,13 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
 
 Select::make('type')
-    ->options(CompanyType::class)
-    ->required()
-    ->live(),
+->options(CompanyType::class)
+->required()
+->live(),
 
 TextInput::make('company_name')
-    ->required()
-    ->visible(fn (Get $get): bool => $get('type') === 'business'),
+->required()
+->visible(fn (Get $get): bool => $get('type') === 'business'),
 
 </code-snippet>
 
@@ -222,15 +187,15 @@ use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Str;
 
 TextInput::make('title')
-    ->required()
-    ->live(onBlur: true)
-    ->afterStateUpdated(fn (Set $set, ?string $state) => $set(
+->required()
+->live(onBlur: true)
+->afterStateUpdated(fn (Set $set, ?string $state) => $set(
         'slug',
         Str::slug($state ?? ''),
-    )),
+)),
 
 TextInput::make('slug')
-    ->required(),
+->required(),
 
 </code-snippet>
 
@@ -241,16 +206,16 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 
 Section::make('Details')
-    ->schema([
-        Grid::make(2)->schema([
-            TextInput::make('first_name')
-                ->columnSpan(1),
-            TextInput::make('last_name')
-                ->columnSpan(1),
-            TextInput::make('bio')
-                ->columnSpanFull(),
-        ]),
-    ]),
+->schema([
+Grid::make(2)->schema([
+TextInput::make('first_name')
+->columnSpan(1),
+TextInput::make('last_name')
+->columnSpan(1),
+TextInput::make('bio')
+->columnSpanFull(),
+]),
+]),
 
 </code-snippet>
 
@@ -260,14 +225,14 @@ Use `Repeater` for inline `HasMany` management. `->relationship()` with no args 
 use Filament\Forms\Components\Repeater;
 
 Repeater::make('qualifications')
-    ->relationship()
-    ->schema([
-        TextInput::make('institution')
-            ->required(),
-        TextInput::make('qualification')
-            ->required(),
-    ])
-    ->columns(2),
+->relationship()
+->schema([
+TextInput::make('institution')
+->required(),
+TextInput::make('qualification')
+->required(),
+])
+->columns(2),
 
 </code-snippet>
 
@@ -277,7 +242,7 @@ Use `state()` with a `Closure` to compute derived column values:
 use Filament\Tables\Columns\TextColumn;
 
 TextColumn::make('full_name')
-    ->state(fn (User $record): string => "{$record->first_name} {$record->last_name}"),
+->state(fn (User $record): string => "{$record->first_name} {$record->last_name}"),
 
 </code-snippet>
 
@@ -289,13 +254,13 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 
 SelectFilter::make('status')
-    ->options(UserStatus::class),
+->options(UserStatus::class),
 
 SelectFilter::make('author')
-    ->relationship('author', 'name'),
+->relationship('author', 'name'),
 
 Filter::make('verified')
-    ->query(fn (Builder $query) => $query->whereNotNull('email_verified_at')),
+->query(fn (Builder $query) => $query->whereNotNull('email_verified_at')),
 
 </code-snippet>
 
@@ -305,92 +270,12 @@ Actions are buttons that encapsulate optional modal forms and behavior:
 use Filament\Actions\Action;
 
 Action::make('updateEmail')
-    ->schema([
-        TextInput::make('email')
-            ->email()
-            ->required(),
-    ])
-    ->action(fn (array $data, User $record) => $record->update($data)),
-
-</code-snippet>
-
-### Testing
-
-Testing setup (requires `pestphp/pest-plugin-livewire` in `composer.json`):
-
-- Always call `$this->actingAs(User::factory()->create())` before testing panel functionality.
-- For edit pages, pass `['record' => $user->id]`, use `->call('save')` (not `->call('create')`), and do not assert `->assertRedirect()` (edit pages do not redirect after save).
-
-<code-snippet name="Table test" lang="php">
-use function Pest\Livewire\livewire;
-
-livewire(ListUsers::class)
-    ->assertCanSeeTableRecords($users)
-    ->searchTable($users->first()->name)
-    ->assertCanSeeTableRecords($users->take(1))
-    ->assertCanNotSeeTableRecords($users->skip(1));
-
-</code-snippet>
-
-<code-snippet name="Create resource test" lang="php">
-use function Pest\Laravel\assertDatabaseHas;
-
-livewire(CreateUser::class)
-    ->fillForm([
-        'name' => 'Test',
-        'email' => 'test@example.com',
-    ])
-    ->call('create')
-    ->assertNotified()
-    ->assertHasNoFormErrors()
-    ->assertRedirect();
-
-assertDatabaseHas(User::class, [
-    'name' => 'Test',
-    'email' => 'test@example.com',
-]);
-
-</code-snippet>
-
-<code-snippet name="Edit resource test" lang="php">
-livewire(EditUser::class, ['record' => $user->id])
-    ->fillForm(['name' => 'Updated'])
-    ->call('save')
-    ->assertNotified()
-    ->assertHasNoFormErrors();
-
-assertDatabaseHas(User::class, [
-    'id' => $user->id,
-    'name' => 'Updated',
-]);
-
-</code-snippet>
-
-<code-snippet name="Testing validation" lang="php">
-livewire(CreateUser::class)
-    ->fillForm([
-        'name' => null,
-        'email' => 'invalid-email',
-    ])
-    ->call('create')
-    ->assertHasFormErrors([
-        'name' => 'required',
-        'email' => 'email',
-    ])
-    ->assertNotNotified();
-
-</code-snippet>
-
-Use `->callAction(DeleteAction::class)` for page actions, or `->callAction(TestAction::make('name')->table($record))` for table actions:
-
-<code-snippet name="Calling actions" lang="php">
-use Filament\Actions\Testing\TestAction;
-
-livewire(ListUsers::class)
-    ->callAction(TestAction::make('promote')->table($user), [
-        'role' => 'admin',
-    ])
-    ->assertNotified();
+->schema([
+TextInput::make('email')
+->email()
+->required(),
+])
+->action(fn (array $data, User $record) => $record->update($data)),
 
 </code-snippet>
 
@@ -413,8 +298,8 @@ livewire(ListUsers::class)
 - **`Repeater` uses `->schema()`, not `->fields()`.**
 - **Never add `->dehydrated(false)` to fields that need to be saved.** It strips the value from form state before `->action()` or the save handler runs. Only use it for helper/UI-only fields.
 - **Use correct property types when overriding `Page`, `Resource`, and `Widget` properties.** These properties have union types or changed modifiers that must be preserved:
-  - `$navigationIcon`: `protected static string | BackedEnum | null` (not `?string`)
-  - `$navigationGroup`: `protected static string | UnitEnum | null` (not `?string`)
-  - `$view`: `protected string` (not `protected static string`) on `Page` and `Widget` classes
+    - `$navigationIcon`: `protected static string | BackedEnum | null` (not `?string`)
+    - `$navigationGroup`: `protected static string | UnitEnum | null` (not `?string`)
+    - `$view`: `protected string` (not `protected static string`) on `Page` and `Widget` classes
 
 </laravel-boost-guidelines>

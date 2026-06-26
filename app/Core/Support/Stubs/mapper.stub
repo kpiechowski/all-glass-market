@@ -1,0 +1,20 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{RootNamespace}}\{{ModuleName}}\Domain\Mappers;
+
+class {{SingularName}}Mapper
+{
+    // Map a domain model to the external API payload.
+    public function toApi(mixed $model): array
+    {
+        return [];
+    }
+
+    // Map an external API response to domain/DTO data.
+    public function fromApi(array $data): array
+    {
+        return [];
+    }
+}

@@ -1,0 +1,20 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{RootNamespace}}\{{ModuleName}}\Infrastructure\Api;
+
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Support\Facades\Http;
+
+class {{ModuleName}}ApiClient
+{
+    private PendingRequest $http;
+
+    public function __construct()
+    {
+        $this->http = Http::baseUrl(config('{{ModuleName}}.api_url', ''))
+            ->timeout(30)
+            ->acceptJson();
+    }
+}
