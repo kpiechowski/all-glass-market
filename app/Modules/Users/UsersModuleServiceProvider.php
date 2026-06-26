@@ -9,6 +9,8 @@ use App\Modules\Users\Application\Providers\UsersEventServiceProvider;
 
 class UsersModuleServiceProvider extends ModuleServiceProvider
 {
+    protected bool $loadsTranslations = true;
+
     /** @var array<class-string> */
     protected array $eventProviders = [
         UsersEventServiceProvider::class,

@@ -22,44 +22,50 @@ class UsersTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label(__('users::resource.fields.name'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('email')
+                    ->label(__('users::resource.fields.email'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('phone')
+                    ->label(__('users::resource.fields.phone'))
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('account_type')
-                    ->label('Account type')
-                    ->state(fn (User $record): string => $record->isCompanyAccount() ? 'Company' : 'Private')
+                    ->label(__('users::resource.fields.account_type'))
+                    ->state(fn (User $record): string => $record->isCompanyAccount()
+                        ? __('users::resource.account_types.company')
+                        : __('users::resource.account_types.private'))
                     ->badge()
-                    ->color(fn (string $state): string => $state === 'Company' ? 'success' : 'warning'),
+                    ->color(fn (User $record): string => $record->isCompanyAccount() ? 'success' : 'warning'),
 
                 IconColumn::make('email_verified_at')
-                    ->label('Verified')
+                    ->label(__('users::resource.fields.email_verified'))
                     ->boolean()
                     ->sortable(),
 
                 TextColumn::make('created_at')
+                    ->label(__('users::resource.fields.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Filter::make('verified')
-                    ->label('Email verified')
+                    ->label(__('users::resource.filters.verified'))
                     ->query(fn (Builder $query) => $query->whereNotNull('email_verified_at')),
 
                 Filter::make('unverified')
-                    ->label('Email unverified')
+                    ->label(__('users::resource.filters.unverified'))
                     ->query(fn (Builder $query) => $query->whereNull('email_verified_at')),
 
                 Filter::make('company')
-                    ->label('Company accounts')
+                    ->label(__('users::resource.filters.company'))
                     ->query(fn (Builder $query) => $query->where('company_account', true)->where('has_accepted_terms', true)),
             ])
             ->recordActions([

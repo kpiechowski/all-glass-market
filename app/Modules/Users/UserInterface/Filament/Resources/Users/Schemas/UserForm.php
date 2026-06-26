@@ -20,18 +20,20 @@ class UserForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('User Details')
+            Section::make(__('users::resource.sections.user_details'))
                 ->aside()
-                ->description('Basic account information')
+                ->description(__('users::resource.sections.user_details_description'))
                 ->schema([
                     Grid::make(2)->schema([
                         TextInput::make('name')
+                            ->label(__('users::resource.fields.name'))
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->maxLength(255)
                             ->columnSpan(1),
 
                         TextInput::make('email')
+                            ->label(__('users::resource.fields.email'))
                             ->email()
                             ->required()
                             ->unique(ignoreRecord: true)
@@ -39,17 +41,19 @@ class UserForm
                             ->columnSpan(1),
 
                         TextInput::make('phone')
+                            ->label(__('users::resource.fields.phone'))
                             ->tel()
                             ->maxLength(50)
                             ->columnSpan(1),
                     ]),
                 ]),
 
-            Section::make('Security')
+            Section::make(__('users::resource.sections.security'))
                 ->aside()
-                ->description('Password management')
+                ->description(__('users::resource.sections.security_description'))
                 ->schema([
                     TextInput::make('password')
+                        ->label(__('users::resource.fields.password'))
                         ->password()
                         ->revealable()
                         ->required(fn (string $operation): bool => $operation === 'create')
@@ -64,6 +68,7 @@ class UserForm
                         ->columnSpanFull(),
 
                     TextInput::make('password_confirmation')
+                        ->label(__('users::resource.fields.password_confirmation'))
                         ->password()
                         ->revealable()
                         ->requiredWith('password')
@@ -73,52 +78,57 @@ class UserForm
                         ->columnSpanFull(),
                 ]),
 
-            Section::make('Company Details')
+            Section::make(__('users::resource.sections.company_details'))
                 ->aside()
-                ->description('Company information and billing address')
+                ->description(__('users::resource.sections.company_details_description'))
                 ->schema([
                     Grid::make(2)->schema([
                         Toggle::make('company_account')
-                            ->label('Company account')
+                            ->label(__('users::resource.fields.company_account'))
                             ->columnSpanFull(),
 
                         Toggle::make('has_accepted_terms')
-                            ->label('Has accepted terms')
+                            ->label(__('users::resource.fields.has_accepted_terms'))
                             ->columnSpanFull(),
 
                         TextInput::make('company_name')
+                            ->label(__('users::resource.fields.company_name'))
                             ->maxLength(255)
                             ->columnSpan(1),
 
                         TextInput::make('company_nip')
-                            ->label('NIP')
+                            ->label(__('users::resource.fields.company_nip'))
                             ->maxLength(255)
                             ->columnSpan(1),
 
                         TextInput::make('company_address')
+                            ->label(__('users::resource.fields.company_address'))
                             ->maxLength(255)
                             ->columnSpan(1),
 
                         TextInput::make('shipment_address')
+                            ->label(__('users::resource.fields.shipment_address'))
                             ->maxLength(255)
                             ->columnSpan(1),
 
                         TextInput::make('city')
+                            ->label(__('users::resource.fields.city'))
                             ->maxLength(255)
                             ->columnSpan(1),
 
                         TextInput::make('city_code')
-                            ->label('Postal code')
+                            ->label(__('users::resource.fields.city_code'))
                             ->maxLength(10)
                             ->columnSpan(1),
                     ]),
                 ]),
 
-            Section::make('Shipping Information')
+            Section::make(__('users::resource.sections.shipping_information'))
                 ->aside()
-                ->description('Displayed in Otomoto offer descriptions for this user\'s offers. Leave empty to use the offer/category default.')
+                ->description(__('users::resource.sections.shipping_information_description'))
                 ->schema([
                     RichEditor::make('shipping_information')
+                        ->label(__('users::resource.fields.shipping_information'))
                         ->columnSpanFull(),
                 ]),
         ]);

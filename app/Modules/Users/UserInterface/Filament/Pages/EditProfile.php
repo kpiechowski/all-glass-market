@@ -38,8 +38,6 @@ class EditProfile extends Page
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user-circle';
 
-    protected static ?string $navigationLabel = 'My Profile';
-
     protected static ?int $navigationSort = 100;
 
     /** @var array<string, mixed>|null */
@@ -47,6 +45,16 @@ class EditProfile extends Page
 
     /** @var array<string, mixed>|null */
     public ?array $passwordData = [];
+
+    public static function getNavigationLabel(): string
+    {
+        return __('users::profile.navigation_label');
+    }
+
+    public function getTitle(): string
+    {
+        return __('users::profile.title');
+    }
 
     public function mount(): void
     {
@@ -58,18 +66,20 @@ class EditProfile extends Page
         return $schema
             ->statePath('data')
             ->components([
-                Section::make('Personal Details')
+                Section::make(__('users::profile.sections.personal_details'))
                     ->aside()
-                    ->description('Your basic account information')
+                    ->description(__('users::profile.sections.personal_details_description'))
                     ->schema([
                         Grid::make(2)->schema([
                             TextInput::make('name')
+                                ->label(__('users::profile.fields.name'))
                                 ->required()
                                 ->unique(ignorable: fn () => auth()->user())
                                 ->maxLength(255)
                                 ->columnSpan(1),
 
                             TextInput::make('email')
+                                ->label(__('users::profile.fields.email'))
                                 ->email()
                                 ->required()
                                 ->unique(ignorable: fn () => auth()->user())
@@ -77,23 +87,24 @@ class EditProfile extends Page
                                 ->columnSpan(1),
 
                             TextInput::make('phone')
+                                ->label(__('users::profile.fields.phone'))
                                 ->tel()
                                 ->maxLength(50)
                                 ->columnSpan(1),
                         ]),
                     ]),
 
-                Section::make('Company Account')
+                Section::make(__('users::profile.sections.company_account'))
                     ->aside()
-                    ->description('Register as a company to enable B2B pricing and invoicing')
+                    ->description(__('users::profile.sections.company_account_description'))
                     ->schema([
                         Toggle::make('company_account')
-                            ->label('I represent a company')
+                            ->label(__('users::profile.fields.company_account'))
                             ->live()
                             ->columnSpanFull(),
 
                         Toggle::make('has_accepted_terms')
-                            ->label('I accept the terms and conditions')
+                            ->label(__('users::profile.fields.has_accepted_terms'))
                             ->visible(fn (Get $get): bool => (bool) $get('company_account'))
                             ->columnSpanFull(),
 
@@ -101,36 +112,40 @@ class EditProfile extends Page
                             ->visible(fn (Get $get): bool => (bool) $get('company_account'))
                             ->schema([
                                 TextInput::make('company_name')
+                                    ->label(__('users::profile.fields.company_name'))
                                     ->maxLength(255)
                                     ->columnSpan(1),
 
                                 TextInput::make('company_nip')
-                                    ->label('NIP')
+                                    ->label(__('users::profile.fields.company_nip'))
                                     ->maxLength(255)
                                     ->columnSpan(1),
 
                                 TextInput::make('company_address')
+                                    ->label(__('users::profile.fields.company_address'))
                                     ->maxLength(255)
                                     ->columnSpan(1),
 
                                 TextInput::make('shipment_address')
+                                    ->label(__('users::profile.fields.shipment_address'))
                                     ->maxLength(255)
                                     ->columnSpan(1),
 
                                 TextInput::make('city')
+                                    ->label(__('users::profile.fields.city'))
                                     ->maxLength(255)
                                     ->columnSpan(1),
 
                                 TextInput::make('city_code')
-                                    ->label('Postal code')
+                                    ->label(__('users::profile.fields.city_code'))
                                     ->maxLength(10)
                                     ->columnSpan(1),
                             ]),
 
                         RichEditor::make('shipping_information')
+                            ->label(__('users::profile.fields.shipping_information'))
+                            ->helperText(__('users::profile.fields.shipping_information_helper'))
                             ->visible(fn (Get $get): bool => (bool) $get('company_account'))
-                            ->label('Shipping details')
-                            ->helperText('Displayed on your offer pages. Leave empty to use the category default.')
                             ->columnSpanFull(),
                     ]),
             ]);
@@ -141,11 +156,12 @@ class EditProfile extends Page
         return $schema
             ->statePath('passwordData')
             ->components([
-                Section::make('Change Password')
+                Section::make(__('users::profile.sections.change_password'))
                     ->aside()
-                    ->description('Choose a strong password of at least 8 characters')
+                    ->description(__('users::profile.sections.change_password_description'))
                     ->schema([
                         TextInput::make('password')
+                            ->label(__('users::profile.fields.password'))
                             ->password()
                             ->revealable()
                             ->required()
@@ -159,6 +175,7 @@ class EditProfile extends Page
                             ->columnSpanFull(),
 
                         TextInput::make('password_confirmation')
+                            ->label(__('users::profile.fields.password_confirmation'))
                             ->password()
                             ->revealable()
                             ->required()
@@ -173,7 +190,7 @@ class EditProfile extends Page
     {
         return $schema->components([
             Tabs::make()->tabs([
-                Tab::make('General')
+                Tab::make(__('users::profile.tabs.general'))
                     ->schema([
                         Form::make([EmbeddedSchema::make('form')])
                             ->id('form')
@@ -185,7 +202,7 @@ class EditProfile extends Page
                             ]),
                     ]),
 
-                Tab::make('Change Password')
+                Tab::make(__('users::profile.tabs.change_password'))
                     ->icon(Heroicon::LockClosed)
                     ->schema([
                         Form::make([EmbeddedSchema::make('passwordForm')])
@@ -204,7 +221,7 @@ class EditProfile extends Page
     protected function getSaveFormAction(): Action
     {
         return Action::make('save')
-            ->label('Save profile')
+            ->label(__('users::profile.actions.save'))
             ->submit('save')
             ->keyBindings(['mod+s']);
     }
@@ -212,7 +229,7 @@ class EditProfile extends Page
     protected function getChangePasswordAction(): Action
     {
         return Action::make('changePassword')
-            ->label('Change password')
+            ->label(__('users::profile.actions.change_password'))
             ->submit('changePassword')
             ->color('warning');
     }
@@ -238,7 +255,7 @@ class EditProfile extends Page
             shippingInformation: $data['shipping_information'] ?? null,
         ));
 
-        Notification::make()->success()->title('Profile saved')->send();
+        Notification::make()->success()->title(__('users::profile.notifications.saved'))->send();
     }
 
     public function changePassword(): void
@@ -253,17 +270,12 @@ class EditProfile extends Page
 
         $this->passwordForm->fill([]);
 
-        Notification::make()->success()->title('Password changed')->send();
+        Notification::make()->success()->title(__('users::profile.notifications.password_changed'))->send();
     }
 
     /** @return array<Action|ActionGroup> */
     protected function getHeaderActions(): array
     {
         return [];
-    }
-
-    public function getTitle(): string
-    {
-        return 'My Profile';
     }
 }
