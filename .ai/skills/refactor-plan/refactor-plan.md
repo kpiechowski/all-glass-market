@@ -19,6 +19,8 @@ Never copy V1 code verbatim. Use it to understand:
 
 Always rewrite for the V2 architecture. V1 is a reference, not a template.
 
+Remember to Scan and find all functionalities related to given module across whole codebase - they might be everywhere due to poor app management
+
 ---
 
 ## Decision log — module boundaries
@@ -43,7 +45,7 @@ These are the `Modules/` to scaffold. Each has its own V1 source mapping.
 
 ### 1. `Users`
 
-**Status:** ✅ Scaffolded (template exists)
+**Status:** ✅ Complete
 
 **V1 source:**
 
@@ -56,15 +58,18 @@ These are the `Modules/` to scaffold. Each has its own V1 source mapping.
 
 - User model had no repository — add `UserRepository`
 - `EditProfile` page was a standalone Filament page without command bus, include
+- `ListUsersNotifications` Livewire component — deferred to Audit module (admin activity log, cross-cutting concern)
+- `UserPolicy` — blocked; requires spatie/laravel-permission which is not installed in V2
 
 **Done when:**
 
-- [ ] User model in `Domain/Models/`
-- [ ] `CreateUserCommand`, `UpdateUserCommand`, `DeleteUserCommand` with handlers and
-- [ ] `UserRepository` extending `ModelRepository`
-- [ ] Filament `UserResource` in `UserInterface/Filament/`
-- [ ] Filament pages use `HasCommandBus`, not direct model calls
-- [ ] User observer registered for audit events
+- [x] User model in `Domain/Models/`
+- [x] `CreateUserCommand`, `UpdateUserCommand`, `DeleteUserCommand` with handlers
+- [x] `UserRepository` extending `ModelRepository`
+- [x] Filament `UserResource` in `UserInterface/Filament/`
+- [x] Filament pages use `HasCommandBus`, not direct model calls
+- [x] User observer registered for audit events
+- [x] `EditProfile` self-service page dispatches `UpdateUserCommand` via command bus
 
 ---
 
@@ -293,14 +298,14 @@ Follow this order. Each phase depends on the previous one being complete.
 
 ```
 Phase 1 — Foundation (no domain logic yet)
+  [1] Users module       ← already scaffolded, complete it
   [1a] Audit module       ← standalone, no cross-module deps
   [1b] Settings module    ← standalone
   [1c] Submissions module ← standalone
 
 Phase 2 — Core domain
-  [2a] Users module       ← already scaffolded, complete it
-  [2b] Vehicles module    ← Cars + Eurocodes, no deps on Offers
-  [2c] Offers module      ← depends on Vehicles (Eurocode FK)
+  [2a] Vehicles module    ← Cars + Eurocodes, no deps on Offers
+  [2b] Offers module      ← depends on Vehicles (Eurocode FK)
 
 Phase 3 — Integrations
   [3a] WooCommerce        ← depends on Offers events
@@ -366,7 +371,7 @@ Update the status column as work progresses. An agent checking whether a module 
 
 | Module                    | Status                                | Done checklist                |
 | ------------------------- | ------------------------------------- | ----------------------------- |
-| Users                     | 🔶 Partial (scaffolded, not complete) | See Users section above       |
+| Users                     | ✅ Done                               | See Users section above       |
 | Vehicles                  | ⬜ Not started                        | See Vehicles section above    |
 | Offers                    | ⬜ Not started                        | See Offers section above      |
 | Audit                     | ⬜ Not started                        | See Audit section above       |

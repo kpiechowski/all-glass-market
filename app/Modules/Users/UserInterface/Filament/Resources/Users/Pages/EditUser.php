@@ -33,6 +33,16 @@ class EditUser extends EditRecord
             name: $data['name'],
             email: $data['email'],
             password: $data['password'] ?? null,
+            phone: $data['phone'] ?? null,
+            companyAccount: (bool) ($data['company_account'] ?? false),
+            hasAcceptedTerms: (bool) ($data['has_accepted_terms'] ?? false),
+            companyName: $data['company_name'] ?? null,
+            companyNip: $data['company_nip'] ?? null,
+            companyAddress: $data['company_address'] ?? null,
+            shipmentAddress: $data['shipment_address'] ?? null,
+            city: $data['city'] ?? null,
+            cityCode: $data['city_code'] ?? null,
+            shippingInformation: $data['shipping_information'] ?? null,
         ));
     }
 }

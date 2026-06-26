@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Schemas;
 
 use Filament\Actions\Action;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -17,41 +20,48 @@ class UserForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Details')
-                ->columns(2)
-                ->columnSpanFull()
+            Section::make('User Details')
+                ->aside()
+                ->description('Basic account information')
                 ->schema([
-                    TextInput::make('name')
-                        ->required()
-                        ->maxLength(255)
-                        ->columnSpan(1),
+                    Grid::make(2)->schema([
+                        TextInput::make('name')
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->maxLength(255)
+                            ->columnSpan(1),
 
-                    TextInput::make('email')
-                        ->email()
-                        ->required()
-                        ->maxLength(255)
-                        ->unique(ignoreRecord: true)
-                        ->columnSpan(1),
+                        TextInput::make('email')
+                            ->email()
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->maxLength(255)
+                            ->columnSpan(1),
+
+                        TextInput::make('phone')
+                            ->tel()
+                            ->maxLength(50)
+                            ->columnSpan(1),
+                    ]),
                 ]),
 
             Section::make('Security')
-                ->columns(1)
-                ->columnSpanFull()
+                ->aside()
+                ->description('Password management')
                 ->schema([
                     TextInput::make('password')
                         ->password()
                         ->revealable()
-                        ->required(fn(string $operation): bool => $operation === 'create')
-                        ->dehydrated(fn(?string $state): bool => filled($state))
+                        ->required(fn (string $operation): bool => $operation === 'create')
+                        ->dehydrated(fn (?string $state): bool => filled($state))
                         ->minLength(8)
-                        // generate strong password without weird characters that may cause issues in some password fields
+                        ->maxLength(255)
                         ->suffixAction(
                             Action::make('generate-password')
                                 ->icon(Heroicon::ArrowPathRoundedSquare)
-                                ->action(fn(Set $set) => $set('password', Str::password(12, true, true, true, false)))
+                                ->action(fn (Set $set) => $set('password', Str::password(12, true, true, true, false)))
                         )
-                        ->maxLength(255)
-                        ->columnSpan(1),
+                        ->columnSpanFull(),
 
                     TextInput::make('password_confirmation')
                         ->password()
@@ -60,7 +70,56 @@ class UserForm
                         ->hiddenOn('create')
                         ->same('password')
                         ->dehydrated(false)
-                        ->columnSpan(1),
+                        ->columnSpanFull(),
+                ]),
+
+            Section::make('Company Details')
+                ->aside()
+                ->description('Company information and billing address')
+                ->schema([
+                    Grid::make(2)->schema([
+                        Toggle::make('company_account')
+                            ->label('Company account')
+                            ->columnSpanFull(),
+
+                        Toggle::make('has_accepted_terms')
+                            ->label('Has accepted terms')
+                            ->columnSpanFull(),
+
+                        TextInput::make('company_name')
+                            ->maxLength(255)
+                            ->columnSpan(1),
+
+                        TextInput::make('company_nip')
+                            ->label('NIP')
+                            ->maxLength(255)
+                            ->columnSpan(1),
+
+                        TextInput::make('company_address')
+                            ->maxLength(255)
+                            ->columnSpan(1),
+
+                        TextInput::make('shipment_address')
+                            ->maxLength(255)
+                            ->columnSpan(1),
+
+                        TextInput::make('city')
+                            ->maxLength(255)
+                            ->columnSpan(1),
+
+                        TextInput::make('city_code')
+                            ->label('Postal code')
+                            ->maxLength(10)
+                            ->columnSpan(1),
+                    ]),
+                ]),
+
+            Section::make('Shipping Information')
+                ->aside()
+                ->description('Displayed in Otomoto offer descriptions for this user\'s offers. Leave empty to use the offer/category default.')
+                ->schema([
+                    RichEditor::make('shipping_information')
+                        ->columnSpanFull(),
                 ]),
         ]);
     }

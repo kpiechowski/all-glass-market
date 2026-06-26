@@ -12,8 +12,7 @@ class UpdateUserCommandHandler
 {
     public function __construct(
         private UserRepository $userRepository,
-    ) {
-    }
+    ) {}
 
     #[CommandHandler]
     public function handle(UpdateUserCommand $command): User
@@ -23,6 +22,16 @@ class UpdateUserCommandHandler
         $attributes = [
             'name' => $command->name,
             'email' => $command->email,
+            'phone' => $command->phone,
+            'company_account' => $command->companyAccount,
+            'has_accepted_terms' => $command->hasAcceptedTerms,
+            'company_name' => $command->companyName,
+            'company_nip' => $command->companyNip,
+            'company_address' => $command->companyAddress,
+            'shipment_address' => $command->shipmentAddress,
+            'city' => $command->city,
+            'city_code' => $command->cityCode,
+            'shipping_information' => $command->shippingInformation,
         ];
 
         if ($command->password !== null) {

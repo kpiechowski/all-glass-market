@@ -13,7 +13,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable([
+    'name', 'email', 'password',
+    'phone',
+    'company_account', 'has_accepted_terms',
+    'company_name', 'company_nip', 'company_address', 'shipment_address',
+    'city', 'city_code',
+    'shipping_information',
+])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
@@ -30,7 +37,14 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'company_account' => 'boolean',
+            'has_accepted_terms' => 'boolean',
         ];
+    }
+
+    public function isCompanyAccount(): bool
+    {
+        return $this->company_account && $this->has_accepted_terms;
     }
 
     public function canAccessPanel(Panel $panel): bool

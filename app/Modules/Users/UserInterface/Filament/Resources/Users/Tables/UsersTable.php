@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Tables;
 
+use App\Modules\Users\Domain\Models\User;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -28,6 +29,16 @@ class UsersTable
                     ->searchable()
                     ->sortable(),
 
+                TextColumn::make('phone')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('account_type')
+                    ->label('Account type')
+                    ->state(fn (User $record): string => $record->isCompanyAccount() ? 'Company' : 'Private')
+                    ->badge()
+                    ->color(fn (string $state): string => $state === 'Company' ? 'success' : 'warning'),
+
                 IconColumn::make('email_verified_at')
                     ->label('Verified')
                     ->boolean()
@@ -46,6 +57,10 @@ class UsersTable
                 Filter::make('unverified')
                     ->label('Email unverified')
                     ->query(fn (Builder $query) => $query->whereNull('email_verified_at')),
+
+                Filter::make('company')
+                    ->label('Company accounts')
+                    ->query(fn (Builder $query) => $query->where('company_account', true)->where('has_accepted_terms', true)),
             ])
             ->recordActions([
                 ViewAction::make(),

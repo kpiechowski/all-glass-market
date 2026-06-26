@@ -235,14 +235,15 @@ class UsersEventServiceProvider extends CoreEventServiceProvider
 
 Filament classes are strictly presentation:
 
-| Class                        | Responsibility                                        |
-| ---------------------------- | ----------------------------------------------------- |
-| `{Name}Resource.php`         | Declares model, navigation, pages — no logic          |
-| `Schemas/{Name}Form.php`     | Form field definitions only                           |
-| `Schemas/{Name}Infolist.php` | Infolist entry definitions only                       |
-| `Tables/{Name}Table.php`     | Column, filter, action definitions only               |
-| `Pages/Create{Name}.php`     | Overrides `handleRecordCreation` → dispatches command |
-| `Pages/Edit{Name}.php`       | Overrides `handleRecordUpdate` → dispatches command   |
+| Class                         | Responsibility                                        |
+| ----------------------------- | ----------------------------------------------------- |
+| `{Name}Resource.php`          | Declares model, navigation, pages — no logic          |
+| `Tables/{Name}Table.php`      | Column, filter, action definitions only               |
+| `Schemas/{Name}Form.php`      | Form field definitions only                           |
+| `Schemas/{Name}Infolist.php`  | Infolist entry definitions only                       |
+| `Schemas/{Name/}Filters/.php` | Filters or other schema like classes                  |
+| `Pages/Create{Name}.php`      | Overrides `handleRecordCreation` → dispatches command |
+| `Pages/Edit{Name}.php`        | Overrides `handleRecordUpdate` → dispatches command   |
 
 Filament auto-discovery is handled by the `DiscoverModuleFilament` trait on `AdminPanelProvider`. Any Resource/Page/Widget/Cluster placed in `UserInterface/Filament/` is registered automatically — no manual panel configuration required per module.
 
