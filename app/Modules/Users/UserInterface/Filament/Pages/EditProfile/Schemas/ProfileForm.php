@@ -56,10 +56,7 @@ class ProfileForm
                             ->live()
                             ->columnSpanFull(),
 
-                        Toggle::make('has_accepted_terms')
-                            ->label(__('users::profile.fields.has_accepted_terms'))
-                            ->visible(fn (Get $get): bool => (bool) $get('company_account'))
-                            ->columnSpanFull(),
+                        
 
                         Grid::make(2)
                             ->visible(fn (Get $get): bool => (bool) $get('company_account'))
@@ -95,9 +92,16 @@ class ProfileForm
                                     ->columnSpan(1),
                             ]),
 
-                        RichEditor::make('shipping_information')
-                            ->label(__('users::profile.fields.shipping_information'))
-                            ->helperText(__('users::profile.fields.shipping_information_helper'))
+                        Toggle::make('has_accepted_terms')
+                            ->label(__('users::profile.fields.has_accepted_terms'))
+                            ->visible(fn (Get $get): bool => (bool) $get('company_account'))
+                            ->columnSpanFull(),
+
+                        
+
+                        RichEditor::make('shipping_note')
+                            ->label(__('users::profile.fields.shipping_note'))
+                            ->helperText(__('users::profile.fields.shipping_note_helper'))
                             ->visible(fn (Get $get): bool => (bool) $get('company_account'))
                             ->columnSpanFull(),
                     ]),

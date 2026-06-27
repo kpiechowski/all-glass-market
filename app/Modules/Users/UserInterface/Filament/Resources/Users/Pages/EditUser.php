@@ -46,7 +46,7 @@ class EditUser extends EditRecord
             shipmentAddress: $data['shipment_address'] ?? null,
             city: $data['city'] ?? null,
             cityCode: $data['city_code'] ?? null,
-            shippingInformation: $data['shipping_information'] ?? null,
+            shippingNote: $data['shipping_note'] ?? null,
         ));
 
         if (isset($data['role']) && RoleEnum::from($data['role']) !== $record->role) {

@@ -139,7 +139,7 @@ class EditProfile extends Page
                 shipmentAddress: $data['shipment_address'] ?? null,
                 city: $data['city'] ?? null,
                 cityCode: $data['city_code'] ?? null,
-                shippingInformation: $data['shipping_information'] ?? null,
+                shippingNote: $data['shipping_note'] ?? null,
             ));
         } catch (Throwable) {
             Notification::make()->danger()->title(__('users::profile.notifications.save_failed'))->send();

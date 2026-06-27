@@ -20,6 +20,6 @@ readonly class CreateUserCommand
         public ?string $shipmentAddress = null,
         public ?string $city = null,
         public ?string $cityCode = null,
-        public ?string $shippingInformation = null,
+        public ?string $shippingNote = null,
     ) {}
 }

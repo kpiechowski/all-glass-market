@@ -15,12 +15,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 #[Fillable([
-    'name', 'email', 'password',
+    'name', 'email', 'password', 'role',
     'phone',
     'company_account', 'has_accepted_terms',
     'company_name', 'company_nip', 'company_address', 'shipment_address',
     'city', 'city_code',
-    'shipping_information',
+    'shipping_note',
     // role is intentionally excluded — managed only via AssignUserRoleCommand
 ])]
 #[Hidden(['password', 'remember_token'])]

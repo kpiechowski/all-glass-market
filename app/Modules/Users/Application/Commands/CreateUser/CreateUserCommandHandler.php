@@ -34,7 +34,7 @@ class CreateUserCommandHandler
             'shipment_address' => $command->shipmentAddress,
             'city' => $command->city,
             'city_code' => $command->cityCode,
-            'shipping_information' => $command->shippingInformation,
+            'shipping_note' => $command->shippingNote,
         ]);
     }
 }

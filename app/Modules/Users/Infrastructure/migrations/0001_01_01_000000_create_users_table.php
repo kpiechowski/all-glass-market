@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('shipment_address')->nullable();
             $table->string('city')->nullable();
             $table->string('city_code')->nullable();
-            $table->text('shipping_information')->nullable();
+            $table->text('shipping_note')->nullable();
 
             $table->timestamps();
         });

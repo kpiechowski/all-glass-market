@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Core\Http\Cli\CreateDevUserCommand;
+use App\Core\Http\Cli\CreateRootCommand;
 use App\Core\Http\Cli\DeleteModuleCommand;
 use App\Core\Http\Cli\MakeIntegrationCommand;
 use App\Core\Http\Cli\MakeModuleCommand;
@@ -19,10 +21,12 @@ class CoreServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->loadMigrationsFrom(__DIR__ . '/Infrastructure/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/Infrastructure/migrations');
 
         if ($this->app->runningInConsole()) {
             $this->commands([
+                CreateDevUserCommand::class,
+                CreateRootCommand::class,
                 DeleteModuleCommand::class,
                 MakeModuleCommand::class,
                 MakeIntegrationCommand::class,
@@ -43,11 +47,11 @@ class CoreServiceProvider extends ServiceProvider
         }
 
         foreach (File::directories($basePath) as $dir) {
-            $name     = basename($dir);
-            $provider = $name . $providerSuffix;
-            $fqcn     = $baseNamespace . '\\' . $name . '\\' . $provider;
+            $name = basename($dir);
+            $provider = $name.$providerSuffix;
+            $fqcn = $baseNamespace.'\\'.$name.'\\'.$provider;
 
-            if (File::exists($dir . '/' . $provider . '.php') && class_exists($fqcn)) {
+            if (File::exists($dir.'/'.$provider.'.php') && class_exists($fqcn)) {
                 $this->app->register($fqcn);
             }
         }

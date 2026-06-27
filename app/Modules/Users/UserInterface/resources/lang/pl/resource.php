@@ -7,14 +7,16 @@ return [
     'plural_label' => 'Użytkownicy',
 
     'sections' => [
-        'user_details' => 'Dane użytkownika',
-        'user_details_description' => 'Podstawowe informacje o koncie',
+        'account_details' => 'Dane konta',
         'security' => 'Bezpieczeństwo',
-        'security_description' => 'Zarządzanie hasłem',
+        'company_account' => 'Konto firmowe',
         'company_details' => 'Dane firmy',
-        'company_details_description' => 'Informacje o firmie i adres rozliczeniowy',
-        'shipping_information' => 'Informacje o wysyłce',
-        'shipping_information_description' => 'Wyświetlane w opisach ofert Otomoto dla tego użytkownika. Pozostaw puste, aby użyć ustawień domyślnych oferty/kategorii.',
+        'timestamps' => 'Daty',
+    ],
+
+    'tabs' => [
+        'general' => 'Ogólne',
+        'password' => 'Hasło',
         'timestamps' => 'Daty',
     ],
 
@@ -33,7 +35,7 @@ return [
         'shipment_address' => 'Adres dostawy',
         'city' => 'Miasto',
         'city_code' => 'Kod pocztowy',
-        'shipping_information' => 'Informacje o wysyłce',
+        'shipping_note' => 'Notatka wysyłkowa',
         'email_verified' => 'Zweryfikowany e-mail',
         'account_type' => 'Typ konta',
         'accepted_terms' => 'Zaakceptowano regulamin',
