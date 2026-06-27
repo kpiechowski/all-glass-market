@@ -7,6 +7,7 @@ namespace App\Modules\Users\Application\Commands\UpdateUser;
 readonly class UpdateUserCommand
 {
     public function __construct(
+        public int|string $actorId,
         public int|string $id,
         public string $name,
         public string $email,

@@ -19,6 +19,7 @@ return [
     ],
 
     'fields' => [
+        'role' => 'Rola',
         'name' => 'Imię i nazwisko',
         'email' => 'Adres e-mail',
         'phone' => 'Telefon',
@@ -38,6 +39,12 @@ return [
         'accepted_terms' => 'Zaakceptowano regulamin',
         'created_at' => 'Data utworzenia',
         'updated_at' => 'Data modyfikacji',
+    ],
+
+    'roles' => [
+        'root' => 'Root',
+        'admin' => 'Administrator',
+        'client' => 'Klient',
     ],
 
     'account_types' => [

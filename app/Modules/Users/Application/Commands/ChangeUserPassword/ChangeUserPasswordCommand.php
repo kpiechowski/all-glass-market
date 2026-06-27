@@ -7,6 +7,7 @@ namespace App\Modules\Users\Application\Commands\ChangeUserPassword;
 readonly class ChangeUserPasswordCommand
 {
     public function __construct(
+        public int|string $actorId,
         public int|string $id,
         public string $password,
     ) {}

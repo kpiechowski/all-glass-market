@@ -46,6 +46,8 @@ return [
 
     'notifications' => [
         'saved' => 'Profil został zapisany',
+        'save_failed' => 'Nie udało się zapisać profilu',
         'password_changed' => 'Hasło zostało zmienione',
+        'password_change_failed' => 'Nie udało się zmienić hasła',
     ],
 ];

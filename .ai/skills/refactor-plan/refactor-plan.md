@@ -181,6 +181,7 @@ These are the `Modules/` to scaffold. Each has its own V1 source mapping.
 - [ ] `LoggableModel` contract in `Domain/Contracts/`
 - [ ] `AuditRepository`
 - [ ] Filament resources for viewing logs in `UserInterface/Filament/`
+- [ ] Register a global exception listener in `bootstrap/app.php` → `withExceptions()` that routes caught exceptions to the audit store (replaces page-level try/catch with centralized logging while keeping Filament Notifications in pages)
 
 ---
 

@@ -7,6 +7,7 @@ namespace App\Modules\Users\Application\Commands\DeleteUser;
 readonly class DeleteUserCommand
 {
     public function __construct(
+        public int|string $actorId,
         public int|string $id,
     ) {}
 }

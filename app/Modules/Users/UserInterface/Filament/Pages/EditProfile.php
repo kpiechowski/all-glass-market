@@ -7,6 +7,7 @@ namespace App\Modules\Users\UserInterface\Filament\Pages;
 use App\Core\Concerns\HasCommandBus;
 use App\Modules\Users\Application\Commands\ChangeUserPassword\ChangeUserPasswordCommand;
 use App\Modules\Users\Application\Commands\UpdateUser\UpdateUserCommand;
+use App\Modules\Users\Domain\Models\User;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -26,7 +27,9 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Throwable;
 
 /**
  * @property-read Schema $form
@@ -58,7 +61,9 @@ class EditProfile extends Page
 
     public function mount(): void
     {
-        $this->form->fill(auth()->user()->attributesToArray());
+        /** @var User $user */
+        $user = Auth::user();
+        $this->form->fill($user->attributesToArray());
     }
 
     public function form(Schema $schema): Schema
@@ -237,23 +242,31 @@ class EditProfile extends Page
     public function save(): void
     {
         $data = $this->form->getState();
-        $user = auth()->user();
+        /** @var User $user */
+        $user = Auth::user();
 
-        $this->commandBus->send(new UpdateUserCommand(
-            id: $user->getKey(),
-            name: $data['name'],
-            email: $data['email'],
-            phone: $data['phone'] ?? null,
-            companyAccount: (bool) ($data['company_account'] ?? false),
-            hasAcceptedTerms: (bool) ($data['has_accepted_terms'] ?? false),
-            companyName: $data['company_name'] ?? null,
-            companyNip: $data['company_nip'] ?? null,
-            companyAddress: $data['company_address'] ?? null,
-            shipmentAddress: $data['shipment_address'] ?? null,
-            city: $data['city'] ?? null,
-            cityCode: $data['city_code'] ?? null,
-            shippingInformation: $data['shipping_information'] ?? null,
-        ));
+        try {
+            $this->commandBus->send(new UpdateUserCommand(
+                actorId: $user->getKey(),
+                id: $user->getKey(),
+                name: $data['name'],
+                email: $data['email'],
+                phone: $data['phone'] ?? null,
+                companyAccount: (bool) ($data['company_account'] ?? false),
+                hasAcceptedTerms: (bool) ($data['has_accepted_terms'] ?? false),
+                companyName: $data['company_name'] ?? null,
+                companyNip: $data['company_nip'] ?? null,
+                companyAddress: $data['company_address'] ?? null,
+                shipmentAddress: $data['shipment_address'] ?? null,
+                city: $data['city'] ?? null,
+                cityCode: $data['city_code'] ?? null,
+                shippingInformation: $data['shipping_information'] ?? null,
+            ));
+        } catch (Throwable) {
+            Notification::make()->danger()->title(__('users::profile.notifications.save_failed'))->send();
+
+            return;
+        }
 
         Notification::make()->success()->title(__('users::profile.notifications.saved'))->send();
     }
@@ -261,12 +274,20 @@ class EditProfile extends Page
     public function changePassword(): void
     {
         $data = $this->passwordForm->getState();
-        $user = auth()->user();
+        /** @var User $user */
+        $user = Auth::user();
 
-        $this->commandBus->send(new ChangeUserPasswordCommand(
-            id: $user->getKey(),
-            password: $data['password'],
-        ));
+        try {
+            $this->commandBus->send(new ChangeUserPasswordCommand(
+                actorId: $user->getKey(),
+                id: $user->getKey(),
+                password: $data['password'],
+            ));
+        } catch (Throwable) {
+            Notification::make()->danger()->title(__('users::profile.notifications.password_change_failed'))->send();
+
+            return;
+        }
 
         $this->passwordForm->fill([]);
 

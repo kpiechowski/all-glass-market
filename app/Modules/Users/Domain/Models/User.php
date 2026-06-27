@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\Domain\Models;
 
+use App\Modules\Users\Domain\Enums\RoleEnum;
 use App\Modules\Users\Infrastructure\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -20,6 +21,7 @@ use Illuminate\Notifications\Notifiable;
     'company_name', 'company_nip', 'company_address', 'shipment_address',
     'city', 'city_code',
     'shipping_information',
+    // role is intentionally excluded — managed only via AssignUserRoleCommand
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
@@ -39,6 +41,7 @@ class User extends Authenticatable implements FilamentUser
             'password' => 'hashed',
             'company_account' => 'boolean',
             'has_accepted_terms' => 'boolean',
+            'role' => RoleEnum::class,
         ];
     }
 
@@ -49,6 +52,6 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return true;
+        return in_array($this->role, [RoleEnum::Root, RoleEnum::Admin], strict: true);
     }
 }

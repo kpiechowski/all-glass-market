@@ -7,6 +7,7 @@ namespace App\Modules\Users\Application\Commands\CreateUser;
 readonly class CreateUserCommand
 {
     public function __construct(
+        public int|string $actorId,
         public string $name,
         public string $email,
         public string $password,

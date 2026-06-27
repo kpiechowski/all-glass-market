@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Schemas;
 
+use App\Modules\Users\Domain\Enums\RoleEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
@@ -25,6 +27,15 @@ class UserForm
                 ->description(__('users::resource.sections.user_details_description'))
                 ->schema([
                     Grid::make(2)->schema([
+                        Select::make('role')
+                            ->label(__('users::resource.fields.role'))
+                            ->options(array_combine(
+                                array_column(RoleEnum::cases(), 'value'),
+                                array_map(fn (RoleEnum $r) => __('users::resource.roles.'.$r->value), RoleEnum::cases()),
+                            ))
+                            ->required()
+                            ->columnSpanFull(),
+
                         TextInput::make('name')
                             ->label(__('users::resource.fields.name'))
                             ->required()

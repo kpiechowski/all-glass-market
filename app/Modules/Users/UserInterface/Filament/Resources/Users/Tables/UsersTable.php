@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Tables;
 
+use App\Modules\Users\Domain\Enums\RoleEnum;
 use App\Modules\Users\Domain\Models\User;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -21,6 +22,17 @@ class UsersTable
     {
         return $table
             ->columns([
+                TextColumn::make('role')
+                    ->label(__('users::resource.fields.role'))
+                    ->formatStateUsing(fn (RoleEnum $state): string => __('users::resource.roles.'.$state->value))
+                    ->badge()
+                    ->color(fn (RoleEnum $state): string => match ($state) {
+                        RoleEnum::Root => 'danger',
+                        RoleEnum::Admin => 'warning',
+                        RoleEnum::Client => 'gray',
+                    })
+                    ->sortable(),
+
                 TextColumn::make('name')
                     ->label(__('users::resource.fields.name'))
                     ->searchable()

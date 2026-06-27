@@ -9,6 +9,7 @@ use App\Modules\Users\Application\Commands\CreateUser\CreateUserCommand;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class CreateUser extends CreateRecord
 {
@@ -19,6 +20,7 @@ class CreateUser extends CreateRecord
     protected function handleRecordCreation(array $data): Model
     {
         return $this->commandBus->send(new CreateUserCommand(
+            actorId: Auth::id(),
             name: $data['name'],
             email: $data['email'],
             password: $data['password'],
