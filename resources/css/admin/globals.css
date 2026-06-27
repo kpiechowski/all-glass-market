@@ -1,0 +1,17 @@
+/* Remove the dark/light theme switcher from user dropdown */
+.fi-user-menu .fi-dropdown-list:has(button[aria-label="Enable dark theme"]),
+.fi-user-menu .fi-dropdown-list:has(button[aria-label="Enable light theme"]) {
+    @apply hidden;
+}
+
+/* Icon buttons use gray-600 in light mode */
+.fi-icon-btn {
+    @apply text-gray-600;
+}
+
+/* Checkbox checkmark stays readable on primary-colored boxes */
+input[type="checkbox"].fi-checkbox-input {
+    &:checked {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 16 16' fill='%23fff' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.207 4.793a1 1 0 0 1 0 1.414l-5 5a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L6.5 9.086l4.293-4.293a1 1 0 0 1 1.414 0z'/%3E%3C/svg%3E");
+    }
+}

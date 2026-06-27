@@ -1,0 +1,84 @@
+.fi-sc-form {
+    .fi-input-wrp {
+        @apply bg-white ring-gray-300;
+    }
+
+    .fi-fieldset {
+        @apply bg-transparent border-gray-200;
+    }
+
+    .fi-section:not(.has-bg),
+    .fi-sc-tabs {
+        @apply bg-transparent ring-gray-200;
+
+        .fi-section-content-ctn {
+            @apply border-gray-200 ring-gray-200;
+        }
+
+        &.fi-aside {
+            .fi-section-content-ctn {
+                @apply bg-transparent ring-gray-200;
+            }
+        }
+    }
+}
+
+/* filepond (file upload) */
+.filepond--label-action {
+    @apply text-primary hover:underline;
+}
+
+.filepond--file-action-button.filepond--file-action-button {
+    @apply bg-primary;
+
+    svg {
+        @apply text-white;
+    }
+}
+
+/* wizard */
+.fi-sc-wizard {
+    @apply !ring-0 rounded-none;
+
+    .fi-sc-wizard-header-step-separator {
+        @apply hidden;
+    }
+
+    .fi-sc-wizard-header {
+        @apply rounded-xl overflow-hidden;
+    }
+
+    .fi-sc-wizard-header-step {
+        @apply bg-gray-100;
+
+        .fi-sc-wizard-header-step-icon-ctn {
+            @apply border-gray-400;
+        }
+
+        .fi-sc-wizard-header-step-icon-ctn .fi-sc-wizard-header-step-number,
+        .fi-sc-wizard-header-step-text span {
+            @apply !text-gray-500;
+        }
+
+        &.fi-active {
+            @apply bg-primary text-white;
+
+            .fi-sc-wizard-header-step-icon-ctn {
+                @apply border-white;
+            }
+
+            .fi-sc-wizard-header-step-icon-ctn .fi-sc-wizard-header-step-number,
+            .fi-sc-wizard-header-step-text span {
+                @apply !text-white;
+            }
+        }
+    }
+
+    .fi-sc-wizard-step {
+        @apply border-0 px-0;
+
+        .fi-fieldset {
+            @apply border-gray-200;
+        }
+    }
+}

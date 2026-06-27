@@ -1,0 +1,25 @@
+.fi-badge {
+    @apply text-sm leading-5 px-1.5 py-0.5;
+    @apply bg-[var(--color-500)] text-white;
+
+    .fi-icon {
+        @apply text-white;
+    }
+
+    &.fi-color-primary {
+        @apply bg-primary text-white;
+
+        .fi-icon {
+            @apply text-white;
+        }
+    }
+
+    /* ghost variant — light blue tint */
+    &.fi-color-ghost {
+        @apply bg-primary-50 text-primary;
+
+        .fi-icon {
+            @apply text-primary;
+        }
+    }
+}

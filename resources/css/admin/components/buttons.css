@@ -1,0 +1,30 @@
+/* primary filled button — flat hover, no shadow */
+button.fi-color-primary.fi-btn,
+a.fi-btn.fi-color-primary {
+    @apply transition-colors duration-200;
+
+    &:hover {
+        @apply bg-primary-700 text-white;
+
+        .fi-icon {
+            @apply text-white;
+        }
+    }
+}
+
+/* primary icon/text button (not .fi-btn) */
+button.fi-color-primary:not(.fi-btn),
+a.fi-color-primary:not(.fi-btn) {
+    &:hover {
+        @apply text-primary-700;
+    }
+}
+
+/* success button — white text */
+button.fi-btn.fi-color-success {
+    @apply text-white;
+
+    svg {
+        @apply text-white;
+    }
+}

@@ -33,7 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->font('Poppins')
-            ->viteTheme('resources/css/filament/admin/theme.css')
+            ->viteTheme('resources/css/admin/theme.css')
             ->darkMode(false)
             ->login()
             ->colors([

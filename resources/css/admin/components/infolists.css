@@ -1,0 +1,4 @@
+/* infolist entries — ensure text is readable in light mode */
+.fi-in-text .fi-in-text-item {
+    @apply text-gray-800;
+}

@@ -1,0 +1,25 @@
+.fi-wi-stats-overview-stat {
+    @apply h-full;
+
+    .fi-wi-stats-overview-stat-content {
+        @apply gap-y-2.5;
+    }
+
+    .fi-wi-stats-overview-stat-label {
+        @apply text-gray-600 font-medium text-sm;
+    }
+
+    .fi-wi-stats-overview-stat-value {
+        @apply text-primary;
+    }
+}
+
+.fi-wi-chart {
+    .fi-section-header {
+        @apply pb-0;
+    }
+
+    .fi-section-content-ctn {
+        @apply border-t-0;
+    }
+}

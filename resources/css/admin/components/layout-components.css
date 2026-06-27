@@ -1,0 +1,18 @@
+/* borderless sections used as visual separators (contained: false) */
+.fi-section-not-contained {
+    @apply mb-6;
+
+    & > .fi-section-header {
+        @apply pb-4 border-b border-gray-200 mb-4;
+    }
+}
+
+/* uncontained tabs — remove extra margin */
+.fi-tabs:not(.fi-contained) {
+    @apply m-0;
+}
+
+/* utility: disabled grid cells */
+.grid-not-allowed {
+    @apply pointer-events-none opacity-50 cursor-not-allowed;
+}
