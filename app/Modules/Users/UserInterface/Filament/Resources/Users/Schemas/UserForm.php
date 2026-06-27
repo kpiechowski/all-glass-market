@@ -29,10 +29,7 @@ class UserForm
                     Grid::make(2)->schema([
                         Select::make('role')
                             ->label(__('users::resource.fields.role'))
-                            ->options(array_combine(
-                                array_column(RoleEnum::cases(), 'value'),
-                                array_map(fn (RoleEnum $r) => __('users::resource.roles.'.$r->value), RoleEnum::cases()),
-                            ))
+                            ->options(RoleEnum::class)
                             ->required()
                             ->columnSpanFull(),
 

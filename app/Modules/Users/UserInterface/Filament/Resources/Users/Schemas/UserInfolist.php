@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Schemas;
 
-use App\Modules\Users\Domain\Enums\RoleEnum;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
@@ -22,13 +21,7 @@ class UserInfolist
                     Grid::make(2)->schema([
                         TextEntry::make('role')
                             ->label(__('users::resource.fields.role'))
-                            ->formatStateUsing(fn (RoleEnum $state): string => __('users::resource.roles.'.$state->value))
                             ->badge()
-                            ->color(fn (RoleEnum $state): string => match ($state) {
-                                RoleEnum::Root => 'danger',
-                                RoleEnum::Admin => 'warning',
-                                RoleEnum::Client => 'gray',
-                            })
                             ->columnSpan(1),
 
                         TextEntry::make('name')

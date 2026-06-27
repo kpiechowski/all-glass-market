@@ -10,12 +10,7 @@ return [
         RoleEnum::Root->value => '*',
 
         RoleEnum::Admin->value => [
-            PermissionEnum::ViewAnyUser->value,
-            PermissionEnum::CreateUser->value,
-            PermissionEnum::UpdateAnyUser->value,
-            PermissionEnum::DeleteAnyUser->value,
-            PermissionEnum::ChangeAnyUserPassword->value,
-            PermissionEnum::AssignUserRole->value,
+            PermissionEnum::ManageUsers->value,
         ],
 
         RoleEnum::Client->value => [],

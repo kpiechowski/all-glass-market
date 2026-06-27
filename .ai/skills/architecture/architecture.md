@@ -45,6 +45,11 @@ Every module lives under `app/Modules/{Name}/` and follows this exact layout:
     Filament/
       Clusters/
       Pages/
+        Simple{Name}.php             ← flat file for simple standalone pages
+        Complex{Name}/               ← subfolder when page has extracted schemas
+          Complex{Name}.php
+          Schemas/
+            {Purpose}Form.php
       Resources/
         {Name}/
           Pages/
@@ -259,6 +264,35 @@ Filament auto-discovery is handled by the `DiscoverModuleFilament` trait on `Adm
 6. Pages call `$this->commandBus->send(...)` via `HasCommandBus`.
 7. Register event provider in the module service provider if needed.
 8. Run `dartisan migrate` and `vendor/bin/pint --dirty`.
+
+---
+
+## Filament-aware enums
+
+Any Domain `Enum` displayed in Filament columns, badges, or selects **must** implement the relevant Filament contracts. Never use inline `formatStateUsing` / `color(fn ...)` callbacks when the enum can own that information:
+
+| Contract    | Resolves              | Use when                                         |
+| ----------- | --------------------- | ------------------------------------------------ |
+| `HasLabel`  | Display text          | Any Select, TextColumn, or TextEntry badge       |
+| `HasColor`  | Badge / icon color    | Colored badges or icons                          |
+| `HasIcon`   | Heroicon name         | Icon columns or select option prefixes           |
+
+```php
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasLabel;
+
+enum StatusEnum: string implements HasColor, HasLabel
+{
+    case Active = 'active';
+
+    public function getLabel(): string { return __('module::resource.statuses.'.$this->value); }
+    public function getColor(): string|array|null { return 'success'; }
+}
+```
+
+With these contracts, `TextColumn::make('status')->badge()` and `Select::make('status')->options(StatusEnum::class)` resolve label and color automatically.
+
+**When building a module:** search existing Domain enums first before creating a new one for a similar concept.
 
 ---
 

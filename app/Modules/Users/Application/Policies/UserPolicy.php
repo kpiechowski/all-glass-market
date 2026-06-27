@@ -18,13 +18,13 @@ class UserPolicy
 
     public function assertCanUpdate(int|string $actorId, User $target): void
     {
-        // Self-update: no DB load, always allowed
+        // Self-update: always allowed, no DB load needed
         if ((string) $actorId === (string) $target->getKey()) {
             return;
         }
 
         $actor = $this->userRepository->findOrFail($actorId);
-        $this->permissionService->assertPermission($actor, PermissionEnum::UpdateAnyUser);
+        $this->permissionService->assertPermission($actor, PermissionEnum::ManageUsers);
     }
 
     public function assertCanChangePassword(int|string $actorId, User $target): void
@@ -35,24 +35,24 @@ class UserPolicy
         }
 
         $actor = $this->userRepository->findOrFail($actorId);
-        $this->permissionService->assertPermission($actor, PermissionEnum::ChangeAnyUserPassword);
+        $this->permissionService->assertPermission($actor, PermissionEnum::ManageUsers);
     }
 
     public function assertCanDelete(int|string $actorId, User $target): void
     {
         $actor = $this->userRepository->findOrFail($actorId);
-        $this->permissionService->assertPermission($actor, PermissionEnum::DeleteAnyUser);
+        $this->permissionService->assertPermission($actor, PermissionEnum::ManageUsers);
     }
 
     public function assertCanCreate(int|string $actorId): void
     {
         $actor = $this->userRepository->findOrFail($actorId);
-        $this->permissionService->assertPermission($actor, PermissionEnum::CreateUser);
+        $this->permissionService->assertPermission($actor, PermissionEnum::ManageUsers);
     }
 
     public function assertCanAssignRole(int|string $actorId): void
     {
         $actor = $this->userRepository->findOrFail($actorId);
-        $this->permissionService->assertPermission($actor, PermissionEnum::AssignUserRole);
+        $this->permissionService->assertPermission($actor, PermissionEnum::ManageUsers);
     }
 }
