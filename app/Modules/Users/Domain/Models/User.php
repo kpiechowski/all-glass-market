@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\Domain\Models;
 
+use App\Modules\Audit\Domain\Contracts\LoggableModel;
+use App\Modules\Audit\Domain\Traits\HasChangesLog;
 use App\Modules\Users\Domain\Enums\RoleEnum;
 use App\Modules\Users\Infrastructure\Factories\UserFactory;
+use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -24,10 +27,15 @@ use Illuminate\Notifications\Notifiable;
     // role is intentionally excluded — managed only via AssignUserRoleCommand
 ])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, LoggableModel
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasChangesLog, HasFactory, Notifiable;
+
+    /** @var array<string> Fields excluded from audit logging */
+    protected static array $notLoggable = [
+        'id', 'password', 'remember_token', 'created_at', 'updated_at', 'deleted_at',
+    ];
 
     protected static function newFactory(): UserFactory
     {
@@ -53,5 +61,25 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return in_array($this->role, [RoleEnum::Root, RoleEnum::Admin], strict: true);
+    }
+
+    public function getLoggableTitle(): string
+    {
+        return $this->name;
+    }
+
+    public function getLoggableResourceName(): string
+    {
+        return 'Użytkownik';
+    }
+
+    public function getLoggableUrl(): ?string
+    {
+        return UserResource::getUrl('view', ['record' => $this->getKey()]);
+    }
+
+    public function getLoggableIcon(): ?string
+    {
+        return 'heroicon-o-user';
     }
 }
