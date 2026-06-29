@@ -14,6 +14,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class UserJournalTable
 {
@@ -62,7 +63,7 @@ class UserJournalTable
                     ->icon('heroicon-o-check')
                     ->visible(fn (UserJournal $record): bool => ! $record->is_read)
                     ->action(fn (UserJournal $record) => app(CommandBus::class)->send(
-                        new MarkJournalReadCommand($record->id)
+                        new MarkJournalReadCommand($record->id, Auth::id())
                     )),
             ])
             ->defaultSort('created_at', 'desc');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users;
 
+use App\Modules\Audit\UserInterface\Filament\RelationManagers\ChangesLogsRelationManager;
 use App\Modules\Users\Domain\Models\User;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Pages\CreateUser;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Pages\EditUser;
@@ -54,7 +55,7 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ChangesLogsRelationManager::class,
         ];
     }
 

@@ -12,6 +12,7 @@ return [
             'loggable_title' => 'Obiekt',
             'user' => 'Użytkownik',
             'action' => 'Akcja',
+            'message' => 'Opis',
             'created_at' => 'Data',
         ],
 

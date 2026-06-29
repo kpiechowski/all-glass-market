@@ -8,5 +8,6 @@ readonly class MarkJournalReadCommand
 {
     public function __construct(
         public int $journalId,
+        public int $userId,
     ) {}
 }

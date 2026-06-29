@@ -70,7 +70,7 @@ class User extends Authenticatable implements FilamentUser, LoggableModel
 
     public function getLoggableResourceName(): string
     {
-        return 'Użytkownik';
+        return __('users::resource.label');
     }
 
     public function getLoggableUrl(): ?string
