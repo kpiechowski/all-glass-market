@@ -1,7 +1,9 @@
 # Refactor Plan — AllGlass V1 → V2
 
 **Goal:** Port V1 monolith at `/home/kp/laravel/projekty/AllGlass/` to V2 DDD+CQRS architecture.
-**Rules:** See `architecture.md`. Never copy V1 code verbatim — understand it, then rewrite.
+**Rules:** See the architecture skills in `.claude/skills/` (`module-layout` first). Never copy V1 code verbatim — understand it, then rewrite.
+
+> **Archive.** This file and `.ai/modules/` are input for a future grilling session that will rework the port into tickets — including where V1 should be redesigned rather than ported. The five-step workflow below is superseded by the skills above; the phase order and boundary decisions still hold.
 
 ---
 
