@@ -1,0 +1,22 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{RootNamespace}}\{{ModuleName}}\Domain\Policies;
+
+use {{RootNamespace}}\{{ModuleName}}\Domain\Models\{{SingularName}};
+
+/**
+ * Business rules, asked by handlers before they act. Not Laravel authorization —
+ * that is Application/Policies.
+ *
+ * Pure: no repositories, no I/O. It receives everything it judges, which is what
+ * makes it testable without a database. Methods read as questions and return bool.
+ */
+final class {{SingularName}}DomainPolicy
+{
+    public function canBeDeleted({{SingularName}} $model): bool
+    {
+        return true;
+    }
+}

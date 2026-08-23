@@ -2,17 +2,28 @@
 
 declare(strict_types=1);
 
-namespace {{RootNamespace}}\{{ModuleName}}\Domain\Mappers;
+namespace {{RootNamespace}}\{{ModuleName}}\Infrastructure\Mappers;
 
+/**
+ * Translates between this integration's external payloads and our own shapes.
+ *
+ * Infrastructure, not Domain: the shape on one side is dictated by a foreign
+ * system, and nothing about that system may leak past this class.
+ */
 class {{SingularName}}Mapper
 {
-    // Map a domain model to the external API payload.
+    /**
+     * @return array<string, mixed>
+     */
     public function toApi(mixed $model): array
     {
         return [];
     }
 
-    // Map an external API response to domain/DTO data.
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
     public function fromApi(array $data): array
     {
         return [];

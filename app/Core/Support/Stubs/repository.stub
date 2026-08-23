@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace {{RootNamespace}}\{{ModuleName}}\Domain\Repositories;
 
-use {{RootNamespace}}\{{ModuleName}}\Domain\Models\{{SingularName}};
-use App\Core\Abstracts\ModelRepository;
+use App\Core\Contracts\Repository;
 
-class {{SingularName}}Repository extends ModelRepository
+/**
+ * The port. Add methods named in domain language — activeForVehicle(),
+ * pendingReview() — never a query builder. Handlers type-hint this interface.
+ */
+interface {{SingularName}}Repository extends Repository
 {
-    protected function getModel(): string
-    {
-        return {{SingularName}}::class;
-    }
+    //
 }

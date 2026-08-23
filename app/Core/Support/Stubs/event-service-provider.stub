@@ -6,7 +6,7 @@ namespace {{RootNamespace}}\{{ModuleName}}\Application\Providers;
 
 use App\Core\Abstracts\CoreEventServiceProvider;
 use {{RootNamespace}}\{{ModuleName}}\Domain\Models\{{SingularName}};
-use {{RootNamespace}}\{{ModuleName}}\Domain\Observers\{{SingularName}}Observer;
+use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence\Observers\{{SingularName}}Observer;
 
 class {{ModuleName}}EventServiceProvider extends CoreEventServiceProvider
 {

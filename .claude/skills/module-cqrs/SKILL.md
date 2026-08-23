@@ -125,5 +125,4 @@ Domain exceptions live in `Domain/Exceptions/`. Let them surface; Filament rende
 ## Migration status
 
 - **Users and Audit** handlers type-hint concrete repositories, because the ports do not exist yet (`module-persistence`). Once the port keeps the domain name, the type-hints stay as they are.
-- **No domain policies exist yet.** Rules currently live inline in handlers. New work uses `Domain/Policies/`.
-- **`make:module`** does not scaffold `Domain/Policies/`; create it by hand.
+- **No domain policies exist yet** in Users or Audit — rules live inline in handlers. New modules get a `{Name}DomainPolicy` stub from `make:module`.

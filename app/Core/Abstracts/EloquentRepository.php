@@ -4,27 +4,28 @@ declare(strict_types=1);
 
 namespace App\Core\Abstracts;
 
+use App\Core\Contracts\Repository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * @deprecated Superseded by App\Core\Contracts\Repository (port) plus
- *             App\Core\Abstracts\EloquentRepository (adapter). Kept only until
- *             Users and Audit are migrated; do not extend it in new code.
+ * Eloquent adapter base for repository ports.
  *
- * Eloquent-backed base repository.
+ * Concrete adapters live in a module's Infrastructure/Persistence/, implement
+ * that module's port and only declare the model class:
  *
- * Concrete repositories only need to declare the model class:
- *
- *   protected function getModel(): string
+ *   final class EloquentOfferRepository extends EloquentRepository implements OfferRepository
  *   {
- *       return Post::class;
+ *       protected function getModel(): string
+ *       {
+ *           return Offer::class;
+ *       }
  *   }
  *
- * All methods return the concrete model type due to Eloquent's generic support.
+ * Bind port to adapter in the module service provider's $containerBindings.
  */
-abstract class ModelRepository
+abstract class EloquentRepository implements Repository
 {
     private Model $model;
 
@@ -33,17 +34,16 @@ abstract class ModelRepository
         $this->model = app()->make($this->getModel());
     }
 
+    abstract protected function getModel(): string;
+
     /**
-     * Entry point for custom queries. Use in subclasses or service layer:
-     *
-     *   $this->query()->where('active', true)->get();
+     * Query entry point for adapter methods. Protected on purpose: the port
+     * exposes named domain queries, never a builder.
      */
-    public function query(): Builder
+    protected function query(): Builder
     {
         return $this->model->newQuery();
     }
-
-    abstract protected function getModel(): string;
 
     public function find(int|string $id): ?Model
     {
@@ -63,11 +63,17 @@ abstract class ModelRepository
         return $this->query()->get();
     }
 
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
     public function create(array $attributes): Model
     {
         return $this->query()->create($attributes);
     }
 
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
     public function update(Model $model, array $attributes): Model
     {
         $model->update($attributes);

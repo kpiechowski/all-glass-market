@@ -125,6 +125,6 @@ A Filament class may call a repository's read method. It may never call `create`
 
 The target above is not yet reality. **Where this skill and existing code disagree, this skill wins.**
 
-- **`Core\Contracts\Repository` and `Core\Abstracts\EloquentRepository` do not exist yet.** Today there is `Core\Abstracts\ModelRepository`, a concrete Eloquent base with a *public* `query()`. Splitting it into the contract plus the adapter base — with `query()` made `protected` — is the first step of the migration.
-- **Users and Audit** have concrete repositories in `Domain/Repositories/` extending `ModelRepository`, with no port and no binding. Because the port keeps the domain name, migrating them moves files and adds bindings without touching a single handler.
-- **`make:module`** still scaffolds `Domain/Repositories` for implementations and `Domain/Observers`, and its `repository.stub` and `observer.stub` target the old layout. Place new files per this skill anyway.
+- **`Core\Contracts\Repository`, `Core\Abstracts\EloquentRepository` and `make:module` are done** — a scaffolded module gets the port, the `Eloquent…` adapter, observers under `Infrastructure/Persistence/Observers/` and the binding already wired.
+- **`Core\Abstracts\ModelRepository` is deprecated** and kept only until the two modules below are migrated. Never extend it in new code.
+- **Users and Audit** still have concrete repositories in `Domain/Repositories/` extending `ModelRepository`, with no port and no binding. Because the port keeps the domain name, migrating them moves files and adds bindings without touching a single handler.

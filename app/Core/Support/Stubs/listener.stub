@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 namespace {{RootNamespace}}\{{ModuleName}}\Application\Listeners;
 
-class {{SingularName}}DomainEventListener
+/**
+ * Reacts to one event and does one thing. Two unrelated reactions to the same
+ * event are two listeners. Wire it in the module's event service provider.
+ *
+ * Type-hint the concrete event class instead of object once it exists.
+ */
+class {{SingularName}}EventListener
 {
     public function handle(object $event): void
     {

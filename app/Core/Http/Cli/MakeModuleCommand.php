@@ -15,7 +15,7 @@ class MakeModuleCommand extends Command
         {--namespace=App\Modules : Root namespace where the module will live}
         {--singular= : Singular entity name used for Model/Observer/Repository (defaults to Str::singular of name)}';
 
-    protected $description = 'Scaffold a new DDD module with full folder structure and starter files';
+    protected $description = 'Scaffold a new ports & adapters module with full folder structure and starter files';
 
     private string $moduleName;
 
@@ -36,7 +36,7 @@ class MakeModuleCommand extends Command
         $this->moduleName = $this->argument('name');
         $this->singularName = $this->option('singular') ?: Str::studly(Str::singular($this->moduleName));
         $this->rootNamespace = rtrim($this->option('namespace'), '\\');
-        $this->basePath = $this->resolveBasePath($this->rootNamespace) . DIRECTORY_SEPARATOR . $this->moduleName;
+        $this->basePath = $this->resolveBasePath($this->rootNamespace).DIRECTORY_SEPARATOR.$this->moduleName;
 
         $this->info("Scaffolding module : <fg=cyan>{$this->moduleName}</>");
         $this->info("Singular entity    : <fg=cyan>{$this->singularName}</>");
@@ -51,7 +51,7 @@ class MakeModuleCommand extends Command
         }
 
         // ── Feature selection ────────────────────────────────────────────────
-        $this->withModels = $this->confirm('Include domain models, migrations, observers, factories and repositories?', true);
+        $this->withModels = $this->confirm('Include domain models, migrations, factories, observers and repository port + adapter?', true);
         $this->withTranslations = $this->confirm('Include translations (UserInterface/resources/lang)?', false);
         $this->withEventProvider = $this->confirm('Include event service provider?', true);
 
@@ -62,7 +62,8 @@ class MakeModuleCommand extends Command
 
         $this->newLine();
         $this->info("<fg=green>Module [{$this->moduleName}] scaffolded successfully.</>");
-        $this->info("<fg=green>Proceed with Filament resource using </> php artisan make:filament-resource {$this->singularName} --generate --model-namespace=\"{$this->rootNamespace}\\{$this->moduleName}\\Domain\\Models\"");
+        $this->info("<fg=green>Proceed with Filament resource using </> dartisan make:filament-resource {$this->singularName} --generate --model-namespace=\"{$this->rootNamespace}\\{$this->moduleName}\\Domain\\Models\"");
+        $this->line('  Then move it under UserInterface/Filament/Resources/ — see the module-layout skill.');
 
         return self::SUCCESS;
     }
@@ -74,14 +75,16 @@ class MakeModuleCommand extends Command
     private function createDirectories(): void
     {
         $dirs = [
-            // Application layer
+            // Application layer — what the system does
             'Application/Commands',
+            'Application/Listeners',
             'Application/Providers',
             'Application/Queries',
             'Application/Services',
-            // Domain layer (always present)
+            // Domain layer (always present) — what the thing is
             'Domain/Enums',
             'Domain/Events',
+            'Domain/Exceptions',
             'Domain/ValueObjects',
             // Filament PHP classes — must exist for panel auto-discovery and make:filament-* targeting
             'UserInterface/Filament/Clusters',
@@ -95,15 +98,15 @@ class MakeModuleCommand extends Command
         if ($this->withModels) {
             array_push(
                 $dirs,
-                'Domain/Dto',
-                'Domain/Listeners',
+                'Application/Dto',
                 'Domain/Models',
-                'Domain/Observers',
+                'Domain/Policies',
                 'Domain/Repositories',
                 'Domain/Traits',
                 'Infrastructure/config',
                 'Infrastructure/Factories',
                 'Infrastructure/migrations',
+                'Infrastructure/Persistence/Observers',
                 'Infrastructure/Seeders',
             );
         }
@@ -113,9 +116,9 @@ class MakeModuleCommand extends Command
         }
 
         foreach ($dirs as $dir) {
-            $fullPath = $this->basePath . DIRECTORY_SEPARATOR . $dir;
+            $fullPath = $this->basePath.DIRECTORY_SEPARATOR.$dir;
             File::makeDirectory($fullPath, 0755, true, true);
-            File::put($fullPath . '/.gitkeep', '');
+            File::put($fullPath.'/.gitkeep', '');
         }
 
         $this->line('  <fg=green>✓</> Directory structure created.');
@@ -134,9 +137,11 @@ class MakeModuleCommand extends Command
 
         if ($this->withModels) {
             $files["Domain/Models/{$this->singularName}.php"] = 'model.stub';
-            $files["Domain/Observers/{$this->singularName}Observer.php"] = 'observer.stub';
+            $files["Domain/Policies/{$this->singularName}DomainPolicy.php"] = 'domain-policy.stub';
             $files["Domain/Repositories/{$this->singularName}Repository.php"] = 'repository.stub';
             $files["Infrastructure/Factories/{$this->singularName}Factory.php"] = 'factory.stub';
+            $files["Infrastructure/Persistence/Eloquent{$this->singularName}Repository.php"] = 'eloquent-repository.stub';
+            $files["Infrastructure/Persistence/Observers/{$this->singularName}Observer.php"] = 'observer.stub';
         }
 
         if ($this->withEventProvider) {
@@ -150,9 +155,9 @@ class MakeModuleCommand extends Command
 
     private function writeFromStub(string $stubName, string $relativePath): void
     {
-        $stubFile = __DIR__ . '/../../Support/Stubs/' . $stubName;
+        $stubFile = __DIR__.'/../../Support/Stubs/'.$stubName;
 
-        if (!File::exists($stubFile)) {
+        if (! File::exists($stubFile)) {
             $this->warn("  Stub not found – skipping: {$stubName}");
 
             return;
@@ -179,9 +184,22 @@ class MakeModuleCommand extends Command
         $content = str_replace('{{EventProviderImports}}', $eventImport, $content);
         $content = str_replace('{{EventProviders}}', $eventProviders, $content);
 
-        $targetPath = $this->basePath . DIRECTORY_SEPARATOR . $relativePath;
+        // Port → adapter binding, only when the module has models
+        $moduleNamespace = "{$this->rootNamespace}\\{$this->moduleName}";
+        $bindingImports = $this->withModels
+            ? "use {$moduleNamespace}\\Domain\\Repositories\\{$this->singularName}Repository;\n"
+            ."use {$moduleNamespace}\\Infrastructure\\Persistence\\Eloquent{$this->singularName}Repository;\n"
+            : '';
+        $containerBindings = $this->withModels
+            ? "\n        {$this->singularName}Repository::class => Eloquent{$this->singularName}Repository::class,\n    "
+            : '';
 
-        $gitkeep = dirname($targetPath) . '/.gitkeep';
+        $content = str_replace('{{BindingImports}}', $bindingImports, $content);
+        $content = str_replace('{{ContainerBindings}}', $containerBindings, $content);
+
+        $targetPath = $this->basePath.DIRECTORY_SEPARATOR.$relativePath;
+
+        $gitkeep = dirname($targetPath).'/.gitkeep';
         if (File::exists($gitkeep)) {
             File::delete($gitkeep);
         }
@@ -215,7 +233,7 @@ class MakeModuleCommand extends Command
         if ($parts[0] === 'Modules') {
             $relative = implode(DIRECTORY_SEPARATOR, array_slice($parts, 1));
 
-            return $relative === '' ? app_path('Modules') : app_path('Modules' . DIRECTORY_SEPARATOR . $relative);
+            return $relative === '' ? app_path('Modules') : app_path('Modules'.DIRECTORY_SEPARATOR.$relative);
         }
 
         return base_path(implode(DIRECTORY_SEPARATOR, $parts));

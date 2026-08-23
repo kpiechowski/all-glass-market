@@ -1,0 +1,20 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence;
+
+use App\Core\Abstracts\EloquentRepository;
+use {{RootNamespace}}\{{ModuleName}}\Domain\Models\{{SingularName}};
+use {{RootNamespace}}\{{ModuleName}}\Domain\Repositories\{{SingularName}}Repository;
+
+/**
+ * The adapter. Implement the port's domain queries here using $this->query().
+ */
+final class Eloquent{{SingularName}}Repository extends EloquentRepository implements {{SingularName}}Repository
+{
+    protected function getModel(): string
+    {
+        return {{SingularName}}::class;
+    }
+}

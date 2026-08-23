@@ -174,7 +174,7 @@ The layout above is the target. Existing code predates it — **where this skill
 
 Not yet migrated:
 
-- **`make:module`** scaffolds `Domain/Repositories`, `Domain/Listeners`, `Domain/Observers` and `Domain/Dto`. Place new files per this skill regardless; the command and its stubs still need updating.
-- **`App\Core\Abstracts\ModelRepository`** is a concrete Eloquent base class. The target is `Core\Abstracts\EloquentRepository`, extended by adapters in `Infrastructure/Persistence/`.
-- **Users, Audit** — repositories are concrete classes in `Domain/Repositories/`, with no port. Audit's listeners are already correctly in `Application/Listeners/`; its observers still need moving.
+- **`make:module` and the Core abstracts match this skill.** A scaffolded module gets the repository port, its `Eloquent…` adapter, the container binding, `Domain/Policies/`, `Application/Listeners/`, `Application/Dto/` and observers under `Infrastructure/Persistence/Observers/`.
+- **`App\Core\Abstracts\ModelRepository` is deprecated**, kept only until the two modules below are migrated. New adapters extend `Core\Abstracts\EloquentRepository` and implement a port extending `Core\Contracts\Repository`.
+- **Users, Audit** — repositories are still concrete classes in `Domain/Repositories/`, with no port. Audit's listeners are already correctly in `Application/Listeners/`; its observers still need moving.
 - Neither module has tests yet. See `module-testing`.

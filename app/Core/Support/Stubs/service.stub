@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 namespace {{RootNamespace}}\{{ModuleName}}\Application\Services;
 
+/**
+ * Orchestration for work no user directly triggered, and this module's front
+ * door for other modules.
+ *
+ * Expose named operations, not data: a method other modules call should close
+ * the invariant it owns and dispatch a command, so there is one write path.
+ * Used only inside this module's own handlers, it may call repositories directly.
+ */
 class {{ModuleName}}Service
 {
     public function __construct()

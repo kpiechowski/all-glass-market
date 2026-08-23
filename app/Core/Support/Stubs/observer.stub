@@ -2,86 +2,31 @@
 
 declare(strict_types=1);
 
-namespace {{RootNamespace}}\{{ModuleName}}\Domain\Observers;
+namespace {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence\Observers;
 
 use {{RootNamespace}}\{{ModuleName}}\Domain\Models\{{SingularName}};
 
+/**
+ * Adapter between the ORM lifecycle and the domain. Keep it thin: dispatch a
+ * domain event and let a listener do the work. Never resolve a service here —
+ * that welds business logic to save() where nothing can test it.
+ *
+ * Other hooks are available (creating, updating, saving, restored,
+ * forceDeleted…); add only the ones this model actually needs.
+ */
 class {{SingularName}}Observer
 {
-    /** Fires after a model is retrieved from the database. */
-    public function retrieved({{SingularName}} $model): void
-    {
-        //
-    }
-
-    /** Fires before a model is created. */
-    public function creating({{SingularName}} $model): void
-    {
-        //
-    }
-
-    /** Fires after a model is created. */
     public function created({{SingularName}} $model): void
     {
         //
     }
 
-    /** Fires before a model is updated. */
-    public function updating({{SingularName}} $model): void
-    {
-        //
-    }
-
-    /** Fires after a model is updated. */
     public function updated({{SingularName}} $model): void
     {
         //
     }
 
-    /** Fires before a model is created or updated. */
-    public function saving({{SingularName}} $model): void
-    {
-        //
-    }
-
-    /** Fires after a model is created or updated. */
-    public function saved({{SingularName}} $model): void
-    {
-        //
-    }
-
-    /** Fires before a model is deleted or soft-deleted. */
-    public function deleting({{SingularName}} $model): void
-    {
-        //
-    }
-
-    /** Fires after a model is deleted or soft-deleted. */
     public function deleted({{SingularName}} $model): void
-    {
-        //
-    }
-
-    /** Fires before a soft-deleted model is restored. */
-    public function restoring({{SingularName}} $model): void
-    {
-        //
-    }
-
-    /** Fires after a soft-deleted model is restored. */
-    public function restored({{SingularName}} $model): void
-    {
-        //
-    }
-
-    /** Fires before a model is permanently deleted (force delete). */
-    public function forceDeleting({{SingularName}} $model): void
-    {
-        //
-    }
-
-    /** Fires after a model is permanently deleted (force delete). */
-    public function forceDeleted({{SingularName}} $model): void
     {
         //
     }
