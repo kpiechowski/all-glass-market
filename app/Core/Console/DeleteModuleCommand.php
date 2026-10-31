@@ -20,21 +20,21 @@ class DeleteModuleCommand extends Command
     {
         $name = $this->argument('name');
         $namespace = rtrim($this->option('namespace'), '\\');
-        $basePath = $this->resolveBasePath($namespace) . DIRECTORY_SEPARATOR . $name;
+        $basePath = $this->resolveBasePath($namespace).DIRECTORY_SEPARATOR.$name;
 
-        if (!File::exists($basePath)) {
+        if (! File::exists($basePath)) {
             $this->error("Module [{$name}] not found at [{$basePath}].");
 
             return self::FAILURE;
         }
 
-        if (!$this->option('force')) {
+        if (! $this->option('force')) {
             $confirmed = $this->confirm(
                 "This will permanently delete [{$basePath}] and everything inside. Continue?",
                 false
             );
 
-            if (!$confirmed) {
+            if (! $confirmed) {
                 $this->info('Aborted.');
 
                 return self::SUCCESS;
@@ -67,7 +67,7 @@ class DeleteModuleCommand extends Command
         if ($parts[0] === 'Modules') {
             $relative = implode(DIRECTORY_SEPARATOR, array_slice($parts, 1));
 
-            return $relative === '' ? app_path('Modules') : app_path('Modules' . DIRECTORY_SEPARATOR . $relative);
+            return $relative === '' ? app_path('Modules') : app_path('Modules'.DIRECTORY_SEPARATOR.$relative);
         }
 
         return base_path(implode(DIRECTORY_SEPARATOR, $parts));

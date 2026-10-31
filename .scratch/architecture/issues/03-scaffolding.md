@@ -1,6 +1,6 @@
 # 03 - make:module, make:integration and stubs match the architecture
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 02
 
 `make:module` and `make:integration` generate exactly the layout in `module-layout`. Agents copy what the scaffold shows, so a wrong stub turns into a wrong module.
@@ -15,3 +15,16 @@ Blocked by: 02
 ## Done when
 
 `dartisan make:module Sandbox --no-interaction` produces a module that passes `composer check` (once ticket 04 lands) and `dartisan test`. Delete it afterwards with `dartisan delete:module` or by hand.
+
+## Answer
+
+Implemented by a subagent, verified 2026-10-31. A generated module plus integration pass the full `composer check` (105 tests, 0 deptrac violations). `ScaffoldCommandsTest` regenerates both and runs their tests, deptrac and `tests/Unit/Architecture`.
+
+Decisions taken during implementation:
+- No empty folders. The scaffold generates only files that carry content, following `module-layout`.
+- No command or handler exemplar. A handler needs an `Authorizer` binding, which arrives with ticket 05.
+- `make:module` no longer prompts.
+- The integration payload mapper is `{X}PayloadMapper`, so it never clashes with the entity `{X}Mapper`.
+- `ModuleServiceProvider::registerMorphMap` scans `Infrastructure/Persistence/Models` (key without the `Model` suffix) as well as `Domain/Models`. Drop `Domain/Models` after tickets 05 and 06.
+
+Follow-up for ticket 05: once the Authorizer exists, consider adding a command and handler exemplar with its test to the scaffold.

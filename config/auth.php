@@ -2,7 +2,6 @@
 
 use App\Modules\Users\Domain\Models\User;
 
-
 return [
 
     /*

@@ -1,0 +1,28 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{RootNamespace}}\{{ModuleName}}\Infrastructure\Mappers;
+
+/**
+ * Translates between our values and the external platform's payloads, so the
+ * foreign shape never leaves this class.
+ */
+final class {{SingularName}}PayloadMapper
+{
+    /**
+     * @return array<string, mixed>
+     */
+    public function toPayload(string $name): array
+    {
+        return ['title' => $name];
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    public function fromPayload(array $payload): string
+    {
+        return $payload['title'];
+    }
+}

@@ -58,7 +58,7 @@ Create a module with `dartisan make:module {Name} --no-interaction`; the scaffol
 | Something another module needs to do or ask | `Application/ModuleApi/` | see below |
 | Value with format rules, no identity | `Domain/ValueObjects/` | validates in its constructor |
 | Data returned across a module boundary | DTO beside the `ModuleApi` class | ids and values, never entities or models |
-| Payload shaped by an external API | `Integrations/{Name}/Infrastructure/Mappers/` | foreign shape stays at the edge |
+| Payload shaped by an external API | `Integrations/{Name}/Infrastructure/Mappers/{X}PayloadMapper` | foreign shape stays at the edge |
 | Background work | `Application/Jobs/` | dispatches a command |
 | Artisan command | `UserInterface/Console/` | builds and dispatches a command |
 

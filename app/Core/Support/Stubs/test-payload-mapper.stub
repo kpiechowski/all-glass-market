@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Unit\{{TestArea}}\{{ModuleName}}\Infrastructure\Mappers;
+
+use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Mappers\{{SingularName}}PayloadMapper;
+use PHPUnit\Framework\TestCase;
+
+class {{SingularName}}PayloadMapperTest extends TestCase
+{
+    public function test_a_value_survives_the_round_trip_through_the_payload_shape(): void
+    {
+        $mapper = new {{SingularName}}PayloadMapper;
+
+        $this->assertSame('gear', $mapper->fromPayload($mapper->toPayload('gear')));
+    }
+}

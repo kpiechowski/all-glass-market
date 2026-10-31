@@ -1,0 +1,22 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Unit\{{TestArea}}\{{ModuleName}}\Domain\Policies;
+
+use {{RootNamespace}}\{{ModuleName}}\Domain\Policies\{{SingularName}}DomainPolicy;
+use PHPUnit\Framework\TestCase;
+
+class {{SingularName}}DomainPolicyTest extends TestCase
+{
+    public function test_a_name_with_text_is_valid(): void
+    {
+        $this->assertTrue({{SingularName}}DomainPolicy::isValidName('gear'));
+    }
+
+    public function test_an_empty_or_whitespace_name_is_invalid(): void
+    {
+        $this->assertFalse({{SingularName}}DomainPolicy::isValidName(''));
+        $this->assertFalse({{SingularName}}DomainPolicy::isValidName('   '));
+    }
+}

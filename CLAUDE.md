@@ -11,7 +11,7 @@ Runs on Laradock PHP 8.5: **Artisan is `dartisan`**, never `php artisan`.
 | **Domain** | entities, repository ports, domain policies, events, exceptions, enums | Core contracts only |
 | **Application** | commands + handlers, `ModuleApi/`, internal services, listeners, jobs | Domain |
 | **Infrastructure** | Eloquent models, mappers, repository adapters, `{X}Queries`, observers, migrations, factories | Domain |
-| **UserInterface** | Filament, HTTP, Console — the driving adapters | Application via the bus, Domain policies/enums, and **read-only** models + `{X}Queries` |
+| **UserInterface** | Filament, HTTP, Console — the driving adapters | Application commands, queries and `ModuleApi`; Domain policies/enums; **read-only** models + `{X}Queries` |
 
 ## Golden rules
 

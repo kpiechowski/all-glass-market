@@ -56,8 +56,6 @@ class ProfileForm
                             ->live()
                             ->columnSpanFull(),
 
-                        
-
                         Grid::make(2)
                             ->visible(fn (Get $get): bool => (bool) $get('company_account'))
                             ->schema([
@@ -96,8 +94,6 @@ class ProfileForm
                             ->label(__('users::profile.fields.has_accepted_terms'))
                             ->visible(fn (Get $get): bool => (bool) $get('company_account'))
                             ->columnSpanFull(),
-
-                        
 
                         RichEditor::make('shipping_note')
                             ->label(__('users::profile.fields.shipping_note'))

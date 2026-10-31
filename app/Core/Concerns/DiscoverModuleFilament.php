@@ -18,18 +18,18 @@ trait DiscoverModuleFilament
     {
         $root = app_path($this->modulesPath);
 
-        if (!is_dir($root)) {
+        if (! is_dir($root)) {
             return;
         }
 
         foreach (glob("{$root}/*/UserInterface/Filament", GLOB_ONLYDIR) as $base) {
-            $relative = str_replace(app_path() . '/', '', $base);
-            $ns = 'App\\' . str_replace('/', '\\', $relative);
+            $relative = str_replace(app_path().'/', '', $base);
+            $ns = 'App\\'.str_replace('/', '\\', $relative);
 
             foreach (['Resources', 'Pages', 'Widgets', 'Clusters'] as $type) {
                 $dir = "{$base}/{$type}";
 
-                if (!is_dir($dir)) {
+                if (! is_dir($dir)) {
                     continue;
                 }
 

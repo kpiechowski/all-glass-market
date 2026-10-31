@@ -1,0 +1,23 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence\Mappers;
+
+use App\Core\Contracts\Mapper;
+use {{RootNamespace}}\{{ModuleName}}\Domain\Entities\{{SingularName}};
+use Illuminate\Database\Eloquent\Model;
+
+/** @implements Mapper<{{SingularName}}> */
+final class {{SingularName}}Mapper implements Mapper
+{
+    public function toEntity(Model $model): {{SingularName}}
+    {
+        return {{SingularName}}::reconstitute($model->id, $model->name);
+    }
+
+    public function toRow(object $entity): array
+    {
+        return ['name' => $entity->name()];
+    }
+}

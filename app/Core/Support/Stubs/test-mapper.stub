@@ -1,0 +1,25 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature\{{TestArea}}\{{ModuleName}}\Infrastructure\Persistence\Mappers;
+
+use {{RootNamespace}}\{{ModuleName}}\Domain\Entities\{{SingularName}};
+use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Factories\{{SingularName}}ModelFactory;
+use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence\Mappers\{{SingularName}}Mapper;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class {{SingularName}}MapperTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_an_entity_survives_the_round_trip_through_a_model(): void
+    {
+        $mapper = new {{SingularName}}Mapper;
+
+        $model = {{SingularName}}ModelFactory::new()->create($mapper->toRow({{SingularName}}::create('gear')));
+
+        $this->assertEquals({{SingularName}}::reconstitute($model->id, 'gear'), $mapper->toEntity($model));
+    }
+}

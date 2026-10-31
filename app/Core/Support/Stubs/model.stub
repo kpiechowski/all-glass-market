@@ -2,26 +2,23 @@
 
 declare(strict_types=1);
 
-namespace {{RootNamespace}}\{{ModuleName}}\Domain\Models;
+namespace {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence\Models;
 
-use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Factories\{{SingularName}}Factory;
+use App\Core\Infrastructure\Persistence\ReadOnlyModel;
+use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Factories\{{SingularName}}ModelFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-#[Fillable([])]
-class {{SingularName}} extends Model
+#[Fillable(['name'])]
+final class {{SingularName}}Model extends ReadOnlyModel
 {
-    /** @use HasFactory<{{SingularName}}Factory> */
+    /** @use HasFactory<{{SingularName}}ModelFactory> */
     use HasFactory;
 
-    protected static function newFactory(): {{SingularName}}Factory
-    {
-        return {{SingularName}}Factory::new();
-    }
+    protected $table = '{{Table}}';
 
-    protected function casts(): array
+    protected static function newFactory(): {{SingularName}}ModelFactory
     {
-        return [];
+        return {{SingularName}}ModelFactory::new();
     }
 }

@@ -1,0 +1,20 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{RootNamespace}}\{{ModuleName}}\Domain\Enums;
+
+use App\Core\Contracts\Permission;
+use Filament\Support\Contracts\HasLabel;
+
+enum {{ModuleName}}Permission: string implements HasLabel, Permission
+{
+    case Manage = '{{ModuleSnake}}.manage';
+
+    public function getLabel(): string
+    {
+        return match ($this) {
+            self::Manage => __('{{ModuleSnake}}::enums.{{ModuleSnake}}_permission.manage'),
+        };
+    }
+}

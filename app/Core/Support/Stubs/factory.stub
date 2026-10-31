@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace {{RootNamespace}}\{{ModuleName}}\Infrastructure\Factories;
 
-use {{RootNamespace}}\{{ModuleName}}\Domain\Models\{{SingularName}};
-use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Core\Infrastructure\Factories\ModelFactory;
+use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence\Models\{{SingularName}}Model;
 
-/** @extends Factory<{{SingularName}}> */
-class {{SingularName}}Factory extends Factory
+/** @extends ModelFactory<{{SingularName}}Model> */
+final class {{SingularName}}ModelFactory extends ModelFactory
 {
-    protected $model = {{SingularName}}::class;
+    protected $model = {{SingularName}}Model::class;
 
     public function definition(): array
     {
-        return [];
+        return ['name' => fake()->unique()->word()];
     }
 }

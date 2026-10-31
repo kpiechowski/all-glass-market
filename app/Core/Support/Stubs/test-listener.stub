@@ -1,0 +1,22 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Unit\{{TestArea}}\{{ModuleName}}\Application\Listeners;
+
+use {{RootNamespace}}\{{ModuleName}}\Application\Listeners\{{SingularName}}EventListener;
+use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
+use PHPUnit\Framework\TestCase;
+use stdClass;
+
+class {{SingularName}}EventListenerTest extends TestCase
+{
+    public function test_it_runs_after_commit_and_accepts_an_event(): void
+    {
+        $listener = new {{SingularName}}EventListener;
+
+        $listener->handle(new stdClass);
+
+        $this->assertInstanceOf(ShouldHandleEventsAfterCommit::class, $listener);
+    }
+}

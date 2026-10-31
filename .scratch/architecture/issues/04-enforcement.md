@@ -1,6 +1,6 @@
 # 04 - deptrac, test-presence check and composer check
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 02
 
 Turn the rules into failing checks, so agents verify their own work.
@@ -23,3 +23,12 @@ Turn the rules into failing checks, so agents verify their own work.
 ## Done when
 
 `composer check` passes on the current tree. A deliberate violation (UI importing a repository, a handler without a test) fails it, and each is shown in the ticket comments.
+
+## Answer
+
+Implemented by a subagent, verified 2026-10-31. `composer check` = pint --test → deptrac → phpunit (test presence and module boundaries run inside phpunit, `tests/Unit/Architecture`).
+
+- Deptrac layers are per module by path regex. UserInterface may use only `ApplicationEntry` (Commands, Queries, ModuleApi), and never the `DB` facade or raw query classes. `Illuminate\Http\Client` is allowed in Infrastructure only.
+- The cross-module rule is a PHPUnit scanner (`tests/Architecture/ModuleBoundaryScanner.php`). Deptrac cannot express "own module free, other module only through allowed parts".
+- Baselines: `deptrac-baseline.yaml` (35), `tests/Architecture/baselines/{module-boundaries,test-presence}.php`. A stale baseline entry fails its test. Core's `CreateRootCommand` importing Users is baselined too and must go when it moves.
+- Verified probes: UI importing a repository fails, UI importing an `Application/Services` class fails, UI using `DB::table()` fails, Domain importing a Filament component fails, Domain using the HTTP client fails, a handler without a test fails.

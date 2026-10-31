@@ -8,12 +8,11 @@ use App\Core\Abstracts\CoreEventServiceProvider;
 
 class {{ModuleName}}EventServiceProvider extends CoreEventServiceProvider
 {
-    // Register listeners for domain events this integration reacts to.
-    // Integration modules subscribe to domain events; they never publish back.
+    // An integration listens to domain events and never publishes back.
+    // Wire a listener once the module that emits the event exists:
     //
-    // Example:
-    //   \App\Modules\Offers\Domain\Events\OfferUpdatedEvent::class => [
-    //       \{{RootNamespace}}\{{ModuleName}}\Application\Listeners\{{SingularName}}DomainEventListener::class,
+    //   \App\Modules\Offers\Domain\Events\OfferActivated::class => [
+    //       \{{RootNamespace}}\{{ModuleName}}\Application\Listeners\{{SingularName}}EventListener::class,
     //   ],
     protected $listen = [];
 

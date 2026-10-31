@@ -8,9 +8,7 @@ use App\Core\Providers\ModuleServiceProvider;
 {{EventProviderImports}}{{BindingImports}}
 class {{ModuleName}}ModuleServiceProvider extends ModuleServiceProvider
 {
-    protected bool $loadsMigrations = {{LoadsMigrations}};
-
-    protected bool $loadsTranslations = {{LoadsTranslations}};
+    protected bool $loadsTranslations = true;
 
     /** @var array<class-string> */
     protected array $eventProviders = [{{EventProviders}}];

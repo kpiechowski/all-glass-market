@@ -1,0 +1,53 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{RootNamespace}}\{{ModuleName}}\Domain\Entities;
+
+use {{RootNamespace}}\{{ModuleName}}\Domain\Exceptions\{{SingularName}}NameIsBlank;
+use {{RootNamespace}}\{{ModuleName}}\Domain\Policies\{{SingularName}}DomainPolicy;
+
+final class {{SingularName}}
+{
+    private function __construct(
+        private ?int $id,
+        private string $name,
+    ) {}
+
+    public static function create(string $name): self
+    {
+        self::guardName($name);
+
+        return new self(null, $name);
+    }
+
+    /** @internal for the mapper */
+    public static function reconstitute(int $id, string $name): self
+    {
+        return new self($id, $name);
+    }
+
+    public function rename(string $name): void
+    {
+        self::guardName($name);
+
+        $this->name = $name;
+    }
+
+    public function id(): ?int
+    {
+        return $this->id;
+    }
+
+    public function name(): string
+    {
+        return $this->name;
+    }
+
+    private static function guardName(string $name): void
+    {
+        if (! {{SingularName}}DomainPolicy::isValidName($name)) {
+            throw {{SingularName}}NameIsBlank::create();
+        }
+    }
+}

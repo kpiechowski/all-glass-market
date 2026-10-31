@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace {{RootNamespace}}\{{ModuleName}}\Domain\Repositories;
 
 use App\Core\Contracts\Repository;
+use {{RootNamespace}}\{{ModuleName}}\Domain\Entities\{{SingularName}};
 
-/**
- * The port. Add methods named in domain language — activeForVehicle(),
- * pendingReview() — never a query builder. Handlers type-hint this interface.
- */
+/** @extends Repository<{{SingularName}}> */
 interface {{SingularName}}Repository extends Repository
 {
-    //
+    public function nameIsTaken(string $name): bool;
 }

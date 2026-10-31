@@ -1,0 +1,106 @@
+imports:
+  - deptrac-baseline.yaml
+
+deptrac:
+  paths:
+    - app
+
+  exclude_files:
+    - '#.*/Infrastructure/(migrations|config)/.*#'
+    - '#.*/UserInterface/resources/.*#'
+
+  layers:
+    - name: Domain
+      collectors:
+        - type: bool
+          must:
+            - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/Domain/.*' }
+          must_not:
+            - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/Domain/(Policies|Enums)/.*' }
+    - name: DomainPolicy
+      collectors:
+        - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/Domain/Policies/.*' }
+    - name: DomainEnum
+      collectors:
+        - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/Domain/Enums/.*' }
+    - name: ApplicationEntry
+      collectors:
+        - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/Application/(Commands|Queries|ModuleApi)/.*' }
+    - name: Application
+      collectors:
+        - type: bool
+          must:
+            - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/Application/.*' }
+          must_not:
+            - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/Application/(Commands|Queries|ModuleApi|Providers)/.*' }
+    - name: Infrastructure
+      collectors:
+        - type: bool
+          must:
+            - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/Infrastructure/.*' }
+          must_not:
+            - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/Infrastructure/Persistence/(Models|Queries)/.*' }
+    - name: InfrastructureRead
+      collectors:
+        - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/Infrastructure/Persistence/(Models|Queries)/.*' }
+    - name: UserInterface
+      collectors:
+        - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/UserInterface/.*' }
+    - name: Wiring
+      collectors:
+        - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/Application/Providers/.*' }
+        - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/[^/]+ServiceProvider\.php' }
+
+    - name: CoreDomain
+      collectors:
+        - { type: directory, value: 'app/Core/(Domain|Contracts|Exceptions)/.*' }
+    - name: CoreInfrastructure
+      collectors:
+        - { type: directory, value: 'app/Core/(Abstracts|Infrastructure)/.*' }
+    - name: CoreUserInterface
+      collectors:
+        - { type: directory, value: 'app/Core/(UserInterface|Concerns|Http)/.*' }
+    - name: CoreSupport
+      collectors:
+        - { type: directory, value: 'app/Core/(Console|Providers|Support)/.*' }
+        - { type: directory, value: 'app/Core/[^/]+\.php' }
+
+    - name: FilamentEnumContract
+      collectors:
+        - { type: classNameRegex, value: '#^Filament\\Support\\Contracts\\(HasLabel|HasColor|HasIcon|HasDescription)$#' }
+    - name: Filament
+      collectors:
+        - type: bool
+          must:
+            - { type: classNameRegex, value: '#^Filament\\.*#' }
+          must_not:
+            - { type: classNameRegex, value: '#^Filament\\Support\\Contracts\\(HasLabel|HasColor|HasIcon|HasDescription)$#' }
+    - name: HttpClient
+      collectors:
+        - { type: classNameRegex, value: '#^Illuminate\\Http\\Client\\.*#' }
+    - name: Http
+      collectors:
+        - type: bool
+          must:
+            - { type: classNameRegex, value: '#^Illuminate\\(Http|Routing)\\.*#' }
+          must_not:
+            - { type: classNameRegex, value: '#^Illuminate\\Http\\Client\\.*#' }
+    - name: RawQuery
+      collectors:
+        - { type: classNameRegex, value: '#^Illuminate\\Support\\Facades\\DB$#' }
+        - { type: classNameRegex, value: '#^Illuminate\\Database\\(Query\\.*|Connection.*)$#' }
+
+  ruleset:
+    Domain: &domain [Domain, DomainPolicy, DomainEnum, CoreDomain, FilamentEnumContract]
+    DomainPolicy: *domain
+    DomainEnum: *domain
+    Application: &application [Application, ApplicationEntry, Domain, DomainPolicy, DomainEnum, CoreDomain]
+    ApplicationEntry: *application
+    Infrastructure: &infrastructure [Infrastructure, InfrastructureRead, Domain, DomainPolicy, DomainEnum, CoreDomain, CoreInfrastructure, FilamentEnumContract, RawQuery, HttpClient]
+    InfrastructureRead: *infrastructure
+    UserInterface: [UserInterface, ApplicationEntry, DomainPolicy, DomainEnum, InfrastructureRead, CoreDomain, CoreUserInterface, Filament, FilamentEnumContract, Http]
+    Wiring: [Wiring, Domain, DomainPolicy, DomainEnum, Application, ApplicationEntry, Infrastructure, InfrastructureRead, UserInterface, CoreDomain, CoreInfrastructure, CoreUserInterface, CoreSupport, Filament, FilamentEnumContract, Http, HttpClient, RawQuery]
+    CoreDomain: [CoreDomain]
+    CoreInfrastructure: [CoreInfrastructure, CoreDomain, RawQuery, HttpClient]
+    CoreUserInterface: [CoreUserInterface, CoreDomain, Filament, FilamentEnumContract, Http]
+    CoreSupport: [CoreSupport, CoreDomain, CoreInfrastructure, CoreUserInterface, Filament, FilamentEnumContract, Http, HttpClient, RawQuery]

@@ -84,7 +84,8 @@ final class OfferModel extends ReadOnlyModel   // in Infrastructure/Persistence/
 ## Mapper and adapter
 
 ```php
-final class OfferMapper
+/** @implements Mapper<Offer> */
+final class OfferMapper implements Mapper   // Core\Contracts\Mapper
 {
     public function toEntity(OfferModel $model): Offer
     {

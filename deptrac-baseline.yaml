@@ -1,0 +1,37 @@
+deptrac:
+  skip_violations:
+    App\Core\Console\CreateRootCommand:
+      - App\Modules\Users\Domain\Enums\RoleEnum
+      - App\Modules\Users\Domain\Models\User
+    App\Modules\Audit\Domain\Repositories\ChangesLogRepository:
+      - App\Core\Abstracts\ModelRepository
+    App\Modules\Audit\Domain\Repositories\UserJournalRepository:
+      - App\Core\Abstracts\ModelRepository
+    App\Modules\Audit\Domain\Traits\HasChangesLog:
+      - App\Modules\Audit\Application\Services\ChangesLogService
+    App\Modules\Audit\UserInterface\Filament\RelationManagers\ChangesLogsRelationManager:
+      - App\Modules\Audit\Domain\Models\ChangesLog
+    App\Modules\Audit\UserInterface\Filament\Resources\ChangesLog\ChangesLogResource:
+      - App\Modules\Audit\Domain\Models\ChangesLog
+    App\Modules\Audit\UserInterface\Filament\Resources\ChangesLog\Tables\ChangesLogTable:
+      - App\Modules\Audit\Domain\Models\ChangesLog
+    App\Modules\Audit\UserInterface\Filament\Resources\UserJournal\Tables\UserJournalTable:
+      - App\Modules\Audit\Domain\Models\UserJournal
+    App\Modules\Audit\UserInterface\Filament\Resources\UserJournal\UserJournalResource:
+      - App\Modules\Audit\Domain\Models\UserJournal
+    App\Modules\Users\Domain\Models\User:
+      - App\Modules\Audit\Application\Services\ChangesLogService
+      - App\Modules\Users\Infrastructure\Factories\UserFactory
+      - App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource
+      - Filament\Models\Contracts\FilamentUser
+      - Filament\Panel
+    App\Modules\Users\Domain\Repositories\UserRepository:
+      - App\Core\Abstracts\ModelRepository
+    App\Modules\Users\UserInterface\Filament\Pages\EditProfile\EditProfile:
+      - App\Modules\Users\Domain\Models\User
+    App\Modules\Users\UserInterface\Filament\Resources\Users\Schemas\UserInfolist:
+      - App\Modules\Users\Domain\Models\User
+    App\Modules\Users\UserInterface\Filament\Resources\Users\Tables\UsersTable:
+      - App\Modules\Users\Domain\Models\User
+    App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource:
+      - App\Modules\Users\Domain\Models\User

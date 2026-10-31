@@ -4,30 +4,19 @@ declare(strict_types=1);
 
 namespace {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence\Observers;
 
-use {{RootNamespace}}\{{ModuleName}}\Domain\Models\{{SingularName}};
+use App\Core\Domain\Events\RecordChanged;
+use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence\Models\{{SingularName}}Model;
 
-/**
- * Adapter between the ORM lifecycle and the domain. Keep it thin: dispatch a
- * domain event and let a listener do the work. Never resolve a service here —
- * that welds business logic to save() where nothing can test it.
- *
- * Other hooks are available (creating, updating, saving, restored,
- * forceDeleted…); add only the ones this model actually needs.
- */
-class {{SingularName}}Observer
+final class {{SingularName}}Observer
 {
-    public function created({{SingularName}} $model): void
+    public function saved({{SingularName}}Model $model): void
     {
-        //
-    }
+        $changes = [];
 
-    public function updated({{SingularName}} $model): void
-    {
-        //
-    }
+        foreach ($model->getDirty() as $field => $new) {
+            $changes[$field] = ['old' => $model->getOriginal($field), 'new' => $new];
+        }
 
-    public function deleted({{SingularName}} $model): void
-    {
-        //
+        event(new RecordChanged($model::class, $model->id, $changes));
     }
 }

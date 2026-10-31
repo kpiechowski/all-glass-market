@@ -13,7 +13,7 @@ class {{ModuleName}}ApiClient
 
     public function __construct()
     {
-        $this->http = Http::baseUrl(config('{{ModuleName}}.api_url', ''))
+        $this->http = Http::baseUrl(config('{{ModuleSnake}}.api_url', ''))
             ->timeout(30)
             ->acceptJson();
     }
