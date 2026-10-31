@@ -20,6 +20,10 @@ Two rules break most often, so check them before writing a Filament class:
 
 Filament is the only UI surface, and two deliberate trade-offs follow from that: Eloquent models serve as domain entities, and Domain enums may implement Filament's `HasLabel` / `HasColor` / `HasIcon`. Both are documented in `.claude/skills/module-layout/SKILL.md` — no other UI import belongs in Domain.
 
+## Porting a module from V1
+
+Porting a module starts with the **`module-discovery`** skill. It maps what the V1 module really does across the whole legacy repo, then ends in an agreed `.scratch/<module>/functional-spec.md`. Write no V2 code for a module until its spec exists. Overview: `docs/agents/module-discovery.md`.
+
 ## Architecture skills — use them
 
 Building a module is a sequence, and each step has a skill carrying the rules for it. **Load the matching skill before writing code for that step**, not after:

@@ -90,6 +90,7 @@ Uwaga: plany i skany opisują układ sprzed ports & adapters (np. `Domain/Observ
 
 - **`.claude/skills/`** zawiera 6 skilli architektury: `module-layout`, `module-cqrs`, `module-persistence`, `module-events`, `filament-module-ui` i `module-testing`. Opisują docelową architekturę ports & adapters. Ich treść i założenia trzeba zweryfikować w osobnej sesji.
 - **`CLAUDE.md`** zawiera reguły warstw, mapę „krok → skill”, sekcję skilli Matta i blok Laravel Boost.
+- **Discovery modułu V1** (skill `module-discovery`, opis w `docs/agents/module-discovery.md`) zastępuje kroki SCAN i HEALTH REVIEW. Mapuje zachowanie modułu w całym repo V1, a kończy się uzgodnioną specyfikacją funkcjonalną w `.scratch/<moduł>/functional-spec.md`.
 - **`docs/agents/`** to konfiguracja skilli Matta Pococka (plugin `mattpocock-skills`): tickety jako markdown w `.scratch/<feature>/`, triage przez linię `Status:`, glosariusz `GLOSSARY.md` i `docs/adr/` tworzone leniwie.
 
 ## Sprzątanie 2026-10-31
