@@ -1,7 +1,7 @@
 # {Name} — V2 Plan
 
 **Status:** ⬜ Not started
-**Scan:** `.ai/modules/{name}/scan.md`
+**Scan:** `docs/archive/v1-port/modules/{name}/scan.md`
 **Phase:** {phase number from refactor-plan.md}
 
 > Written by PLAN agent after scan review and health approval.

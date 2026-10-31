@@ -6,7 +6,5 @@
     "guidelines": true,
     "mcp": true,
     "nightwatch": false,
-    "packages": [],
-    "sail": false,
-    "skills": []
+    "sail": false
 }

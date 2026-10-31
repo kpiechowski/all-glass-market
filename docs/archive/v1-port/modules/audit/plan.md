@@ -1,7 +1,7 @@
 # Audit — V2 Plan
 
 **Status:** ✅ Done
-**Scan:** `.ai/modules/audit/scan.md`
+**Scan:** `docs/archive/v1-port/modules/audit/scan.md`
 **Phase:** 1a
 
 ---

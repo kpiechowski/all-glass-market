@@ -3,7 +3,7 @@
 **Goal:** Port V1 monolith at `/home/kp/laravel/projekty/AllGlass/` to V2 DDD+CQRS architecture.
 **Rules:** See the architecture skills in `.claude/skills/` (`module-layout` first). Never copy V1 code verbatim — understand it, then rewrite.
 
-> **Archive.** This file and `.ai/modules/` are input for a future grilling session that will rework the port into tickets — including where V1 should be redesigned rather than ported. The five-step workflow below is superseded by the skills above; the phase order and boundary decisions still hold.
+> **Archive.** This file and `docs/archive/v1-port/modules/` are input for a future grilling session that will rework the port into tickets — including where V1 should be redesigned rather than ported. The five-step workflow below is superseded by the skills above; the phase order and boundary decisions still hold.
 
 ---
 
@@ -11,13 +11,13 @@
 
 Every module follows a five-step sequence. Never skip steps.
 
-1. **SCAN** — deep V1 scan → write `.ai/modules/{name}/scan.md`
+1. **SCAN** — deep V1 scan → write `docs/archive/v1-port/modules/{name}/scan.md`
 2. **HEALTH REVIEW** — if `scan.md` has ⚠️ concerns → **ask the user** before planning
-3. **PLAN** — design V2 structure → write `.ai/modules/{name}/plan.md`
+3. **PLAN** — design V2 structure → write `docs/archive/v1-port/modules/{name}/plan.md`
 4. **IMPLEMENT** — read `architecture.md` + `plan.md` only; do NOT reload this file
 5. **VERIFY** — run grep suite + `dartisan migrate` + `pint --dirty`; update status below
 
-Templates: `.ai/modules/_template/scan.md` and `.ai/modules/_template/plan.md`
+Templates: `docs/archive/v1-port/modules/_template/scan.md` and `docs/archive/v1-port/modules/_template/plan.md`
 
 ---
 
@@ -26,13 +26,13 @@ Templates: `.ai/modules/_template/scan.md` and `.ai/modules/_template/plan.md`
 | Phase | Module | Status | Detail |
 |---|---|---|---|
 | 1 | Users | ✅ Done | — |
-| 1a | Audit | ✅ Done | `.ai/modules/audit/` |
-| 1b | Settings | ⬜ Not started | `.ai/modules/settings/` |
-| 1c | Submissions | ⬜ Not started | `.ai/modules/submissions/` |
-| 2a | Vehicles | ⬜ Not started | `.ai/modules/vehicles/` |
-| 2b | Offers | ⬜ Not started | `.ai/modules/offers/` |
-| 3a | WooCommerce | ⬜ Not started | `.ai/modules/woocommerce/` |
-| 3b | Otomoto | ⬜ Not started | `.ai/modules/otomoto/` |
+| 1a | Audit | ✅ Done | `docs/archive/v1-port/modules/audit/` |
+| 1b | Settings | ⬜ Not started | `docs/archive/v1-port/modules/settings/` |
+| 1c | Submissions | ⬜ Not started | `docs/archive/v1-port/modules/submissions/` |
+| 2a | Vehicles | ⬜ Not started | `docs/archive/v1-port/modules/vehicles/` |
+| 2b | Offers | ⬜ Not started | `docs/archive/v1-port/modules/offers/` |
+| 3a | WooCommerce | ⬜ Not started | `docs/archive/v1-port/modules/woocommerce/` |
+| 3b | Otomoto | ⬜ Not started | `docs/archive/v1-port/modules/otomoto/` |
 
 Do not start Phase 2 until all Phase 1 modules are ✅.
 Do not start Phase 3 until `OfferUpdatedEvent`, `OfferDeletedEvent`, `OfferSoldEvent`, `OfferArchivedEvent` exist and fire.
