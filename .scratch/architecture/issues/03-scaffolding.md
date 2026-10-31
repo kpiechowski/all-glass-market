@@ -7,7 +7,7 @@ Blocked by: 02
 
 ## Scope
 
-- Module scaffold: entity, repository port, `{X}DomainPolicy`, `{Name}Permission` enum, `Domain/Events`, `Domain/Exceptions`; `Application/Commands`, `ModuleApi`, `Listeners`, `Services`, `Jobs`, `Providers/{Name}EventServiceProvider`; `Infrastructure/Persistence/{Models,Mappers,Queries,Observers}` with `{X}Model extends ReadOnlyModel`, `{X}Mapper`, `{X}Queries`, `Eloquent{X}Repository` and its binding, plus a factory on the Core base factory; `UserInterface/Filament`, `UserInterface/Console`; `lang/pl/{resources,enums,exceptions}.php`.
+- Module scaffold: entity, repository port, `{X}DomainPolicy`, `{Name}Permission` enum, `Domain/Events`, `Domain/Exceptions`; `Application/Commands`, `ModuleApi`, `Listeners`, `Services`, `Jobs`, `Providers/{Name}EventServiceProvider`; `Infrastructure/Persistence/{Models,Mappers,Queries,Observers}` with `{X}Model extends ReadOnlyModel`, `{X}Mapper`, `{X}Queries`, `Eloquent{X}Repository` and its binding, plus a factory extending `Core\Infrastructure\Factories\ModelFactory`; `UserInterface/Filament`, `UserInterface/Console`; `lang/pl/{resources,enums,exceptions}.php`.
 - Matching test skeletons under `tests/Unit|Feature/Modules/{Name}/` for the entity, the policy, the mapper and the repository.
 - Fix `make:integration`: the mapper lands in `Infrastructure/Mappers/`, matching its stub namespace (today it writes to `Domain/Mappers/`).
 - Drop stubs that no longer match (old `repository.stub` semantics, the observer doing more than `RecordChanged`).

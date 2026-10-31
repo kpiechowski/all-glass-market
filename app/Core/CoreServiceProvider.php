@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Core;
 
-use App\Core\Http\Cli\CreateDevUserCommand;
-use App\Core\Http\Cli\CreateRootCommand;
-use App\Core\Http\Cli\DeleteModuleCommand;
-use App\Core\Http\Cli\MakeIntegrationCommand;
-use App\Core\Http\Cli\MakeModuleCommand;
+use App\Core\Console\CreateDevUserCommand;
+use App\Core\Console\CreateRootCommand;
+use App\Core\Console\DeleteModuleCommand;
+use App\Core\Console\MakeIntegrationCommand;
+use App\Core\Console\MakeModuleCommand;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,6 +22,7 @@ class CoreServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/Infrastructure/migrations');
+        $this->loadTranslationsFrom(__DIR__.'/UserInterface/resources/lang', 'core');
 
         if ($this->app->runningInConsole()) {
             $this->commands([

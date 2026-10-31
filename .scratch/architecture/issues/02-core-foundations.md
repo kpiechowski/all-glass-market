@@ -1,6 +1,6 @@
 # 02 - Core foundations for entities, actor, authorization and UI writes
 
-Status: ready-for-agent
+Status: resolved
 
 Build the Core pieces the skills already name, so that a new module can follow them. Use the exact names below, since the skills reference them. Load `module-layout`, `module-cqrs`, `module-persistence`, `module-testing`. Work test-first.
 
@@ -26,3 +26,13 @@ Build the Core pieces the skills already name, so that a new module can follow t
 ## Done when
 
 Every class above has its test written first. `dartisan test` and `vendor/bin/pint --dirty` pass.
+
+## Answer
+
+Implemented by a subagent, verified 2026-10-31. Suite: 60 tests green.
+
+Names the ticket left open: `Core\Infrastructure\Factories\ModelFactory`, `Core\Exceptions\ReadOnlyModelException`, `Core\Infrastructure\Bus\WrapCommandInTransaction` (an Ecotone `#[Around]` interceptor on `DB::transaction()`, because `ecotone/dbal` is not installed), `Core\Infrastructure\Persistence\ReadOnlyBuilder`.
+
+Verification found that query-builder writes (`update`, `delete`, `insert*`, `upsert`, `increment`) bypassed the guard. Fixed with `ReadOnlyBuilder`. `DB::table()` stays unguarded and is banned in UserInterface by ticket 04.
+
+Deviations accepted: `AuthorizationException` extends `DomainException`, so the UI shows it as a notification. `CurrentActor::get()` throws for a guest. `Actor` rejects an id below 1 and a blank system reason.

@@ -14,8 +14,10 @@ Turn the rules into failing checks, so agents verify their own work.
   - UserInterface → Application, `Domain/Policies`, `Domain/Enums`, `Infrastructure/Persistence/Models`, `Infrastructure/Persistence/Queries`; never repositories, mappers or adapters.
   - Module A → module B only through `Application/ModuleApi`, `Domain/Events`, `Domain/Contracts`, `Domain/Enums`, `Infrastructure/Persistence/Models`.
   - Core → no module.
+  - UserInterface → never `Illuminate\Support\Facades\DB` or `Illuminate\Database\*` query classes. `ReadOnlyModel` guards Eloquent model and builder writes, but `DB::table()` bypasses it.
 - Baseline for the known violations in Users and Audit, removed in tickets 05 and 06.
 - Test-presence check (a PHPUnit test or a small script): every `*CommandHandler`, entity, `*DomainPolicy`, `*Mapper`, `*Queries` and `Application/Listeners/*` class has a `{Class}Test.php` under the mirrored `tests/` path.
+- `pint --test` fails today on `app/Providers/Filament/AdminPanelProvider.php` and `config/auth.php` (pre-existing). Fix them so `composer check` starts green.
 - `composer check` script: `pint --test`, deptrac, test-presence, `phpunit`.
 
 ## Done when

@@ -4,43 +4,48 @@ declare(strict_types=1);
 
 namespace App\Core\Contracts;
 
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
- * Shared CRUD surface every module repository port extends.
+ * Shared surface of every module repository port, on entities.
  *
- * Module ports add methods named in domain language:
+ * Module ports add methods named in domain language and return entities, ids
+ * or scalars, never a Builder or a model:
  *
  *   interface OfferRepository extends Repository
  *   {
- *       public function activeForVehicle(int $vehicleId): Collection;
+ *       public function hasActiveForVehicle(int $vehicleId): bool;
  *   }
  *
- * There is deliberately no query() here. A port handing out a query builder
- * guarantees nothing, because every caller could bypass it. Building queries
- * belongs inside the adapter.
+ * @template TEntity of object
  */
 interface Repository
 {
-    public function find(int|string $id): ?Model;
-
-    public function findOrFail(int|string $id): Model;
+    /**
+     * @return TEntity
+     *
+     * @throws ModelNotFoundException
+     */
+    public function get(int $id): object;
 
     /**
-     * @return Collection<int, Model>
+     * @return TEntity|null
      */
-    public function all(): Collection;
+    public function find(int $id): ?object;
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * @param  TEntity  $entity
+     * @return int the new id
      */
-    public function create(array $attributes): Model;
+    public function add(object $entity): int;
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * @param  TEntity  $entity
      */
-    public function update(Model $model, array $attributes): Model;
+    public function save(object $entity): void;
 
-    public function delete(Model $model): bool;
+    /**
+     * @param  TEntity  $entity
+     */
+    public function remove(object $entity): void;
 }

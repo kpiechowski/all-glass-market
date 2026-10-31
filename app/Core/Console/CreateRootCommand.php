@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Core\Http\Cli;
+namespace App\Core\Console;
 
 use App\Modules\Users\Domain\Enums\RoleEnum;
 use App\Modules\Users\Domain\Models\User;

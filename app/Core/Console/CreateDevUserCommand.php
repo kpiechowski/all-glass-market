@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Core\Http\Cli;
+namespace App\Core\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;

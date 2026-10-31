@@ -4,85 +4,86 @@ declare(strict_types=1);
 
 namespace App\Core\Abstracts;
 
+use App\Core\Contracts\Mapper;
 use App\Core\Contracts\Repository;
+use App\Core\Infrastructure\Persistence\ReadOnlyModel;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 
 /**
- * Eloquent adapter base for repository ports.
+ * Eloquent adapter base for repository ports. Entities expose their id as id().
  *
  * Concrete adapters live in a module's Infrastructure/Persistence/, implement
- * that module's port and only declare the model class:
+ * that module's port and pass model class and mapper up:
  *
  *   final class EloquentOfferRepository extends EloquentRepository implements OfferRepository
  *   {
- *       protected function getModel(): string
+ *       public function __construct(OfferMapper $mapper)
  *       {
- *           return Offer::class;
+ *           parent::__construct(OfferModel::class, $mapper);
  *       }
  *   }
  *
- * Bind port to adapter in the module service provider's $containerBindings.
+ * Writes go through fill()->save() inside the write scope, so timestamps,
+ * dirty tracking and observers keep working.
+ *
+ * @template TEntity of object
+ *
+ * @implements Repository<TEntity>
  */
 abstract class EloquentRepository implements Repository
 {
-    private Model $model;
-
-    public function __construct()
-    {
-        $this->model = app()->make($this->getModel());
-    }
-
-    abstract protected function getModel(): string;
+    /**
+     * @param  class-string<ReadOnlyModel>  $modelClass
+     * @param  Mapper<TEntity>  $mapper
+     */
+    public function __construct(
+        private readonly string $modelClass,
+        private readonly Mapper $mapper,
+    ) {}
 
     /**
      * Query entry point for adapter methods. Protected on purpose: the port
      * exposes named domain queries, never a builder.
+     *
+     * @return Builder<ReadOnlyModel>
      */
     protected function query(): Builder
     {
-        return $this->model->newQuery();
+        return $this->modelClass::query();
     }
 
-    public function find(int|string $id): ?Model
+    public function get(int $id): object
     {
-        return $this->query()->find($id);
+        return $this->mapper->toEntity($this->query()->findOrFail($id));
     }
 
-    public function findOrFail(int|string $id): Model
+    public function find(int $id): ?object
     {
-        return $this->query()->findOrFail($id);
+        $model = $this->query()->find($id);
+
+        return $model === null ? null : $this->mapper->toEntity($model);
     }
 
-    /**
-     * @return Collection<int, Model>
-     */
-    public function all(): Collection
+    public function add(object $entity): int
     {
-        return $this->query()->get();
+        $model = new ($this->modelClass);
+
+        ReadOnlyModel::writing(fn () => $model->fill($this->mapper->toRow($entity))->save());
+
+        return $model->getKey();
     }
 
-    /**
-     * @param  array<string, mixed>  $attributes
-     */
-    public function create(array $attributes): Model
+    public function save(object $entity): void
     {
-        return $this->query()->create($attributes);
+        $model = $this->query()->findOrFail($entity->id());
+
+        ReadOnlyModel::writing(fn () => $model->fill($this->mapper->toRow($entity))->save());
     }
 
-    /**
-     * @param  array<string, mixed>  $attributes
-     */
-    public function update(Model $model, array $attributes): Model
+    public function remove(object $entity): void
     {
-        $model->update($attributes);
+        $model = $this->query()->findOrFail($entity->id());
 
-        return $model->refresh();
-    }
-
-    public function delete(Model $model): bool
-    {
-        return (bool) $model->delete();
+        ReadOnlyModel::writing(fn () => $model->delete());
     }
 }
