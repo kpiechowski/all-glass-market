@@ -1,47 +1,119 @@
 ---
 name: module-persistence
-description: "Data access in a module: repository ports and Eloquent adapters, models, migrations, factories, seeders, observers, and how Filament tables read through a repository. Use when adding or changing a model, writing a migration, creating or extending a repository, deciding where a query belongs, or wiring persistence into a module service provider."
+description: "Entities, mappers, repositories and Eloquent models. Use when adding or changing an entity, model, migration, factory, repository method or mapper, writing a {X}Queries read for Filament, or deciding what belongs inside one aggregate."
 ---
 
-# Module persistence
+# Persistence
 
-The domain states what it needs; infrastructure decides how. A repository is that split made concrete: an interface in `Domain/Repositories/`, an Eloquent implementation in `Infrastructure/Persistence/`.
+The domain works on **entities**; Eloquent stays for what Laravel and Filament do well: reading, relations, search, filters. Each aggregate therefore has four pieces (ADR 0001):
 
-For where files go generally, see `module-layout`. This skill covers what goes *inside* them.
+| Piece | Place | Job |
+|---|---|---|
+| Entity | `Domain/Entities/{X}` | state, behaviour, invariants — plain PHP |
+| Port | `Domain/Repositories/{X}Repository` | what the domain needs, on entities |
+| Model | `Infrastructure/Persistence/Models/{X}` | Eloquent, **read-only** outside the adapter |
+| Mapper + adapter | `Infrastructure/Persistence/Mappers/{X}Mapper`, `Infrastructure/Persistence/Eloquent{X}Repository` | translate and persist |
 
-## Port and adapter
-
-The port keeps the domain name. The adapter gets the `Eloquent` prefix.
+## Entity
 
 ```php
-// Domain/Repositories/OfferRepository.php — the port
+final class Offer
+{
+    private function __construct(
+        private ?int $id,
+        private OfferStatus $status,
+        private ?int $price,
+        private int $vehicleId,
+    ) {}
+
+    public static function draft(int $vehicleId, ?int $price): self
+    {
+        return new self(null, OfferStatus::Draft, $price, $vehicleId);
+    }
+
+    /** @internal for the mapper */
+    public static function reconstitute(int $id, OfferStatus $status, ?int $price, int $vehicleId): self
+    {
+        return new self($id, $status, $price, $vehicleId);
+    }
+
+    public function activate(): void { /* guards via OfferDomainPolicy, see module-cqrs */ }
+
+    public function id(): ?int { return $this->id; }
+    public function status(): OfferStatus { return $this->status; }
+}
+```
+
+- Private state, a named constructor per way of coming into existence, `reconstitute()` for the mapper.
+- Behaviour methods named by intent (`activate`, `reserveUntil`) change state and throw domain exceptions; there are no general setters.
+- Getters exist for what the mapper and handlers read.
+- `?int $id` stays `null` until the repository's `add()` assigns it. Ids are autoincrement ints.
+- No Eloquent, no facades, no I/O.
+
+## Aggregates: keep them small
+
+An aggregate is the entity plus the parts always loaded and saved with it. A part goes **inside** the parent entity only when all three hold: it cannot exist without the parent, it is never edited on its own, and there are few of them (order lines). Otherwise it is its own entity with its own repository, holding the parent's id (Reservation holds `offerId`). Rules across them are facts the handler gathers (`$reservations->hasActiveFor($offerId)`).
+
+## Port
+
+```php
 interface OfferRepository extends Repository
 {
-    /** @return Collection<int, Offer> */
-    public function activeForVehicle(int $vehicleId): Collection;
+    public function hasActiveForVehicle(int $vehicleId): bool;
+}
+```
+
+`Core\Contracts\Repository` gives every port `get(int $id)` (throws when missing), `find(int $id): ?X`, `add(X): int`, `save(X): void`, `remove(X): void`. Module ports add methods named in domain language (`pendingReview`, not `whereStatusNull`), returning entities, ids or scalars, never a `Builder` or a model.
+
+## Model
+
+```php
+final class OfferModel extends ReadOnlyModel   // in Infrastructure/Persistence/Models/
+{
+    protected $table = 'offers';
+    protected function casts(): array { return ['status' => OfferStatus::class]; }
+    public function vehicle(): BelongsTo { return $this->belongsTo(VehicleModel::class); }
+}
+```
+
+- Extends `Core\Infrastructure\Persistence\ReadOnlyModel`: `save()`, `update()`, `delete()` throw unless called inside the write scope that the adapter and the Core base factory open.
+- Holds casts, relations (also to other modules' models) and accessors for display. Domain rules live on the entity.
+- No query scopes: named reads go to `{X}Queries`.
+- Every model has a factory in `Infrastructure/Factories/` extending the Core base factory, with states for the cases tests need.
+
+## Mapper and adapter
+
+```php
+final class OfferMapper
+{
+    public function toEntity(OfferModel $model): Offer
+    {
+        return Offer::reconstitute($model->id, $model->status, $model->price, $model->vehicle_id);
+    }
+
+    /** @return array<string, mixed> */
+    public function toRow(Offer $offer): array
+    {
+        return ['status' => $offer->status(), 'price' => $offer->price(), 'vehicle_id' => $offer->vehicleId()];
+    }
 }
 ```
 
 ```php
-// Infrastructure/Persistence/EloquentOfferRepository.php — the adapter
 final class EloquentOfferRepository extends EloquentRepository implements OfferRepository
 {
-    protected function getModel(): string
-    {
-        return Offer::class;
-    }
+    public function __construct(OfferMapper $mapper) { parent::__construct(OfferModel::class, $mapper); }
 
-    public function activeForVehicle(int $vehicleId): Collection
+    public function hasActiveForVehicle(int $vehicleId): bool
     {
-        return $this->query()
-            ->where('vehicle_id', $vehicleId)
-            ->where('status', OfferStatus::Active)
-            ->get();
+        return $this->query()->where('vehicle_id', $vehicleId)->where('status', OfferStatus::Active)->exists();
     }
 }
 ```
 
-Bind them in the module service provider:
+`EloquentRepository` implements the shared methods: it loads the model, maps it, and writes with `$model->fill($mapper->toRow($entity))->save()` inside the write scope, so timestamps, dirty tracking and observers keep working. `query()` stays protected. A part held inside an aggregate is synced by id in the adapter.
+
+Bind the port in the module provider:
 
 ```php
 protected array $containerBindings = [
@@ -49,82 +121,30 @@ protected array $containerBindings = [
 ];
 ```
 
-Handlers type-hint the port and never learn which implementation they got. That is what lets a test swap in a fake without a database.
+## Reads for display: `{X}Queries`
 
-### What belongs in the port
-
-`Core\Contracts\Repository` covers the shared CRUD surface — `find`, `findOrFail`, `all`, `create`, `update`, `delete`. Module ports extend it and add methods named in domain language: `activeForVehicle`, `pendingReview`, `withExpiredReservation`.
-
-**`query()` is not in the port.** It stays `protected` on `EloquentRepository`, available while writing an adapter and invisible to everyone else. A port handing out a query builder is not a port — every caller could bypass it and assemble arbitrary queries, and the interface would guarantee nothing.
-
-The one deliberate exception is read queries for Filament, below. Those return a `Builder`, but under a *named* method that the domain chose to expose — not a general-purpose escape hatch.
-
-### Naming queries
-
-Name what it means, not how it filters. `pendingReview()` survives a change in how "pending" is stored; `whereStatusIsNullAndFlagIsTrue()` does not. Domain-specific query methods belong on the repository, never on the model as a scope — a scope is reachable from anywhere, which is exactly what the port prevents.
-
-## Models
-
-Eloquent models are domain entities here — a deliberate trade-off documented in `module-layout`. Practical consequences:
-
-- Models live in `Domain/Models/` and may hold casts, relations, accessors and domain methods.
-- **No query scopes for domain concepts.** They belong on the repository.
-- **No business logic in lifecycle hooks.** Don't resolve services in `booted()`.
-- Mutation happens through command handlers via the repository. UI never calls `->save()` or `->update()`.
-- Enums used by the model may implement Filament's `HasLabel` / `HasColor` / `HasIcon` — the second documented trade-off.
-
-Migrations, factories and seeders are infrastructure: `Infrastructure/migrations/`, `Infrastructure/Factories/`, `Infrastructure/Seeders/`. `ModuleServiceProvider` loads migrations when `$loadsMigrations = true`. Every model gets a factory — tests depend on it (`module-testing`).
-
-Run migrations with `dartisan migrate`, never `php artisan`.
-
-## Observers
-
-An observer is an adapter between the ORM lifecycle and the domain, so it lives in `Infrastructure/Persistence/Observers/` and stays thin: **emit a domain event, nothing more.** The listener does the work (`module-events`).
+Filament needs a `Builder` so its sorting, search and filters keep working. Named display reads live in a concrete class:
 
 ```php
-public function created(Offer $offer): void
+final class OfferQueries   // Infrastructure/Persistence/Queries/
 {
-    OfferCreated::dispatch($offer->id);
+    public function activeForSeller(Actor $actor): Builder
+    {
+        return OfferModel::query()->where('seller_id', $actor->id)->where('status', OfferStatus::Active);
+    }
 }
 ```
 
-Anything heavier — resolving a service, writing to another table, calling an API — makes business logic untestable by welding it to `save()`. Register observers in the module's event service provider via `$observers`.
+No interface, since an interface returning an Eloquent `Builder` abstracts nothing. Tables, resources (`getEloquentQuery()`) and widgets call it. This is the read trade-off of ADR 0002: display reads skip the query bus; writes never do.
 
-## Reading for Filament
+## Migrations
 
-Filament tables build their own query so that sorting, filtering and search keep working. That query can start from the repository, which keeps read access going through one place without losing anything Filament gives you.
+`Infrastructure/migrations/`, run with `dartisan migrate`. Schemas need not mirror V1 but must be migratable from V1 data. Back every layer-5 rule with a constraint (unique, foreign key).
 
-Expose a named read method returning a `Builder`:
+## Before you finish
 
-```php
-// Domain/Repositories/OfferRepository.php
-public function visibleForPanel(): Builder;
-```
-
-```php
-// UserInterface/Filament/Resources/Offers/Tables/OffersTable.php
-public static function configure(Table $table): Table
-{
-    return $table
-        ->query(fn (OfferRepository $repository): Builder => $repository->visibleForPanel())
-        ->columns([...]);
-}
-```
-
-Filament layers its filters, sorts and search on top. A `Resource` can do the same by overriding `getEloquentQuery()`.
-
-**This is a third documented Filament trade-off, alongside the two in `module-layout`:** reading for display may go straight to the repository, skipping the query bus. Given this application's size, a query handler that only forwards to a repository is ceremony. The boundary is unchanged and absolute:
-
-- **Read for display** — repository directly from the Filament class. Fine.
-- **Anything that changes state** — command bus. No exceptions.
-- **Read feeding a decision or a calculation** — query bus, so the logic is testable outside the UI.
-
-A Filament class may call a repository's read method. It may never call `create`, `update` or `delete` on one.
-
-## Migration status
-
-The target above is not yet reality. **Where this skill and existing code disagree, this skill wins.**
-
-- **`Core\Contracts\Repository`, `Core\Abstracts\EloquentRepository` and `make:module` are done** — a scaffolded module gets the port, the `Eloquent…` adapter, observers under `Infrastructure/Persistence/Observers/` and the binding already wired.
-- **`Core\Abstracts\ModelRepository` is deprecated** and kept only until the two modules below are migrated. Never extend it in new code.
-- **Users and Audit** still have concrete repositories in `Domain/Repositories/` extending `ModelRepository`, with no port and no binding. Because the port keeps the domain name, migrating them moves files and adds bindings without touching a single handler.
+- Every entity is plain PHP and changes state only through behaviour methods.
+- Every port returns entities, ids or scalars.
+- Every model extends `ReadOnlyModel`, has a factory, and is written only by its adapter.
+- Every display read is a named `{X}Queries` method.
+- Mapper, port methods and `{X}Queries` methods have tests written first, and the mapper's covers the round-trip (`module-testing`).

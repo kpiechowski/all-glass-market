@@ -1,47 +1,51 @@
 # AllGlass Market
 
-A Laravel + Filament template built on ports & adapters with DDD module separation. `app/Core` holds the abstracts every module extends, `app/Modules` the business modules, `app/Integrations` the external-system adapters.
+A Laravel + Filament application built as hexagonal architecture with DDD-lite modules. `app/Core` provides the contracts and base classes every module builds on, `app/Modules` holds the business modules, `app/Integrations` the adapters to external platforms. There is no `app/Shared`: a shared need goes into Core or becomes a small module.
 
 Runs on Laradock PHP 8.5: **Artisan is `dartisan`**, never `php artisan`.
 
-## Layer rules
+## Layers
 
-| Layer | May depend on | Must not touch |
+| Layer | Holds | May depend on |
 |---|---|---|
-| **Domain** | nothing outside itself | Application, Infrastructure, UserInterface |
-| **Application** | Domain | Infrastructure internals, Filament, HTTP |
-| **Infrastructure** | Domain | Application, UserInterface |
-| **UserInterface** | Application (via buses), Domain models (read-only) | repositories, direct model mutation |
+| **Domain** | entities, repository ports, domain policies, events, exceptions, enums | Core contracts only |
+| **Application** | commands + handlers, `ModuleApi/`, internal services, listeners, jobs | Domain |
+| **Infrastructure** | Eloquent models, mappers, repository adapters, `{X}Queries`, observers, migrations, factories | Domain |
+| **UserInterface** | Filament, HTTP, Console — the driving adapters | Application via the bus, Domain policies/enums, and **read-only** models + `{X}Queries` |
 
-Two rules break most often, so check them before writing a Filament class:
+## Golden rules
 
-- **Never call a repository from a Filament page.** Dispatch a command or query on the bus.
-- **Never put business logic in a Filament page, schema, or table.** Those describe UI, nothing else.
+These break most often. Check them before writing any class.
 
-Filament is the only UI surface, and two deliberate trade-offs follow from that: Eloquent models serve as domain entities, and Domain enums may implement Filament's `HasLabel` / `HasColor` / `HasIcon`. Both are documented in `.claude/skills/module-layout/SKILL.md` — no other UI import belongs in Domain.
+1. **Every write is a command.** Filament pages, actions, HTTP controllers, console commands and jobs build a command and send it on the bus. Eloquent models are read-only outside the repository adapter, and a guard enforces it.
+2. **The domain works on entities, the UI reads models.** Handlers load and save entities through repository ports; Filament reads models and `{X}Queries` builders.
+3. **Modules talk through `Application/ModuleApi/` and domain events.** Anything else inside another module is private.
+4. **The handler guards the system.** UI validation is a convenience; the handler authorizes the `Actor`, builds value objects and lets the entity enforce its invariants.
+5. **Relations and media travel in command data.** A Filament field may use `->relationship()` to load options, never to save.
+6. **Every user-facing string comes from the module's translation files.**
 
-## Porting a module from V1
+## Architecture skills
 
-Porting a module starts with the **`module-discovery`** skill. It maps what the V1 module really does across the whole legacy repo, then ends in an agreed `.scratch/<module>/functional-spec.md`. Write no V2 code for a module until its spec exists. Overview: `docs/agents/module-discovery.md`.
-
-## Architecture skills — use them
-
-Building a module is a sequence, and each step has a skill carrying the rules for it. **Load the matching skill before writing code for that step**, not after:
+Load the matching skill **before** writing code for that step:
 
 | Doing this | Load |
 |---|---|
-| Placing files, creating a module, "where does this go?" | `module-layout` |
-| Adding a user intent (command / query / handler) | `module-cqrs` |
-| Models, migrations, repositories, data access | `module-persistence` |
-| Resources, schemas, tables, widgets, translations | `filament-module-ui` |
-| Domain events, listeners, cross-module communication | `module-events` |
-| Testing anything in a module | `module-testing` |
+| Creating a module, placing a class, crossing a module boundary | `module-layout` |
+| Commands, handlers, validation, authorization, jobs, `ModuleApi` | `module-cqrs` |
+| Entities, mappers, repositories, models, `{X}Queries`, migrations | `module-persistence` |
+| Domain events, listeners, observers, audit | `module-events` |
+| Filament resources, pages, tables, forms, actions, translations | `filament-module-ui` |
+| Writing or running tests, finishing any task | `module-testing` |
 
-## Conventions
+The reasons behind the trade-offs are in `docs/adr/`.
 
-Follow the patterns in sibling files — but note that `Users` and `Audit` predate the ports & adapters revision, so where a skill and existing code disagree, **the skill wins**. Each skill lists what is not yet migrated.
+## Definition of done
 
-Keep it clean and avoid over-abstracting. Don't comment what the code already says.
+Rules, entities and handlers are built test-first. A task is finished when `composer check` (pint, deptrac, phpunit) passes and the "Before you finish" list of every skill you loaded holds.
+
+## Porting a module from V1
+
+Porting starts with the **`module-discovery`** skill, which ends in an agreed `.scratch/<module>/functional-spec.md`. Write no V2 code for a module until its spec exists. Overview: `docs/agents/module-discovery.md`.
 
 ## Agent skills
 

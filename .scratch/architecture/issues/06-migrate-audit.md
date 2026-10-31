@@ -1,0 +1,10 @@
+# 06 - Rework the Audit module onto the architecture
+
+Status: needs-triage
+Blocked by: 02, 03, 04
+
+Audit predates entities and `RecordChanged`. Rework it to the skills: the change log listens to `Core\Domain\Events\RecordChanged` instead of `HasChangesLog` resolving a service in `static::created()`; repositories get ports and adapters; models move to `Infrastructure/Persistence/Models`; translations split per D6.
+
+Still open from the old skills and decided in this ticket: which fields are logged or skipped, how relation values are rendered, and how `LoggableModel` presentation fits read-only models.
+
+Done when the Audit entries leave the deptrac baseline and `composer check` passes.

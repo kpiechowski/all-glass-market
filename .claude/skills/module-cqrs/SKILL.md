@@ -1,13 +1,11 @@
 ---
 name: module-cqrs
-description: "Commands, queries and handlers in a module. Use when adding a user intent (create, update, delete, activate…), writing a command or query handler, deciding between a command and an application service, or working out where validation and business rules belong. Covers Ecotone buses, handler return values, and calling one module from another."
+description: "Commands and handlers — the write path. Use when adding a user intent, writing a handler, deciding where validation or a permission check goes, writing a job, console command or ModuleApi method, or choosing between a command and a query."
 ---
 
-# Commands and queries
+# Commands and handlers
 
-A command is a user intent. A query answers a question. Both are dispatched on a bus and handled by a class that does the work.
-
-For where the files go, see `module-layout`. For repositories, `module-persistence`.
+A **command** is one intent of an actor. Its **handler** is where the system decides and changes state. Every write in the application — from Filament, HTTP, console, a job, a listener or another module's `ModuleApi` — arrives as a command, so the rules hold no matter who sent it.
 
 ## Shape
 
@@ -18,9 +16,10 @@ Application/Commands/ActivateOffer/
 ```
 
 ```php
-readonly class ActivateOfferCommand
+final readonly class ActivateOfferCommand
 {
     public function __construct(
+        public Actor $actor,
         public int $offerId,
         public ?string $note = null,
     ) {}
@@ -28,101 +27,121 @@ readonly class ActivateOfferCommand
 ```
 
 ```php
-class ActivateOfferCommandHandler
+final class ActivateOfferCommandHandler
 {
     public function __construct(
+        private Authorizer $authorizer,
         private OfferRepository $offers,
-        private OfferDomainPolicy $policy,
     ) {}
 
     #[CommandHandler]
     public function handle(ActivateOfferCommand $command): void
     {
-        $offer = $this->offers->findOrFail($command->offerId);
+        $this->authorizer->ensure($command->actor, OfferPermission::Activate);
 
-        if (! $this->policy->canBeActivated($offer)) {
-            throw new OfferCannotBeActivatedException();
-        }
+        $offer = $this->offers->get($command->offerId);
+        $offer->activate();
+        $this->offers->save($offer);
 
-        $this->offers->update($offer, ['status' => OfferStatus::Active]);
+        event(new OfferActivated($offer->id(), CarbonImmutable::now()));
     }
 }
 ```
 
-Rules:
+- `{Verb}{Thing}Command` + `{Verb}{Thing}CommandHandler` in a folder named `{Verb}{Thing}`. Use the business verb when the intent has a name (`Activate`, `Reserve`, `Archive`); `Create` / `Update` / `Delete` only for plain data maintenance.
+- One intent per command. A name that needs "And" is two commands.
+- The command is `final readonly`, carries **primitives plus one `Actor`**, and holds no behaviour. `Actor` is the only object allowed in a command (ADR 0004).
+- The handler has one public `handle` method with `#[CommandHandler]`, depends on **ports** (`OfferRepository`, `Authorizer`), and is auto-discovered by Ecotone.
+- Every command runs inside a DB transaction opened by the Core bus interceptor. Write no `DB::transaction()` in a handler.
 
-- Commands and queries are `readonly` and carry data only — no behaviour, no defaults hiding logic.
-- Named `{Verb}{Subject}Command` / `{Verb}{Subject}Query`, in a directory of the same name.
-- One public `handle` method, attributed `#[CommandHandler]` or `#[QueryHandler]`.
-- Dependencies via constructor. Handlers depend on repository **ports**, never adapters.
-- Ecotone auto-discovers anything under `app/` — no registration.
+## The handler's sequence
 
-**One command per user intent, not per CRUD verb.** "Activate an offer" is an intent. "Set status column" is a step inside one. If a command's name needs "And" to be accurate, it is two commands or one intent you have not named properly yet.
+Every handler follows the same order:
 
-## Return values
+1. **Authorize:** `$this->authorizer->ensure($command->actor, {Name}Permission::X)`.
+2. **Build value objects** from the primitives (`Email::from($command->email)`). A format error throws here.
+3. **Gather facts** that need data: ask a port (`$this->users->emailIsTaken($email)`) or another module's `ModuleApi`.
+4. **Decide in the domain:** call the entity's behaviour method, passing the facts in. The entity or a domain policy throws when the rule refuses.
+5. **Persist** through the port: `add()` for new entities, `save()` for changed ones.
+6. **Emit** the business event (`module-events`).
 
-No uniform rule — return what the caller genuinely needs.
-
-- **`void`** when nothing needs anything back. The default.
-- **An id** when the caller must reference the result, as when one module creates something for another.
-- **A model** where it is required or plainly convenient — notably Filament's `handleRecordCreation()` and `handleRecordUpdate()`, whose contracts demand a `Model`.
-
-Returning a model is fine inside its own module. Across a module boundary, prefer an id or DTO; see `module-layout`.
-
-## Dispatching
-
-Filament pages and Livewire components use the Core traits:
-
-```php
-use App\Core\Concerns\HasCommandBus;
-
-class EditOffer extends EditRecord
-{
-    use HasCommandBus;
-
-    protected function handleRecordUpdate(Model $record, array $data): Model
-    {
-        return $this->commandBus->send(new UpdateOfferCommand($record->id, ...$data));
-    }
-}
-```
-
-Livewire calls `boot{TraitName}()` itself, so `$this->commandBus` and `$this->queryBus` are ready without constructor injection. Elsewhere, inject `CommandBus` / `QueryBus` normally.
-
-**Every write path dispatches a command — including actions.** Page handlers are the obvious case, but a `DeleteAction`, bulk action or custom modal action writes to the database by itself unless redirected with `->using()` or `->action()`. See `filament-module-ui` for the patterns. A Filament class never calls `->save()`, `->update()`, `->delete()` or `->create()` on a model.
-
-## Command, query, or application service?
-
-**Commands and queries are the entry point for user interaction.** A form submits, a table action fires, a page loads — that is a command or a query.
-
-**Application services handle work that no user directly triggered:** operations derived from another operation, background processing, multi-step orchestration called from several handlers, and the front door another module calls (`module-layout`).
-
-The distinction that matters is what a service does inside:
-
-- **A service exposed to other modules dispatches a command.** `createUserForBusinessOwning()` goes through `CreateUserCommand` like any other user creation — same events, same rules, one write path. The service adds the named operation and closes the invariant (the role); it does not reimplement the write.
-- **A service used inside your own handler may call repositories directly.** It is already past the bus; going round again buys nothing.
-
-Never let a service become a second write path that skips the rules a command enforces. That is the same failure as reaching for another module's repository, one level up.
-
-Queries are worth the ceremony when a read feeds a decision or a calculation. A read that only fills a Filament table can go straight to the repository — see the read boundary in `module-persistence`.
-
-## Validation and business rules
-
-**If Livewire stopped working tomorrow and anything could be posted anywhere, the application must still hold.** Filament's `->required()` and `->email()` are there to help the user, never to protect the system. Treat UI validation as a hint and nothing more.
-
-Three layers, each with one job:
+## Validation: five layers
 
 | Layer | Catches | Where |
 |---|---|---|
-| **Shape** | missing field, wrong type | the command's `readonly` typed constructor |
-| **Format** | malformed email, negative price, bad eurocode | value objects in `Domain/ValueObjects/`, or explicit checks in the handler |
-| **Business rule** | "an offer without a price cannot be activated" | `{Name}DomainPolicy` in `Domain/Policies/`, asked by the handler |
+| 1. UI | convenience for the user | Filament rules, FormRequest — never the only guard |
+| 2. Shape | missing field, wrong type | the command's typed constructor |
+| 3. Format | malformed email, negative price, bad eurocode | value object constructor |
+| 4. Invariant | "an offer without a price cannot be activated" | entity behaviour method; `{X}DomainPolicy` when the rule spans entities or the UI needs it |
+| 5. Facts from data | unique email, vehicle exists, no active reservation | handler gathers the fact through a port and passes it in; a DB constraint backs it |
 
-The handler asks the policy before acting and throws a domain exception when it refuses. That way the rule holds no matter who dispatched the command — a Filament page, another module's service, or a test.
+The domain never queries. The handler collects facts; the entity decides.
 
-Domain exceptions live in `Domain/Exceptions/`. Let them surface; Filament renders them.
+**A rule the UI also needs** (to show or hide an action) lives in `{X}DomainPolicy` as a pure method on **values**, and the entity calls it:
 
-## Migration status
+```php
+final class OfferDomainPolicy
+{
+    public static function canBeActivated(OfferStatus $status, ?int $price): bool
+    {
+        return $status === OfferStatus::Draft && $price !== null;
+    }
+}
 
-- **Users and Audit** handlers type-hint concrete repositories, because the ports do not exist yet (`module-persistence`). Once the port keeps the domain name, the type-hints stay as they are.
-- **No domain policies exist yet** in Users or Audit — rules live inline in handlers. New modules get a `{Name}DomainPolicy` stub from `make:module`.
+// in the entity
+public function activate(): void
+{
+    if (! OfferDomainPolicy::canBeActivated($this->status, $this->price)) {
+        throw OfferCannotBeActivated::because($this->id);
+    }
+    $this->status = OfferStatus::Active;
+}
+```
+
+Filament calls the same method with the model's fields (`filament-module-ui`). One rule, one source.
+
+## Authorization
+
+`Core\Contracts\Authorizer` answers "may this actor do this", implemented by the Users module. Modules check **permissions** from their own `{Name}Permission` enum, never roles.
+
+- Handlers call `ensure()`, which throws.
+- Filament calls `actorCan()` from the Core trait to show or hide (`filament-module-ui`).
+- `Actor::user($id)` represents a person. A job a person started carries that person's actor.
+- `Actor::system('<reason>')` is for the scheduler, integration webhooks and listeners only. The authorizer lets it through and the reason reaches the audit log. UserInterface builds `Actor::user()` from the Core trait, always.
+
+Laravel Policies and Gates are not used (ADR 0004).
+
+## Errors
+
+Domain exceptions extend `Core\Exceptions\DomainException` and carry a translation key from `{module}::exceptions`. Throw them; the Core Filament trait turns them into a danger notification and keeps the form open. Anything else surfaces as an error.
+
+## Return values
+
+| Handler | Returns | Filament page then |
+|---|---|---|
+| creates | `int` id | `return Offer::findOrFail($id);` |
+| updates, deletes, acts | `void` | `return $record->refresh();` |
+
+Entities and models never leave a handler.
+
+## Reads
+
+| Read | Path |
+|---|---|
+| Display in Filament (tables, forms, widgets) | `{X}Queries` method returning `Builder` (`module-persistence`) |
+| Feeds a decision or calculation | `Application/Queries/{Verb}{Thing}/` with `#[QueryHandler]`, returning a DTO or scalar |
+
+## Other entry points
+
+- **`ModuleApi`** method that writes: builds this module's command and sends it on the bus, with the actor the caller passed in.
+- **Job** (`Application/Jobs/`): holds ids, primitives and the `Actor`; `handle()` sends one command.
+- **Console command** (`UserInterface/Console/`): parses input, sends a command.
+- **Internal service** (`Application/Services/`): logic shared by several handlers of this module; may use ports; called only from handlers.
+
+## Before you finish
+
+- Every write path you touched ends in a command sent on the bus.
+- Every handler authorizes first and follows the six-step sequence.
+- Every command holds only primitives and one `Actor`.
+- Every rule lives in an entity method or a domain policy, and the handler only gathers facts.
+- Every handler has a test written before it, covering the happy path and each refusal (`module-testing`).
