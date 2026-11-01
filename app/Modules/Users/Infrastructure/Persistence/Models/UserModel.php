@@ -55,6 +55,7 @@ final class UserModel extends ReadOnlyModel implements AuthenticatableContract, 
             'seller_declaration_accepted_at' => 'datetime',
             'account_type_changed_at' => 'datetime',
             'deactivated_at' => 'datetime',
+            'extra_permissions' => 'array',
         ];
     }
 

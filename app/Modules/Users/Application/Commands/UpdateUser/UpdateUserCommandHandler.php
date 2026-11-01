@@ -10,6 +10,8 @@ use App\Modules\Users\Application\Services\UserManagementGuard;
 use App\Modules\Users\Domain\Enums\AccountType;
 use App\Modules\Users\Domain\Enums\UsersPermission;
 use App\Modules\Users\Domain\Events\AccountTypeChanged;
+use App\Modules\Users\Domain\Events\ExtraPermissionGranted;
+use App\Modules\Users\Domain\Events\ExtraPermissionRevoked;
 use App\Modules\Users\Domain\Exceptions\UserRefused;
 use App\Modules\Users\Domain\Repositories\UserRepository;
 use App\Modules\Users\Domain\ValueObjects\Email;
@@ -70,6 +72,10 @@ final class UpdateUserCommandHandler
             $this->guard->ensureRoleChangeAllowed($command->actor, $user, $command->role);
         }
 
+        if ($command->extraPermissions !== null) {
+            $this->guard->ensureCanChangeExtraPermissions($command->actor, $command->extraPermissions, $user->extraPermissions());
+        }
+
         $user->updateData(
             $command->name, $email, $command->phone, $command->companyName, $command->companyNip,
             $command->companyAddress, $command->pickupAddress, $command->city, $command->postalCode,
@@ -86,6 +92,10 @@ final class UpdateUserCommandHandler
 
         $user->assertConsistent();
 
+        $extraPermissionChanges = $command->extraPermissions === null
+            ? ['granted' => [], 'revoked' => []]
+            : $user->changeExtraPermissions($command->extraPermissions);
+
         if ($roleChanges) {
             $user->assignRole($command->role);
         }
@@ -95,6 +105,14 @@ final class UpdateUserCommandHandler
         }
 
         $this->users->save($user);
+
+        foreach ($extraPermissionChanges['granted'] as $permission) {
+            event(new ExtraPermissionGranted($command->userId, $permission, $command->actor->id, CarbonImmutable::now()));
+        }
+
+        foreach ($extraPermissionChanges['revoked'] as $permission) {
+            event(new ExtraPermissionRevoked($command->userId, $permission, $command->actor->id, CarbonImmutable::now()));
+        }
 
         // FR-21: announced only after the save.
         if ($accountTypeChanged) {

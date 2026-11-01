@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Tables;
 
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
+use App\Modules\Users\UserInterface\Filament\Resources\Users\Actions\ImpersonateUserAction;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Support\RoleDisplay;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -55,6 +56,7 @@ class UsersTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                ImpersonateUserAction::make(),
             ])
             ->defaultSort('created_at', 'desc');
     }

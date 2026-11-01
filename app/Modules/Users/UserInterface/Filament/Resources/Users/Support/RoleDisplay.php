@@ -6,8 +6,11 @@ namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Support;
 
 use App\Modules\Users\Application\ModuleApi\RoleRegistry;
 use App\Modules\Users\Domain\Enums\UserRole;
+use App\Modules\Users\Domain\Policies\ExtraPermissionPolicy;
+use App\Modules\Users\Domain\Policies\ImpersonationPolicy;
 use App\Modules\Users\Domain\Policies\UserManagementPolicy;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
+use App\Modules\Users\UserInterface\Support\ImpersonationSession;
 
 /**
  * How Roles read in the panel: from the RoleRegistry, so a Role of another
@@ -93,5 +96,50 @@ final class RoleDisplay
             self::actorRank(),
             app(RoleRegistry::class)->rankOf((string) $target->role) ?? 0,
         );
+    }
+
+    /** RULE-11: only a Super Admin sees Extra Permissions. */
+    public static function actorSeesExtraPermissions(): bool
+    {
+        return ExtraPermissionPolicy::canManage(self::actorRank());
+    }
+
+    /** RULE-10, WF-06: the Impersonate action is absent when the rules exclude the target or an impersonation runs. */
+    public static function canImpersonate(UserModel $target): bool
+    {
+        $registry = app(RoleRegistry::class);
+        $roleKey = (string) $target->role;
+
+        return ImpersonationPolicy::canStart(ImpersonationSession::isActive())
+            && ImpersonationPolicy::canImpersonate(
+                self::actorRank(),
+                $registry->rankOf($roleKey) ?? 0,
+                $roleKey,
+                $target->isActive(),
+                $registry->isRegistered($roleKey),
+            );
+    }
+
+    /**
+     * Every registered Permission, for the Extra Permissions field.
+     *
+     * @return array<string, string>
+     */
+    public static function permissionOptions(): array
+    {
+        $options = [];
+
+        foreach (app(RoleRegistry::class)->permissions() as $permission) {
+            $options[(string) $permission->value] = self::permissionLabel((string) $permission->value);
+        }
+
+        return $options;
+    }
+
+    public static function permissionLabel(string $permissionKey): string
+    {
+        $key = 'users::permissions.'.str_replace('.', '_', $permissionKey);
+
+        return __($key) === $key ? $permissionKey : __($key);
     }
 }

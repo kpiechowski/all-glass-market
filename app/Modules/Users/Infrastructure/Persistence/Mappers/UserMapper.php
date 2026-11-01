@@ -36,6 +36,7 @@ final class UserMapper implements Mapper
             $model->seller_declaration_version,
             $model->account_type_changed_at === null ? null : CarbonImmutable::instance($model->account_type_changed_at),
             $model->deactivated_at === null ? null : CarbonImmutable::instance($model->deactivated_at),
+            array_values((array) ($model->extra_permissions ?? [])),
         );
     }
 
@@ -60,6 +61,7 @@ final class UserMapper implements Mapper
             'seller_declaration_version' => $entity->declarationVersion(),
             'account_type_changed_at' => $entity->accountTypeChangedAt(),
             'deactivated_at' => $entity->deactivatedAt(),
+            'extra_permissions' => $entity->extraPermissions() === [] ? null : $entity->extraPermissions(),
         ];
     }
 }

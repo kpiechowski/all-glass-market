@@ -76,4 +76,26 @@ class UserAuthorizerTest extends TestCase
         $this->expectException(AuthorizationException::class);
         $authorizer->ensure($this->actorWithRole('shop_cashier'), ShopPermission::Refund);
     }
+
+    /** FR-06: the second source. */
+    public function test_an_extra_permission_passes_beyond_the_role(): void
+    {
+        $this->declareShop();
+        $user = UserModel::factory()->create(['role' => 'shop_cashier', 'extra_permissions' => [ShopPermission::Refund->value]]);
+        $authorizer = app(Authorizer::class);
+
+        $this->assertTrue($authorizer->can(Actor::user($user->id), ShopPermission::Refund));
+        $this->assertTrue($authorizer->can(Actor::user($user->id), ShopPermission::Sell));
+    }
+
+    public function test_an_extra_permission_does_not_leak_to_other_permissions_or_users(): void
+    {
+        $this->declareShop();
+        $holder = UserModel::factory()->admin()->create(['extra_permissions' => [ShopPermission::Sell->value]]);
+        $other = UserModel::factory()->admin()->create();
+        $authorizer = app(Authorizer::class);
+
+        $this->assertFalse($authorizer->can(Actor::user($holder->id), ShopPermission::Refund));
+        $this->assertFalse($authorizer->can(Actor::user($other->id), ShopPermission::Sell));
+    }
 }

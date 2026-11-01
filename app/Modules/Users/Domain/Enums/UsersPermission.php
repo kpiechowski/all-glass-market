@@ -9,4 +9,5 @@ use App\Core\Contracts\Permission;
 enum UsersPermission: string implements Permission
 {
     case ManageUsers = 'users.manage';
+    case Impersonate = 'users.impersonate';
 }

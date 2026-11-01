@@ -45,6 +45,13 @@ final class EloquentUserRepository extends EloquentRepository implements UserRep
         return $role === null ? null : (string) $role;
     }
 
+    public function extraPermissionsOf(int $userId): array
+    {
+        $model = $this->query()->whereKey($userId)->first(['id', 'extra_permissions']);
+
+        return $model === null ? [] : array_values((array) ($model->extra_permissions ?? []));
+    }
+
     public function userIdsWithRoles(array $roleKeys): array
     {
         return $this->query()->whereIn('role', $roleKeys)->whereNull('deactivated_at')->orderBy('id')->pluck('id')->map(fn ($id): int => (int) $id)->all();

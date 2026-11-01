@@ -28,4 +28,19 @@ class UserMapperTest extends TestCase
 
         $this->assertEquals($user, $mapper->toEntity($model));
     }
+
+    public function test_extra_permissions_round_trip(): void
+    {
+        $mapper = new UserMapper;
+        $user = User::reconstitute(
+            7, 'Jan', Email::from('jan@example.com'), null, null, null, null, null, null, null,
+            null, AccountType::Private, 'admin', Hash::make('secret'), extraPermissions: ['users.impersonate'],
+        );
+
+        $model = new UserModel;
+        $model->forceFill($mapper->toRow($user))->setAttribute('id', 7);
+        $model->syncOriginal();
+
+        $this->assertSame(['users.impersonate'], $mapper->toEntity($model)->extraPermissions());
+    }
 }

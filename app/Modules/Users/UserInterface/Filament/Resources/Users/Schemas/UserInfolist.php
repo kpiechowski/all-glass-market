@@ -14,14 +14,14 @@ use Filament\Support\Icons\Heroicon;
 class UserInfolist
 {
     /**
-     * Seams: Offers' statistics (D-05), the audit history, Extra Permissions
-     * (ticket 08) and the password-change marker (ticket 06)
-     * add their sections here.
+     * Seams: Offers' statistics (D-05), the audit history
+     * and the password-change marker (ticket 06) add their sections here.
      */
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
             self::accountSection(),
+            self::extraPermissionsSection(),
             self::companySection(),
             self::shippingSection(),
         ]);
@@ -65,6 +65,21 @@ class UserInfolist
                 TextEntry::make('created_at')
                     ->label(__('users::resources.user.fields.created_at'))
                     ->dateTime(),
+            ]);
+    }
+
+    /** FR-06: listed apart from the Role, for Super Admins only. */
+    private static function extraPermissionsSection(): Section
+    {
+        return Section::make(__('users::resources.user.sections.extra_permissions'))
+            ->icon(Heroicon::Key)
+            ->visible(fn (): bool => RoleDisplay::actorSeesExtraPermissions())
+            ->schema([
+                TextEntry::make('extra_permissions')
+                    ->label(__('users::resources.user.fields.extra_permissions'))
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => RoleDisplay::permissionLabel($state))
+                    ->placeholder(__('users::resources.user.no_extra_permissions')),
             ]);
     }
 

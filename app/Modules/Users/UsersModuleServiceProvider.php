@@ -23,6 +23,8 @@ use App\Modules\Users\UserInterface\Console\GrantSuperAdminConsoleCommand;
 use App\Modules\Users\UserInterface\Console\RevokeSuperAdminConsoleCommand;
 use App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\Support\FilamentJournalEntryUrls;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Support\FilamentUserUrls;
+use App\Modules\Users\UserInterface\Livewire\ImpersonationBanner;
+use Livewire\Livewire;
 
 class UsersModuleServiceProvider extends ModuleServiceProvider
 {
@@ -57,6 +59,8 @@ class UsersModuleServiceProvider extends ModuleServiceProvider
         $this->declareRolesAndPermissions($this->app->make(RoleRegistry::class));
         $this->app->make(JournalSubjects::class)->register('users', $this->app->make(UserJournalSubject::class));
 
+        Livewire::component('users-impersonation-banner', ImpersonationBanner::class);
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 GrantSuperAdminConsoleCommand::class,
@@ -72,6 +76,7 @@ class UsersModuleServiceProvider extends ModuleServiceProvider
         $registry->declareRole(UserRole::User, UserRole::User->rank());
 
         $registry->declarePermissions(UsersPermission::class);
+        // Impersonate is granted to no built-in Role: Super Admin holds it by wildcard, an Admin as an Extra Permission (FR-28).
         $registry->grant(UserRole::Admin, UsersPermission::ManageUsers);
     }
 }

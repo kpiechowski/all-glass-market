@@ -7,6 +7,7 @@ namespace App\Providers\Filament;
 use App\Core\Concerns\DiscoverModuleFilament;
 use App\Modules\Users\UserInterface\Filament\Auth\Login;
 use App\Modules\Users\UserInterface\Http\Middleware\AuthenticatePanel;
+use App\Modules\Users\UserInterface\Support\ImpersonationSession;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -21,6 +22,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -38,6 +40,9 @@ class AdminPanelProvider extends PanelProvider
             ->darkMode(false)
             ->login(Login::class)
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => '<meta name="robots" content="noindex, nofollow">')
+            ->renderHook(PanelsRenderHook::BODY_START, fn (): string => ImpersonationSession::isActive()
+                ? Blade::render('@livewire("users-impersonation-banner")')
+                : '')
             ->databaseNotifications()
             ->colors([
                 'primary' => '#003eb2',

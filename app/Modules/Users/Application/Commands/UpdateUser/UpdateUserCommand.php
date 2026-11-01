@@ -12,6 +12,8 @@ use App\Core\Domain\Actor;
  * only edit themself, and shipping text, role and password are ignored/refused.
  * A non-null `accountType` ('private'|'company') asks for that Account type;
  * only the User themself may (FR-20), and Company needs `sellerDeclarationAccepted`.
+ * A non-null `extraPermissions` (list of Permission values) replaces the User's
+ * Extra Permissions; only a Super Admin may change them (RULE-11).
  */
 final readonly class UpdateUserCommand
 {
@@ -32,5 +34,6 @@ final readonly class UpdateUserCommand
         public ?string $password = null,
         public ?string $accountType = null,
         public bool $sellerDeclarationAccepted = false,
+        public ?array $extraPermissions = null,
     ) {}
 }

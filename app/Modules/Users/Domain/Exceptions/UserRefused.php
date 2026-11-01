@@ -83,4 +83,24 @@ final class UserRefused extends DomainException
     {
         return new self('users::exceptions.not_deactivated');
     }
+
+    public static function onlySuperAdminChangesExtraPermissions(): self
+    {
+        return new self('users::exceptions.only_super_admin_changes_extra_permissions');
+    }
+
+    public static function permissionNotRegistered(): self
+    {
+        return new self('users::exceptions.permission_not_registered');
+    }
+
+    public static function cannotImpersonate(): self
+    {
+        return new self('users::exceptions.cannot_impersonate');
+    }
+
+    public static function impersonationNested(): self
+    {
+        return new self('users::exceptions.impersonation_nested');
+    }
 }

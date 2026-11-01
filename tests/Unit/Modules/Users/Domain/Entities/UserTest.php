@@ -221,4 +221,23 @@ class UserTest extends TestCase
         $this->expectException(UserRefused::class);
         $user->deactivate(CarbonImmutable::now());
     }
+
+    public function test_extra_permissions_start_empty_and_change_reports_the_difference(): void
+    {
+        $user = $this->newUser();
+        $this->assertSame([], $user->extraPermissions());
+
+        $this->assertSame(
+            ['granted' => ['a.x', 'b.x'], 'revoked' => []],
+            $user->changeExtraPermissions(['b.x', 'a.x', 'a.x']),
+        );
+        $this->assertSame(['a.x', 'b.x'], $user->extraPermissions());
+
+        $change = $user->changeExtraPermissions(['b.x', 'c.x']);
+        $this->assertSame(['c.x'], $change['granted']);
+        $this->assertSame(['a.x'], $change['revoked']);
+        $this->assertSame(['b.x', 'c.x'], $user->extraPermissions());
+
+        $this->assertSame(['granted' => [], 'revoked' => []], $user->changeExtraPermissions(['c.x', 'b.x']));
+    }
 }

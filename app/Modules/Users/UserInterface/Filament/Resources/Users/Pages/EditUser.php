@@ -8,6 +8,7 @@ use App\Core\UserInterface\CommandSender;
 use App\Core\UserInterface\CurrentActor;
 use App\Modules\Users\Application\Commands\UpdateUser\UpdateUserCommand;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Actions\DeactivateUserAction;
+use App\Modules\Users\UserInterface\Filament\Resources\Users\Actions\ImpersonateUserAction;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Actions\ReactivateUserAction;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
 use App\Modules\Users\UserInterface\Support\KeepsOwnSessionAfterPasswordChange;
@@ -23,6 +24,7 @@ class EditUser extends EditRecord
     {
         return [
             ViewAction::make(),
+            ImpersonateUserAction::make(),
             DeactivateUserAction::make(),
             ReactivateUserAction::make(),
         ];
@@ -45,6 +47,7 @@ class EditUser extends EditRecord
             shippingText: $data['shipping_note'] ?? null,
             role: $data['role'] ?? null,
             password: $data['password'] ?? null,
+            extraPermissions: isset($data['extra_permissions']) ? array_values($data['extra_permissions']) : null,
         ));
 
         if (filled($data['password'] ?? null)) {

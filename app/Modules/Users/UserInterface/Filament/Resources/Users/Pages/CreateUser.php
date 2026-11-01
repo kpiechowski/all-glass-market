@@ -32,6 +32,7 @@ class CreateUser extends CreateRecord
             city: $data['city'] ?? null,
             postalCode: $data['city_code'] ?? null,
             shippingText: $data['shipping_note'] ?? null,
+            extraPermissions: array_values($data['extra_permissions'] ?? []),
         ));
 
         return UserModel::findOrFail($id);

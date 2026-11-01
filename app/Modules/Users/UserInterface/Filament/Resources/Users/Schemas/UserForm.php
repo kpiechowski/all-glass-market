@@ -8,6 +8,7 @@ use App\Modules\Users\Domain\Policies\UserManagementPolicy;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Support\RoleDisplay;
 use Filament\Actions\Action;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -23,6 +24,7 @@ class UserForm
     {
         return $schema->components([
             self::accountSection(),
+            self::extraPermissionsSection(),
             self::companySection(),
             self::shippingSection(),
             self::passwordSection(),
@@ -60,6 +62,21 @@ class UserForm
                     ->label(__('users::resources.user.fields.phone'))
                     ->tel()
                     ->maxLength(50),
+            ]);
+    }
+
+    /** FR-06, RULE-11: only a Super Admin sees this part of the form; the handler checks again. */
+    private static function extraPermissionsSection(): Section
+    {
+        return Section::make(__('users::resources.user.sections.extra_permissions'))
+            ->icon(Heroicon::Key)
+            ->visible(fn (): bool => RoleDisplay::actorSeesExtraPermissions())
+            ->schema([
+                CheckboxList::make('extra_permissions')
+                    ->label(__('users::resources.user.fields.extra_permissions'))
+                    ->helperText(__('users::resources.user.helpers.extra_permissions'))
+                    ->options(fn (): array => RoleDisplay::permissionOptions())
+                    ->columns(2),
             ]);
     }
 

@@ -11,7 +11,7 @@ use Carbon\CarbonImmutable;
 
 /**
  * A person with an account (spec §8). "Password change required"
- * and Extra Permissions come with later tickets.
+ * comes with a later ticket.
  */
 final class User
 {
@@ -21,6 +21,9 @@ final class User
     /** RULE-07: minutes the Account type stays locked after a saved change. */
     public const int ACCOUNT_TYPE_LOCK_MINUTES = 30;
 
+    /**
+     * @param  list<string>  $extraPermissions
+     */
     private function __construct(
         private ?int $id,
         private string $name,
@@ -40,6 +43,7 @@ final class User
         private ?string $declarationVersion = null,
         private ?CarbonImmutable $accountTypeChangedAt = null,
         private ?CarbonImmutable $deactivatedAt = null,
+        private array $extraPermissions = [],
     ) {
         self::assertName($name);
     }
@@ -49,7 +53,11 @@ final class User
         return new self(null, $name, $email, null, null, null, null, null, null, null, null, AccountType::Private, $roleKey, $passwordHash);
     }
 
-    /** @internal for the mapper */
+    /**
+     * @internal for the mapper
+     *
+     * @param  list<string>  $extraPermissions
+     */
     public static function reconstitute(
         int $id,
         string $name,
@@ -69,8 +77,9 @@ final class User
         ?string $declarationVersion = null,
         ?CarbonImmutable $accountTypeChangedAt = null,
         ?CarbonImmutable $deactivatedAt = null,
+        array $extraPermissions = [],
     ): self {
-        return new self($id, $name, $email, $phone, $companyName, $companyNip, $companyAddress, $pickupAddress, $city, $postalCode, $shippingText, $accountType, $roleKey, $passwordHash, $declarationAcceptedAt, $declarationVersion, $accountTypeChangedAt, $deactivatedAt);
+        return new self($id, $name, $email, $phone, $companyName, $companyNip, $companyAddress, $pickupAddress, $city, $postalCode, $shippingText, $accountType, $roleKey, $passwordHash, $declarationAcceptedAt, $declarationVersion, $accountTypeChangedAt, $deactivatedAt, self::normalisePermissions($extraPermissions));
     }
 
     public function updateData(
@@ -187,6 +196,35 @@ final class User
         $this->deactivatedAt = null;
     }
 
+    /**
+     * FR-06: replaces the Extra Permissions and says what changed. The caller
+     * has already checked RULE-11 and that every grant is a registered Permission.
+     *
+     * @param  list<string>  $permissionKeys
+     * @return array{granted: list<string>, revoked: list<string>}
+     */
+    public function changeExtraPermissions(array $permissionKeys): array
+    {
+        $new = self::normalisePermissions($permissionKeys);
+        $granted = array_values(array_diff($new, $this->extraPermissions));
+        $revoked = array_values(array_diff($this->extraPermissions, $new));
+        $this->extraPermissions = $new;
+
+        return ['granted' => $granted, 'revoked' => $revoked];
+    }
+
+    /**
+     * @param  array<int|string, string>  $keys
+     * @return list<string>
+     */
+    private static function normalisePermissions(array $keys): array
+    {
+        $unique = array_values(array_unique(array_map(strval(...), $keys)));
+        sort($unique);
+
+        return $unique;
+    }
+
     private static function assertName(string $name): void
     {
         if (trim($name) === '' || mb_strlen($name) > 255) {
@@ -291,6 +329,16 @@ final class User
     public function roleKey(): string
     {
         return $this->roleKey;
+    }
+
+    /**
+     * FR-06: Permission values granted to this User on top of their Role.
+     *
+     * @return list<string>
+     */
+    public function extraPermissions(): array
+    {
+        return $this->extraPermissions;
     }
 
     public function passwordHash(): string

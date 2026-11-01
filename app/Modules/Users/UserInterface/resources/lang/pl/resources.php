@@ -14,6 +14,7 @@ return [
             'shipping' => 'Wysyłka',
             'offers' => 'Oferty',
             'history' => 'Historia zmian',
+            'extra_permissions' => 'Dodatkowe uprawnienia',
         ],
 
         'fields' => [
@@ -35,6 +36,7 @@ return [
             'created_at' => 'Data dołączenia',
             'status' => 'Status',
             'deactivated_at' => 'Dezaktywowano',
+            'extra_permissions' => 'Dodatkowe uprawnienia',
         ],
 
         'status' => [
@@ -49,6 +51,11 @@ return [
                 'description' => 'Użytkownik zostanie wylogowany i nie zaloguje się, dopóki konto nie zostanie ponownie aktywowane. Dane, dziennik i historia zostają.',
                 'done' => 'Konto zostało dezaktywowane.',
             ],
+            'impersonate' => [
+                'label' => 'Wejdź na konto',
+                'heading' => 'Wejść na to konto?',
+                'description' => 'Będziesz widzieć i robić wszystko jako ten użytkownik, dopóki nie wrócisz na swoje konto. Początek i koniec zostaną zapisane.',
+            ],
             'reactivate' => [
                 'label' => 'Aktywuj ponownie',
                 'done' => 'Konto zostało ponownie aktywowane.',
@@ -58,8 +65,11 @@ return [
         'helpers' => [
             'password_edit' => 'Zostaw puste, aby zachować obecne hasło.',
             'password_create' => 'Użytkownik zaloguje się tym hasłem. Hasło może wygenerować przycisk obok pola.',
+            'extra_permissions' => 'Uprawnienia nadane temu użytkownikowi ponad jego rolę. Widoczne tylko dla Super Adminów.',
             'shipping_text' => 'Informacja wyświetli się w sekcji WYSYŁKA opisu otomoto dla ofert dotyczących tego użytkownika. Pozostaw puste aby użyć wysyłki z oferty/kategorii',
         ],
+
+        'no_extra_permissions' => 'brak',
 
         'unknown_role' => 'nieznana rola',
 

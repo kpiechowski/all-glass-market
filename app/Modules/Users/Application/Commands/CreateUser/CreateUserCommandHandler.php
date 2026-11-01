@@ -8,10 +8,12 @@ use App\Core\Contracts\Authorizer;
 use App\Modules\Users\Application\Services\UserManagementGuard;
 use App\Modules\Users\Domain\Entities\User;
 use App\Modules\Users\Domain\Enums\UsersPermission;
+use App\Modules\Users\Domain\Events\ExtraPermissionGranted;
 use App\Modules\Users\Domain\Exceptions\UserRefused;
 use App\Modules\Users\Domain\Repositories\UserRepository;
 use App\Modules\Users\Domain\ValueObjects\Email;
 use App\Modules\Users\Domain\ValueObjects\PlainPassword;
+use Carbon\CarbonImmutable;
 use Ecotone\Modelling\Attribute\CommandHandler;
 use Illuminate\Contracts\Hashing\Hasher;
 
@@ -32,6 +34,7 @@ final class CreateUserCommandHandler
         $email = Email::from($command->email);
         $password = PlainPassword::from($command->password);
         $this->guard->ensureRoleAssignable($command->actor, $command->role);
+        $this->guard->ensureCanChangeExtraPermissions($command->actor, $command->extraPermissions, []);
 
         if ($this->users->emailIsTaken($email->value())) {
             throw UserRefused::emailTaken();
@@ -44,6 +47,14 @@ final class CreateUserCommandHandler
         );
         $user->changeShippingText($command->shippingText);
 
-        return $this->users->add($user);
+        $changes = $user->changeExtraPermissions($command->extraPermissions);
+
+        $id = $this->users->add($user);
+
+        foreach ($changes['granted'] as $permission) {
+            event(new ExtraPermissionGranted($id, $permission, $command->actor->id, CarbonImmutable::now()));
+        }
+
+        return $id;
     }
 }

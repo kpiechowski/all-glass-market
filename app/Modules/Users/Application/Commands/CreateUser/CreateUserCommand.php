@@ -25,5 +25,6 @@ final readonly class CreateUserCommand
         public ?string $city = null,
         public ?string $postalCode = null,
         public ?string $shippingText = null,
+        public array $extraPermissions = [],
     ) {}
 }

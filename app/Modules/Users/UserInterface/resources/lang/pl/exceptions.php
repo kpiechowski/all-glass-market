@@ -26,4 +26,8 @@ return [
     'cannot_deactivate' => 'Nie możesz dezaktywować siebie ani Super Admina.',
     'already_deactivated' => 'To konto jest już nieaktywne.',
     'not_deactivated' => 'To konto jest aktywne.',
+    'only_super_admin_changes_extra_permissions' => 'Dodatkowe uprawnienia nadaje i odbiera tylko Super Admin.',
+    'permission_not_registered' => 'To uprawnienie nie jest zarejestrowane.',
+    'cannot_impersonate' => 'Nie możesz wejść na to konto: musi być aktywne, mieć niższą rolę niż Twoja i nie może należeć do Super Admina.',
+    'impersonation_nested' => 'Najpierw wróć na swoje konto, potem możesz wejść na inne.',
 ];

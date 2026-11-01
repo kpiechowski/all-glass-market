@@ -23,6 +23,13 @@ interface UserRepository extends Repository
     public function roleKeyOf(int $userId): ?string;
 
     /**
+     * The Permission values granted to the User as Extra Permissions (FR-06).
+     *
+     * @return list<string>
+     */
+    public function extraPermissionsOf(int $userId): array;
+
+    /**
      * Active Users only: a Deactivated User receives no group notification.
      *
      * @param  list<string>  $roleKeys
