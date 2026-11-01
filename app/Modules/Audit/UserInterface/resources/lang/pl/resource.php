@@ -28,34 +28,4 @@ return [
             'deleted' => 'Usunięto',
         ],
     ],
-
-    'user_journal' => [
-        'label' => 'Wpis dziennika',
-        'plural_label' => 'Dziennik ofert',
-
-        'fields' => [
-            'user' => 'Użytkownik',
-            'offer_id' => 'ID oferty',
-            'type' => 'Typ',
-            'title' => 'Tytuł',
-            'content' => 'Treść',
-            'is_read' => 'Przeczytano',
-            'created_at' => 'Data',
-        ],
-
-        'filters' => [
-            'is_read' => 'Status odczytu',
-        ],
-
-        'actions' => [
-            'mark_read' => 'Oznacz jako przeczytane',
-        ],
-    ],
-
-    'journal_types' => [
-        'Info' => 'Informacja',
-        'Success' => 'Sukces',
-        'Warning' => 'Ostrzeżenie',
-        'Rejection' => 'Odrzucenie',
-    ],
 ];

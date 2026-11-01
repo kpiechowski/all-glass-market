@@ -2,11 +2,7 @@ deptrac:
   skip_violations:
     App\Modules\Audit\Domain\Models\ChangesLog:
       - App\Modules\Users\Infrastructure\Persistence\Models\UserModel
-    App\Modules\Audit\Domain\Models\UserJournal:
-      - App\Modules\Users\Infrastructure\Persistence\Models\UserModel
     App\Modules\Audit\Domain\Repositories\ChangesLogRepository:
-      - App\Core\Abstracts\ModelRepository
-    App\Modules\Audit\Domain\Repositories\UserJournalRepository:
       - App\Core\Abstracts\ModelRepository
     App\Modules\Audit\Domain\Traits\HasChangesLog:
       - App\Modules\Audit\Application\Services\ChangesLogService
@@ -16,7 +12,3 @@ deptrac:
       - App\Modules\Audit\Domain\Models\ChangesLog
     App\Modules\Audit\UserInterface\Filament\Resources\ChangesLog\Tables\ChangesLogTable:
       - App\Modules\Audit\Domain\Models\ChangesLog
-    App\Modules\Audit\UserInterface\Filament\Resources\UserJournal\Tables\UserJournalTable:
-      - App\Modules\Audit\Domain\Models\UserJournal
-    App\Modules\Audit\UserInterface\Filament\Resources\UserJournal\UserJournalResource:
-      - App\Modules\Audit\Domain\Models\UserJournal

@@ -15,4 +15,8 @@ return [
     'cannot_manage' => 'Nie możesz zarządzać użytkownikiem o wyższej roli.',
     'cannot_change_own_role' => 'Nie możesz zmienić własnej roli.',
     'role_not_assignable' => 'Nie możesz nadać tej roli.',
+    'journal_invalid_kind' => 'Rodzaj wpisu musi być jednym słowem z małych liter.',
+    'journal_invalid_title' => 'Tytuł wpisu jest wymagany i może mieć najwyżej 255 znaków.',
+    'journal_entry_not_found' => 'Nie znaleziono wpisu dziennika.',
+    'journal_not_owner' => 'Możesz zarządzać tylko własnymi wpisami dziennika.',
 ];

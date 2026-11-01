@@ -8,6 +8,8 @@ use App\Core\Console\CreateDevUserCommand;
 use App\Core\Console\DeleteModuleCommand;
 use App\Core\Console\MakeIntegrationCommand;
 use App\Core\Console\MakeModuleCommand;
+use App\Core\Contracts\PanelNotifier;
+use App\Core\UserInterface\FilamentPanelNotifier;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 
@@ -15,6 +17,8 @@ class CoreServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->bind(PanelNotifier::class, FilamentPanelNotifier::class);
+
         $this->discoverModuleProviders();
     }
 

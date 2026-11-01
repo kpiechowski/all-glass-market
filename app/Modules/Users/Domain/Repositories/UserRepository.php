@@ -12,6 +12,8 @@ use App\Modules\Users\Domain\Entities\User;
  */
 interface UserRepository extends Repository
 {
+    public function exists(int $id): bool;
+
     public function findByEmail(string $email): ?User;
 
     /** RULE-01: unique among all Users; the User being edited is excluded. */

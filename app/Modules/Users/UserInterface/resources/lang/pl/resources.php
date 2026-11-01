@@ -48,4 +48,28 @@ return [
             'account_type' => 'Typ konta',
         ],
     ],
+
+    'journal_entry' => [
+        'label' => 'Wpis dziennika',
+        'plural_label' => 'Dziennik',
+        'subject_missing' => 'Obiekt, którego dotyczy wpis, już nie istnieje.',
+
+        'fields' => [
+            'title' => 'Tytuł',
+            'content' => 'Treść',
+            'kind' => 'Rodzaj',
+            'severity' => 'Ważność',
+            'is_read' => 'Przeczytano',
+            'created_at' => 'Data',
+        ],
+
+        'kinds' => [
+            'offer' => 'Oferta',
+            'users' => 'Użytkownicy',
+        ],
+
+        'actions' => [
+            'mark_read' => 'Oznacz jako przeczytane',
+        ],
+    ],
 ];

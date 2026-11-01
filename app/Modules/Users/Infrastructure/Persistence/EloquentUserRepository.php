@@ -18,6 +18,11 @@ final class EloquentUserRepository extends EloquentRepository implements UserRep
         parent::__construct(UserModel::class, $userMapper);
     }
 
+    public function exists(int $id): bool
+    {
+        return $this->query()->whereKey($id)->exists();
+    }
+
     public function findByEmail(string $email): ?User
     {
         $model = $this->query()->where('email', mb_strtolower(trim($email)))->first();

@@ -29,6 +29,14 @@ class EloquentUserRepositoryTest extends TestCase
         $this->assertNull($users->find(9999));
     }
 
+    public function test_it_knows_whether_a_user_exists(): void
+    {
+        $model = UserModel::factory()->create();
+
+        $this->assertTrue(app(UserRepository::class)->exists($model->id));
+        $this->assertFalse(app(UserRepository::class)->exists($model->id + 100));
+    }
+
     public function test_it_finds_a_user_by_email(): void
     {
         $model = UserModel::factory()->create(['email' => 'a@example.com']);

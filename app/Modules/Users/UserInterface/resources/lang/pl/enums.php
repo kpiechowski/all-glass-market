@@ -13,4 +13,11 @@ return [
         'company' => 'Firmowe',
         'private' => 'Prywatne',
     ],
+
+    'journal_severity' => [
+        'info' => 'Informacja',
+        'success' => 'Sukces',
+        'warning' => 'Ostrzeżenie',
+        'rejection' => 'Odrzucenie',
+    ],
 ];

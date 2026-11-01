@@ -38,6 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ->darkMode(false)
             ->login(Login::class)
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => '<meta name="robots" content="noindex, nofollow">')
+            ->databaseNotifications()
             ->colors([
                 'primary' => '#003eb2',
             ])
