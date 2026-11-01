@@ -6,10 +6,7 @@ namespace App\Modules\Users\Infrastructure\Persistence\Models;
 
 use App\Core\Infrastructure\Persistence\ReadOnlyModel;
 use App\Modules\Users\Domain\Enums\AccountType;
-use App\Modules\Users\Domain\Enums\UserRole;
 use App\Modules\Users\Infrastructure\Factories\UserModelFactory;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Panel;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -28,7 +25,7 @@ use Illuminate\Notifications\Notifiable;
  * city_code = postal code, shipping_note = Otomoto shipping text.
  */
 #[Hidden(['password', 'remember_token'])]
-final class UserModel extends ReadOnlyModel implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, FilamentUser
+final class UserModel extends ReadOnlyModel implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
 {
     /** @use HasFactory<UserModelFactory> */
     use Authenticatable, Authorizable, CanResetPassword, HasFactory, MustVerifyEmail, Notifiable;
@@ -65,11 +62,5 @@ final class UserModel extends ReadOnlyModel implements AuthenticatableContract, 
         }
 
         return parent::save($options);
-    }
-
-    public function canAccessPanel(Panel $panel): bool
-    {
-        // Interim until ticket 03 (FR-07): any registered Role enters.
-        return in_array($this->role, [UserRole::SuperAdmin->value, UserRole::Admin->value], strict: true);
     }
 }

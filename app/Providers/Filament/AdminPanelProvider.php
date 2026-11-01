@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace App\Providers\Filament;
 
 use App\Core\Concerns\DiscoverModuleFilament;
-use Filament\Http\Middleware\Authenticate;
+use App\Modules\Users\UserInterface\Filament\Auth\Login;
+use App\Modules\Users\UserInterface\Http\Middleware\AuthenticatePanel;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -34,7 +36,8 @@ class AdminPanelProvider extends PanelProvider
             ->font('Poppins')
             ->viteTheme('resources/css/admin/theme.css')
             ->darkMode(false)
-            ->login()
+            ->login(Login::class)
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => '<meta name="robots" content="noindex, nofollow">')
             ->colors([
                 'primary' => '#003eb2',
             ])
@@ -60,7 +63,7 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
-                Authenticate::class,
+                AuthenticatePanel::class,
             ]);
 
         $this->discoverModuleFilament($panel);

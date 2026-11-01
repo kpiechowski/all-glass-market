@@ -8,6 +8,7 @@ use App\Core\UserInterface\CommandSender;
 use App\Core\UserInterface\CurrentActor;
 use App\Modules\Users\Application\Commands\UpdateUser\UpdateUserCommand;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
+use App\Modules\Users\UserInterface\Support\KeepsOwnSessionAfterPasswordChange;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
@@ -41,6 +42,10 @@ class EditUser extends EditRecord
             role: $data['role'] ?? null,
             password: $data['password'] ?? null,
         ));
+
+        if (filled($data['password'] ?? null)) {
+            KeepsOwnSessionAfterPasswordChange::for((int) $record->getKey());
+        }
 
         return $record->refresh();
     }

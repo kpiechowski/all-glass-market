@@ -11,6 +11,7 @@ use App\Modules\Users\Application\Commands\UpdateUser\UpdateUserCommand;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\Schemas\PasswordForm;
 use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\Schemas\ProfileForm;
+use App\Modules\Users\UserInterface\Support\KeepsOwnSessionAfterPasswordChange;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -167,6 +168,8 @@ class EditProfile extends Page
 
             return;
         }
+
+        KeepsOwnSessionAfterPasswordChange::for((int) $user->getKey());
 
         $this->passwordForm->fill([]);
 

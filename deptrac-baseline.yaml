@@ -20,6 +20,3 @@ deptrac:
       - App\Modules\Audit\Domain\Models\UserJournal
     App\Modules\Audit\UserInterface\Filament\Resources\UserJournal\UserJournalResource:
       - App\Modules\Audit\Domain\Models\UserJournal
-    App\Modules\Users\Infrastructure\Persistence\Models\UserModel:
-      - Filament\Models\Contracts\FilamentUser
-      - Filament\Panel
