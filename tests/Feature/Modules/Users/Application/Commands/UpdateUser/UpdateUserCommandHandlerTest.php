@@ -192,4 +192,25 @@ class UpdateUserCommandHandlerTest extends TestCase
         $this->expectException(UserRefused::class);
         $this->update(Actor::user($admin->id), $ghost);
     }
+
+    public function test_an_admins_new_password_sets_the_marker_and_an_empty_one_leaves_it(): void
+    {
+        $admin = UserModel::factory()->admin()->create();
+        $target = UserModel::factory()->create();
+
+        $this->update(Actor::user($admin->id), $target, password: '');
+        $this->assertFalse($target->fresh()->password_change_required);
+
+        $this->update(Actor::user($admin->id), $target, password: 'brand-new-pass');
+        $this->assertTrue($target->fresh()->password_change_required);
+    }
+
+    public function test_a_users_own_new_password_clears_the_marker(): void
+    {
+        $user = UserModel::factory()->passwordChangeRequired()->create();
+
+        $this->update(Actor::user($user->id), $user, password: 'brand-new-pass');
+
+        $this->assertFalse($user->fresh()->password_change_required);
+    }
 }

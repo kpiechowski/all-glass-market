@@ -6,7 +6,9 @@ namespace App\Modules\Users\Application\Commands\ChangeUserPassword;
 
 use App\Core\Contracts\Authorizer;
 use App\Modules\Users\Application\Services\UserManagementGuard;
+use App\Modules\Users\Domain\Enums\PasswordChangeReason;
 use App\Modules\Users\Domain\Enums\UsersPermission;
+use App\Modules\Users\Domain\Events\PasswordChanged;
 use App\Modules\Users\Domain\Exceptions\UserRefused;
 use App\Modules\Users\Domain\Repositories\UserRepository;
 use App\Modules\Users\Domain\ValueObjects\PlainPassword;
@@ -27,13 +29,20 @@ final class ChangeUserPasswordCommandHandler
     {
         $user = $this->users->find($command->userId) ?? throw UserRefused::userNotFound();
 
-        // Changing one's own password needs no Permission; ticket 06 rebuilds this handler.
-        if ($command->actor->id !== $user->id()) {
+        // Changing one's own password needs no Permission and clears the marker (RULE-15).
+        $isSelf = $command->actor->id === $user->id();
+
+        if (! $isSelf) {
             $this->authorizer->ensure($command->actor, UsersPermission::ManageUsers);
             $this->guard->ensureCanManage($command->actor, $user);
         }
 
-        $user->changePasswordHash($this->hasher->make(PlainPassword::from($command->password)->value()));
+        $hash = $this->hasher->make(PlainPassword::from($command->password)->value());
+
+        // FR-25, FR-36: an Admin's password change sets "password change required".
+        $isSelf ? $user->setOwnPassword($hash) : $user->setPasswordByAdmin($hash);
         $this->users->save($user);
+
+        event(new PasswordChanged((int) $user->id(), ($isSelf ? PasswordChangeReason::Own : PasswordChangeReason::ByAdmin)->value));
     }
 }

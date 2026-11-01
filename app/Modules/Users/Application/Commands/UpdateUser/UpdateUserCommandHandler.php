@@ -8,10 +8,12 @@ use App\Core\Contracts\Authorizer;
 use App\Core\Exceptions\AuthorizationException;
 use App\Modules\Users\Application\Services\UserManagementGuard;
 use App\Modules\Users\Domain\Enums\AccountType;
+use App\Modules\Users\Domain\Enums\PasswordChangeReason;
 use App\Modules\Users\Domain\Enums\UsersPermission;
 use App\Modules\Users\Domain\Events\AccountTypeChanged;
 use App\Modules\Users\Domain\Events\ExtraPermissionGranted;
 use App\Modules\Users\Domain\Events\ExtraPermissionRevoked;
+use App\Modules\Users\Domain\Events\PasswordChanged;
 use App\Modules\Users\Domain\Exceptions\UserRefused;
 use App\Modules\Users\Domain\Repositories\UserRepository;
 use App\Modules\Users\Domain\ValueObjects\Email;
@@ -101,7 +103,10 @@ final class UpdateUserCommandHandler
         }
 
         if ($password !== null) {
-            $user->changePasswordHash($this->hasher->make($password->value()));
+            $hash = $this->hasher->make($password->value());
+
+            // FR-25, FR-36: an Admin's new password for another User sets "password change required".
+            $isSelf ? $user->setOwnPassword($hash) : $user->setPasswordByAdmin($hash);
         }
 
         $this->users->save($user);
@@ -112,6 +117,10 @@ final class UpdateUserCommandHandler
 
         foreach ($extraPermissionChanges['revoked'] as $permission) {
             event(new ExtraPermissionRevoked($command->userId, $permission, $command->actor->id, CarbonImmutable::now()));
+        }
+
+        if ($password !== null) {
+            event(new PasswordChanged($command->userId, ($isSelf ? PasswordChangeReason::Own : PasswordChangeReason::ByAdmin)->value));
         }
 
         // FR-21: announced only after the save.

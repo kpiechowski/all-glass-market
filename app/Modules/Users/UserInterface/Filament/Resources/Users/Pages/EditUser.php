@@ -9,6 +9,7 @@ use App\Core\UserInterface\CurrentActor;
 use App\Modules\Users\Application\Commands\UpdateUser\UpdateUserCommand;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Actions\DeactivateUserAction;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Actions\ImpersonateUserAction;
+use App\Modules\Users\UserInterface\Filament\Resources\Users\Actions\PasswordActions;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Actions\ReactivateUserAction;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
 use App\Modules\Users\UserInterface\Support\KeepsOwnSessionAfterPasswordChange;
@@ -23,6 +24,7 @@ class EditUser extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            PasswordActions::make(),
             ViewAction::make(),
             ImpersonateUserAction::make(),
             DeactivateUserAction::make(),

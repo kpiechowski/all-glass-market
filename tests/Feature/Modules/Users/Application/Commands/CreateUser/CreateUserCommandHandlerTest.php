@@ -8,16 +8,19 @@ use App\Core\Domain\Actor;
 use App\Core\Exceptions\AuthorizationException;
 use App\Modules\Users\Application\Commands\CreateUser\CreateUserCommand;
 use App\Modules\Users\Domain\Enums\AccountType;
+use App\Modules\Users\Domain\Enums\PasswordLinkKind;
 use App\Modules\Users\Domain\Exceptions\UserRefused;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Ecotone\Modelling\CommandBus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
+use Tests\Support\CapturesPasswordLinks;
 use Tests\TestCase;
 
 class CreateUserCommandHandlerTest extends TestCase
 {
-    use RefreshDatabase;
+    use CapturesPasswordLinks, RefreshDatabase;
 
     private function create(Actor $actor, string $role = 'user', string $email = 'new@example.com', string $password = 'secret-pass', string $name = 'Nowy'): int
     {
@@ -106,5 +109,52 @@ class CreateUserCommandHandlerTest extends TestCase
         $admin = UserModel::factory()->admin()->create(['name' => 'Jan_Dup']);
 
         $this->assertGreaterThan(0, $this->create(Actor::user($admin->id), name: 'Jan_Dup'));
+    }
+
+    public function test_a_temporary_password_sets_password_change_required(): void
+    {
+        $admin = UserModel::factory()->admin()->create();
+
+        $created = UserModel::findOrFail($this->create(Actor::user($admin->id)));
+
+        $this->assertTrue($created->password_change_required);
+    }
+
+    public function test_an_invitation_sends_a_link_and_sets_no_marker_and_no_usable_password(): void
+    {
+        $this->emailSendingWorks();
+        $admin = UserModel::factory()->admin()->create();
+
+        $id = app(CommandBus::class)->send(new CreateUserCommand(
+            Actor::user($admin->id), 'user', 'Zaproszony', 'invited@example.com', null, sendInvitation: true,
+        ));
+
+        $created = UserModel::findOrFail($id);
+        $this->assertFalse($created->password_change_required);
+        $this->assertStringContainsString('invitation', $this->sentLink($created, PasswordLinkKind::Invitation)['url']);
+    }
+
+    public function test_an_invitation_is_refused_while_email_sending_is_unavailable_and_creates_nobody(): void
+    {
+        Notification::fake();
+        $admin = UserModel::factory()->admin()->create();
+
+        try {
+            app(CommandBus::class)->send(new CreateUserCommand(
+                Actor::user($admin->id), 'user', 'Zaproszony', 'invited@example.com', null, sendInvitation: true,
+            ));
+            $this->fail('Expected a refusal.');
+        } catch (UserRefused) {
+        }
+
+        $this->assertDatabaseMissing('users', ['email' => 'invited@example.com']);
+    }
+
+    public function test_a_temporary_password_is_required_without_an_invitation(): void
+    {
+        $admin = UserModel::factory()->admin()->create();
+
+        $this->expectException(UserRefused::class);
+        app(CommandBus::class)->send(new CreateUserCommand(Actor::user($admin->id), 'user', 'X', 'x@example.com', null));
     }
 }

@@ -30,4 +30,10 @@ return [
     'permission_not_registered' => 'To uprawnienie nie jest zarejestrowane.',
     'cannot_impersonate' => 'Nie możesz wejść na to konto: musi być aktywne, mieć niższą rolę niż Twoja i nie może należeć do Super Admina.',
     'impersonation_nested' => 'Najpierw wróć na swoje konto, potem możesz wejść na inne.',
+    'password_same_as_current' => 'Nowe hasło musi różnić się od obecnego.',
+    'password_change_not_required' => 'To konto nie wymaga zmiany hasła.',
+    'password_link_invalid' => 'Ten link wygasł albo został już użyty. Poproś o nowy na stronie logowania.',
+    'password_link_not_sent' => 'Nie udało się wysłać wiadomości e-mail z linkiem.',
+    'password_link_not_allowed' => 'Ten użytkownik nie może ustawić hasła tym linkiem.',
+    'email_sending_unavailable' => 'Wysyłanie wiadomości e-mail jest teraz niedostępne. Ustaw hasło tymczasowe.',
 ];

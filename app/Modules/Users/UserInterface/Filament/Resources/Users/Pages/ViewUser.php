@@ -6,6 +6,7 @@ namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Pages;
 
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Actions\DeactivateUserAction;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Actions\ImpersonateUserAction;
+use App\Modules\Users\UserInterface\Filament\Resources\Users\Actions\PasswordActions;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Actions\ReactivateUserAction;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
 use Filament\Actions\EditAction;
@@ -19,6 +20,7 @@ class ViewUser extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            PasswordActions::make(),
             EditAction::make()
                 ->visible(fn (Model $record): bool => UserResource::canEdit($record)),
             ImpersonateUserAction::make(),

@@ -5,8 +5,13 @@ declare(strict_types=1);
 namespace App\Providers\Filament;
 
 use App\Core\Concerns\DiscoverModuleFilament;
+use App\Modules\Users\UserInterface\Filament\Auth\AcceptInvitation;
 use App\Modules\Users\UserInterface\Filament\Auth\Login;
+use App\Modules\Users\UserInterface\Filament\Auth\RequestPasswordReset;
+use App\Modules\Users\UserInterface\Filament\Auth\ResetPassword;
+use App\Modules\Users\UserInterface\Filament\Auth\SetNewPassword;
 use App\Modules\Users\UserInterface\Http\Middleware\AuthenticatePanel;
+use App\Modules\Users\UserInterface\Http\Middleware\RequirePasswordChange;
 use App\Modules\Users\UserInterface\Support\ImpersonationSession;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -22,6 +27,7 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Route;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -38,6 +44,9 @@ class AdminPanelProvider extends PanelProvider
             ->viteTheme('resources/css/admin/theme.css')
             ->darkMode(false)
             ->login(Login::class)
+            ->passwordReset(RequestPasswordReset::class, ResetPassword::class)
+            ->routes(fn () => Route::get('/invitation', AcceptInvitation::class)->middleware('signed')->name('auth.invitation'))
+            ->authenticatedRoutes(fn () => Route::get('/set-new-password', SetNewPassword::class)->name(SetNewPassword::ROUTE))
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => '<meta name="robots" content="noindex, nofollow">')
             ->renderHook(PanelsRenderHook::BODY_START, fn (): string => ImpersonationSession::isActive()
                 ? Blade::render('@livewire("users-impersonation-banner")')
@@ -68,6 +77,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 AuthenticatePanel::class,
+                RequirePasswordChange::class,
             ]);
 
         $this->discoverModuleFilament($panel);

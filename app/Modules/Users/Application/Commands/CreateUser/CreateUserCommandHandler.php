@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Modules\Users\Application\Commands\CreateUser;
 
 use App\Core\Contracts\Authorizer;
+use App\Modules\Users\Application\ModuleApi\EmailSending;
 use App\Modules\Users\Application\Services\UserManagementGuard;
+use App\Modules\Users\Domain\Contracts\PasswordLinks;
 use App\Modules\Users\Domain\Entities\User;
+use App\Modules\Users\Domain\Enums\PasswordLinkKind;
 use App\Modules\Users\Domain\Enums\UsersPermission;
 use App\Modules\Users\Domain\Events\ExtraPermissionGranted;
 use App\Modules\Users\Domain\Exceptions\UserRefused;
@@ -16,6 +19,7 @@ use App\Modules\Users\Domain\ValueObjects\PlainPassword;
 use Carbon\CarbonImmutable;
 use Ecotone\Modelling\Attribute\CommandHandler;
 use Illuminate\Contracts\Hashing\Hasher;
+use Illuminate\Support\Str;
 
 final class CreateUserCommandHandler
 {
@@ -24,6 +28,8 @@ final class CreateUserCommandHandler
         private UserManagementGuard $guard,
         private UserRepository $users,
         private Hasher $hasher,
+        private PasswordLinks $links,
+        private EmailSending $emailSending,
     ) {}
 
     #[CommandHandler]
@@ -32,7 +38,6 @@ final class CreateUserCommandHandler
         $this->authorizer->ensure($command->actor, UsersPermission::ManageUsers);
 
         $email = Email::from($command->email);
-        $password = PlainPassword::from($command->password);
         $this->guard->ensureRoleAssignable($command->actor, $command->role);
         $this->guard->ensureCanChangeExtraPermissions($command->actor, $command->extraPermissions, []);
 
@@ -40,7 +45,14 @@ final class CreateUserCommandHandler
             throw UserRefused::emailTaken();
         }
 
-        $user = User::create($command->name, $email, $command->role, $this->hasher->make($password->value()));
+        if ($command->sendInvitation && ! $this->emailSending->isAvailable()) {
+            throw UserRefused::emailSendingUnavailable();
+        }
+
+        // An invited User gets an unusable password until they set their own.
+        $user = User::create($command->name, $email, $command->role, $this->hasher->make(
+            $command->sendInvitation ? Str::random(64) : PlainPassword::from((string) $command->password)->value(),
+        ));
         $user->updateData(
             $command->name, $email, $command->phone, $command->companyName, $command->companyNip,
             $command->companyAddress, $command->pickupAddress, $command->city, $command->postalCode,
@@ -49,7 +61,15 @@ final class CreateUserCommandHandler
 
         $changes = $user->changeExtraPermissions($command->extraPermissions);
 
+        if (! $command->sendInvitation) {
+            $user->requirePasswordChange();
+        }
+
         $id = $this->users->add($user);
+
+        if ($command->sendInvitation) {
+            $this->links->send($id, PasswordLinkKind::Invitation);
+        }
 
         foreach ($changes['granted'] as $permission) {
             event(new ExtraPermissionGranted($id, $permission, $command->actor->id, CarbonImmutable::now()));

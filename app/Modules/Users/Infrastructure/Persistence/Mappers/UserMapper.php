@@ -37,6 +37,7 @@ final class UserMapper implements Mapper
             $model->account_type_changed_at === null ? null : CarbonImmutable::instance($model->account_type_changed_at),
             $model->deactivated_at === null ? null : CarbonImmutable::instance($model->deactivated_at),
             array_values((array) ($model->extra_permissions ?? [])),
+            (bool) $model->password_change_required,
         );
     }
 
@@ -62,6 +63,7 @@ final class UserMapper implements Mapper
             'account_type_changed_at' => $entity->accountTypeChangedAt(),
             'deactivated_at' => $entity->deactivatedAt(),
             'extra_permissions' => $entity->extraPermissions() === [] ? null : $entity->extraPermissions(),
+            'password_change_required' => $entity->passwordChangeRequired(),
         ];
     }
 }

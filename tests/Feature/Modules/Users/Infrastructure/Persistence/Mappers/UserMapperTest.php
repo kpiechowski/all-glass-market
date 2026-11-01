@@ -20,6 +20,7 @@ class UserMapperTest extends TestCase
         $user = User::reconstitute(
             7, 'Jan Kowalski', Email::from('jan@example.com'), '123', 'Firma', '111', 'Adres', 'Odbiór', 'Łódź', '90-001',
             '<p>Wysyłka</p>', AccountType::Private, 'admin', Hash::make('secret'),
+            passwordChangeRequired: true,
         );
 
         $model = new UserModel;

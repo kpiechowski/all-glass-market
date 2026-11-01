@@ -37,11 +37,22 @@ return [
             'status' => 'Status',
             'deactivated_at' => 'Dezaktywowano',
             'extra_permissions' => 'Dodatkowe uprawnienia',
+            'password_method' => 'Hasło użytkownika',
+            'password_change_required' => 'Zmiana hasła',
         ],
 
         'status' => [
             'active' => 'Aktywne',
             'inactive' => 'konto nieaktywne',
+        ],
+
+        'markers' => [
+            'password_change_required' => 'wymaga zmiany hasła',
+        ],
+
+        'password_methods' => [
+            'invitation' => 'Wyślij zaproszenie (użytkownik sam ustawi hasło)',
+            'temporary' => 'Ustaw hasło tymczasowe (użytkownik zmieni je po zalogowaniu)',
         ],
 
         'actions' => [
@@ -60,11 +71,18 @@ return [
                 'label' => 'Aktywuj ponownie',
                 'done' => 'Konto zostało ponownie aktywowane.',
             ],
+            'group' => 'Hasło',
+            'send_invitation' => 'Wyślij ponownie zaproszenie',
+            'send_reset' => 'Wyślij link do resetu hasła',
+            'invitation_sent' => 'Zaproszenie zostało wysłane',
+            'reset_sent' => 'Link do resetu hasła został wysłany',
+            'require_password_change' => 'Wymagaj zmiany hasła',
+            'clear_password_change' => 'Nie wymagaj zmiany hasła',
         ],
 
         'helpers' => [
-            'password_edit' => 'Zostaw puste, aby zachować obecne hasło.',
-            'password_create' => 'Użytkownik zaloguje się tym hasłem. Hasło może wygenerować przycisk obok pola.',
+            'password_edit' => 'Zostaw puste, aby zachować obecne hasło. Nowe hasło wymusi jego zmianę przez użytkownika.',
+            'password_create' => 'Użytkownik zaloguje się tym hasłem i będzie musiał je zmienić. Hasło może wygenerować przycisk obok pola.',
             'extra_permissions' => 'Uprawnienia nadane temu użytkownikowi ponad jego rolę. Widoczne tylko dla Super Adminów.',
             'shipping_text' => 'Informacja wyświetli się w sekcji WYSYŁKA opisu otomoto dla ofert dotyczących tego użytkownika. Pozostaw puste aby użyć wysyłki z oferty/kategorii',
         ],
@@ -80,6 +98,7 @@ return [
             'status_all' => 'Wszystkie',
             'status_active' => 'Aktywne',
             'status_inactive' => 'Nieaktywne',
+            'password_change_required' => 'Wymaga zmiany hasła',
         ],
     ],
 

@@ -61,4 +61,23 @@ class ChangeUserPasswordCommandHandlerTest extends TestCase
         $this->expectException(UserRefused::class);
         $this->change(Actor::user($user->id), $user, 'short');
     }
+
+    public function test_an_admins_change_sets_password_change_required(): void
+    {
+        $admin = UserModel::factory()->admin()->create();
+        $user = UserModel::factory()->create();
+
+        $this->change(Actor::user($admin->id), $user);
+
+        $this->assertTrue($user->fresh()->password_change_required);
+    }
+
+    public function test_the_users_own_change_clears_the_marker(): void
+    {
+        $user = UserModel::factory()->passwordChangeRequired()->create();
+
+        $this->change(Actor::user($user->id), $user);
+
+        $this->assertFalse($user->fresh()->password_change_required);
+    }
 }

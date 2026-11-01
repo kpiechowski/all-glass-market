@@ -8,6 +8,7 @@ use App\Modules\Users\Domain\Enums\AccountType;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Support\RoleDisplay;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
+use Illuminate\Database\Eloquent\Builder;
 
 class UsersTableFilters
 {
@@ -32,6 +33,14 @@ class UsersTableFilters
                     true: fn ($query) => $query->whereNull('deactivated_at'),
                     false: fn ($query) => $query->whereNotNull('deactivated_at'),
                     blank: fn ($query) => $query,
+                ),
+
+            TernaryFilter::make('password_change_required')
+                ->label(__('users::resources.user.filters.password_change_required'))
+                ->queries(
+                    true: fn (Builder $query): Builder => $query->where('password_change_required', true),
+                    false: fn (Builder $query): Builder => $query->where('password_change_required', false),
+                    blank: fn (Builder $query): Builder => $query,
                 ),
         ];
     }

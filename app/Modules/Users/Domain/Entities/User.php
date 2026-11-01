@@ -10,8 +10,7 @@ use App\Modules\Users\Domain\ValueObjects\Email;
 use Carbon\CarbonImmutable;
 
 /**
- * A person with an account (spec §8). "Password change required"
- * comes with a later ticket.
+ * A person with an account (spec §8).
  */
 final class User
 {
@@ -44,6 +43,7 @@ final class User
         private ?CarbonImmutable $accountTypeChangedAt = null,
         private ?CarbonImmutable $deactivatedAt = null,
         private array $extraPermissions = [],
+        private bool $passwordChangeRequired = false,
     ) {
         self::assertName($name);
     }
@@ -78,8 +78,9 @@ final class User
         ?CarbonImmutable $accountTypeChangedAt = null,
         ?CarbonImmutable $deactivatedAt = null,
         array $extraPermissions = [],
+        bool $passwordChangeRequired = false,
     ): self {
-        return new self($id, $name, $email, $phone, $companyName, $companyNip, $companyAddress, $pickupAddress, $city, $postalCode, $shippingText, $accountType, $roleKey, $passwordHash, $declarationAcceptedAt, $declarationVersion, $accountTypeChangedAt, $deactivatedAt, self::normalisePermissions($extraPermissions));
+        return new self($id, $name, $email, $phone, $companyName, $companyNip, $companyAddress, $pickupAddress, $city, $postalCode, $shippingText, $accountType, $roleKey, $passwordHash, $declarationAcceptedAt, $declarationVersion, $accountTypeChangedAt, $deactivatedAt, self::normalisePermissions($extraPermissions), $passwordChangeRequired);
     }
 
     public function updateData(
@@ -172,9 +173,50 @@ final class User
         $this->roleKey = $roleKey;
     }
 
-    public function changePasswordHash(string $passwordHash): void
+    /**
+     * FR-25, FR-36: an Admin sets the password, so the User must replace it
+     * (RULE-15).
+     */
+    public function setPasswordByAdmin(string $passwordHash): void
     {
         $this->passwordHash = $passwordHash;
+        $this->passwordChangeRequired = true;
+    }
+
+    /** FR-36, RULE-15: a password the User sets clears the marker. */
+    public function setOwnPassword(string $passwordHash): void
+    {
+        $this->passwordHash = $passwordHash;
+        $this->passwordChangeRequired = false;
+    }
+
+    /**
+     * FR-38, WF-07: only while the marker is set; the new password must differ
+     * from the current one (the handler gathers `$sameAsCurrent`).
+     */
+    public function completeForcedPasswordChange(string $passwordHash, bool $sameAsCurrent): void
+    {
+        if (! $this->passwordChangeRequired) {
+            throw UserRefused::passwordChangeNotRequired();
+        }
+
+        if ($sameAsCurrent) {
+            throw UserRefused::passwordSameAsCurrent();
+        }
+
+        $this->setOwnPassword($passwordHash);
+    }
+
+    /** FR-26: set by hand without touching the password. */
+    public function requirePasswordChange(): void
+    {
+        $this->passwordChangeRequired = true;
+    }
+
+    /** FR-26: cleared by an Admin without a new password. */
+    public function clearPasswordChangeRequirement(): void
+    {
+        $this->passwordChangeRequired = false;
     }
 
     /** WF-05: the User keeps all their data; only the state changes. */
@@ -344,5 +386,10 @@ final class User
     public function passwordHash(): string
     {
         return $this->passwordHash;
+    }
+
+    public function passwordChangeRequired(): bool
+    {
+        return $this->passwordChangeRequired;
     }
 }

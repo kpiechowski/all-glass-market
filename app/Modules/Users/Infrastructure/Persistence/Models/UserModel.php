@@ -56,17 +56,20 @@ final class UserModel extends ReadOnlyModel implements AuthenticatableContract, 
             'account_type_changed_at' => 'datetime',
             'deactivated_at' => 'datetime',
             'extra_permissions' => 'array',
+            'password_change_required' => 'boolean',
         ];
     }
 
     /**
-     * The framework itself writes the remember token and a rehashed password
-     * while signing in. Those two are the only writes allowed outside the
-     * repository adapter; ticket 03 owns sign-in.
+     * The session guard writes the remember token itself when a User signs in
+     * with "remember me" or out. That is the only write allowed outside the
+     * repository adapter. Every password write is a command (ticket 06): the
+     * reset and invitation pages redeem the broker token through a handler, so
+     * no framework callback saves a password. Rehash-on-login is not used.
      */
     public function save(array $options = []): bool
     {
-        $authPlumbing = ['remember_token', 'password', 'updated_at'];
+        $authPlumbing = ['remember_token', 'updated_at'];
 
         if ($this->exists && array_diff(array_keys($this->getDirty()), $authPlumbing) === []) {
             return self::writing(fn (): bool => parent::save($options));

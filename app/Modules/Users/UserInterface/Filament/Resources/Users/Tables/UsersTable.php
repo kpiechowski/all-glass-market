@@ -14,9 +14,7 @@ use Filament\Tables\Table;
 
 class UsersTable
 {
-    /**
-     * Seam: the "wymaga zmiany hasła" marker and filter arrive with ticket 06.
-     */
+    /** Markers: inactive (07) and password change required (06). */
     public static function configure(Table $table): Table
     {
         return $table
@@ -46,6 +44,14 @@ class UsersTable
                     ->badge()
                     ->color('danger')
                     ->state(fn (UserModel $record): ?string => $record->isActive() ? null : __('users::resources.user.status.inactive')),
+
+                TextColumn::make('password_change_required')
+                    ->label(__('users::resources.user.fields.password_change_required'))
+                    ->badge()
+                    ->color('warning')
+                    ->state(fn (UserModel $record): ?string => $record->password_change_required
+                        ? __('users::resources.user.markers.password_change_required')
+                        : null),
 
                 TextColumn::make('created_at')
                     ->label(__('users::resources.user.fields.created_at'))

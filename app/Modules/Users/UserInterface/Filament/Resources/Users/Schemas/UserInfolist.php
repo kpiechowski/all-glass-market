@@ -14,8 +14,7 @@ use Filament\Support\Icons\Heroicon;
 class UserInfolist
 {
     /**
-     * Seams: Offers' statistics (D-05), the audit history
-     * and the password-change marker (ticket 06) add their sections here.
+     * Seams: Offers' statistics (D-05) and the audit history add their sections here.
      */
     public static function configure(Schema $schema): Schema
     {
@@ -65,6 +64,15 @@ class UserInfolist
                 TextEntry::make('created_at')
                     ->label(__('users::resources.user.fields.created_at'))
                     ->dateTime(),
+
+                TextEntry::make('password_change_required')
+                    ->label(__('users::resources.user.fields.password_change_required'))
+                    ->badge()
+                    ->color('warning')
+                    ->state(fn (UserModel $record): ?string => $record->password_change_required
+                        ? __('users::resources.user.markers.password_change_required')
+                        : null)
+                    ->placeholder('-'),
             ]);
     }
 

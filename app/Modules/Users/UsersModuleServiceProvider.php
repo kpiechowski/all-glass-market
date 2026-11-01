@@ -13,10 +13,12 @@ use App\Modules\Users\Application\ModuleApi\UserUrls;
 use App\Modules\Users\Application\Providers\UsersEventServiceProvider;
 use App\Modules\Users\Application\Services\UserAuthorizer;
 use App\Modules\Users\Application\Services\UserJournalSubject;
+use App\Modules\Users\Domain\Contracts\PasswordLinks;
 use App\Modules\Users\Domain\Enums\UserRole;
 use App\Modules\Users\Domain\Enums\UsersPermission;
 use App\Modules\Users\Domain\Repositories\JournalEntryRepository;
 use App\Modules\Users\Domain\Repositories\UserRepository;
+use App\Modules\Users\Infrastructure\Auth\LaravelPasswordLinks;
 use App\Modules\Users\Infrastructure\Persistence\EloquentJournalEntryRepository;
 use App\Modules\Users\Infrastructure\Persistence\EloquentUserRepository;
 use App\Modules\Users\UserInterface\Console\GrantSuperAdminConsoleCommand;
@@ -42,6 +44,7 @@ class UsersModuleServiceProvider extends ModuleServiceProvider
         JournalEntryRepository::class => EloquentJournalEntryRepository::class,
         JournalEntryUrls::class => FilamentJournalEntryUrls::class,
         UserUrls::class => FilamentUserUrls::class,
+        PasswordLinks::class => LaravelPasswordLinks::class,
     ];
 
     public function register(): void

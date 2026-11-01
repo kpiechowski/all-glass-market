@@ -103,4 +103,36 @@ final class UserRefused extends DomainException
     {
         return new self('users::exceptions.impersonation_nested');
     }
+
+    public static function passwordSameAsCurrent(): self
+    {
+        return new self('users::exceptions.password_same_as_current');
+    }
+
+    public static function passwordChangeNotRequired(): self
+    {
+        return new self('users::exceptions.password_change_not_required');
+    }
+
+    /** Expired, used or unknown link (WF-03). */
+    public static function passwordLinkInvalid(): self
+    {
+        return new self('users::exceptions.password_link_invalid');
+    }
+
+    public static function passwordLinkNotSent(): self
+    {
+        return new self('users::exceptions.password_link_not_sent');
+    }
+
+    /** Link to a User who may not use the panel (unregistered Role). */
+    public static function passwordLinkNotAllowed(): self
+    {
+        return new self('users::exceptions.password_link_not_allowed');
+    }
+
+    public static function emailSendingUnavailable(): self
+    {
+        return new self('users::exceptions.email_sending_unavailable');
+    }
 }

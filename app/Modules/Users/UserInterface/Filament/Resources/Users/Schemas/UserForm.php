@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Schemas;
 
+use App\Modules\Users\Application\ModuleApi\EmailSending;
 use App\Modules\Users\Domain\Policies\UserManagementPolicy;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Support\RoleDisplay;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -106,7 +109,28 @@ class UserForm
             ]);
     }
 
-    /** Temporary password on create (WF-04); on edit an optional, collapsed change (FR-25). */
+    /** FR-24: an invitation is offered only while e-mail sending works (spec §10). */
+    private static function passwordMethodField(): Radio
+    {
+        return Radio::make('password_method')
+            ->label(__('users::resources.user.fields.password_method'))
+            ->options([
+                'invitation' => __('users::resources.user.password_methods.invitation'),
+                'temporary' => __('users::resources.user.password_methods.temporary'),
+            ])
+            ->default(fn (): string => app(EmailSending::class)->isAvailable() ? 'invitation' : 'temporary')
+            ->live()
+            ->visible(fn (string $operation): bool => $operation === 'create' && app(EmailSending::class)->isAvailable())
+            ->dehydrated(fn (string $operation): bool => $operation === 'create');
+    }
+
+    /** True when the password fields apply: always on edit, on create unless an invitation is sent. */
+    private static function asksForPassword(string $operation, Get $get): bool
+    {
+        return $operation !== 'create' || ($get('password_method') ?? 'temporary') === 'temporary';
+    }
+
+    /** Invitation or temporary password on create (WF-04); on edit an optional, collapsed change (FR-25). */
     private static function passwordSection(): Section
     {
         return Section::make(__('users::resources.user.sections.password'))
@@ -114,6 +138,8 @@ class UserForm
             ->collapsed(fn (string $operation): bool => $operation === 'edit')
             ->columns(1)
             ->schema([
+                self::passwordMethodField(),
+
                 TextInput::make('password')
                     ->label(fn (string $operation): string => $operation === 'create'
                         ? __('users::resources.user.fields.password')
@@ -123,7 +149,8 @@ class UserForm
                         : __('users::resources.user.helpers.password_edit'))
                     ->password()
                     ->revealable()
-                    ->required(fn (string $operation): bool => $operation === 'create')
+                    ->visible(fn (string $operation, Get $get): bool => self::asksForPassword($operation, $get))
+                    ->required(fn (string $operation, Get $get): bool => $operation === 'create' && self::asksForPassword($operation, $get))
                     ->dehydrated(fn (?string $state): bool => filled($state))
                     ->minLength(8)
                     ->maxLength(255)
@@ -138,6 +165,7 @@ class UserForm
                     ->label(__('users::resources.user.fields.password_confirmation'))
                     ->password()
                     ->revealable()
+                    ->visible(fn (string $operation, Get $get): bool => self::asksForPassword($operation, $get))
                     ->requiredWith('password')
                     ->same('password')
                     ->dehydrated(false),

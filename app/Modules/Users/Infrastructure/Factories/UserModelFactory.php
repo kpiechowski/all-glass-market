@@ -61,6 +61,11 @@ final class UserModelFactory extends ModelFactory
         return $this->state(fn (array $attributes) => ['deactivated_at' => now()]);
     }
 
+    public function passwordChangeRequired(): static
+    {
+        return $this->state(fn (array $attributes) => ['password_change_required' => true]);
+    }
+
     public function admin(): static
     {
         return $this->withRole('admin');

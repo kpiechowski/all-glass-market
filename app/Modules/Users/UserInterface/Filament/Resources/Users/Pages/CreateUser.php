@@ -23,7 +23,7 @@ class CreateUser extends CreateRecord
             role: $data['role'],
             name: $data['name'],
             email: $data['email'],
-            password: $data['password'],
+            password: $data['password'] ?? null,
             phone: $data['phone'] ?? null,
             companyName: $data['company_name'] ?? null,
             companyNip: $data['company_nip'] ?? null,
@@ -33,6 +33,7 @@ class CreateUser extends CreateRecord
             postalCode: $data['city_code'] ?? null,
             shippingText: $data['shipping_note'] ?? null,
             extraPermissions: array_values($data['extra_permissions'] ?? []),
+            sendInvitation: ($data['password_method'] ?? 'temporary') === 'invitation',
         ));
 
         return UserModel::findOrFail($id);

@@ -66,7 +66,7 @@ class UserTest extends TestCase
 
         $user->changeShippingText('<p>Wysyłka</p>');
         $user->assignRole('admin');
-        $user->changePasswordHash('newhash');
+        $user->setOwnPassword('newhash');
 
         $this->assertSame('<p>Wysyłka</p>', $user->shippingText());
         $this->assertSame('admin', $user->roleKey());
@@ -239,5 +239,63 @@ class UserTest extends TestCase
         $this->assertSame(['b.x', 'c.x'], $user->extraPermissions());
 
         $this->assertSame(['granted' => [], 'revoked' => []], $user->changeExtraPermissions(['c.x', 'b.x']));
+    }
+
+    public function test_an_admin_set_password_requires_a_change_and_the_users_own_clears_it(): void
+    {
+        $user = $this->newUser();
+        $this->assertFalse($user->passwordChangeRequired());
+
+        $user->setPasswordByAdmin('temporary');
+        $this->assertTrue($user->passwordChangeRequired());
+        $this->assertSame('temporary', $user->passwordHash());
+
+        $user->setOwnPassword('mine');
+        $this->assertFalse($user->passwordChangeRequired());
+    }
+
+    public function test_the_marker_is_set_and_cleared_without_touching_the_password(): void
+    {
+        $user = $this->newUser();
+
+        $user->requirePasswordChange();
+        $this->assertTrue($user->passwordChangeRequired());
+
+        $user->clearPasswordChangeRequirement();
+        $this->assertFalse($user->passwordChangeRequired());
+        $this->assertSame('hash', $user->passwordHash());
+    }
+
+    public function test_a_forced_change_sets_the_password_and_clears_the_marker(): void
+    {
+        $user = $this->newUser();
+        $user->requirePasswordChange();
+
+        $user->completeForcedPasswordChange('newhash', sameAsCurrent: false);
+
+        $this->assertFalse($user->passwordChangeRequired());
+        $this->assertSame('newhash', $user->passwordHash());
+    }
+
+    public function test_a_forced_change_refuses_the_same_password_and_leaves_the_entity_as_it_was(): void
+    {
+        $user = $this->newUser();
+        $user->requirePasswordChange();
+
+        try {
+            $user->completeForcedPasswordChange('newhash', sameAsCurrent: true);
+            $this->fail('Expected a refusal.');
+        } catch (UserRefused) {
+        }
+
+        $this->assertTrue($user->passwordChangeRequired());
+        $this->assertSame('hash', $user->passwordHash());
+    }
+
+    public function test_a_forced_change_is_refused_when_no_change_is_required(): void
+    {
+        $this->expectException(UserRefused::class);
+
+        $this->newUser()->completeForcedPasswordChange('newhash', sameAsCurrent: false);
     }
 }
