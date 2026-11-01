@@ -1,6 +1,6 @@
 # Users — delivery log
 
-- **Branch:** `feat/users-01-05` (from `refactor/user-module` @ dfbf35f)
+- **Branch:** `feat/users-01-09` (from `refactor/user-module` @ dfbf35f)
 - **Scope:** issues 01–05; then 06–09 (10 held back by the user)
 - **Order:** 01 → 02 → {03, 05} → 04; then {06, 07, 08} after 03, 09 after 04
 
