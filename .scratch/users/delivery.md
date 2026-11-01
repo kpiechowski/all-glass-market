@@ -13,9 +13,9 @@
 | 06 passwords-invitations-forced-change | fix round 1 | .worktrees/users-06 | 1 | fix (rebase onto 07+08, fill their seams) |
 | 07 deactivation | resolved | removed | 0 | approved |
 | 08 extra-permissions-and-impersonation | resolved | removed | 0 | approved |
-| 09 dashboard-account-tile | in progress | .worktrees/users-09 | 0 | — |
+| 09 dashboard-account-tile | resolved | removed | 1 | approved |
 | 05 journal | resolved | removed | 0 | approved |
 
 ## Next action
 
-Wait for 06 (fix round 1: rebase + seams) and 09; review them. Then final report.
+Wait for 06 (fix round 1: rebase + seams); rebase again onto 09 (trivial AdminPanelProvider), review, merge. Then final report.
