@@ -10,7 +10,7 @@
 | 02 user-management | resolved | removed | 0 | approved |
 | 03 sign-in-and-panel-access | resolved | removed | 0 | approved |
 | 04 profile-and-account-type | resolved | removed | 1 | approved |
-| 06 passwords-invitations-forced-change | fix round 1 | .worktrees/users-06 | 1 | fix (rebase onto 07+08, fill their seams) |
+| 06 passwords-invitations-forced-change | resolved | removed | 1 | approved |
 | 07 deactivation | resolved | removed | 0 | approved |
 | 08 extra-permissions-and-impersonation | resolved | removed | 0 | approved |
 | 09 dashboard-account-tile | resolved | removed | 1 | approved |
@@ -18,4 +18,4 @@
 
 ## Next action
 
-Wait for 06 (fix round 1: rebase + seams); rebase again onto 09 (trivial AdminPanelProvider), review, merge. Then final report.
+Scope 01–09 done. Ticket 10 held back by the user.
