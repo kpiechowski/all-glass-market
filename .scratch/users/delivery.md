@@ -1,7 +1,7 @@
 # Users — delivery log
 
 - **Branch:** `feat/users-01-09` (from `refactor/user-module` @ dfbf35f)
-- **Scope:** issues 01–05; then 06–09 (10 held back by the user)
+- **Scope:** issues 01–05; then 06–09. Issue 10 moved to `.scratch/data-migration/users/ticket.md` (scheduled later by the user).
 - **Order:** 01 → 02 → {03, 05} → 04; then {06, 07, 08} after 03, 09 after 04
 
 | Issue | Status | Worktree | Round | Last verdict |
@@ -18,4 +18,4 @@
 
 ## Next action
 
-Scope 01–09 done. Ticket 10 held back by the user.
+Scope 01–09 done. The V1 data import waits in `.scratch/data-migration/users/ticket.md`.

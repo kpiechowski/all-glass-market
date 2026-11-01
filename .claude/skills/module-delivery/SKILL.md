@@ -43,7 +43,8 @@ You are the **manager**. Workers (`module-worker` subagents, Sonnet) implement i
    - issues resolved, with their commits;
    - issues stopped, and why;
    - deviations the user should look at;
-   - what is left blocked.
+   - what is left blocked;
+   - the migrations this run added, listed by file, with "run `dartisan migrate`" when any exist.
 
 ### Worker brief
 

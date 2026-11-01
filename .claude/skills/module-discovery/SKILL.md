@@ -20,6 +20,9 @@ The spec describes **behaviour, never implementation**. V2 architecture (layers,
       discovery.md          the working document; only you write it
       reports/rNN-<mission>-<slug>.md   one per mission; only its investigator writes it
     functional-spec.md      the final deliverable (Phase 8)
+  .scratch/data-migration/<module>/
+    spec.md                 V1 → V2 data mapping (Phase 9)
+    ticket.md               the import, scheduled later by the user
   ```
 
 - **Evidence tags.** Every finding carries exactly one: `confirmed` (code, config, migration or test shows it), `observed` (an execution path was traced end-to-end, or V1 was run), `inferred` (plausible, not proven), `ambiguous` (more than one reading fits), `unknown` (could not be established), `defect?` (looks wrong or inconsistent), `decide` (needs the user). Evidence is a V1 path with line and symbol, `app/Models/Offer.php:212 Offer::markSold()`, plus the report id `r03`. A claim with no evidence is `inferred` at best.
@@ -83,9 +86,9 @@ Finished missions are not an exit criterion. Only the eight above are.
 
 Write section L (the completeness assessment), set the status to `ready-for-grilling`, and give the user a short readiness summary: counts per section, the areas with the weakest coverage, and the `needs-runtime` gaps they could check by hand in V1. Then **ask whether they are ready to start grilling, and stop.** Do not start grilling in the same message.
 
-## Phases 6–8 — Grilling, additional functionality, spec
+## Phases 6–9 — Grilling, additional functionality, spec, data migration
 
-Once the user agrees, read [grilling.md](grilling.md) and follow it. It runs the grilling round on existing behaviour, the separate additional-functionality round, and writes the spec from [spec-template.md](spec-template.md).
+Once the user agrees, read [grilling.md](grilling.md) and follow it. It runs the grilling round on existing behaviour, the separate additional-functionality round, writes the spec from [spec-template.md](spec-template.md), and writes the V1 data-migration spec and ticket.
 
 ## Context hygiene
 

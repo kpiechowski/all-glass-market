@@ -1,4 +1,4 @@
-# Grilling and the functional spec (Phases 6–8)
+# Grilling and the functional spec (Phases 6–9)
 
 Reached from `module-discovery` once the user has said they are ready to start grilling. Set the status in `discovery.md` to `grilling`.
 
@@ -58,5 +58,17 @@ Ask this round even when section J is empty. Present the `ADD-` items: each one'
 
 1. Write `.scratch/<module>/functional-spec.md` from [spec-template.md](spec-template.md). The requirements are exactly the `preserve`, `correct` and `new` decisions, together with the confirmed findings they cover. An undecided suggestion is never a requirement. Every requirement cites its trace, `(F-03, BR-02, r04; D-07)`.
 2. Dispatch one `spec-audit` mission to a `legacy-investigator`. Fix every finding, or note why it doesn't apply.
-3. Set the status in `discovery.md` to `spec-written`, and its next action to "architecture process for <module>".
-4. Report to the user: the spec path, counts per class (preserve / correct / new / exclude / pending), the pending decisions, and the audit result.
+3. Go to Phase 9.
+
+## Phase 9 — Data-migration spec and ticket
+
+V1 data outlives V1. Grilling is where the meaning of every V1 column is fresh, so the import is specified now and built later, when the user schedules it.
+
+1. **Inventory** every V1 table and column holding the module's data, pivot and role tables included. When the reports leave a column without evidence, dispatch a `verify` mission for the schema.
+2. **Give every column a fate:** keep, transform (with its rule) or drop. Fates follow from spec §8 and the `D-` decisions. Put the columns no decision covers to the user in one round with the Phase 6 rules, and record the answers as `D-` entries.
+3. Write `.scratch/data-migration/<module>/spec.md` from [data-migration-template.md](data-migration-template.md).
+4. Write `.scratch/data-migration/<module>/ticket.md` in the issue format (`docs/agents/issue-tracker.md`): `Status: needs-triage`, blocked by the module's delivery, asking for a repeatable import command that is idempotent and tested against a fixture of V1 rows. It lives outside `.scratch/<module>/issues/`, so module delivery leaves it for the user to schedule.
+5. Set the status in `discovery.md` to `spec-written`, and its next action to "architecture process for <module>".
+6. Report to the user: the spec path, counts per class (preserve / correct / new / exclude / pending), the pending decisions, the audit result, and the data-migration spec path with its column counts per fate.
+
+**Done when** every V1 column of the module has a fate and evidence.
