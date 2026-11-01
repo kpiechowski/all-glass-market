@@ -1,8 +1,8 @@
 # Users — delivery log
 
 - **Branch:** `feat/users-01-05` (from `refactor/user-module` @ dfbf35f)
-- **Scope:** issues 01–05
-- **Order:** 01 → 02 → {03, 05} → 04
+- **Scope:** issues 01–05; then 06–09 (10 held back by the user)
+- **Order:** 01 → 02 → {03, 05} → 04; then {06, 07, 08} after 03, 09 after 04
 
 | Issue | Status | Worktree | Round | Last verdict |
 |---|---|---|---|---|
@@ -10,8 +10,12 @@
 | 02 user-management | resolved | removed | 0 | approved |
 | 03 sign-in-and-panel-access | resolved | removed | 0 | approved |
 | 04 profile-and-account-type | resolved | removed | 1 | approved |
+| 06 passwords-invitations-forced-change | in progress | .worktrees/users-06 | 0 | — |
+| 07 deactivation | in progress | .worktrees/users-07 | 0 | — |
+| 08 extra-permissions-and-impersonation | ready | — | — | — |
+| 09 dashboard-account-tile | ready | — | — | — |
 | 05 journal | resolved | removed | 0 | approved |
 
 ## Next action
 
-Scope 01–05 done. Next in-scope: none. Remaining Users issues 06–10 are outside this run.
+Wait for the 06 and 07 workers; review them. Then 08 and 09.
