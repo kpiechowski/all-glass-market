@@ -8,6 +8,7 @@ use App\Modules\Users\Domain\Entities\User;
 use App\Modules\Users\Domain\Enums\AccountType;
 use App\Modules\Users\Domain\Exceptions\UserRefused;
 use App\Modules\Users\Domain\ValueObjects\Email;
+use Carbon\CarbonImmutable;
 use PHPUnit\Framework\TestCase;
 
 class UserTest extends TestCase
@@ -70,5 +71,118 @@ class UserTest extends TestCase
         $this->assertSame('<p>Wysyłka</p>', $user->shippingText());
         $this->assertSame('admin', $user->roleKey());
         $this->assertSame('newhash', $user->passwordHash());
+    }
+
+    private function companyReadyUser(): User
+    {
+        $user = $this->newUser();
+        $user->updateData('Jan', Email::from('jan@example.com'), '123', 'Firma', '5252525252', 'ul. Szklana 1', null, null, null);
+
+        return $user;
+    }
+
+    public function test_switching_to_company_records_the_declaration_and_starts_the_lock(): void
+    {
+        $now = CarbonImmutable::parse('2026-11-01 10:00:00');
+        $user = $this->companyReadyUser();
+
+        $changed = $user->changeAccountType(AccountType::Company, true, $now);
+
+        $this->assertTrue($changed);
+        $this->assertSame(AccountType::Company, $user->accountType());
+        $this->assertEquals($now, $user->declarationAcceptedAt());
+        $this->assertSame('V1', $user->declarationVersion());
+        $this->assertEquals($now->addMinutes(30), $user->accountTypeLockedUntil());
+    }
+
+    public function test_company_without_the_accepted_declaration_is_refused(): void
+    {
+        $user = $this->companyReadyUser();
+
+        $this->expectException(UserRefused::class);
+
+        $user->changeAccountType(AccountType::Company, false, CarbonImmutable::now());
+    }
+
+    public function test_company_without_nip_or_address_is_refused(): void
+    {
+        $user = $this->newUser();
+
+        $this->expectException(UserRefused::class);
+
+        $user->changeAccountType(AccountType::Company, true, CarbonImmutable::now());
+    }
+
+    public function test_a_failed_switch_leaves_the_user_untouched(): void
+    {
+        $user = $this->newUser();
+
+        try {
+            $user->changeAccountType(AccountType::Company, true, CarbonImmutable::now());
+        } catch (UserRefused) {
+        }
+
+        $this->assertSame(AccountType::Private, $user->accountType());
+        $this->assertNull($user->accountTypeLockedUntil());
+        $this->assertNull($user->declarationAcceptedAt());
+    }
+
+    public function test_switching_to_private_clears_the_acceptance(): void
+    {
+        $user = $this->companyReadyUser();
+        $user->changeAccountType(AccountType::Company, true, CarbonImmutable::parse('2026-11-01 10:00:00'));
+
+        $user->changeAccountType(AccountType::Private, false, CarbonImmutable::parse('2026-11-01 10:31:00'));
+
+        $this->assertSame(AccountType::Private, $user->accountType());
+        $this->assertNull($user->declarationAcceptedAt());
+        $this->assertNull($user->declarationVersion());
+    }
+
+    public function test_a_change_inside_the_lock_is_refused_and_allowed_after_it(): void
+    {
+        $user = $this->companyReadyUser();
+        $user->changeAccountType(AccountType::Company, true, CarbonImmutable::parse('2026-11-01 10:00:00'));
+
+        try {
+            $user->changeAccountType(AccountType::Private, false, CarbonImmutable::parse('2026-11-01 10:29:59'));
+            $this->fail('The lock should refuse the change.');
+        } catch (UserRefused) {
+            $this->assertSame(AccountType::Company, $user->accountType());
+        }
+
+        $user->changeAccountType(AccountType::Private, false, CarbonImmutable::parse('2026-11-01 10:30:00'));
+
+        $this->assertSame(AccountType::Private, $user->accountType());
+    }
+
+    public function test_choosing_the_current_type_changes_nothing(): void
+    {
+        $user = $this->newUser();
+
+        $this->assertFalse($user->changeAccountType(AccountType::Private, false, CarbonImmutable::now()));
+        $this->assertNull($user->accountTypeLockedUntil());
+    }
+
+    public function test_a_company_without_recorded_acceptance_reads_as_private(): void
+    {
+        $user = User::reconstitute(
+            1, 'Jan', Email::from('jan@example.com'), null, null, '1', 'a', null, null, null, null,
+            AccountType::Company, 'user', 'hash',
+        );
+
+        $this->assertSame(AccountType::Private, $user->accountType());
+    }
+
+    public function test_a_company_cannot_lose_its_nip_or_address(): void
+    {
+        $user = $this->companyReadyUser();
+        $user->changeAccountType(AccountType::Company, true, CarbonImmutable::now());
+
+        $user->updateData('Jan', Email::from('jan@example.com'), null, null, '', 'ul. Szklana 1', null, null, null);
+
+        $this->expectException(UserRefused::class);
+
+        $user->assertConsistent();
     }
 }

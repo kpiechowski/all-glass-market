@@ -33,7 +33,11 @@ class PasswordForm
                             ->suffixAction(
                                 Action::make('generate-password')
                                     ->icon(Heroicon::ArrowPathRoundedSquare)
-                                    ->action(fn (Set $set) => $set('password', Str::password(12, true, true, true, false)))
+                                    ->action(function (Set $set): void {
+                                        $generated = Str::password(20, true, true, true, false);
+                                        $set('password', $generated);
+                                        $set('password_confirmation', $generated);
+                                    })
                             )
                             ->columnSpanFull(),
 

@@ -39,6 +39,23 @@ final class UserModelFactory extends ModelFactory
         return $this->state(fn (array $attributes) => ['role' => $roleKey]);
     }
 
+    /** RULE-05: Company comes with NIP, address and a recorded acceptance. */
+    public function company(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'account_type' => 'company',
+            'company_nip' => '5252525252',
+            'company_address' => 'ul. Szklana 1, Warszawa',
+            'seller_declaration_accepted_at' => now(),
+            'seller_declaration_version' => 'V1',
+        ]);
+    }
+
+    public function accountTypeChangedAt(\DateTimeInterface $at): static
+    {
+        return $this->state(fn (array $attributes) => ['account_type_changed_at' => $at]);
+    }
+
     public function admin(): static
     {
         return $this->withRole('admin');

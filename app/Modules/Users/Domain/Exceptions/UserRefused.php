@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Users\Domain\Exceptions;
 
 use App\Core\Exceptions\DomainException;
+use Carbon\CarbonImmutable;
 
 final class UserRefused extends DomainException
 {
@@ -46,5 +47,25 @@ final class UserRefused extends DomainException
     public static function roleNotAssignable(): self
     {
         return new self('users::exceptions.role_not_assignable');
+    }
+
+    public static function accountTypeLocked(CarbonImmutable $until): self
+    {
+        return new self('users::exceptions.account_type_locked', ['time' => $until->format('H:i')]);
+    }
+
+    public static function declarationNotAccepted(): self
+    {
+        return new self('users::exceptions.declaration_not_accepted');
+    }
+
+    public static function companyDataMissing(): self
+    {
+        return new self('users::exceptions.company_data_missing');
+    }
+
+    public static function onlyOwnerChangesAccountType(): self
+    {
+        return new self('users::exceptions.only_owner_changes_account_type');
     }
 }

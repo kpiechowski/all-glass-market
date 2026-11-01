@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Modules\Users\UserInterface\Filament\Pages\EditProfile;
 
 use App\Core\Concerns\HasCommandBus;
+use App\Core\Exceptions\DomainException;
 use App\Core\UserInterface\CurrentActor;
 use App\Modules\Users\Application\Commands\ChangeUserPassword\ChangeUserPasswordCommand;
 use App\Modules\Users\Application\Commands\UpdateUser\UpdateUserCommand;
+use App\Modules\Users\Domain\Enums\AccountType;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\Schemas\PasswordForm;
 use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\Schemas\ProfileForm;
@@ -50,6 +52,15 @@ class EditProfile extends Page
         return __('users::profile.navigation_label');
     }
 
+    /** FR-16: an "i" badge while the Account type is not Company. */
+    public static function getNavigationBadge(): ?string
+    {
+        /** @var UserModel|null $user */
+        $user = Auth::user();
+
+        return $user !== null && $user->account_type !== AccountType::Company ? 'i' : null;
+    }
+
     public function getTitle(): string
     {
         return __('users::profile.title');
@@ -59,7 +70,11 @@ class EditProfile extends Page
     {
         /** @var UserModel $user */
         $user = Auth::user();
-        $this->form->fill($user->attributesToArray());
+        $this->form->fill([
+            ...$user->attributesToArray(),
+            'account_type' => $user->account_type?->value,
+            'seller_declaration_accepted' => $user->account_type === AccountType::Company,
+        ]);
     }
 
     public function form(Schema $schema): Schema
@@ -112,6 +127,17 @@ class EditProfile extends Page
             ->keyBindings(['mod+s']);
     }
 
+    /** FR-18: the "Pamiętaj!" notice shown when Private is chosen, even if never saved. */
+    public function privateAccountNoticeAction(): Action
+    {
+        return Action::make('privateAccountNotice')
+            ->modalHeading(__('users::profile.private_notice_modal.heading'))
+            ->modalDescription(__('users::profile.private_notice_modal.description'))
+            ->modalSubmitActionLabel(__('users::profile.private_notice_modal.confirm'))
+            ->modalCancelAction(false)
+            ->action(fn () => null);
+    }
+
     protected function getChangePasswordAction(): Action
     {
         return Action::make('changePassword')
@@ -141,7 +167,14 @@ class EditProfile extends Page
                 postalCode: $data['city_code'] ?? null,
                 // FR-15: not editable here; passed through so a manager's own save keeps it.
                 shippingText: $user->shipping_note,
+                // FR-19: a locked control is not submitted, so the type stays as it is.
+                accountType: ($data['account_type'] ?? null) instanceof AccountType ? $data['account_type']->value : ($data['account_type'] ?? null),
+                sellerDeclarationAccepted: (bool) ($data['seller_declaration_accepted'] ?? false),
             ));
+        } catch (DomainException $exception) {
+            Notification::make()->danger()->title(__($exception->translationKey, $exception->parameters))->send();
+
+            return;
         } catch (Throwable) {
             Notification::make()->danger()->title(__('users::profile.notifications.save_failed'))->send();
 

@@ -7,11 +7,14 @@ namespace App\Modules\Users\Application\Commands\UpdateUser;
 use App\Core\Contracts\Authorizer;
 use App\Core\Exceptions\AuthorizationException;
 use App\Modules\Users\Application\Services\UserManagementGuard;
+use App\Modules\Users\Domain\Enums\AccountType;
 use App\Modules\Users\Domain\Enums\UsersPermission;
+use App\Modules\Users\Domain\Events\AccountTypeChanged;
 use App\Modules\Users\Domain\Exceptions\UserRefused;
 use App\Modules\Users\Domain\Repositories\UserRepository;
 use App\Modules\Users\Domain\ValueObjects\Email;
 use App\Modules\Users\Domain\ValueObjects\PlainPassword;
+use Carbon\CarbonImmutable;
 use Ecotone\Modelling\Attribute\CommandHandler;
 use Illuminate\Contracts\Hashing\Hasher;
 
@@ -46,6 +49,13 @@ final class UpdateUserCommandHandler
             throw UserRefused::emailTaken();
         }
 
+        // FR-20: nobody but the User themself, not even the system, touches the Account type.
+        $requestedType = $command->accountType === null ? null : AccountType::from($command->accountType);
+
+        if ($requestedType !== null && $requestedType !== $user->accountType() && ! $isSelf) {
+            throw UserRefused::onlyOwnerChangesAccountType();
+        }
+
         $password = $command->password === null || $command->password === ''
             ? null
             : PlainPassword::from($command->password);
@@ -70,6 +80,12 @@ final class UpdateUserCommandHandler
             $user->changeShippingText($command->shippingText);
         }
 
+        // WF-02: validated before anything is saved; a refusal throws here.
+        $accountTypeChanged = $requestedType !== null
+            && $user->changeAccountType($requestedType, $command->sellerDeclarationAccepted, CarbonImmutable::now());
+
+        $user->assertConsistent();
+
         if ($roleChanges) {
             $user->assignRole($command->role);
         }
@@ -79,5 +95,10 @@ final class UpdateUserCommandHandler
         }
 
         $this->users->save($user);
+
+        // FR-21: announced only after the save.
+        if ($accountTypeChanged) {
+            event(new AccountTypeChanged($command->userId, $user->accountType()->value));
+        }
     }
 }

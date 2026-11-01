@@ -9,8 +9,10 @@ use App\Core\Providers\ModuleServiceProvider;
 use App\Modules\Users\Application\ModuleApi\JournalEntryUrls;
 use App\Modules\Users\Application\ModuleApi\JournalSubjects;
 use App\Modules\Users\Application\ModuleApi\RoleRegistry;
+use App\Modules\Users\Application\ModuleApi\UserUrls;
 use App\Modules\Users\Application\Providers\UsersEventServiceProvider;
 use App\Modules\Users\Application\Services\UserAuthorizer;
+use App\Modules\Users\Application\Services\UserJournalSubject;
 use App\Modules\Users\Domain\Enums\UserRole;
 use App\Modules\Users\Domain\Enums\UsersPermission;
 use App\Modules\Users\Domain\Repositories\JournalEntryRepository;
@@ -20,6 +22,7 @@ use App\Modules\Users\Infrastructure\Persistence\EloquentUserRepository;
 use App\Modules\Users\UserInterface\Console\GrantSuperAdminConsoleCommand;
 use App\Modules\Users\UserInterface\Console\RevokeSuperAdminConsoleCommand;
 use App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\Support\FilamentJournalEntryUrls;
+use App\Modules\Users\UserInterface\Filament\Resources\Users\Support\FilamentUserUrls;
 
 class UsersModuleServiceProvider extends ModuleServiceProvider
 {
@@ -36,6 +39,7 @@ class UsersModuleServiceProvider extends ModuleServiceProvider
         UserRepository::class => EloquentUserRepository::class,
         JournalEntryRepository::class => EloquentJournalEntryRepository::class,
         JournalEntryUrls::class => FilamentJournalEntryUrls::class,
+        UserUrls::class => FilamentUserUrls::class,
     ];
 
     public function register(): void
@@ -51,6 +55,7 @@ class UsersModuleServiceProvider extends ModuleServiceProvider
         parent::boot();
 
         $this->declareRolesAndPermissions($this->app->make(RoleRegistry::class));
+        $this->app->make(JournalSubjects::class)->register('users', $this->app->make(UserJournalSubject::class));
 
         if ($this->app->runningInConsole()) {
             $this->commands([

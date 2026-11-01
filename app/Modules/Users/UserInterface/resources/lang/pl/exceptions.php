@@ -19,4 +19,8 @@ return [
     'journal_invalid_title' => 'Tytuł wpisu jest wymagany i może mieć najwyżej 255 znaków.',
     'journal_entry_not_found' => 'Nie znaleziono wpisu dziennika.',
     'journal_not_owner' => 'Możesz zarządzać tylko własnymi wpisami dziennika.',
+    'account_type_locked' => 'Zmiana rodzaju konta jest zablokowana do: :time',
+    'declaration_not_accepted' => 'Konto firmowe wymaga zaakceptowania oświadczenia sprzedawcy.',
+    'company_data_missing' => 'Konto firmowe wymaga numeru NIP i adresu firmy.',
+    'only_owner_changes_account_type' => 'Rodzaj konta może zmienić tylko sam użytkownik.',
 ];

@@ -8,6 +8,7 @@ use App\Core\Contracts\Mapper;
 use App\Modules\Users\Domain\Entities\User;
 use App\Modules\Users\Domain\ValueObjects\Email;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 
 /** @implements Mapper<User> */
@@ -31,6 +32,9 @@ final class UserMapper implements Mapper
             $model->account_type,
             $model->role,
             $model->getRawOriginal('password'),
+            $model->seller_declaration_accepted_at === null ? null : CarbonImmutable::instance($model->seller_declaration_accepted_at),
+            $model->seller_declaration_version,
+            $model->account_type_changed_at === null ? null : CarbonImmutable::instance($model->account_type_changed_at),
         );
     }
 
@@ -51,6 +55,9 @@ final class UserMapper implements Mapper
             'account_type' => $entity->accountType(),
             'role' => $entity->roleKey(),
             'password' => $entity->passwordHash(),
+            'seller_declaration_accepted_at' => $entity->declarationAcceptedAt(),
+            'seller_declaration_version' => $entity->declarationVersion(),
+            'account_type_changed_at' => $entity->accountTypeChangedAt(),
         ];
     }
 }

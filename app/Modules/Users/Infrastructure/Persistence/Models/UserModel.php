@@ -23,6 +23,7 @@ use Illuminate\Notifications\Notifiable;
  *
  * The 'users' columns map to the entity as: shipment_address = pickup address,
  * city_code = postal code, shipping_note = Otomoto shipping text.
+ * The Account-type lock ends 30 minutes after account_type_changed_at (RULE-07).
  */
 #[Hidden(['password', 'remember_token'])]
 final class UserModel extends ReadOnlyModel implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
@@ -45,6 +46,8 @@ final class UserModel extends ReadOnlyModel implements AuthenticatableContract, 
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'account_type' => AccountType::class,
+            'seller_declaration_accepted_at' => 'datetime',
+            'account_type_changed_at' => 'datetime',
         ];
     }
 

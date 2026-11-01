@@ -10,6 +10,8 @@ use App\Core\Domain\Actor;
  * FR-25. A null role keeps the current Role; a null password keeps the
  * current password (RULE-03). Without the manage Permission the actor can
  * only edit themself, and shipping text, role and password are ignored/refused.
+ * A non-null `accountType` ('private'|'company') asks for that Account type;
+ * only the User themself may (FR-20), and Company needs `sellerDeclarationAccepted`.
  */
 final readonly class UpdateUserCommand
 {
@@ -28,5 +30,7 @@ final readonly class UpdateUserCommand
         public ?string $shippingText = null,
         public ?string $role = null,
         public ?string $password = null,
+        public ?string $accountType = null,
+        public bool $sellerDeclarationAccepted = false,
     ) {}
 }
