@@ -1,8 +1,5 @@
 deptrac:
   skip_violations:
-    App\Core\Console\CreateRootCommand:
-      - App\Modules\Users\Domain\Enums\RoleEnum
-      - App\Modules\Users\Domain\Models\User
     App\Modules\Audit\Domain\Repositories\ChangesLogRepository:
       - App\Core\Abstracts\ModelRepository
     App\Modules\Audit\Domain\Repositories\UserJournalRepository:

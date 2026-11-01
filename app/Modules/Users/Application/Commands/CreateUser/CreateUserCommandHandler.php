@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\Application\Commands\CreateUser;
 
-use App\Modules\Users\Application\Policies\UserPolicy;
+use App\Core\Contracts\Authorizer;
+use App\Core\Domain\Actor;
+use App\Modules\Users\Domain\Enums\UsersPermission;
 use App\Modules\Users\Domain\Models\User;
 use App\Modules\Users\Domain\Repositories\UserRepository;
 use Ecotone\Modelling\Attribute\CommandHandler;
@@ -13,13 +15,13 @@ class CreateUserCommandHandler
 {
     public function __construct(
         private UserRepository $userRepository,
-        private UserPolicy $userPolicy,
+        private Authorizer $authorizer,
     ) {}
 
     #[CommandHandler]
     public function handle(CreateUserCommand $command): User
     {
-        $this->userPolicy->assertCanCreate($command->actorId);
+        $this->authorizer->ensure(Actor::user((int) $command->actorId), UsersPermission::ManageUsers);
 
         return $this->userRepository->create([
             'name' => $command->name,

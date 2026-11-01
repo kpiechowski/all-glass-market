@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Tables;
 
+use App\Modules\Users\Domain\Enums\UserRole;
 use App\Modules\Users\Domain\Models\User;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -24,6 +25,7 @@ class UsersTable
                 TextColumn::make('role')
                     ->label(__('users::resource.fields.role'))
                     ->badge()
+                    ->formatStateUsing(fn (?string $state): ?string => UserRole::tryFrom((string) $state)?->getLabel() ?? $state)
                     ->sortable(),
 
                 TextColumn::make('name')

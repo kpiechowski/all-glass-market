@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Schemas;
 
+use App\Modules\Users\Domain\Enums\UserRole;
 use App\Modules\Users\Domain\Models\User;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -45,6 +46,7 @@ class UserInfolist
                     TextEntry::make('role')
                         ->label(__('users::resource.fields.role'))
                         ->badge()
+                        ->formatStateUsing(fn (?string $state): ?string => UserRole::tryFrom((string) $state)?->getLabel() ?? $state)
                         ->columnSpan(1),
 
                     TextEntry::make('name')

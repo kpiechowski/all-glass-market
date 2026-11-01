@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Schemas;
 
-use App\Modules\Users\Domain\Enums\RoleEnum;
+use App\Modules\Users\Domain\Enums\UserRole;
 use Filament\Actions\Action;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -50,7 +50,11 @@ class UserForm
                 ->schema([
                     Select::make('role')
                         ->label(__('users::resource.fields.role'))
-                        ->options(RoleEnum::class)
+                        // FR-05: the selector never offers Super Admin. Ticket 02 reads the registry here.
+                        ->options(collect(UserRole::cases())
+                            ->reject(fn (UserRole $role): bool => $role === UserRole::SuperAdmin)
+                            ->mapWithKeys(fn (UserRole $role): array => [$role->value => $role->getLabel()])
+                            ->all())
                         ->required()
                         ->columnSpan(1),
 

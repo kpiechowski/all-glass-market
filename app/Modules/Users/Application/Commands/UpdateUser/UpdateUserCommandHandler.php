@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\Application\Commands\UpdateUser;
 
-use App\Modules\Users\Application\Policies\UserPolicy;
+use App\Core\Contracts\Authorizer;
+use App\Core\Domain\Actor;
+use App\Modules\Users\Domain\Enums\UsersPermission;
 use App\Modules\Users\Domain\Models\User;
 use App\Modules\Users\Domain\Repositories\UserRepository;
 use Ecotone\Modelling\Attribute\CommandHandler;
@@ -13,7 +15,7 @@ class UpdateUserCommandHandler
 {
     public function __construct(
         private UserRepository $userRepository,
-        private UserPolicy $userPolicy,
+        private Authorizer $authorizer,
     ) {}
 
     #[CommandHandler]
@@ -21,7 +23,10 @@ class UpdateUserCommandHandler
     {
         $user = $this->userRepository->findOrFail($command->id);
 
-        $this->userPolicy->assertCanUpdate($command->actorId, $user);
+        // Editing oneself needs no Permission; ticket 02 rebuilds this handler.
+        if ((int) $command->actorId !== (int) $user->getKey()) {
+            $this->authorizer->ensure(Actor::user((int) $command->actorId), UsersPermission::ManageUsers);
+        }
 
         $attributes = [
             'name' => $command->name,

@@ -44,9 +44,9 @@ return [
     ],
 
     'roles' => [
-        'root' => 'Root',
+        'super_admin' => 'Super Admin',
         'admin' => 'Administrator',
-        'client' => 'Klient',
+        'user' => 'Użytkownik',
     ],
 
     'account_types' => [

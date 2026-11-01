@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Core;
 
 use App\Core\Console\CreateDevUserCommand;
-use App\Core\Console\CreateRootCommand;
 use App\Core\Console\DeleteModuleCommand;
 use App\Core\Console\MakeIntegrationCommand;
 use App\Core\Console\MakeModuleCommand;
@@ -27,7 +26,6 @@ class CoreServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 CreateDevUserCommand::class,
-                CreateRootCommand::class,
                 DeleteModuleCommand::class,
                 MakeModuleCommand::class,
                 MakeIntegrationCommand::class,

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Pages;
 
 use App\Core\Concerns\HasCommandBus;
+use App\Core\Domain\Actor;
 use App\Modules\Users\Application\Commands\AssignUserRole\AssignUserRoleCommand;
 use App\Modules\Users\Application\Commands\UpdateUser\UpdateUserCommand;
-use App\Modules\Users\Domain\Enums\RoleEnum;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
@@ -49,11 +49,11 @@ class EditUser extends EditRecord
             shippingNote: $data['shipping_note'] ?? null,
         ));
 
-        if (isset($data['role']) && RoleEnum::from($data['role']) !== $record->role) {
+        if (isset($data['role']) && $data['role'] !== $record->role) {
             $this->commandBus->send(new AssignUserRoleCommand(
-                actorId: Auth::id(),
-                userId: $record->getKey(),
-                role: RoleEnum::from($data['role']),
+                actor: Actor::user((int) Auth::id()),
+                userId: (int) $record->getKey(),
+                role: $data['role'],
             ));
         }
 

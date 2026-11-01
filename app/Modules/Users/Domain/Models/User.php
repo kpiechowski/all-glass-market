@@ -6,7 +6,7 @@ namespace App\Modules\Users\Domain\Models;
 
 use App\Modules\Audit\Domain\Contracts\LoggableModel;
 use App\Modules\Audit\Domain\Traits\HasChangesLog;
-use App\Modules\Users\Domain\Enums\RoleEnum;
+use App\Modules\Users\Domain\Enums\UserRole;
 use App\Modules\Users\Infrastructure\Factories\UserFactory;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
 use Filament\Models\Contracts\FilamentUser;
@@ -49,7 +49,6 @@ class User extends Authenticatable implements FilamentUser, LoggableModel
             'password' => 'hashed',
             'company_account' => 'boolean',
             'has_accepted_terms' => 'boolean',
-            'role' => RoleEnum::class,
         ];
     }
 
@@ -60,7 +59,8 @@ class User extends Authenticatable implements FilamentUser, LoggableModel
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return in_array($this->role, [RoleEnum::Root, RoleEnum::Admin], strict: true);
+        // Interim until ticket 03 (FR-07): any registered Role enters.
+        return in_array($this->role, [UserRole::SuperAdmin->value, UserRole::Admin->value], strict: true);
     }
 
     public function getLoggableTitle(): string

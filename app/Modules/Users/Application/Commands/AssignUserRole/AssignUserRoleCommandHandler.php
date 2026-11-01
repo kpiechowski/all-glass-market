@@ -4,30 +4,38 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\Application\Commands\AssignUserRole;
 
-use App\Modules\Users\Application\Policies\UserPolicy;
-use App\Modules\Users\Domain\Models\User;
-use App\Modules\Users\Domain\Repositories\UserRepository;
+use App\Core\Contracts\Authorizer;
+use App\Modules\Users\Application\ModuleApi\RoleRegistry;
+use App\Modules\Users\Domain\Enums\UserRole;
+use App\Modules\Users\Domain\Enums\UsersPermission;
+use App\Modules\Users\Domain\Exceptions\RoleAssignmentRefused;
+use App\Modules\Users\Domain\Repositories\UserRoles;
 use Ecotone\Modelling\Attribute\CommandHandler;
 
-class AssignUserRoleCommandHandler
+final class AssignUserRoleCommandHandler
 {
     public function __construct(
-        private UserRepository $userRepository,
-        private UserPolicy $userPolicy,
+        private Authorizer $authorizer,
+        private RoleRegistry $registry,
+        private UserRoles $userRoles,
     ) {}
 
     #[CommandHandler]
-    public function handle(AssignUserRoleCommand $command): User
+    public function handle(AssignUserRoleCommand $command): void
     {
-        $this->userPolicy->assertCanAssignRole($command->actorId);
+        $this->authorizer->ensure($command->actor, UsersPermission::ManageUsers);
 
-        $user = $this->userRepository->findOrFail($command->userId);
+        $current = $this->userRoles->roleKeyOf($command->userId) ?? throw RoleAssignmentRefused::userNotFound();
 
-        // Direct assignment bypasses mass-assignment guard intentionally;
-        // role is managed exclusively through this command.
-        $user->role = $command->role;
-        $user->save();
+        // RULE-09: Super Admin moves only through the console commands, in either direction.
+        if ($command->role === UserRole::SuperAdmin->value || $current === UserRole::SuperAdmin->value) {
+            throw RoleAssignmentRefused::superAdminConsoleOnly();
+        }
 
-        return $user->refresh();
+        if (! $this->registry->isRegistered($command->role)) {
+            throw RoleAssignmentRefused::roleNotRegistered();
+        }
+
+        $this->userRoles->assign($command->userId, $command->role);
     }
 }
