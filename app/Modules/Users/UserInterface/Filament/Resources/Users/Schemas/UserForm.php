@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Schemas;
 
-use App\Modules\Users\Domain\Enums\UserRole;
+use App\Modules\Users\Domain\Policies\UserManagementPolicy;
+use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
+use App\Modules\Users\UserInterface\Filament\Resources\Users\Support\RoleDisplay;
 use Filament\Actions\Action;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -24,155 +22,108 @@ class UserForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Tabs::make()
-                ->contained(false)
-                ->columnSpanFull()
-                ->tabs([
-                    Tab::make(__('users::resource.tabs.general'))
-                        ->icon(Heroicon::UserCircle)
-                        ->schema(self::generalTab()),
-
-                    Tab::make(__('users::resource.tabs.password'))
-                        ->icon(Heroicon::LockClosed)
-                        ->schema(self::passwordTab()),
-                ]),
+            self::accountSection(),
+            self::companySection(),
+            self::shippingSection(),
+            self::passwordSection(),
         ]);
     }
 
-    /** @return array<mixed> */
-    private static function generalTab(): array
+    private static function accountSection(): Section
     {
-        return [
-            Section::make(__('users::resource.sections.account_details'))
-                ->contained(false)
-                ->icon(Heroicon::UserCircle)
-                ->columns(2)
-                ->schema([
-                    Select::make('role')
-                        ->label(__('users::resource.fields.role'))
-                        // FR-05: the selector never offers Super Admin. Ticket 02 reads the registry here.
-                        ->options(collect(UserRole::cases())
-                            ->reject(fn (UserRole $role): bool => $role === UserRole::SuperAdmin)
-                            ->mapWithKeys(fn (UserRole $role): array => [$role->value => $role->getLabel()])
-                            ->all())
-                        ->required()
-                        ->columnSpan(1),
+        return Section::make(__('users::resources.user.sections.account_details'))
+            ->icon(Heroicon::UserCircle)
+            ->columns(2)
+            ->schema([
+                // FR-24/25: never Super Admin; hidden when editing oneself or a Super Admin (RULE-08).
+                Select::make('role')
+                    ->label(__('users::resources.user.fields.role'))
+                    ->options(fn (): array => RoleDisplay::assignableOptions())
+                    ->required()
+                    ->visible(fn (?UserModel $record): bool => $record === null
+                        || UserManagementPolicy::canChangeRoleOf((int) auth()->id(), (int) $record->id, (string) $record->role))
+                    ->columnSpanFull(),
 
-                    TextInput::make('name')
-                        ->label(__('users::resource.fields.name'))
-                        ->required()
-                        ->unique(ignoreRecord: true)
-                        ->maxLength(255)
-                        ->columnSpan(1),
+                TextInput::make('name')
+                    ->label(__('users::resources.user.fields.name'))
+                    ->required()
+                    ->maxLength(255),
 
-                    TextInput::make('email')
-                        ->label(__('users::resource.fields.email'))
-                        ->email()
-                        ->required()
-                        ->unique(ignoreRecord: true)
-                        ->maxLength(255)
-                        ->columnSpan(1),
+                TextInput::make('email')
+                    ->label(__('users::resources.user.fields.email'))
+                    ->email()
+                    ->required()
+                    ->unique(table: 'users', column: 'email', ignoreRecord: true)
+                    ->maxLength(255),
 
-                    TextInput::make('phone')
-                        ->label(__('users::resource.fields.phone'))
-                        ->tel()
-                        ->maxLength(50)
-                        ->columnSpan(1),
-                ]),
-
-            Section::make(__('users::resource.sections.company_account'))
-                ->contained(false)
-                ->icon(Heroicon::BuildingOffice)
-                ->columns(1)
-                ->schema([
-                    Toggle::make('company_account')
-                        ->label(__('users::resource.fields.company_account'))
-                        ->inlineLabel()
-                        ->live(),
-
-                    Toggle::make('has_accepted_terms')
-                        ->label(__('users::resource.fields.has_accepted_terms'))
-                        ->inlineLabel()
-                        ->visible(fn (Get $get): bool => (bool) $get('company_account')),
-                ]),
-
-            Section::make(__('users::resource.sections.company_details'))
-                ->contained(false)
-                ->icon(Heroicon::BuildingOffice2)
-                ->columns(2)
-                ->visible(fn (Get $get): bool => (bool) $get('company_account'))
-                ->schema([
-                    TextInput::make('company_name')
-                        ->label(__('users::resource.fields.company_name'))
-                        ->maxLength(255)
-                        ->columnSpan(1),
-
-                    TextInput::make('company_nip')
-                        ->label(__('users::resource.fields.company_nip'))
-                        ->maxLength(255)
-                        ->columnSpan(1),
-
-                    TextInput::make('company_address')
-                        ->label(__('users::resource.fields.company_address'))
-                        ->maxLength(255)
-                        ->columnSpan(1),
-
-                    TextInput::make('shipment_address')
-                        ->label(__('users::resource.fields.shipment_address'))
-                        ->maxLength(255)
-                        ->columnSpan(1),
-
-                    TextInput::make('city')
-                        ->label(__('users::resource.fields.city'))
-                        ->maxLength(255)
-                        ->columnSpan(1),
-
-                    TextInput::make('city_code')
-                        ->label(__('users::resource.fields.city_code'))
-                        ->maxLength(10)
-                        ->columnSpan(1),
-
-                    RichEditor::make('shipping_note')
-                        ->label(__('users::resource.fields.shipping_note'))
-                        ->columnSpanFull(),
-                ]),
-        ];
+                TextInput::make('phone')
+                    ->label(__('users::resources.user.fields.phone'))
+                    ->tel()
+                    ->maxLength(50),
+            ]);
     }
 
-    /** @return array<mixed> */
-    private static function passwordTab(): array
+    private static function companySection(): Section
     {
-        return [
-            Section::make(__('users::resource.sections.security'))
-                ->contained(false)
-                ->icon(Heroicon::LockClosed)
-                ->columns(1)
-                ->schema([
-                    TextInput::make('password')
-                        ->label(__('users::resource.fields.password'))
-                        ->password()
-                        ->revealable()
-                        ->inlineLabel()
-                        ->required(fn (string $operation): bool => $operation === 'create')
-                        ->dehydrated(fn (?string $state): bool => filled($state))
-                        ->minLength(8)
-                        ->maxLength(255)
-                        ->suffixAction(
-                            Action::make('generate-password')
-                                ->icon(Heroicon::ArrowPathRoundedSquare)
-                                ->action(fn (Set $set) => $set('password', Str::password(12, true, true, true, false)))
-                        ),
+        return Section::make(__('users::resources.user.sections.company_details'))
+            ->icon(Heroicon::BuildingOffice2)
+            ->columns(2)
+            ->schema([
+                TextInput::make('company_name')->label(__('users::resources.user.fields.company_name'))->maxLength(255),
+                TextInput::make('company_nip')->label(__('users::resources.user.fields.company_nip'))->maxLength(255),
+                TextInput::make('company_address')->label(__('users::resources.user.fields.company_address'))->maxLength(255),
+                TextInput::make('shipment_address')->label(__('users::resources.user.fields.pickup_address'))->maxLength(255),
+                TextInput::make('city')->label(__('users::resources.user.fields.city'))->maxLength(255),
+                TextInput::make('city_code')->label(__('users::resources.user.fields.postal_code'))->maxLength(10),
+            ]);
+    }
 
-                    TextInput::make('password_confirmation')
-                        ->label(__('users::resource.fields.password_confirmation'))
-                        ->password()
-                        ->revealable()
-                        ->inlineLabel()
-                        ->requiredWith('password')
-                        ->hiddenOn('create')
-                        ->same('password')
-                        ->dehydrated(false),
-                ]),
-        ];
+    private static function shippingSection(): Section
+    {
+        return Section::make(__('users::resources.user.sections.shipping'))
+            ->icon(Heroicon::Truck)
+            ->schema([
+                RichEditor::make('shipping_note')
+                    ->label(__('users::resources.user.fields.shipping_text'))
+                    ->helperText(__('users::resources.user.helpers.shipping_text')),
+            ]);
+    }
+
+    /** Temporary password on create (WF-04); on edit an optional, collapsed change (FR-25). */
+    private static function passwordSection(): Section
+    {
+        return Section::make(__('users::resources.user.sections.password'))
+            ->icon(Heroicon::LockClosed)
+            ->collapsed(fn (string $operation): bool => $operation === 'edit')
+            ->columns(1)
+            ->schema([
+                TextInput::make('password')
+                    ->label(fn (string $operation): string => $operation === 'create'
+                        ? __('users::resources.user.fields.password')
+                        : __('users::resources.user.fields.password_edit'))
+                    ->helperText(fn (string $operation): string => $operation === 'create'
+                        ? __('users::resources.user.helpers.password_create')
+                        : __('users::resources.user.helpers.password_edit'))
+                    ->password()
+                    ->revealable()
+                    ->required(fn (string $operation): bool => $operation === 'create')
+                    ->dehydrated(fn (?string $state): bool => filled($state))
+                    ->minLength(8)
+                    ->maxLength(255)
+                    ->copyable()
+                    ->suffixAction(
+                        Action::make('generate-password')
+                            ->icon(Heroicon::ArrowPathRoundedSquare)
+                            ->action(fn (Set $set) => $set('password', Str::password(12, true, true, true, false)))
+                    ),
+
+                TextInput::make('password_confirmation')
+                    ->label(__('users::resources.user.fields.password_confirmation'))
+                    ->password()
+                    ->revealable()
+                    ->requiredWith('password')
+                    ->same('password')
+                    ->dehydrated(false),
+            ]);
     }
 }

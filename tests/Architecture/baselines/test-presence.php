@@ -7,8 +7,4 @@ return [
     'app/Modules/Audit/Application/Commands/MarkJournalRead/MarkJournalReadCommandHandler.php',
     'app/Modules/Audit/Application/Listeners/OfferJournalListener.php',
     'app/Modules/Audit/Application/Listeners/OfferPanelNotificationListener.php',
-    'app/Modules/Users/Application/Commands/ChangeUserPassword/ChangeUserPasswordCommandHandler.php',
-    'app/Modules/Users/Application/Commands/CreateUser/CreateUserCommandHandler.php',
-    'app/Modules/Users/Application/Commands/DeleteUser/DeleteUserCommandHandler.php',
-    'app/Modules/Users/Application/Commands/UpdateUser/UpdateUserCommandHandler.php',
 ];

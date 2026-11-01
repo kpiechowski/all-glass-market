@@ -54,6 +54,11 @@ final class RoleRegistry
         return isset($this->roles[$roleKey]);
     }
 
+    public function roleFor(string $roleKey): ?Role
+    {
+        return $this->roles[$roleKey]['role'] ?? null;
+    }
+
     public function rankOf(string $roleKey): ?int
     {
         return $this->roles[$roleKey]['rank'] ?? null;

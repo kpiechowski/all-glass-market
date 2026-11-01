@@ -3,8 +3,6 @@
 namespace App\Modules\Users\Application\Providers;
 
 use App\Core\Abstracts\CoreEventServiceProvider;
-use App\Modules\Users\Domain\Models\User;
-use App\Modules\Users\Domain\Observers\UserObserver;
 
 class UsersEventServiceProvider extends CoreEventServiceProvider
 {
@@ -14,7 +12,5 @@ class UsersEventServiceProvider extends CoreEventServiceProvider
         // ],
     ];
 
-    protected $observers = [
-        User::class => UserObserver::class,
-    ];
+    protected $observers = [];
 }

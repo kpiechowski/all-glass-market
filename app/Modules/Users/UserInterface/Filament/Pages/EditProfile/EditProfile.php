@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Modules\Users\UserInterface\Filament\Pages\EditProfile;
 
 use App\Core\Concerns\HasCommandBus;
+use App\Core\UserInterface\CurrentActor;
 use App\Modules\Users\Application\Commands\ChangeUserPassword\ChangeUserPasswordCommand;
 use App\Modules\Users\Application\Commands\UpdateUser\UpdateUserCommand;
-use App\Modules\Users\Domain\Models\User;
+use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\Schemas\PasswordForm;
 use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\Schemas\ProfileForm;
 use BackedEnum;
@@ -55,7 +56,7 @@ class EditProfile extends Page
 
     public function mount(): void
     {
-        /** @var User $user */
+        /** @var UserModel $user */
         $user = Auth::user();
         $this->form->fill($user->attributesToArray());
     }
@@ -121,25 +122,24 @@ class EditProfile extends Page
     public function save(): void
     {
         $data = $this->form->getState();
-        /** @var User $user */
+        /** @var UserModel $user */
         $user = Auth::user();
 
         try {
             $this->commandBus->send(new UpdateUserCommand(
-                actorId: $user->getKey(),
-                id: $user->getKey(),
+                actor: CurrentActor::get(),
+                userId: $user->getKey(),
                 name: $data['name'],
                 email: $data['email'],
                 phone: $data['phone'] ?? null,
-                companyAccount: (bool) ($data['company_account'] ?? false),
-                hasAcceptedTerms: (bool) ($data['has_accepted_terms'] ?? false),
                 companyName: $data['company_name'] ?? null,
                 companyNip: $data['company_nip'] ?? null,
                 companyAddress: $data['company_address'] ?? null,
-                shipmentAddress: $data['shipment_address'] ?? null,
+                pickupAddress: $data['shipment_address'] ?? null,
                 city: $data['city'] ?? null,
-                cityCode: $data['city_code'] ?? null,
-                shippingNote: $data['shipping_note'] ?? null,
+                postalCode: $data['city_code'] ?? null,
+                // FR-15: not editable here; passed through so a manager's own save keeps it.
+                shippingText: $user->shipping_note,
             ));
         } catch (Throwable) {
             Notification::make()->danger()->title(__('users::profile.notifications.save_failed'))->send();
@@ -153,13 +153,13 @@ class EditProfile extends Page
     public function changePassword(): void
     {
         $data = $this->passwordForm->getState();
-        /** @var User $user */
+        /** @var UserModel $user */
         $user = Auth::user();
 
         try {
             $this->commandBus->send(new ChangeUserPasswordCommand(
-                actorId: $user->getKey(),
-                id: $user->getKey(),
+                actor: CurrentActor::get(),
+                userId: $user->getKey(),
                 password: $data['password'],
             ));
         } catch (Throwable) {

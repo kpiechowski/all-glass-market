@@ -7,7 +7,7 @@ namespace Tests\Feature\Modules\Users\Application\Commands\GrantSuperAdmin;
 use App\Core\Domain\Actor;
 use App\Modules\Users\Application\Commands\GrantSuperAdmin\GrantSuperAdminCommand;
 use App\Modules\Users\Domain\Exceptions\RoleAssignmentRefused;
-use App\Modules\Users\Domain\Models\User;
+use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Ecotone\Modelling\CommandBus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -23,7 +23,7 @@ class GrantSuperAdminCommandHandlerTest extends TestCase
 
     public function test_the_console_grants_super_admin(): void
     {
-        $user = User::factory()->create(['role' => 'admin']);
+        $user = UserModel::factory()->create(['role' => 'admin']);
 
         app(CommandBus::class)->send(new GrantSuperAdminCommand($this->console(), $user->email));
 
@@ -32,8 +32,8 @@ class GrantSuperAdminCommandHandlerTest extends TestCase
 
     public function test_a_person_cannot_grant_super_admin(): void
     {
-        $admin = User::factory()->create(['role' => 'super_admin']);
-        $user = User::factory()->create(['role' => 'user']);
+        $admin = UserModel::factory()->create(['role' => 'super_admin']);
+        $user = UserModel::factory()->create(['role' => 'user']);
 
         try {
             app(CommandBus::class)->send(new GrantSuperAdminCommand(Actor::user($admin->id), $user->email));
@@ -47,7 +47,7 @@ class GrantSuperAdminCommandHandlerTest extends TestCase
 
     public function test_granting_to_a_super_admin_or_an_unknown_user_is_refused(): void
     {
-        $superAdmin = User::factory()->create(['role' => 'super_admin']);
+        $superAdmin = UserModel::factory()->create(['role' => 'super_admin']);
 
         try {
             app(CommandBus::class)->send(new GrantSuperAdminCommand($this->console(), $superAdmin->email));

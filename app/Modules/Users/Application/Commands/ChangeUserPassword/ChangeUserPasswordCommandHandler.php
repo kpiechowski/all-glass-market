@@ -5,31 +5,35 @@ declare(strict_types=1);
 namespace App\Modules\Users\Application\Commands\ChangeUserPassword;
 
 use App\Core\Contracts\Authorizer;
-use App\Core\Domain\Actor;
+use App\Modules\Users\Application\Services\UserManagementGuard;
 use App\Modules\Users\Domain\Enums\UsersPermission;
-use App\Modules\Users\Domain\Models\User;
+use App\Modules\Users\Domain\Exceptions\UserRefused;
 use App\Modules\Users\Domain\Repositories\UserRepository;
+use App\Modules\Users\Domain\ValueObjects\PlainPassword;
 use Ecotone\Modelling\Attribute\CommandHandler;
+use Illuminate\Contracts\Hashing\Hasher;
 
-class ChangeUserPasswordCommandHandler
+final class ChangeUserPasswordCommandHandler
 {
     public function __construct(
-        private UserRepository $userRepository,
         private Authorizer $authorizer,
+        private UserManagementGuard $guard,
+        private UserRepository $users,
+        private Hasher $hasher,
     ) {}
 
     #[CommandHandler]
-    public function handle(ChangeUserPasswordCommand $command): User
+    public function handle(ChangeUserPasswordCommand $command): void
     {
-        $user = $this->userRepository->findOrFail($command->id);
+        $user = $this->users->find($command->userId) ?? throw UserRefused::userNotFound();
 
         // Changing one's own password needs no Permission; ticket 06 rebuilds this handler.
-        if ((int) $command->actorId !== (int) $user->getKey()) {
-            $this->authorizer->ensure(Actor::user((int) $command->actorId), UsersPermission::ManageUsers);
+        if ($command->actor->id !== $user->id()) {
+            $this->authorizer->ensure($command->actor, UsersPermission::ManageUsers);
+            $this->guard->ensureCanManage($command->actor, $user);
         }
 
-        return $this->userRepository->update($user, [
-            'password' => $command->password,
-        ]);
+        $user->changePasswordHash($this->hasher->make(PlainPassword::from($command->password)->value()));
+        $this->users->save($user);
     }
 }

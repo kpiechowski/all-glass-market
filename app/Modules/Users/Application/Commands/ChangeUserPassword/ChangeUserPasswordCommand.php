@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\Application\Commands\ChangeUserPassword;
 
-readonly class ChangeUserPasswordCommand
+use App\Core\Domain\Actor;
+
+final readonly class ChangeUserPasswordCommand
 {
     public function __construct(
-        public int|string $actorId,
-        public int|string $id,
+        public Actor $actor,
+        public int $userId,
         public string $password,
     ) {}
 }

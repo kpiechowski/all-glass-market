@@ -19,7 +19,7 @@ enum UserRole: string implements HasColor, HasLabel, Role
 
     public function label(): string
     {
-        return __('users::resource.roles.'.$this->value);
+        return __('users::enums.user_role.'.$this->value);
     }
 
     public function getLabel(): string

@@ -5,38 +5,45 @@ declare(strict_types=1);
 namespace App\Modules\Users\Application\Commands\CreateUser;
 
 use App\Core\Contracts\Authorizer;
-use App\Core\Domain\Actor;
+use App\Modules\Users\Application\Services\UserManagementGuard;
+use App\Modules\Users\Domain\Entities\User;
 use App\Modules\Users\Domain\Enums\UsersPermission;
-use App\Modules\Users\Domain\Models\User;
+use App\Modules\Users\Domain\Exceptions\UserRefused;
 use App\Modules\Users\Domain\Repositories\UserRepository;
+use App\Modules\Users\Domain\ValueObjects\Email;
+use App\Modules\Users\Domain\ValueObjects\PlainPassword;
 use Ecotone\Modelling\Attribute\CommandHandler;
+use Illuminate\Contracts\Hashing\Hasher;
 
-class CreateUserCommandHandler
+final class CreateUserCommandHandler
 {
     public function __construct(
-        private UserRepository $userRepository,
         private Authorizer $authorizer,
+        private UserManagementGuard $guard,
+        private UserRepository $users,
+        private Hasher $hasher,
     ) {}
 
     #[CommandHandler]
-    public function handle(CreateUserCommand $command): User
+    public function handle(CreateUserCommand $command): int
     {
-        $this->authorizer->ensure(Actor::user((int) $command->actorId), UsersPermission::ManageUsers);
+        $this->authorizer->ensure($command->actor, UsersPermission::ManageUsers);
 
-        return $this->userRepository->create([
-            'name' => $command->name,
-            'email' => $command->email,
-            'password' => $command->password,
-            'phone' => $command->phone,
-            'company_account' => $command->companyAccount,
-            'has_accepted_terms' => $command->hasAcceptedTerms,
-            'company_name' => $command->companyName,
-            'company_nip' => $command->companyNip,
-            'company_address' => $command->companyAddress,
-            'shipment_address' => $command->shipmentAddress,
-            'city' => $command->city,
-            'city_code' => $command->cityCode,
-            'shipping_note' => $command->shippingNote,
-        ]);
+        $email = Email::from($command->email);
+        $password = PlainPassword::from($command->password);
+        $this->guard->ensureRoleAssignable($command->actor, $command->role);
+
+        if ($this->users->emailIsTaken($email->value())) {
+            throw UserRefused::emailTaken();
+        }
+
+        $user = User::create($command->name, $email, $command->role, $this->hasher->make($password->value()));
+        $user->updateData(
+            $command->name, $email, $command->phone, $command->companyName, $command->companyNip,
+            $command->companyAddress, $command->pickupAddress, $command->city, $command->postalCode,
+        );
+        $user->changeShippingText($command->shippingText);
+
+        return $this->users->add($user);
     }
 }

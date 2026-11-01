@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core\Console;
 
+use App\Core\Infrastructure\Persistence\ReadOnlyModel;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
@@ -75,7 +76,7 @@ class CreateDevUserCommand extends Command
 
         // ── 5. Persist ───────────────────────────────────────────────────────
         /** @var Model $model */
-        $model = $modelClass::updateOrCreate(['email' => $email], $attributes);
+        $model = ReadOnlyModel::writing(fn () => $modelClass::updateOrCreate(['email' => $email], $attributes));
 
         $action = $model->wasRecentlyCreated ? 'Created' : 'Updated';
         $this->info("{$action} [{$guard}] user: {$email}");

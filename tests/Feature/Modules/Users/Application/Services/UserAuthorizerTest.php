@@ -8,7 +8,7 @@ use App\Core\Contracts\Authorizer;
 use App\Core\Domain\Actor;
 use App\Core\Exceptions\AuthorizationException;
 use App\Modules\Users\Application\ModuleApi\RoleRegistry;
-use App\Modules\Users\Domain\Models\User;
+use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Fixtures\Users\ShopPermission;
 use Tests\Fixtures\Users\ShopRole;
@@ -20,7 +20,7 @@ class UserAuthorizerTest extends TestCase
 
     private function actorWithRole(string $role): Actor
     {
-        return Actor::user(User::factory()->create(['role' => $role])->id);
+        return Actor::user(UserModel::factory()->create(['role' => $role])->id);
     }
 
     private function declareShop(): void

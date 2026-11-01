@@ -9,7 +9,7 @@ use App\Core\Contracts\Permission;
 use App\Core\Domain\Actor;
 use App\Core\Exceptions\AuthorizationException;
 use App\Modules\Users\Application\ModuleApi\RoleRegistry;
-use App\Modules\Users\Domain\Repositories\UserRoles;
+use App\Modules\Users\Domain\Repositories\UserRepository;
 
 /**
  * FR-03: a check passes when the User's Role was granted the Permission. Super
@@ -19,7 +19,7 @@ final class UserAuthorizer implements Authorizer
 {
     public function __construct(
         private RoleRegistry $registry,
-        private UserRoles $userRoles,
+        private UserRepository $users,
     ) {}
 
     public function can(Actor $actor, Permission $permission): bool
@@ -28,7 +28,7 @@ final class UserAuthorizer implements Authorizer
             return true;
         }
 
-        $roleKey = $this->userRoles->roleKeyOf((int) $actor->id);
+        $roleKey = $this->users->roleKeyOf((int) $actor->id);
 
         if ($roleKey === null) {
             return false;

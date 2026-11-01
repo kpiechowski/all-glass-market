@@ -7,7 +7,7 @@ namespace Tests\Feature\Core\UserInterface;
 use App\Core\Contracts\Authorizer;
 use App\Core\Exceptions\AuthorizationException;
 use App\Core\UserInterface\CurrentActor;
-use App\Modules\Users\Domain\Models\User;
+use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Tests\Fixtures\Core\ArrayAuthorizer;
 use Tests\Fixtures\Core\TestPermission;
 use Tests\TestCase;
@@ -16,7 +16,7 @@ class CurrentActorTest extends TestCase
 {
     public function test_get_returns_a_user_actor_for_the_logged_in_user(): void
     {
-        $this->actingAs((new User)->forceFill(['id' => 42]));
+        $this->actingAs((new UserModel)->forceFill(['id' => 42]));
 
         $actor = CurrentActor::get();
 
@@ -34,7 +34,7 @@ class CurrentActorTest extends TestCase
     public function test_can_asks_the_authorizer_about_the_logged_in_user(): void
     {
         $this->app->instance(Authorizer::class, new ArrayAuthorizer([TestPermission::Activate]));
-        $this->actingAs((new User)->forceFill(['id' => 42]));
+        $this->actingAs((new UserModel)->forceFill(['id' => 42]));
 
         $this->assertTrue(CurrentActor::can(TestPermission::Activate));
         $this->assertFalse(CurrentActor::can(TestPermission::Delete));

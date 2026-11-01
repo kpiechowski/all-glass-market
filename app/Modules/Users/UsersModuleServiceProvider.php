@@ -11,8 +11,8 @@ use App\Modules\Users\Application\Providers\UsersEventServiceProvider;
 use App\Modules\Users\Application\Services\UserAuthorizer;
 use App\Modules\Users\Domain\Enums\UserRole;
 use App\Modules\Users\Domain\Enums\UsersPermission;
-use App\Modules\Users\Domain\Repositories\UserRoles;
-use App\Modules\Users\Infrastructure\Persistence\EloquentUserRoles;
+use App\Modules\Users\Domain\Repositories\UserRepository;
+use App\Modules\Users\Infrastructure\Persistence\EloquentUserRepository;
 use App\Modules\Users\UserInterface\Console\GrantSuperAdminConsoleCommand;
 use App\Modules\Users\UserInterface\Console\RevokeSuperAdminConsoleCommand;
 
@@ -28,7 +28,7 @@ class UsersModuleServiceProvider extends ModuleServiceProvider
     /** @var array<class-string, class-string> */
     protected array $containerBindings = [
         Authorizer::class => UserAuthorizer::class,
-        UserRoles::class => EloquentUserRoles::class,
+        UserRepository::class => EloquentUserRepository::class,
     ];
 
     public function register(): void

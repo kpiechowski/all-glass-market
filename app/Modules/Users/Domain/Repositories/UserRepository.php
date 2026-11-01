@@ -4,13 +4,25 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\Domain\Repositories;
 
-use App\Core\Abstracts\ModelRepository;
-use App\Modules\Users\Domain\Models\User;
+use App\Core\Contracts\Repository;
+use App\Modules\Users\Domain\Entities\User;
 
-class UserRepository extends ModelRepository
+/**
+ * @extends Repository<User>
+ */
+interface UserRepository extends Repository
 {
-    protected function getModel(): string
-    {
-        return User::class;
-    }
+    public function findByEmail(string $email): ?User;
+
+    /** RULE-01: unique among all Users; the User being edited is excluded. */
+    public function emailIsTaken(string $email, ?int $exceptUserId = null): bool;
+
+    /** The Role key, or null when no such User exists. */
+    public function roleKeyOf(int $userId): ?string;
+
+    /**
+     * @param  list<string>  $roleKeys
+     * @return list<int>
+     */
+    public function userIdsWithRoles(array $roleKeys): array;
 }

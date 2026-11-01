@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Users\Application\ModuleApi;
 
 use App\Modules\Users\Domain\Enums\UserRole;
-use App\Modules\Users\Domain\Repositories\UserRoles;
+use App\Modules\Users\Domain\Repositories\UserRepository;
 
 /**
  * The "Admins" recipient group (D-12): the one place a Role name decides
@@ -13,7 +13,7 @@ use App\Modules\Users\Domain\Repositories\UserRoles;
  */
 final class AdminRecipients
 {
-    public function __construct(private UserRoles $userRoles) {}
+    public function __construct(private UserRepository $users) {}
 
     /**
      * Ids of Users whose Role is Admin or Super Admin.
@@ -25,6 +25,6 @@ final class AdminRecipients
      */
     public function userIds(): array
     {
-        return $this->userRoles->userIdsWithRoles([UserRole::Admin->value, UserRole::SuperAdmin->value]);
+        return $this->users->userIdsWithRoles([UserRole::Admin->value, UserRole::SuperAdmin->value]);
     }
 }

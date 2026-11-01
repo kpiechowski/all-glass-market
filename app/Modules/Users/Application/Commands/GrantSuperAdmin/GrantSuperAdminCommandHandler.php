@@ -7,12 +7,12 @@ namespace App\Modules\Users\Application\Commands\GrantSuperAdmin;
 use App\Modules\Users\Domain\Enums\UserRole;
 use App\Modules\Users\Domain\Exceptions\RoleAssignmentRefused;
 use App\Modules\Users\Domain\Policies\SuperAdminRolePolicy;
-use App\Modules\Users\Domain\Repositories\UserRoles;
+use App\Modules\Users\Domain\Repositories\UserRepository;
 use Ecotone\Modelling\Attribute\CommandHandler;
 
 final class GrantSuperAdminCommandHandler
 {
-    public function __construct(private UserRoles $userRoles) {}
+    public function __construct(private UserRepository $users) {}
 
     #[CommandHandler]
     public function handle(GrantSuperAdminCommand $command): void
@@ -21,12 +21,13 @@ final class GrantSuperAdminCommandHandler
             throw RoleAssignmentRefused::superAdminConsoleOnly();
         }
 
-        $userId = $this->userRoles->userIdByEmail($command->email) ?? throw RoleAssignmentRefused::userNotFound();
+        $user = $this->users->findByEmail($command->email) ?? throw RoleAssignmentRefused::userNotFound();
 
-        if ($this->userRoles->roleKeyOf($userId) === UserRole::SuperAdmin->value) {
+        if ($user->roleKey() === UserRole::SuperAdmin->value) {
             throw RoleAssignmentRefused::alreadySuperAdmin();
         }
 
-        $this->userRoles->assign($userId, UserRole::SuperAdmin->value);
+        $user->assignRole(UserRole::SuperAdmin->value);
+        $this->users->save($user);
     }
 }

@@ -1,0 +1,75 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Users\Infrastructure\Persistence\Models;
+
+use App\Core\Infrastructure\Persistence\ReadOnlyModel;
+use App\Modules\Users\Domain\Enums\AccountType;
+use App\Modules\Users\Domain\Enums\UserRole;
+use App\Modules\Users\Infrastructure\Factories\UserModelFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Auth\MustVerifyEmail;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\Access\Authorizable;
+use Illuminate\Notifications\Notifiable;
+
+/**
+ * Read-only model of a User, and the application's authenticatable.
+ *
+ * The 'users' columns map to the entity as: shipment_address = pickup address,
+ * city_code = postal code, shipping_note = Otomoto shipping text.
+ */
+#[Hidden(['password', 'remember_token'])]
+final class UserModel extends ReadOnlyModel implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, FilamentUser
+{
+    /** @use HasFactory<UserModelFactory> */
+    use Authenticatable, Authorizable, CanResetPassword, HasFactory, MustVerifyEmail, Notifiable;
+
+    protected $table = 'users';
+
+    protected $guarded = [];
+
+    protected static function newFactory(): UserModelFactory
+    {
+        return UserModelFactory::new();
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'account_type' => AccountType::class,
+        ];
+    }
+
+    /**
+     * The framework itself writes the remember token and a rehashed password
+     * while signing in. Those two are the only writes allowed outside the
+     * repository adapter; ticket 03 owns sign-in.
+     */
+    public function save(array $options = []): bool
+    {
+        $authPlumbing = ['remember_token', 'password', 'updated_at'];
+
+        if ($this->exists && array_diff(array_keys($this->getDirty()), $authPlumbing) === []) {
+            return self::writing(fn (): bool => parent::save($options));
+        }
+
+        return parent::save($options);
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // Interim until ticket 03 (FR-07): any registered Role enters.
+        return in_array($this->role, [UserRole::SuperAdmin->value, UserRole::Admin->value], strict: true);
+    }
+}

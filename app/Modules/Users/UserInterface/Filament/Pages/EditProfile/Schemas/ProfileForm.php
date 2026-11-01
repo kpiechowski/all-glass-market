@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\UserInterface\Filament\Pages\EditProfile\Schemas;
 
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class ProfileForm
@@ -27,7 +24,6 @@ class ProfileForm
                             TextInput::make('name')
                                 ->label(__('users::profile.fields.name'))
                                 ->required()
-                                ->unique(ignorable: fn () => auth()->user())
                                 ->maxLength(255)
                                 ->columnSpan(1),
 
@@ -35,7 +31,7 @@ class ProfileForm
                                 ->label(__('users::profile.fields.email'))
                                 ->email()
                                 ->required()
-                                ->unique(ignorable: fn () => auth()->user())
+                                ->unique('users', 'email', ignorable: fn () => auth()->user())
                                 ->maxLength(255)
                                 ->columnSpan(1),
 
@@ -51,13 +47,7 @@ class ProfileForm
                     ->aside()
                     ->description(__('users::profile.sections.company_account_description'))
                     ->schema([
-                        Toggle::make('company_account')
-                            ->label(__('users::profile.fields.company_account'))
-                            ->live()
-                            ->columnSpanFull(),
-
                         Grid::make(2)
-                            ->visible(fn (Get $get): bool => (bool) $get('company_account'))
                             ->schema([
                                 TextInput::make('company_name')
                                     ->label(__('users::profile.fields.company_name'))
@@ -90,16 +80,6 @@ class ProfileForm
                                     ->columnSpan(1),
                             ]),
 
-                        Toggle::make('has_accepted_terms')
-                            ->label(__('users::profile.fields.has_accepted_terms'))
-                            ->visible(fn (Get $get): bool => (bool) $get('company_account'))
-                            ->columnSpanFull(),
-
-                        RichEditor::make('shipping_note')
-                            ->label(__('users::profile.fields.shipping_note'))
-                            ->helperText(__('users::profile.fields.shipping_note_helper'))
-                            ->visible(fn (Get $get): bool => (bool) $get('company_account'))
-                            ->columnSpanFull(),
                     ]),
             ]);
     }

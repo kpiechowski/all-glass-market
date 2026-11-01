@@ -4,85 +4,51 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Tables;
 
-use App\Modules\Users\Domain\Enums\UserRole;
-use App\Modules\Users\Domain\Models\User;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
+use App\Modules\Users\UserInterface\Filament\Resources\Users\Support\RoleDisplay;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 
 class UsersTable
 {
+    /**
+     * Seams: the "wymaga zmiany hasła" and inactive markers and filters arrive
+     * with tickets 06 and 07.
+     */
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('role')
-                    ->label(__('users::resource.fields.role'))
-                    ->badge()
-                    ->formatStateUsing(fn (?string $state): ?string => UserRole::tryFrom((string) $state)?->getLabel() ?? $state)
-                    ->sortable(),
-
                 TextColumn::make('name')
-                    ->label(__('users::resource.fields.name'))
+                    ->label(__('users::resources.user.fields.name'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('email')
-                    ->label(__('users::resource.fields.email'))
+                    ->label(__('users::resources.user.fields.email'))
                     ->searchable()
                     ->sortable(),
-
-                TextColumn::make('phone')
-                    ->label(__('users::resource.fields.phone'))
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('account_type')
-                    ->label(__('users::resource.fields.account_type'))
-                    ->state(fn (User $record): string => $record->isCompanyAccount()
-                        ? __('users::resource.account_types.company')
-                        : __('users::resource.account_types.private'))
-                    ->badge()
-                    ->color(fn (User $record): string => $record->isCompanyAccount() ? 'success' : 'warning'),
+                    ->label(__('users::resources.user.fields.account_type'))
+                    ->badge(),
 
-                IconColumn::make('email_verified_at')
-                    ->label(__('users::resource.fields.email_verified'))
-                    ->boolean()
-                    ->sortable(),
+                TextColumn::make('role')
+                    ->label(__('users::resources.user.fields.role'))
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => RoleDisplay::label($state))
+                    ->color(fn (?string $state): string => RoleDisplay::color($state)),
 
                 TextColumn::make('created_at')
-                    ->label(__('users::resource.fields.created_at'))
+                    ->label(__('users::resources.user.fields.created_at'))
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
             ])
-            ->filters([
-                Filter::make('verified')
-                    ->label(__('users::resource.filters.verified'))
-                    ->query(fn (Builder $query) => $query->whereNotNull('email_verified_at')),
-
-                Filter::make('unverified')
-                    ->label(__('users::resource.filters.unverified'))
-                    ->query(fn (Builder $query) => $query->whereNull('email_verified_at')),
-
-                Filter::make('company')
-                    ->label(__('users::resource.filters.company'))
-                    ->query(fn (Builder $query) => $query->where('company_account', true)->where('has_accepted_terms', true)),
-            ])
+            ->filters(UsersTableFilters::make())
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
             ])
             ->defaultSort('created_at', 'desc');
     }

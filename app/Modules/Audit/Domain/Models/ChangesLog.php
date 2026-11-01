@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Audit\Domain\Models;
 
 use App\Modules\Audit\Domain\Contracts\LoggableModel;
-use App\Modules\Users\Domain\Models\User;
+use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,7 +24,7 @@ class ChangesLog extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(UserModel::class);
     }
 
     public function loggable(): MorphTo

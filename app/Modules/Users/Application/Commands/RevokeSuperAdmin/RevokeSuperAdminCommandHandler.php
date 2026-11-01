@@ -7,12 +7,12 @@ namespace App\Modules\Users\Application\Commands\RevokeSuperAdmin;
 use App\Modules\Users\Domain\Enums\UserRole;
 use App\Modules\Users\Domain\Exceptions\RoleAssignmentRefused;
 use App\Modules\Users\Domain\Policies\SuperAdminRolePolicy;
-use App\Modules\Users\Domain\Repositories\UserRoles;
+use App\Modules\Users\Domain\Repositories\UserRepository;
 use Ecotone\Modelling\Attribute\CommandHandler;
 
 final class RevokeSuperAdminCommandHandler
 {
-    public function __construct(private UserRoles $userRoles) {}
+    public function __construct(private UserRepository $users) {}
 
     #[CommandHandler]
     public function handle(RevokeSuperAdminCommand $command): void
@@ -21,12 +21,13 @@ final class RevokeSuperAdminCommandHandler
             throw RoleAssignmentRefused::superAdminConsoleOnly();
         }
 
-        $userId = $this->userRoles->userIdByEmail($command->email) ?? throw RoleAssignmentRefused::userNotFound();
+        $user = $this->users->findByEmail($command->email) ?? throw RoleAssignmentRefused::userNotFound();
 
-        if ($this->userRoles->roleKeyOf($userId) !== UserRole::SuperAdmin->value) {
+        if ($user->roleKey() !== UserRole::SuperAdmin->value) {
             throw RoleAssignmentRefused::notSuperAdmin();
         }
 
-        $this->userRoles->assign($userId, UserRole::User->value);
+        $user->assignRole(UserRole::User->value);
+        $this->users->save($user);
     }
 }

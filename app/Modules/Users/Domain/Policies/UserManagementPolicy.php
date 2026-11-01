@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Users\Domain\Policies;
+
+use App\Modules\Users\Domain\Enums\UserRole;
+
+/**
+ * RULE-08 on plain values. Ranks come from the Role order (D-23), so a Super
+ * Admin is out of an Admin's reach without naming Admin here. The form and the
+ * handler ask the same methods.
+ */
+final class UserManagementPolicy
+{
+    /** The actor may edit the target's data: nobody manages a User of a higher rank. */
+    public static function canManage(int $actorRank, int $targetRank): bool
+    {
+        return $targetRank <= $actorRank;
+    }
+
+    /** Nobody changes their own Role, and a Super Admin's Role moves only through the console. */
+    public static function canChangeRoleOf(?int $actorId, int $targetId, string $targetRoleKey): bool
+    {
+        return $actorId !== $targetId && $targetRoleKey !== UserRole::SuperAdmin->value;
+    }
+
+    /** A null rank means the Role is not registered. */
+    public static function canAssignRole(string $roleKey, ?int $newRank, int $actorRank): bool
+    {
+        return $newRank !== null
+            && $roleKey !== UserRole::SuperAdmin->value
+            && $newRank <= $actorRank;
+    }
+}
