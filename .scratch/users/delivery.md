@@ -10,12 +10,12 @@
 | 02 user-management | resolved | removed | 0 | approved |
 | 03 sign-in-and-panel-access | resolved | removed | 0 | approved |
 | 04 profile-and-account-type | resolved | removed | 1 | approved |
-| 06 passwords-invitations-forced-change | in progress | .worktrees/users-06 | 0 | — |
+| 06 passwords-invitations-forced-change | fix round 1 | .worktrees/users-06 | 1 | fix (rebase onto 07+08, fill their seams) |
 | 07 deactivation | resolved | removed | 0 | approved |
-| 08 extra-permissions-and-impersonation | in progress | .worktrees/users-08 | 0 | — |
-| 09 dashboard-account-tile | ready | — | — | — |
+| 08 extra-permissions-and-impersonation | resolved | removed | 0 | approved |
+| 09 dashboard-account-tile | in progress | .worktrees/users-09 | 0 | — |
 | 05 journal | resolved | removed | 0 | approved |
 
 ## Next action
 
-Wait for the 06 and 08 workers; review them (06 rebases onto 07 and fills its neutral-reset seam). Then 09.
+Wait for 06 (fix round 1: rebase + seams) and 09; review them. Then final report.
