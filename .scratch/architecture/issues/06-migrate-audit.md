@@ -1,7 +1,7 @@
 # 06 - Rework the Audit module onto the architecture
 
 Status: needs-triage
-Blocked by: 02, 03, 04
+Blocked by: 02, 03, 04, `.scratch/audit/functional-spec.md` (Audit discovery not started)
 
 Audit predates entities and `RecordChanged`. Rework it to the skills: the change log listens to `Core\Domain\Events\RecordChanged` instead of `HasChangesLog` resolving a service in `static::created()`; repositories get ports and adapters; models move to `Infrastructure/Persistence/Models`; translations split per D6.
 
