@@ -1,6 +1,6 @@
 # 09 - Dashboard account tile
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 04
 
 Spec: FR-34. Decisions: D-33.
@@ -22,3 +22,17 @@ The rest of the dashboard belongs to other features.
 - `composer check` passes.
 
 ## Comments
+
+### Worker — 2026-11-01
+- **Built:** FR-34/FR-13 `AccountTile` widget (initials avatar, "Użytkownik" + name, Konto firmowe/prywatne, sign-out, "Edytuj profil" link) with view `users::widgets.account-tile` and `widgets.php` translations; tested for Private and Company users.
+- **Deviations:** reads the signed-in read-only `UserModel` from the Filament guard, no new `{X}Queries` method (nothing to query). Sort -10 puts it before Filament's default AccountWidget, which is still registered in AdminPanelProvider (untouched, ticket 06 area); removing it is a follow-up.
+- **Seams left:** the default AccountWidget/FilamentInfoWidget removal in AdminPanelProvider.
+- **Open questions:** none
+- **Check:** composer check green
+
+### Worker — fix 1
+- Removed AccountWidget from AdminPanelProvider widgets; added a test that the panel registers AccountTile and not AccountWidget. composer check green.
+
+### Review — 2026-11-01
+- **Verdict:** approved after 1 fix round
+- **Notes:** Round 1 removed Filament's default `AccountWidget`, which duplicated the tile. The tile reads the signed-in read-only `UserModel`; no `{X}Queries` method was needed. `FilamentInfoWidget` stays until the dashboard feature decides.
