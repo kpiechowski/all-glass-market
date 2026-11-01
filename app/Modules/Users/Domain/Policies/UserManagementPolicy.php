@@ -32,4 +32,12 @@ final class UserManagementPolicy
             && $roleKey !== UserRole::SuperAdmin->value
             && $newRank <= $actorRank;
     }
+
+    /** RULE-08, D-47: not oneself, never a Super Admin, nobody above the actor's rank. */
+    public static function canDeactivate(?int $actorId, int $targetId, string $targetRoleKey, int $actorRank, int $targetRank): bool
+    {
+        return $actorId !== $targetId
+            && $targetRoleKey !== UserRole::SuperAdmin->value
+            && self::canManage($actorRank, $targetRank);
+    }
 }

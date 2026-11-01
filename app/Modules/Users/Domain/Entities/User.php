@@ -10,7 +10,7 @@ use App\Modules\Users\Domain\ValueObjects\Email;
 use Carbon\CarbonImmutable;
 
 /**
- * A person with an account (spec §8). Active state, "password change required"
+ * A person with an account (spec §8). "Password change required"
  * and Extra Permissions come with later tickets.
  */
 final class User
@@ -39,6 +39,7 @@ final class User
         private ?CarbonImmutable $declarationAcceptedAt = null,
         private ?string $declarationVersion = null,
         private ?CarbonImmutable $accountTypeChangedAt = null,
+        private ?CarbonImmutable $deactivatedAt = null,
     ) {
         self::assertName($name);
     }
@@ -67,8 +68,9 @@ final class User
         ?CarbonImmutable $declarationAcceptedAt = null,
         ?string $declarationVersion = null,
         ?CarbonImmutable $accountTypeChangedAt = null,
+        ?CarbonImmutable $deactivatedAt = null,
     ): self {
-        return new self($id, $name, $email, $phone, $companyName, $companyNip, $companyAddress, $pickupAddress, $city, $postalCode, $shippingText, $accountType, $roleKey, $passwordHash, $declarationAcceptedAt, $declarationVersion, $accountTypeChangedAt);
+        return new self($id, $name, $email, $phone, $companyName, $companyNip, $companyAddress, $pickupAddress, $city, $postalCode, $shippingText, $accountType, $roleKey, $passwordHash, $declarationAcceptedAt, $declarationVersion, $accountTypeChangedAt, $deactivatedAt);
     }
 
     public function updateData(
@@ -166,6 +168,25 @@ final class User
         $this->passwordHash = $passwordHash;
     }
 
+    /** WF-05: the User keeps all their data; only the state changes. */
+    public function deactivate(CarbonImmutable $now): void
+    {
+        if (! $this->isActive()) {
+            throw UserRefused::alreadyDeactivated();
+        }
+
+        $this->deactivatedAt = $now;
+    }
+
+    public function reactivate(): void
+    {
+        if ($this->isActive()) {
+            throw UserRefused::notDeactivated();
+        }
+
+        $this->deactivatedAt = null;
+    }
+
     private static function assertName(string $name): void
     {
         if (trim($name) === '' || mb_strlen($name) > 255) {
@@ -255,6 +276,16 @@ final class User
     public function accountTypeLockedUntil(): ?CarbonImmutable
     {
         return $this->accountTypeChangedAt?->addMinutes(self::ACCOUNT_TYPE_LOCK_MINUTES);
+    }
+
+    public function isActive(): bool
+    {
+        return $this->deactivatedAt === null;
+    }
+
+    public function deactivatedAt(): ?CarbonImmutable
+    {
+        return $this->deactivatedAt;
     }
 
     public function roleKey(): string

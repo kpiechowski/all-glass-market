@@ -44,4 +44,14 @@ class JournalWriterTest extends TestCase
         $this->assertSame(1, DB::table('cache')->where('key', 'caller-work')->count());
         $this->assertSame(0, JournalEntryModel::count());
     }
+
+    public function test_a_deactivated_user_still_receives_entries(): void
+    {
+        $user = UserModel::factory()->deactivated()->create();
+
+        $id = app(JournalWriter::class)->add(Actor::system('offers'), $user->id, 'offer', JournalSeverity::Info, 'T', 'C');
+
+        $this->assertNotNull($id);
+        $this->assertSame(1, JournalEntryModel::where('user_id', $user->id)->count());
+    }
 }

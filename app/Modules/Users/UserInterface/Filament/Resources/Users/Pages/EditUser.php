@@ -7,6 +7,8 @@ namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Pages;
 use App\Core\UserInterface\CommandSender;
 use App\Core\UserInterface\CurrentActor;
 use App\Modules\Users\Application\Commands\UpdateUser\UpdateUserCommand;
+use App\Modules\Users\UserInterface\Filament\Resources\Users\Actions\DeactivateUserAction;
+use App\Modules\Users\UserInterface\Filament\Resources\Users\Actions\ReactivateUserAction;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
 use App\Modules\Users\UserInterface\Support\KeepsOwnSessionAfterPasswordChange;
 use Filament\Actions\ViewAction;
@@ -21,6 +23,8 @@ class EditUser extends EditRecord
     {
         return [
             ViewAction::make(),
+            DeactivateUserAction::make(),
+            ReactivateUserAction::make(),
         ];
     }
 

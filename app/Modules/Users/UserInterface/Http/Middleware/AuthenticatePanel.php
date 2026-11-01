@@ -9,8 +9,8 @@ use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 
 /**
- * Keeps a User out of the panel when their Role is not registered (FR-07),
- * also for a session that started before the Role went away. Replaces the
+ * Keeps a User out of the panel when their Role is not registered (FR-07)
+ * or the account is deactivated (WF-05), also for a session that started before the Role went away. Replaces the
  * FilamentUser contract on the model, which the Infrastructure layer may not use.
  */
 class AuthenticatePanel extends Authenticate
@@ -26,6 +26,16 @@ class AuthenticatePanel extends Authenticate
         }
 
         $this->auth->shouldUse(Filament::getAuthGuard());
+
+        if (! $guard->user()->isActive()) {
+            $guard->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            $this->unauthenticated($request, $guards);
+
+            return;
+        }
 
         abort_unless(app(RoleRegistry::class)->isRegistered((string) $guard->user()->role), 403);
     }

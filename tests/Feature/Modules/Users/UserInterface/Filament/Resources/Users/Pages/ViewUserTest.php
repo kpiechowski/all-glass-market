@@ -43,4 +43,40 @@ class ViewUserTest extends TestCase
             ->assertSuccessful()
             ->assertActionHidden('edit');
     }
+
+    public function test_an_admin_deactivates_and_reactivates_a_user_from_the_detail_page(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $target = UserModel::factory()->create();
+
+        Livewire::test(ViewUser::class, ['record' => $target->getKey()])
+            ->assertActionVisible('deactivate')
+            ->assertActionHidden('reactivate')
+            ->callAction('deactivate')
+            ->assertNotified();
+
+        $this->assertFalse($target->fresh()->isActive());
+
+        Livewire::test(ViewUser::class, ['record' => $target->getKey()])
+            ->assertActionHidden('deactivate')
+            ->callAction('reactivate')
+            ->assertNotified();
+
+        $this->assertTrue($target->fresh()->isActive());
+    }
+
+    public function test_deactivation_is_not_offered_for_oneself_or_a_super_admin(): void
+    {
+        $admin = UserModel::factory()->admin()->create();
+        $super = UserModel::factory()->superAdmin()->create();
+        $otherSuper = UserModel::factory()->superAdmin()->create();
+
+        $this->actingAs($admin);
+        Livewire::test(ViewUser::class, ['record' => $admin->getKey()])->assertActionHidden('deactivate');
+        Livewire::test(ViewUser::class, ['record' => $super->getKey()])->assertActionHidden('deactivate');
+
+        $this->actingAs($super);
+        Livewire::test(ViewUser::class, ['record' => $otherSuper->getKey()])->assertActionHidden('deactivate');
+        Livewire::test(ViewUser::class, ['record' => $super->getKey()])->assertActionHidden('deactivate');
+    }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Schemas;
 
+use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Support\RoleDisplay;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -14,7 +15,7 @@ class UserInfolist
 {
     /**
      * Seams: Offers' statistics (D-05), the audit history, Extra Permissions
-     * (ticket 08) and the active and password-change markers (tickets 06, 07)
+     * (ticket 08) and the password-change marker (ticket 06)
      * add their sections here.
      */
     public static function configure(Schema $schema): Schema
@@ -41,6 +42,13 @@ class UserInfolist
                 TextEntry::make('account_type')
                     ->label(__('users::resources.user.fields.account_type'))
                     ->badge(),
+
+                TextEntry::make('deactivated_at')
+                    ->label(__('users::resources.user.fields.status'))
+                    ->badge()
+                    ->color('danger')
+                    ->visible(fn (UserModel $record): bool => ! $record->isActive())
+                    ->state(fn (): string => __('users::resources.user.status.inactive')),
 
                 TextEntry::make('name')->label(__('users::resources.user.fields.name')),
 

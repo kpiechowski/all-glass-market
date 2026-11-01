@@ -24,4 +24,13 @@ class AdminRecipientsTest extends TestCase
 
         $this->assertEqualsCanonicalizing([$admin->id, $superAdmin->id], $ids);
     }
+
+    public function test_a_deactivated_admin_is_left_out(): void
+    {
+        $active = UserModel::factory()->admin()->create();
+        UserModel::factory()->admin()->deactivated()->create();
+        UserModel::factory()->superAdmin()->deactivated()->create();
+
+        $this->assertSame([$active->id], app(AdminRecipients::class)->userIds());
+    }
 }

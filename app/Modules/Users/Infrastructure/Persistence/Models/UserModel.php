@@ -35,6 +35,12 @@ final class UserModel extends ReadOnlyModel implements AuthenticatableContract, 
 
     protected $guarded = [];
 
+    /** WF-05: a Deactivated User cannot sign in. */
+    public function isActive(): bool
+    {
+        return $this->deactivated_at === null;
+    }
+
     protected static function newFactory(): UserModelFactory
     {
         return UserModelFactory::new();
@@ -48,6 +54,7 @@ final class UserModel extends ReadOnlyModel implements AuthenticatableContract, 
             'account_type' => AccountType::class,
             'seller_declaration_accepted_at' => 'datetime',
             'account_type_changed_at' => 'datetime',
+            'deactivated_at' => 'datetime',
         ];
     }
 

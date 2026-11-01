@@ -36,4 +36,21 @@ class UserManagementPolicyTest extends TestCase
         $this->assertFalse(UserManagementPolicy::canAssignRole('admin', newRank: 200, actorRank: 100));
         $this->assertFalse(UserManagementPolicy::canAssignRole('ghost', newRank: null, actorRank: 300));
     }
+
+    public function test_nobody_deactivates_themself(): void
+    {
+        $this->assertFalse(UserManagementPolicy::canDeactivate(actorId: 5, targetId: 5, targetRoleKey: 'admin', actorRank: 200, targetRank: 200));
+    }
+
+    public function test_nobody_deactivates_a_super_admin(): void
+    {
+        $this->assertFalse(UserManagementPolicy::canDeactivate(actorId: 1, targetId: 2, targetRoleKey: 'super_admin', actorRank: 300, targetRank: 300));
+    }
+
+    public function test_an_actor_deactivates_other_users_up_to_their_own_rank(): void
+    {
+        $this->assertTrue(UserManagementPolicy::canDeactivate(actorId: 1, targetId: 2, targetRoleKey: 'admin', actorRank: 200, targetRank: 200));
+        $this->assertTrue(UserManagementPolicy::canDeactivate(actorId: null, targetId: 2, targetRoleKey: 'user', actorRank: PHP_INT_MAX, targetRank: 100));
+        $this->assertFalse(UserManagementPolicy::canDeactivate(actorId: 1, targetId: 2, targetRoleKey: 'admin', actorRank: 100, targetRank: 200));
+    }
 }

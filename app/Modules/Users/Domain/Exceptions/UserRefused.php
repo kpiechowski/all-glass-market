@@ -68,4 +68,19 @@ final class UserRefused extends DomainException
     {
         return new self('users::exceptions.only_owner_changes_account_type');
     }
+
+    public static function cannotDeactivate(): self
+    {
+        return new self('users::exceptions.cannot_deactivate');
+    }
+
+    public static function alreadyDeactivated(): self
+    {
+        return new self('users::exceptions.already_deactivated');
+    }
+
+    public static function notDeactivated(): self
+    {
+        return new self('users::exceptions.not_deactivated');
+    }
 }

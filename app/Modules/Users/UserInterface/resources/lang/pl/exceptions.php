@@ -23,4 +23,7 @@ return [
     'declaration_not_accepted' => 'Konto firmowe wymaga zaakceptowania oświadczenia sprzedawcy.',
     'company_data_missing' => 'Konto firmowe wymaga numeru NIP i adresu firmy.',
     'only_owner_changes_account_type' => 'Rodzaj konta może zmienić tylko sam użytkownik.',
+    'cannot_deactivate' => 'Nie możesz dezaktywować siebie ani Super Admina.',
+    'already_deactivated' => 'To konto jest już nieaktywne.',
+    'not_deactivated' => 'To konto jest aktywne.',
 ];

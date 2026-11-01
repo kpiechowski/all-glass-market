@@ -23,6 +23,8 @@ interface UserRepository extends Repository
     public function roleKeyOf(int $userId): ?string;
 
     /**
+     * Active Users only: a Deactivated User receives no group notification.
+     *
      * @param  list<string>  $roleKeys
      * @return list<int>
      */

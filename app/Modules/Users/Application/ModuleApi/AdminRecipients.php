@@ -16,10 +16,7 @@ final class AdminRecipients
     public function __construct(private UserRepository $users) {}
 
     /**
-     * Ids of Users whose Role is Admin or Super Admin.
-     *
-     * Every User counts as active until ticket 07 adds deactivation; that
-     * ticket must leave Deactivated Users out here.
+     * Ids of active Users whose Role is Admin or Super Admin (D-47).
      *
      * @return list<int>
      */

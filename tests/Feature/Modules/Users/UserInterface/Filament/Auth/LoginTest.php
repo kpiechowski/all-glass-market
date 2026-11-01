@@ -8,6 +8,7 @@ use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Auth\Login;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -142,5 +143,26 @@ class LoginTest extends TestCase
     {
         $this->assertSame(120, config('session.lifetime'));
         $this->assertFalse(config('session.expire_on_close'));
+    }
+
+    public function test_a_deactivated_user_is_refused_with_the_inactive_message(): void
+    {
+        $this->seller(['deactivated_at' => now()]);
+
+        $this->signIn('seller@example.com', 'correct-pass')->assertHasErrors(['data.email' => __('users::login.deactivated')]);
+
+        $this->assertGuest();
+    }
+
+    public function test_the_panel_ends_the_session_of_a_user_deactivated_mid_session(): void
+    {
+        $user = UserModel::factory()->admin()->create();
+        $this->actingAs($user)->get('/admin')->assertOk();
+
+        DB::table('users')->where('id', $user->id)->update(['deactivated_at' => now()]);
+        $this->app['auth']->forgetGuards();
+
+        $this->actingAs($user->fresh())->get('/admin')->assertRedirect(Filament::getPanel('admin')->getLoginUrl());
+        $this->assertGuest();
     }
 }

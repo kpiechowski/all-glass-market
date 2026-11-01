@@ -7,6 +7,7 @@ namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Tables;
 use App\Modules\Users\Domain\Enums\AccountType;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Support\RoleDisplay;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 
 class UsersTableFilters
 {
@@ -21,6 +22,17 @@ class UsersTableFilters
             SelectFilter::make('account_type')
                 ->label(__('users::resources.user.filters.account_type'))
                 ->options(AccountType::class),
+
+            TernaryFilter::make('is_active')
+                ->label(__('users::resources.user.filters.status'))
+                ->placeholder(__('users::resources.user.filters.status_all'))
+                ->trueLabel(__('users::resources.user.filters.status_active'))
+                ->falseLabel(__('users::resources.user.filters.status_inactive'))
+                ->queries(
+                    true: fn ($query) => $query->whereNull('deactivated_at'),
+                    false: fn ($query) => $query->whereNotNull('deactivated_at'),
+                    blank: fn ($query) => $query,
+                ),
         ];
     }
 }

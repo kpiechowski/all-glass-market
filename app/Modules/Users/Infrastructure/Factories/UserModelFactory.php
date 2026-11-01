@@ -56,6 +56,11 @@ final class UserModelFactory extends ModelFactory
         return $this->state(fn (array $attributes) => ['account_type_changed_at' => $at]);
     }
 
+    public function deactivated(): static
+    {
+        return $this->state(fn (array $attributes) => ['deactivated_at' => now()]);
+    }
+
     public function admin(): static
     {
         return $this->withRole('admin');

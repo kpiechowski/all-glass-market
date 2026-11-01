@@ -80,4 +80,18 @@ final class RoleDisplay
             app(RoleRegistry::class)->rankOf((string) $target->role) ?? 0,
         );
     }
+
+    /** RULE-08, D-47: the Deactivate action is absent for oneself, a Super Admin and anyone above the actor. */
+    public static function canDeactivate(UserModel $target): bool
+    {
+        $actor = auth()->user();
+
+        return $actor instanceof UserModel && UserManagementPolicy::canDeactivate(
+            (int) $actor->getKey(),
+            (int) $target->getKey(),
+            (string) $target->role,
+            self::actorRank(),
+            app(RoleRegistry::class)->rankOf((string) $target->role) ?? 0,
+        );
+    }
 }

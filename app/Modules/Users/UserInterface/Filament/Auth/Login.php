@@ -18,7 +18,7 @@ use Illuminate\Validation\ValidationException;
 /**
  * Panel sign-in (WF-01): e-mail and password, at most 5 failed attempts a
  * minute per e-mail and IP address (FR-09, RULE-13), and only a User whose
- * Role is registered gets in (FR-07). The deactivated branch is ticket 07.
+ * Role is registered gets in (FR-07). A Deactivated User is refused with the inactive-account message (WF-01).
  */
 class Login extends BaseLogin
 {
@@ -49,6 +49,10 @@ class Login extends BaseLogin
             RateLimiter::hit($rateLimitKey, self::WINDOW_SECONDS);
 
             throw ValidationException::withMessages(['data.email' => __('users::login.failed')]);
+        }
+
+        if (! $user->isActive()) {
+            throw ValidationException::withMessages(['data.email' => __('users::login.deactivated')]);
         }
 
         if (! app(RoleRegistry::class)->isRegistered((string) $user->role)) {

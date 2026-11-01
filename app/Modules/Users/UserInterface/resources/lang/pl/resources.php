@@ -33,6 +33,26 @@ return [
             'shipping_text' => 'Wysyłka',
             'account_type' => 'Typ konta',
             'created_at' => 'Data dołączenia',
+            'status' => 'Status',
+            'deactivated_at' => 'Dezaktywowano',
+        ],
+
+        'status' => [
+            'active' => 'Aktywne',
+            'inactive' => 'konto nieaktywne',
+        ],
+
+        'actions' => [
+            'deactivate' => [
+                'label' => 'Dezaktywuj',
+                'heading' => 'Dezaktywować to konto?',
+                'description' => 'Użytkownik zostanie wylogowany i nie zaloguje się, dopóki konto nie zostanie ponownie aktywowane. Dane, dziennik i historia zostają.',
+                'done' => 'Konto zostało dezaktywowane.',
+            ],
+            'reactivate' => [
+                'label' => 'Aktywuj ponownie',
+                'done' => 'Konto zostało ponownie aktywowane.',
+            ],
         ],
 
         'helpers' => [
@@ -46,6 +66,10 @@ return [
         'filters' => [
             'role' => 'Rola',
             'account_type' => 'Typ konta',
+            'status' => 'Status konta',
+            'status_all' => 'Wszystkie',
+            'status_active' => 'Aktywne',
+            'status_inactive' => 'Nieaktywne',
         ],
     ],
 

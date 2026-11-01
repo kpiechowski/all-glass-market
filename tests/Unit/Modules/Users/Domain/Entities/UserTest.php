@@ -185,4 +185,40 @@ class UserTest extends TestCase
 
         $user->assertConsistent();
     }
+
+    public function test_a_new_user_is_active(): void
+    {
+        $this->assertTrue($this->newUser()->isActive());
+        $this->assertNull($this->newUser()->deactivatedAt());
+    }
+
+    public function test_deactivation_records_the_moment_and_reactivation_clears_it(): void
+    {
+        $user = $this->newUser();
+        $now = CarbonImmutable::parse('2026-11-01 10:00:00');
+
+        $user->deactivate($now);
+        $this->assertFalse($user->isActive());
+        $this->assertTrue($user->deactivatedAt()->equalTo($now));
+
+        $user->reactivate();
+        $this->assertTrue($user->isActive());
+    }
+
+    public function test_deactivating_a_deactivated_user_or_reactivating_an_active_one_is_refused(): void
+    {
+        $user = $this->newUser();
+
+        try {
+            $user->reactivate();
+            $this->fail('Reactivating an active User was allowed');
+        } catch (UserRefused) {
+            $this->assertTrue($user->isActive());
+        }
+
+        $user->deactivate(CarbonImmutable::now());
+
+        $this->expectException(UserRefused::class);
+        $user->deactivate(CarbonImmutable::now());
+    }
 }

@@ -60,4 +60,22 @@ class ListUsersTest extends TestCase
 
         Livewire::test(ListUsers::class)->assertForbidden();
     }
+
+    public function test_the_list_marks_deactivated_users_and_filters_by_activity(): void
+    {
+        $admin = UserModel::factory()->admin()->create();
+        $inactive = UserModel::factory()->deactivated()->create();
+        $active = UserModel::factory()->create();
+
+        $this->actingAs($admin);
+
+        Livewire::test(ListUsers::class)
+            ->assertSee('konto nieaktywne')
+            ->filterTable('is_active', false)
+            ->assertCanSeeTableRecords([$inactive])
+            ->assertCanNotSeeTableRecords([$active, $admin])
+            ->filterTable('is_active', true)
+            ->assertCanSeeTableRecords([$active, $admin])
+            ->assertCanNotSeeTableRecords([$inactive]);
+    }
 }
