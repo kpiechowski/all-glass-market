@@ -15,7 +15,7 @@
 | 08 extra-permissions-and-impersonation | resolved | removed | 0 | approved |
 | 09 dashboard-account-tile | resolved | removed | 1 | approved |
 | 11 qa-fixes | in progress | .worktrees/users-11 | 0 | — |
-| 12 polish-translations | in progress (haiku) | .worktrees/users-12 | 0 | — |
+| 12 polish-translations | resolved (haiku) | removed | 1 | approved |
 | 05 journal | resolved | removed | 0 | approved |
 
 ## Next action
