@@ -74,6 +74,7 @@ UserInterface/Filament/Resources/Offers/
 | Piece | Rule |
 |---|---|
 | `{X}Table::configure()` | query, default sort, pagination, toggles, record and bulk actions |
+| Record actions | one visible action stands alone; two or more go into one `ActionGroup` (the three-dot menu) |
 | Columns | inline up to 6 columns; above that `{X}TableColumns::make(): array` |
 | Filters | always their own class `{X}TableFilters::make(): array` |
 | Form, infolist | always their own class: `{X}Form::configure()`, `{X}Infolist::configure()` |
@@ -136,5 +137,6 @@ Use `search-docs` for any API detail. Generate files with `dartisan make:filamen
 - No field saves a relation or media by itself.
 - Every `visible()` on a guarded action uses `CurrentActor::can()` and, where a rule applies, the domain policy.
 - Every class respects the split table, and `configure()` reads as an outline.
+- Every table with two or more record actions groups them in one `ActionGroup`.
 - Every user-facing string is a translation key in the right file.
 - The resource has its Livewire test for create, edit and delete (`module-testing`).
