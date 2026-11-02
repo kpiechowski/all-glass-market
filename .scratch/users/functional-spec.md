@@ -29,7 +29,7 @@ Users is the core module of the panel. It knows who may use the panel and what e
 - offers, their statistics, ownership or visibility, or prices;
 - the panel notification bell;
 - the language switch;
-- the audit log;
+- the Change history and the Technical log (Audit);
 - the settings screens.
 
 Users provides other modules with what they need about a User (§9). (D-01, D-02, D-03, D-04, D-05, D-43)
@@ -84,7 +84,7 @@ Every action below is guarded by a Permission declared by Users. Users grants th
   Otherwise it fails. No behaviour anywhere is decided by the name of a Role. The only exception is the "Admins" recipient group. V1 decided admin behaviour by Role name in about 60 places, and gave Super Admin no bypass. (BR-07, BR-08, BR-22, r02, r05; D-09, D-12, D-21)
 - **FR-04** [Correct] Each User holds exactly one Role. (F-05, Q-04, Q-09, r02, r07; D-10)
 - **FR-05** [Correct] The Super Admin Role can be granted or revoked only through a console command, never in the panel. The Role selector in the panel never offers Super Admin. V1 let anyone with user-management rights grant it. (BR-26; D-09)
-- **FR-06** [New] A Super Admin can grant any registered Permission to an individual User as an Extra Permission, and revoke it, in the user create or edit form. Only Super Admins see this part of the form. The user detail lists a User's Extra Permissions separately from their Role. Every grant and revocation is recorded in the audit log. (D-21)
+- **FR-06** [New] A Super Admin can grant any registered Permission to an individual User as an Extra Permission, and revoke it, in the user create or edit form. Only Super Admins see this part of the form. The user detail lists a User's Extra Permissions separately from their Role. Every grant and revocation is recorded in the Change history. (D-21)
 
 ### 4.2 Panel access and sign-in
 
@@ -128,7 +128,7 @@ Every action below is guarded by a Permission declared by Users. Users grants th
 - **FR-18** [Correct] While the User is Private, the profile shows a notice that VAT is added to the prices of their offers before publication. Visibility is not mentioned: a Private User's offers are visible and published like anyone else's. Choosing Private shows the "Pamiętaj!" notice about VAT, with the button "Rozumiem". V1's notice wrongly claimed private offers are visible only to the owner and AllGlass. (F-09, Q-19, r06; D-25)
 - **FR-19** [Preserve] After an Account type change is saved, the Account type control is locked for 30 minutes and shows "Zmiana rodzaju konta jest zablokowana do: HH:MM". The lock lets background synchronisation finish before another change. (BR-14, r01, r04; D-27)
 - **FR-20** [Correct] Only the User themself can change their Account type or Seller declaration. Admins and Super Admins cannot, so a newly created User is Private. (BR-16, F-12; D-27, D-30)
-- **FR-21** [Correct] A saved Account type change is announced to other modules, with the User and the new Account type. It also creates a Journal entry of kind `users` for every member of the "Admins" group: "Użytkownik {name} zmienił rodzaj konta na: Firmowe|Prywatne", linking to the User. The change is recorded in the audit log.
+- **FR-21** [Correct] A saved Account type change is announced to other modules, with the User and the new Account type. It also creates a Journal entry of kind `users` for every member of the "Admins" group: "Użytkownik {name} zmienił rodzaj konta na: Firmowe|Prywatne", linking to the User. The change is recorded in the Change history.
   - All of this happens only after the save succeeds.
   - Users itself does not reprice or republish anything; other modules do that in reaction (§9).
   - V1 ran these effects before the save, kept a separate "Aktywność użytkowników" feed, and repriced only WooCommerce.
@@ -154,7 +154,7 @@ Every action below is guarded by a Permission declared by Users. Users grants th
   - Otomoto shipping text;
   - active/inactive state and the password-change marker.
 
-  It hosts the offer statistics and the "Powiązane oferty" tab supplied by Offers. It also shows the User's change history from the audit log, read-only. V1 allowed deleting audit entries from this tab and showed neither the Account type nor the shipping text. (F-11, X-03, X-06, r01; D-05, D-32)
+  It hosts the offer statistics and the "Powiązane oferty" tab supplied by Offers. It also shows the User's history from the Change history, read-only. V1 allowed deleting audit entries from this tab and showed neither the Account type nor the shipping text. (F-11, X-03, X-06, r01; D-05, D-32)
 - **FR-24** [New / Correct] An Admin creates a User. The form has:
   - Role: User or Admin; Super Admin is never offered;
   - name, e-mail and phone;
@@ -282,7 +282,7 @@ Every action below is guarded by a Permission declared by Users. Users grants th
      - set the 30-minute lock;
      - announce the change to other modules;
      - add a `users` Journal entry for each member of "Admins";
-     - record the change in the audit log.
+     - record the change in the Change history.
   4. Show "Zapisano dane profilu".
 - **Postconditions:** the new Account type applies at once wherever it is read. Other modules reprice and republish the User's offers in reaction.
 - **Alternative paths:** choosing Private shows the "Pamiętaj!" VAT notice first, even if the User never saves.
@@ -317,7 +317,7 @@ Every action below is guarded by a Permission declared by Users. Users grants th
   1. Validate (RULE-01 to RULE-03, RULE-08).
   2. Create the User as Private and active, with the chosen Role and any Extra Permissions (Super Admin only).
   3. Either send the invitation link (7 days, single-use), or store the temporary password and set "password change required".
-  4. Record the creation in the audit log.
+  4. Record the creation in the Change history.
 - **Postconditions:** the User exists. They can sign in after setting a password from the invitation, or with the temporary password.
 - **Alternative paths:** an invitation that expired or was lost can be re-sent (FR-26).
 - **Errors and exceptional scenarios:**
@@ -334,11 +334,11 @@ Every action below is guarded by a Permission declared by Users. Users grants th
   2. Mark the User inactive.
   3. End all their sessions at once.
   4. Announce "User deactivated" to other modules.
-  5. Record it in the audit log.
+  5. Record it in the Change history.
 - **Main flow (reactivate):**
   1. Mark the User active.
   2. Announce "User reactivated".
-  3. Record it in the audit log.
+  3. Record it in the Change history.
 - **Postconditions:** a Deactivated User keeps all their data, Journal, history and offers. Other screens show them as "konto nieaktywne". They cannot sign in or receive reset links.
 - **Errors and exceptional scenarios:** a deactivated User who is being impersonated loses that session too, and the impersonator returns to their own account.
 - **Trace:** (F-14, W-04, BR-17, Q-12, r04, r07; D-39)
@@ -348,11 +348,11 @@ Every action below is guarded by a Permission declared by Users. Users grants th
 - **Actors / trigger:** a User with the impersonation Permission chooses "Impersonate" on a User in the list or detail.
 - **Preconditions:** RULE-10. The target is active and their Role is registered.
 - **Main flow:**
-  1. Record the start (who, whom, when) in the audit log.
+  1. Record the start (who, whom, when) in the Technical log, area "bezpieczeństwo" (Audit D-23).
   2. Switch the session to the target.
   3. Show the dashboard with a banner and a return button.
 - **Postconditions:** the impersonator sees and acts as the target. "Password change required" on the target does not redirect the impersonator (WF-07).
-- **Alternative paths:** the return button records the end in the audit log and restores the impersonator's own session.
+- **Alternative paths:** the return button records the end in the Technical log, area "bezpieczeństwo" (Audit D-23), and restores the impersonator's own session.
 - **Errors and exceptional scenarios:** a target the rules exclude has no "Impersonate" action.
 - **Trace:** (F-06, BR-09, Q-07, r02, r08; D-22)
 
@@ -366,7 +366,7 @@ Every action below is guarded by a Permission declared by Users. Users grants th
   3. Save the password.
   4. Clear the marker.
   5. End the User's other sessions.
-  6. Record "forced password change" in the audit log.
+  6. Clearing the "password change required" marker is recorded in the Change history like any data change (Audit D-23).
   7. Go to the dashboard.
 - **Postconditions:** the User uses the panel normally.
 - **Alternative paths:** sign out from the screen. Setting the password by reset link (WF-03) also clears the marker.
@@ -449,14 +449,13 @@ Every action below is guarded by a Permission declared by Users. Users grants th
   - records which User started a bulk action.
 
   (X-04; D-06, D-26, D-43)
-- **Audit:** receives these events from Users:
+- **Audit:** Users registers the User as an auditable record, so the Change history holds every data change of a User:
   - creation, edits, deactivation and reactivation;
   - Account type changes;
-  - Extra Permission grants and revocations;
-  - impersonation start and end;
-  - forced password changes.
+  - Extra Permission grants and revocations (relation changes);
+  - setting and clearing the "password change required" marker. The password itself is not audited.
 
-  Audit supplies the read-only change history on the user detail and records the acting User for every module. (X-06; D-21, D-22, D-28, D-32, D-46)
+  Impersonation start and end are not data changes. They go to the Technical log, area "bezpieczeństwo", together with sign-in, failed sign-in, sign-out and password reset. Audit shows the User's history read-only on the user detail. Every change entry carries its Actor. (X-06; D-21, D-22, D-28, D-32, D-46; amended by Audit D-14, D-21, D-23, D-27 on 2026-11-02)
 - **Settings:** its screens are guarded by Permissions held by Super Admin by default. (X-07; D-14)
 - **Submissions / inquiries and any module notifying staff:** use the "Admins" recipient group. (X-08; D-12)
 - **Every module:**
@@ -531,7 +530,7 @@ Every action below is guarded by a Permission declared by Users. Users grants th
 - **FR-38** [New] The new password follows RULE-03, must differ from the current one, and does not require the current one. Saving it does the following:
   - clears the marker;
   - ends the User's other sessions;
-  - records the change in the audit log as forced;
+  - clears the marker, which the Change history records as a data change (Audit D-23);
   - leads to the dashboard.
 
   (D-46)

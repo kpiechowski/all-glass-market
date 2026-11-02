@@ -6,8 +6,8 @@
 
 ## A. Metadata
 
-- **Status:** ready-for-grilling
-- **Next actions:** Phase 5 gate passed. Await user's go, then Phase 6 grilling (read grilling.md). Suggested order: Q-05/ADD-01 (one history + registration) → Q-01/Q-11 (completeness, actors) → Q-02/Q-10 (rollback/restore) → Q-03/IMP-07 (immutability) → Q-06 (who reads) → BR-10/IMP-05 (retention) → Q-08/ADD-03 (log page) → ADD-04 → Q-09 (hand to Otomoto).
+- **Status:** spec-written
+- **Next actions:** architecture process for Audit (ticket `.scratch/architecture/issues/06-migrate-audit.md` was waiting on this spec). Spec: `.scratch/audit/functional-spec.md`; data migration: none (D-37), `.scratch/data-migration/audit/spec.md`.
 - **Started:** 2026-11-01 · **Last updated:** 2026-11-01
 - **V1:** `/home/kp/laravel/projekty/AllGlass/` @ `511ce3b` (dirty: `docker-compose.yml` modified, `SECURITY_INCIDENT_2026-10.md` untracked; neither touches app code)
 - **V2 state:** exists in `app/Modules/Audit`, built by the retired 5-step workflow (Phase 1a). Predates this discovery; not evidence of V1 behaviour. Ticket `.scratch/architecture/issues/06-migrate-audit.md` waits on this spec.
@@ -43,9 +43,9 @@ Common gaps: quiet saves and relation changes escape all histories; system actor
 | ID | Functionality | Entry points | Workflow | Verified | Confidence | Open |
 |---|---|---|---|---|---|---|
 | G-01 | Who can open the user view page (and so F-03 delete/rollback) | not-investigated | Users owns it | Users spec covers access; D-32 makes tab read-only |
-| G-02 | Whether the offer tab's read-only mode hides Delete in practice | needs-runtime | Filament runtime behaviour | open |
+| G-02 | Whether the offer tab's read-only mode hides Delete in practice | needs-runtime | Filament runtime behaviour | moot (D-10). Closed. |
 | G-03 | Scheduled pruning of change entries | not-investigated | r01 did not read schedule | r03, r04: none scheduled. Closed. |
-| G-04 | Whether a host cron runs `activitylog:clean`; production LOG_* channels; worker setup | needs-runtime | not in repo | open |
+| G-04 | Whether a host cron runs `activitylog:clean`; production LOG_* channels; worker setup | needs-runtime | not in repo | user 2026-11-02: nothing ever cleaned the activity log; production log is one big file; host cron runs the scheduler every minute. Closed (D-01, D-02). |
 | G-05 | Revert semantics of a revision restore, owner access by URL, and whether a restore pushes to Woo/Otomoto | not-investigated | vendor + offer events | r05: previous version; owner yes; Woo + Otomoto yes. Closed. |
 | G-06 | Bulk price change: what it dispatches and which actor its audit rows carry | not-investigated | r03 read to ~line 100 | r05: BR-12. Closed. |
 | G-07 | Other Offer writers (`OfferUpdateService`, `OfferStatusAggregate`, `OfferPriceService`) and listener registration (`DeactivateAdvertListener`, `UpdateAdvertAfterOfferChange`) | not-investigated | leads from r03, r04 | r06: services write nothing; listeners registered via OfferEventServiceProvider, Otomoto calls + file logs only. Closed. |
@@ -224,65 +224,71 @@ Common gaps: quiet saves and relation changes escape all histories; system actor
 - **Evidence:** BR-02, BR-05; r01.
 - **Interpretations:** a) quiet saves deliberately hide noise (e.g. SKU, price revert) b) accidental gaps.
 - **Question for the user:** must every change to a logged record reach the log, with a named system actor when no user acted?
-- **Resolution:** open
+- **Resolution:** D-07
 
 ### Q-02 Rollback with no confirmation or permission — `defect?`
 
 - **Evidence:** F-05; spot `ChangesDetailsInfolistSchema.php:36-42`.
 - **Question for the user:** keep rollback at all? If so, who may use it, with confirmation, and only for the latest entry or any?
-- **Resolution:** open
+- **Resolution:** D-11
 
 ### Q-03 Audit entries can be deleted — `defect?`
 
 - **Evidence:** F-06; r01. Users D-32 already made the user tab read-only.
 - **Question for the user:** are audit entries immutable in V2 (only retention removes them)?
-- **Resolution:** open
+- **Resolution:** D-10
 
 ### Q-04 Offer title can crash the user tab — `defect?`
 
 - **Evidence:** r01 `Models/Offer.php:63-81` `getLoggableTitle(): string` returns null when no primary eurocode and not `without_eurocode`. Also detail view has no null check on a missing subject.
-- **Resolution:** open (informs requirement: subject title/link must tolerate a missing subject)
+- **Resolution:** D-18 (informs requirement: subject title/link must tolerate a missing subject)
 
 ### Q-05 Three histories with different coverage — `decide`
 
 - **Evidence:** BR-07, BR-09; r01–r03.
 - **Question for the user:** one change history in V2 for every module that registers, replacing all three? Which records and which fields must be covered?
-- **Resolution:** open
+- **Resolution:** D-06
 
 ### Q-06 Activity log readable by one hard-coded e-mail — `defect?`
 
 - **Evidence:** F-08; spot `PanelConfig.php:86-89`; r05 #8 confirms the permission-based policy is never registered.
 - **Question for the user:** who may read the audit log in V2 (Super Admin only? Admins? a Permission)?
-- **Resolution:** open
+- **Resolution:** D-12
 
 ### Q-07 Version author is the owner, not the editor — `defect?`
 
 - **Evidence:** F-09; r02 vendor `Versionable.php:338-341`.
-- **Resolution:** open (moot if versions are replaced by the change history)
+- **Resolution:** D-06 (moot) (moot if versions are replaced by the change history)
 
 ### Q-08 Technical errors are invisible from the panel — `decide`
 
 - **Evidence:** F-11, F-13, BR-11; r04. Messages point to a "dziennik zdarzeń" that does not exist in the panel. V1 incident report (`SECURITY_INCIDENT_2026-10.md`): entry vector "niepotwierdzony logami".
 - **Question for the user:** what should the V2 log page show (application errors, integration runs, failed jobs, security events), to whom, and with what retention?
-- **Resolution:** open
+- **Resolution:** D-02, D-25, D-28..D-31
 
 ### Q-09 "Wyczyść log" destroys run history — `defect?`
 
 - **Evidence:** F-12; spot `OtomotoQueueMonitor.php:51`.
 - **Question for the user:** replace manual wipe with retention? (Otomoto-owned page; decision may be handed to Otomoto.)
-- **Resolution:** open
+- **Resolution:** D-24
 
 ### Q-10 Revisions page reachable by offer owners — `defect?`
 
 - **Evidence:** r05 #2: button admin-only, page authorised by "can edit offer" (admins and owner).
 - **Question for the user:** may an offer owner see and restore their offer's history?
-- **Resolution:** open
+- **Resolution:** D-11, D-12
 
 ### Q-11 Bulk actions lose their actor — `defect?`
 
 - **Evidence:** BR-12; r05 #7.
 - **Question for the user:** must work started by a user and finished in the background be recorded under that user (and the bulk action as one event)?
-- **Resolution:** open
+- **Resolution:** D-08, D-09
+
+### Q-12 Users spec asks Audit for events that are not data changes — contradiction (raised by D-14)
+
+- **Evidence:** Users spec §9 and D-22, D-46: impersonation start/end, "forced" password change, and "record the acting User for every module" are to be audited. D-14 limits the Change history to data changes.
+- **Interpretations:** a) impersonation start/end go to a security event log (ADD-04) b) they are not recorded anywhere; Users spec is amended.
+- **Resolution:** D-23
 
 ## H. Missing information and gaps
 
@@ -291,13 +297,13 @@ Common gaps: quiet saves and relation changes escape all histories; system actor
 
 ## I. Potential improvements
 
-- **IMP-01** Log relation changes (eurocodes, equipment, media) — BR-01 → capture them; decision: open
-- **IMP-02** Show referenced records by name (type, colour as raw ids today) — F-04 → resolve all references; decision: open
-- **IMP-04** Read access by Permission instead of a hard-coded e-mail — Q-06; decision: open
-- **IMP-05** Real retention (scheduled) for every log kind instead of growth or manual wipes — BR-10, Q-09; decision: open
-- **IMP-06** Errors logged at their real level; integration failures recorded with reason, not only counts — F-11, F-12; decision: open
-- **IMP-07** Audit entries immutable from the UI — Q-03; decision: open
-- **IMP-03** Distinguish system actors (job, command, integration) — BR-02 → record actor kind and name; decision: open
+- **IMP-01** Log relation changes (eurocodes, equipment, media) — BR-01 → capture them; decision: D-07, D-14
+- **IMP-02** Show referenced records by name (type, colour as raw ids today) — F-04 → resolve all references; decision: D-14
+- **IMP-04** Read access by Permission instead of a hard-coded e-mail — Q-06; decision: D-12
+- **IMP-05** Real retention (scheduled) for every log kind instead of growth or manual wipes — BR-10, Q-09; decision: D-01, D-13 (change history); technical log: D-30
+- **IMP-06** Errors logged at their real level; integration failures recorded with reason, not only counts — F-11, F-12; decision: D-25
+- **IMP-07** Audit entries immutable from the UI — Q-03; decision: D-10
+- **IMP-03** Distinguish system actors (job, command, integration) — BR-02 → record actor kind and name; decision: D-08
 
 ## J. Additional functionality to implement
 
@@ -306,24 +312,25 @@ Common gaps: quiet saves and relation changes escape all histories; system actor
 - **Description:** each module declares which of its records and fields are audited, their labels and how values (references, lists, money) are shown, and how to name and link the subject. Audit records every change of those records, including relation changes, with a user or system actor.
 - **Value:** one history instead of three (Q-05); new modules get history without new code in Audit.
 - **Candidates (r06):** reservations, sales, inquiries, submissions, settings, dictionaries, users.
-- **Kind:** extends F-01, F-07, F-09 · **Source:** user (brief) · **Discussed:** no · **Decision:** open
+- **Kind:** extends F-01, F-07, F-09 · **Source:** user (brief) · **Discussed:** yes (2026-11-02) · **Decision:** D-03, D-33
 
 ### ADD-02 Central audit log page
 
-- **Description:** one panel page across all modules: filter by module/record type, record, actor (user or system), action, date range, field; detail with old/new; links to the subject; export. Per-record history tabs reuse it.
-- **Kind:** extends F-02, F-03, F-08 · **Source:** user (brief) · **Decision:** open
+- **Description:** one panel page across all modules: filter by module/record type, record, actor (user or system), action, date range, field; detail with old/new; links to the subject; export. Per-record history tabs reuse it. *(Superseded in part by D-20: no field filter, no export.)*
+- **Kind:** extends F-02, F-03, F-08 · **Source:** user (brief) · **Decision:** D-20
 
 ### ADD-03 Technical log page
 
 - **Description:** operators see application errors and warnings, integration runs and their failures with reason, and failed queue jobs (with retry?), filtered by area, level and date.
 - **Value:** V1 error messages point to a log the panel cannot show (Q-08).
-- **Kind:** entirely new · **Source:** user (brief), r04 · **Decision:** open
+- **Kind:** entirely new · **Source:** user (brief), r04 · **Decision:** D-02, D-28..D-31
 
 ### ADD-04 Security event log
 
+- *(Narrowed by D-27 to sign-in, failed sign-in, sign-out, password reset, impersonation; 2FA and uploads not selected; permission grants are Change entries.)*
 - **Description:** (BR-14) record sign-ins, failed sign-ins, password resets, 2FA changes, impersonation (Users D-22), permission grants (Users D-21), file uploads.
 - **Value:** the October 2026 incident's entry vector could not be confirmed from logs (`SECURITY_INCIDENT_2026-10.md`).
-- **Kind:** entirely new · **Source:** manager · **Decision:** open
+- **Kind:** entirely new · **Source:** manager · **Decision:** D-27
 
 ## K. Investigation log
 
@@ -334,6 +341,7 @@ Common gaps: quiet saves and relation changes escape all histories; system actor
 | r03 | cross-repo | Audit/history vocabulary across V1 + entry-point census | returned | census; ~20 quiet writers; User not on change log | some write services unread | G-06, G-07 | spot: X-06 setValue |
 | r04 | cross-repo | Technical logging: Log:: calls, channels, failed jobs, operator-visible logs | returned | file-only logs; no viewer; swallowed import errors; queue monitor | prod env unknown | G-04, G-07 | spot: F-12 wipe |
 | r05 | verify | Claims on F-10 restore, F-05 sync side effects, bulk price actor, ActivityPolicy | returned (inline; saved by manager) | 3 confirmed, 3 partly→corrections, policy unused | vendor read, not run | — | second source for F-05, F-08, F-10, BR-12 |
+| r07 | spec-audit | functional-spec.md faithful, traceable, implementation-free? | returned | counts correct; 0 unapproved ADD/IMP; ~8 undecided behaviours; editorial fixes | spec vs discovery only | round 4 + addendum | — |
 | r06 | cross-repo | Saturation: other writers, listeners, auth/security events, scheduled jobs, actor columns | returned | no new audit F-; BR-13..15 (absences) | journal-action actor not re-traced | — | spot: BR-13 sold_by, BR-14 |
 
 ## L. Completeness assessment
@@ -354,3 +362,45 @@ Common gaps: quiet saves and relation changes escape all histories; system actor
 - **Ready because:** V1 behaviour is fully mapped and the remaining questions are about the V2 target, which only the user can decide.
 
 ## M. Decision log
+
+- **D-01** (2026-11-02) re F-07, BR-10, G-04, IMP-05 — Nothing ever cleaned the activity log in production. V2 builds its own audit history (no third-party activity package) and it **must** have scheduled cleanup. Class: correct. Rationale: user — the history grew unbounded; the scheduler already runs every minute on production.
+- **D-02** (2026-11-02) re F-11, Q-08, ADD-03 — Technical logs go to daily files instead of one ever-growing file, and the panel gets an interface to read them. Class: new (ADD-03 accepted in principle; details grilled in Phase 7). Rationale: user — production has one huge log file and errors are invisible from the panel.
+- **D-03** (2026-11-02) re Q-05, ADD-01, X-01..X-08 — Audit becomes a core-like module that other modules register into through its ports: a module (e.g. a future "warsztaty" module) declares what is auditable — records, fields, relations — and Audit records and shows it. Class: new (ADD-01 accepted in principle; the registration contract is grilled). Rationale: user — V1 audit is scattered and broken; V2 needs one universal, solid mechanism.
+- **D-04** (2026-11-02) re process — Grilling and the spec are written on the current branch for now; the work moves to its own branch once the Users worker finishes. Class: n/a (process).
+- **D-05** (2026-11-02) re F-12, X-04, scope — Audit owns the Change history (all modules) and the Technical log page (D-02); a security event log would also live here if approved (ADD-04, Phase 7). The Journal stays with Users; the Otomoto queue monitor stays with Otomoto and only writes to the Technical log; the notification bell is not Audit's. Class: correct.
+- **D-06** (2026-11-02) re Q-05, F-01, F-07, F-09, BR-07 — One Change history replaces the custom change log, the activity log and offer versions. An entry keeps old and new values of the changed fields; no full-record snapshots. Class: correct.
+- **D-07** (2026-11-02) re Q-01, BR-05, BR-08, BR-09 — Everything a module registered as auditable and did not exclude is recorded, whatever the path (UI, background, import, integration, bulk) — including relation changes. Modules exclude fields, never paths. Class: correct. Rationale: user — in V1 it simply worked badly.
+- **D-08** (2026-11-02) re BR-02, Q-11, IMP-03 — Every entry has an Actor: the User when a User did it (also when their work finished in the background), otherwise the System with its named reason (scheduled or integration work). No extra annotations. Matches ADR 0004 and `App\Core\Domain\Actor` (verified). Class: correct. Rationale: user — keep it simple; it must work well, not shine.
+- **D-09** (2026-11-02) re Q-11, ADD (grouping) — No grouping of entries into operations; a bulk action produces ordinary per-record entries. Class: exclude. Rationale: user — history is read per record, where a price change is just a price change; grouping complicates registration.
+- **D-10** (2026-11-02) re Q-03, IMP-07, F-06 — Change entries cannot be edited or deleted from the panel; only expired entries are removed. Class: correct.
+- **D-11** (2026-11-02) re Q-02, Q-10, F-05, F-10 — Restore stays, but only for admins on the record types where a module enables it, guarded by a Permission. How data is stored must make restore straightforward; side effects (events, syncs) to be settled. V1's unguarded rollback and owner-reachable revisions page are dropped. Class: correct. Details in round 2.
+- **D-12** (2026-11-02) re Q-06, Q-10, F-02, F-03, F-08 — Per-record history is a separate section on the record's page, visible to Admin and above (by Permission). The central audit page and the Technical log page are Super Admin by default (by Permission). Offer owners do not see history. V1's e-mail-gated plugin page is dropped. Class: correct. Rationale: user — V1's page was bad, mixed with a plugin.
+- **D-13** (2026-11-02) re BR-10, IMP-05, D-01 — One retention period for the whole Change history, set in Settings, default 365 days; expired entries are removed by a scheduled cleanup. Class: correct. Rationale: user — fastest and simplest.
+- **D-14** (2026-11-02) re Q-05, IMP-01, IMP-02, F-04 — A Change entry is only a data change: created, changed, deleted, brought back. No named business actions ("offer accepted" is simply `status: X → Y`). Relation changes are tracked. A module can register a resolver for a field so a reference (e.g. `producer_id`) is shown by its readable name, as V1 did for producers; the same for every relation. Impersonation is not a data change and does not belong in the Change history (→ Q-12). Class: correct. Rationale: user — business rules are not the log's job; the log cares that the status changed.
+- **D-15** (2026-11-02) re D-08 — During impersonation the Actor is the real person (the impersonator). Class: new.
+- **D-16** (2026-11-02) re D-11 (supersedes its "admins, by Permission" part), Q-02, F-05 — Restore is literal: it writes back the old values of exactly the fields in the chosen entry (only `status` if the entry changed only `status`). No snapshots, no conflict checks against later changes, no other fields. Only a Super Admin may restore for now; restore is offered only on record types where the module enables it. Granting it to Admins as an Extra Permission is a later Users topic (each module would need to offer extra Permissions). The restore runs as an ordinary change through the owning module and is itself recorded. Class: correct. Rationale: user — restore exactly what the user picked; do not overengineer.
+- **D-17** (2026-11-02) re proposal for sensitive fields — No special "changed but value hidden" handling. Sensitive fields (passwords, secrets) are simply not registered as auditable. Class: exclude. Rationale: user — tricks to tell a password change from other actions are overengineering.
+- **D-18** (2026-11-02) re BR-04, Q-04 — A record's history outlives the record; it goes only by retention. The "deleted" entry keeps the record's last title so it stays recognisable without a link. Bringing a record back from the bin is recorded. Class: correct.
+- **D-19** (2026-11-02) re F-02, F-04 — The per-record history is its own tab/section on the record page, a plain table (date, Actor, what happened) with filters by Actor and kind; the changed fields (old → new) are shown in a separate detail view, not in the table. A custom layout of changes may come later. Class: correct. Rationale: user — changed fields do not fit in a table.
+- **D-20** (2026-11-02) re ADD-02, F-08 — Central audit page: one table of all entries; filters by module / record type, record, Actor (User or System), kind and date range; entry detail and link to the record; no export for now. Class: new.
+- **D-21** (2026-11-02) re F-03 — The "Rejestr zmian użytkownika" (changes made BY a user) is dropped; it was unused. The user page shows the user's own history like any record. Class: exclude.
+- **D-22** (2026-11-02) re X-01..X-07 — The spec does not list what each module audits; it gives one example (Offers) only. Each module decides in its own discovery. Class: correct. Rationale: user — reservations and sales will probably not be audited.
+- **D-23** (2026-11-02) re Q-12, ADD-04, X-08 — Impersonation start and end go to the Technical log, area "bezpieczeństwo". The "password change required" marker is an ordinary audited field of the User, so setting/clearing it is in the Change history. Users spec §9 is amended to ask Audit only for data changes. Class: correct.
+- **D-24** (2026-11-02) re Q-09, F-12, X-04 — Otomoto will not exist in V2; its queue monitor, `otomoto.log` and run history are dropped with it. Class: exclude.
+- **D-25** (2026-11-02) re IMP-06, BR-11, F-13 — Rules for every module writing to the Technical log: an error is logged as an error with context (what, which record, the external response); no error is swallowed without a trace; a user-facing "details in the log" message is allowed only where the log is readable in the panel. Class: correct.
+- **D-26** (2026-11-02) re Phase 6 — User confirmed the shared understanding of the existing functionality (summary in round 3 Q4). Class: n/a.
+- **D-27** (2026-11-02) re ADD-04, BR-14 — Security events are written to the Technical log in their own daily file "bezpieczeństwo": sign-in, failed sign-in (with IP), sign-out, password reset, impersonation start and end. No separate security module or store. Class: new. Rationale: user — simple and neat.
+- **D-28** (2026-11-02) re ADD-03 areas — Technical log areas are separate daily log channels, each added in configuration by whoever needs it; Audit does not register them. The log page reads whatever daily log files exist and lets the reader pick the channel. Expected channels: application (default), WooCommerce/WordPress, security, queue. Class: new. Rationale: user — a module sets up its own channel in config; Audit only reads.
+- **D-29** (2026-11-02) re ADD-03 page — Technical log page: pick channel and day; table kept lean (time, level, short message); entry detail with full message, context and stack trace; filter by level; text search; download the day's file; no deleting from the panel. Super Admin by default (D-12). Class: new.
+- **D-30** (2026-11-02) re ADD-03 retention — Daily log files are kept 14 days, then removed automatically; fixed in configuration, no panel setting. Class: new.
+- **D-31** (2026-11-02) re BR-11, BR-15 — "Nieudane zadania" tab on the log page: job name, time, error; retry and remove actions; Super Admin only. Class: new.
+- **D-32** (2026-11-02) re alerts — No bell alerts on errors or failed jobs for now. Class: pending (not now).
+- **D-33** (2026-11-02) re ADD-01 contract (round 2 Q4) — Per auditable record type a module declares: type name; record title and link; audited fields = all except those it excludes; field labels; how values are shown (references and relations resolved to readable names, enums by label, amounts, dates, lists); which relations are tracked as added/removed; whether Restore is offered and for which fields. Named actions (D-14) and sensitive-field masking (D-17) are not part of it. Class: new. Rationale: user accepted the contract except those two parts.
+- **D-34** (2026-11-02) re Phase 7 — Additions selected: ADD-01 (D-03, D-33), ADD-02 (D-20), ADD-03 (D-02, D-28..D-31), ADD-04 (D-27). No other ideas raised. Class: n/a.
+- **D-35** (2026-11-02) re r07 1.5, D-14 — References are resolved to readable names **when displayed**, as V1 did; entries keep the raw values. No readable copy is stored at recording time. Class: correct. Rationale: user rejected storing readable values ("na chuj").
+- **D-36** (2026-11-02) re r07 1.2 — Restore asks for confirmation in a simple dialog listing the fields and values to be written ("Przywrócić: status → Aktywna, cena → 1200 zł?"), with no comparison to the current state. Class: correct.
+- **D-37** (2026-11-02) re Phase 9 — V1 history is not migrated: `changes_logs`, `activity_log` and `versions` are all dropped; the V2 Change history starts empty on migration day. V1 data stays in the V1 database backup. Class: exclude. Rationale: user — start clean.
+- **D-38** (2026-11-02) re r07 1.3, 1.4, 1.6, 1.7, 1.8, 1.9, 5.1, 5.2, 5.3, 5.6, 5.4 — Accepted defaults: (1) no Restore on utworzono/usunięto entries or on deleted records; usunięto holds no fields, only the last title; (2) a Restore entry is marked "przywrócono z wpisu z {data}"; (3) only fields are restorable, not relations; an entry with only relation changes has no Restore; (4) Permissions "historia rekordu", "dziennik audytu", "logi techniczne"; Restore is a hard Super Admin rule, no own Permission until extra Permissions per module return; labels "Historia zmian", "Dziennik audytu", "Logi techniczne", "Przywróć"; (5) cleanup of history and log files nightly; a failed run is logged and repeated next night; 365 days count from the entry's time; (6) log page opens on channel aplikacja, today, newest first, paged; PSR levels debug..emergency; message shortened to one line; search covers message and context; empty day shows "brak wpisów"; (7) every security entry has who, time, IP; password reset logged on request and on completion; (8) removing a failed job asks for confirmation, retry does not; (9) old entries after registration changes — the "as recorded" part is superseded by D-35 and re-asked in round 5; the record-type filter lists currently registered types. Class: correct/new (details of D-11, D-12, D-13, D-16, D-27, D-29, D-30, D-31).
+- **D-39** (2026-11-02) re r07 1.1, D-07 — A change and its Change entry are saved together or not at all: if the entry cannot be stored, the operation fails. The V2 command bus already wraps every command in one transaction (`app/Core/Infrastructure/Bus/WrapCommandInTransaction.php`), so recording in that transaction gives this for free. Class: correct.
+- **D-40** (2026-11-02) re D-35, D-38(9) — Only the id is stored; the name is shown when the entry's details are displayed. Records are soft-deleted, so a deleted referenced record still shows its name, marked as removed; only a record gone entirely shows the bare id, marked as removed. Field labels follow the module's current registration; a field no longer registered is still shown under its technical name (manager's consequence of D-35, user answered on values). Class: correct.
+

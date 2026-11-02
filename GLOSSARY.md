@@ -43,3 +43,25 @@ _Avoid_: inbox, dziennik (in code and docs), notifications
 **Journal entry**:
 One message in a Journal. It has a kind, which names the area it concerns (for example "offer").
 _Avoid_: notification, message
+
+## Audit
+
+**Actor**:
+Who is behind an action: a User, or the System with a named reason. Work a User started stays theirs even when it finishes in the background.
+_Avoid_: causer, author, performer
+
+**Change history**:
+The permanent-until-expiry record of changes to the records that modules have registered as auditable. It is the single history for every module.
+_Avoid_: activity log, changes log, dziennik zmian (in code and docs), revisions, versions
+
+**Change entry**:
+One item in the Change history: a record was created, changed, deleted or brought back, with the old and new value of each changed field or relation, by which Actor and when. It cannot be edited or deleted, only expire.
+_Avoid_: log entry, activity, revision
+
+**Restore**:
+Setting a record's fields back to the old values held in one Change entry, exactly as recorded and nothing more.
+_Avoid_: rollback, revert, przywróć poprzednie (in code and docs)
+
+**Technical log**:
+The application's own record of errors, warnings and integration runs, kept in daily files and readable in the panel. It is about the system, not about business records.
+_Avoid_: change history, logi (for the change history)
