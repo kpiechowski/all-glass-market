@@ -21,4 +21,8 @@
 
 ## Next action
 
-Scope 01–09 done. QA round done: 11 and 12 resolved, re-run passed (all fixes and every command action). Further panel checks are manual, by the user. 13 (D-48 + grouped row actions) resolved. The V1 data import waits in `.scratch/data-migration/users/ticket.md`.
+Closed 2026-11-02: issues 01–09 and 11–13 resolved, panel checked by hand by the user. Open outside this run:
+- V1 data import: `.scratch/data-migration/users/ticket.md`.
+- Audit wiring (change history, Technical log): Audit module.
+- Pending decisions D-45 (ADD-02 onboarding, ADD-03 2FA, ADD-04 data erasure).
+- Minor QA notes: no success toast on set/clear "wymaga zmiany hasła"; reading an entry does not mark its bell notification read; declaration date on the user detail shows UTC; the RULE-04 message also lands on NIP when only the address is empty.
