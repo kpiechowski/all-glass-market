@@ -157,6 +157,7 @@ class UserForm
                     ->copyable()
                     ->suffixAction(
                         Action::make('generate-password')
+                            ->label(__('users::resources.user.actions.generate_password'))
                             ->icon(Heroicon::ArrowPathRoundedSquare)
                             ->action(fn (Set $set) => $set('password', Str::password(12, true, true, true, false)))
                     ),

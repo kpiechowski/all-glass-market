@@ -72,6 +72,7 @@ return [
                 'done' => 'Konto zostało ponownie aktywowane.',
             ],
             'group' => 'Hasło',
+            'generate_password' => 'Wygeneruj hasło',
             'send_invitation' => 'Wyślij ponownie zaproszenie',
             'send_reset' => 'Wyślij link do resetu hasła',
             'invitation_sent' => 'Zaproszenie zostało wysłane',
@@ -85,6 +86,10 @@ return [
             'password_create' => 'Użytkownik zaloguje się tym hasłem i będzie musiał je zmienić. Hasło może wygenerować przycisk obok pola.',
             'extra_permissions' => 'Uprawnienia nadane temu użytkownikowi ponad jego rolę. Widoczne tylko dla Super Adminów.',
             'shipping_text' => 'Informacja wyświetli się w sekcji WYSYŁKA opisu otomoto dla ofert dotyczących tego użytkownika. Pozostaw puste aby użyć wysyłki z oferty/kategorii',
+        ],
+
+        'titles' => [
+            'create' => 'Utwórz użytkownika',
         ],
 
         'no_extra_permissions' => 'brak',

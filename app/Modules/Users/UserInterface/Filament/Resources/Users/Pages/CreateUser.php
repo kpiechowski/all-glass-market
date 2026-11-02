@@ -10,11 +10,17 @@ use App\Modules\Users\Application\Commands\CreateUser\CreateUserCommand;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 
 class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
+
+    public function getTitle(): string|Htmlable
+    {
+        return __('users::resources.user.titles.create');
+    }
 
     protected function handleRecordCreation(array $data): Model
     {

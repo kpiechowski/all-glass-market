@@ -32,6 +32,7 @@ class PasswordForm
                             ->maxLength(255)
                             ->suffixAction(
                                 Action::make('generate-password')
+                                    ->label(__('users::profile.actions.generate_password'))
                                     ->icon(Heroicon::ArrowPathRoundedSquare)
                                     ->action(function (Set $set): void {
                                         $generated = Str::password(20, true, true, true, false);

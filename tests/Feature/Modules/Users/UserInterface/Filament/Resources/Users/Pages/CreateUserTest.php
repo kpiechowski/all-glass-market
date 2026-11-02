@@ -63,4 +63,29 @@ class CreateUserTest extends TestCase
             ->call('create')
             ->assertHasFormErrors(['email']);
     }
+
+    public function test_a_duplicate_email_shows_the_polish_validation_message(): void
+    {
+        UserModel::factory()->create(['email' => 'taken@example.com']);
+
+        Livewire::test(CreateUser::class)
+            ->fillForm(['role' => 'user', 'name' => 'X', 'email' => 'taken@example.com', 'password' => 'temporary-pass', 'password_confirmation' => 'temporary-pass'])
+            ->call('create')
+            ->assertSee('Ta wartość w polu adres e-mail jest już zajęta.')
+            ->assertDontSee('validation.unique');
+    }
+
+    public function test_the_password_generator_is_labelled_in_polish(): void
+    {
+        Livewire::test(CreateUser::class)
+            ->assertSee('Wygeneruj hasło')
+            ->assertDontSee('Generate Password');
+    }
+
+    public function test_the_create_page_title_is_in_polish(): void
+    {
+        Livewire::test(CreateUser::class)
+            ->assertSee('Utwórz użytkownika')
+            ->assertDontSee('Utwórz Użytkownik');
+    }
 }
