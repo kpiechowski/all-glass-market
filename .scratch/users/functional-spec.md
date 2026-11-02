@@ -66,7 +66,7 @@ Every action below is guarded by a Permission declared by Users. Users grants th
 | **Guest** | sign in; request a password-reset link; set a password from a reset or invitation link | register an account; reach any panel page | D-34, D-37 |
 | **User** (seller) | use the panel; edit own profile, password and Account type; read and manage own Journal | see or manage other Users; change own Role; edit own Otomoto shipping text | D-10, D-11, D-30, D-16 |
 | **Admin** | everything a User may; list and view all Users; create Users with Role User or Admin; edit, deactivate and reactivate Users and Admins; demote an Admin to User; set a temporary password, force or clear a password change, re-send an invitation or reset link; receive "Admins" notifications and Journal entries; impersonate a lower-Role User **only** when granted it as an Extra Permission | assign the Super Admin Role; edit, deactivate or impersonate a Super Admin; change own Role; deactivate self; see or edit Extra Permissions; change anyone's Account type or Seller declaration | D-11, D-13, D-22, D-23, D-30, D-39, D-40, D-41, D-46 |
-| **Super Admin** | everything; edit other Super Admins' data and passwords; grant and revoke Extra Permissions; impersonate any lower-Role User; settings and the activity log (by Permission) | be granted or revoked the Super Admin Role from the panel (console only); impersonate another Super Admin; change own Role; change anyone's Account type or Seller declaration | D-09, D-14, D-21, D-22, D-23 |
+| **Super Admin** | everything; grant and revoke Extra Permissions; impersonate any lower-Role User; settings and the activity log (by Permission) | be granted or revoked the Super Admin Role from the panel (console only); edit another Super Admin's account in any way (D-48); impersonate another Super Admin; change own Role; change anyone's Account type or Seller declaration | D-09, D-14, D-21, D-22, D-23, D-48 |
 | **Operator (console)** | grant or revoke the Super Admin Role | — | D-09 |
 | **Other modules** | declare Roles and Permissions; grant their own Permissions to Roles; ask whether a User holds a Permission; add Journal entries; read User data; react to Users' announcements | change Users' data directly | D-02, D-19, D-43 |
 
@@ -168,7 +168,7 @@ Every action below is guarded by a Permission declared by Users. Users grants th
 
   V1 had only an admin-typed password and offered every Role. (F-12, BR-16, W-03, IMP-02, r01, r07; D-13, D-30, D-41, D-46)
 - **FR-25** [Correct] An Admin edits a User with the same form.
-  - A Super Admin's account can be edited only by a Super Admin.
+  - Nobody edits a Super Admin's account from the user form, other Super Admins included; a Super Admin edits their own data in "Mój profil" (D-48).
   - The Role section is shown unless the editor is editing themself or the edited User is a Super Admin, whose Role changes only through the console. An Admin may change another Admin to User.
   - Setting a new password is always possible, but shown less prominently than the other fields. Doing so sets "password change required".
   - An empty password field keeps the current password.
@@ -235,7 +235,7 @@ Every action below is guarded by a Permission declared by Users. Users grants th
 - **RULE-08** Limits on managing other Users:
   - An Admin may create Users with Role User or Admin.
   - An Admin may edit, deactivate, reactivate and send links to Users and Admins, but not to Super Admins.
-  - Only a Super Admin edits a Super Admin's data or password.
+  - Nobody edits another Super Admin's data or password, sends them links or sets their password-change marker; a Super Admin's account is read-only to everyone else (D-48).
   - Nobody changes their own Role or deactivates themself.
   - Nobody deactivates a Super Admin from the panel, not even another Super Admin (D-47).
   - A Role declared by another module ranks below Admin unless that module declares otherwise, and that module sets who may assign it (D-47).
@@ -486,7 +486,7 @@ Every action below is guarded by a Permission declared by Users. Users grants th
 - A Company User switches to Private and back → the declaration must be accepted again, and a new date and version are recorded. (D-24)
 - A Journal entry links to an offer that has since been removed → following the link shows a warning, and the entry stays. (D-16)
 - A module writes a Journal entry for a Deactivated User → the entry is created as usual. (D-16, D-39, D-47)
-- A Super Admin opens another Super Admin → editing data and password is possible; deactivation is not offered. (D-23, D-47)
+- A Super Admin opens another Super Admin → the account is shown read-only, as for an Admin. (D-23, D-47, D-48)
 - An impersonated target is flagged "password change required" → the impersonator is not redirected and cannot change the target's password. (D-46)
 - A flagged User resets their password by e-mail → the flag clears. (D-46)
 - A Deactivated User requests a reset link → none is sent, and the response is the usual neutral one. (D-39)
@@ -564,6 +564,8 @@ Every action below is guarded by a Permission declared by Users. Users grants th
 - **D-45** ADD-03: optional two-factor authentication that a User enables in their profile. Options: add it later or never. It blocks nothing.
 - **D-45** ADD-04: erasure of a Deactivated User's personal data on request, keeping history and offers. Options: add it later or never. It blocks nothing; it would build on WF-05.
 - **Handed to Offers discovery:** what happens to a Deactivated seller's published offers. Users only announces the deactivation. (D-39)
+
+**D-48** (2026-11-02, after QA): another Super Admin's account is read-only to every User; it replaces the D-23 permission for Super Admins to edit each other's data and passwords.
 
 Details beyond the grilling decisions raised by the spec audit (r11) were confirmed by the user as D-47 (A-01..A-12, with A-10 rejected: nobody deactivates a Super Admin from the panel).
 

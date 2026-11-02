@@ -16,8 +16,9 @@
 | 09 dashboard-account-tile | resolved | removed | 1 | approved |
 | 11 qa-fixes | resolved | removed | 1 | approved |
 | 12 polish-translations | resolved (haiku) | removed | 1 | approved |
+| 13 super-admin-read-only-and-row-actions | in progress | .worktrees/users-13 | 0 | — |
 | 05 journal | resolved | removed | 0 | approved |
 
 ## Next action
 
-Scope 01–09 done. QA round done: 11 and 12 resolved, re-run passed (all fixes and every command action). Further panel checks are manual, by the user. The V1 data import waits in `.scratch/data-migration/users/ticket.md`.
+Scope 01–09 done. QA round done: 11 and 12 resolved, re-run passed (all fixes and every command action). Further panel checks are manual, by the user. Then 13 (D-48 + grouped row actions) after the user's panel check. The V1 data import waits in `.scratch/data-migration/users/ticket.md`.
