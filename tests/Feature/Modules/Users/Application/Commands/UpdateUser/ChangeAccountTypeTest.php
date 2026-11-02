@@ -123,7 +123,7 @@ class ChangeAccountTypeTest extends TestCase
             $this->fail('Expected a refusal.');
         } catch (UserRefused $e) {
             $this->assertSame('users::exceptions.account_type_locked', $e->translationKey);
-            $this->assertSame(['time' => '10:20'], $e->parameters);
+            $this->assertSame(['time' => '11:20'], $e->parameters);
         }
 
         $this->assertSame(AccountType::Company, $user->fresh()->account_type);

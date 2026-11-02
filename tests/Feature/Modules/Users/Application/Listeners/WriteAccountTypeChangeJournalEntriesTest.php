@@ -8,6 +8,7 @@ use App\Modules\Users\Application\ModuleApi\JournalSubjects;
 use App\Modules\Users\Domain\Events\AccountTypeChanged;
 use App\Modules\Users\Infrastructure\Persistence\Models\JournalEntryModel;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -23,7 +24,7 @@ class WriteAccountTypeChangeJournalEntriesTest extends TestCase
         $plain = UserModel::factory()->create();
         $user = UserModel::factory()->create(['name' => 'Jan Kowalski']);
 
-        event(new AccountTypeChanged($user->id, 'company'));
+        event(new AccountTypeChanged($user->id, 'company', 'private', CarbonImmutable::parse('2026-11-01 10:05:00')));
 
         $entries = JournalEntryModel::query()->get();
         $this->assertEqualsCanonicalizing([$admin->id, $superAdmin->id], $entries->pluck('user_id')->all());
@@ -32,6 +33,7 @@ class WriteAccountTypeChangeJournalEntriesTest extends TestCase
         $this->assertSame('users', $entry->kind);
         $this->assertSame('Użytkownik Jan Kowalski zmienił rodzaj konta na: Firmowe', $entry->title);
         $this->assertSame($user->id, $entry->subject_id);
+        $this->assertSame('Jan Kowalski zmienił rodzaj konta z: Prywatne na: Firmowe (01.11.2026 11:05)', $entry->content);
     }
 
     public function test_private_reads_prywatne(): void
@@ -39,7 +41,7 @@ class WriteAccountTypeChangeJournalEntriesTest extends TestCase
         UserModel::factory()->admin()->create();
         $user = UserModel::factory()->create(['name' => 'Anna']);
 
-        event(new AccountTypeChanged($user->id, 'private'));
+        event(new AccountTypeChanged($user->id, 'private', 'company', CarbonImmutable::parse('2026-11-01 10:05:00')));
 
         $this->assertStringEndsWith('na: Prywatne', JournalEntryModel::query()->first()->title);
     }

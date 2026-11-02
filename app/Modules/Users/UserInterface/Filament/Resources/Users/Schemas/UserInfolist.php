@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Schemas;
 
+use App\Modules\Users\Domain\Enums\AccountType;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Support\RoleDisplay;
 use Filament\Infolists\Components\TextEntry;
@@ -42,12 +43,22 @@ class UserInfolist
                     ->label(__('users::resources.user.fields.account_type'))
                     ->badge(),
 
+                TextEntry::make('seller_declaration_accepted_at')
+                    ->label(__('users::resources.user.fields.declaration_accepted_at'))
+                    ->dateTime()
+                    ->visible(fn (UserModel $record): bool => $record->account_type === AccountType::Company),
+
+                TextEntry::make('seller_declaration_version')
+                    ->label(__('users::resources.user.fields.declaration_version'))
+                    ->visible(fn (UserModel $record): bool => $record->account_type === AccountType::Company),
+
                 TextEntry::make('deactivated_at')
                     ->label(__('users::resources.user.fields.status'))
                     ->badge()
-                    ->color('danger')
-                    ->visible(fn (UserModel $record): bool => ! $record->isActive())
-                    ->state(fn (): string => __('users::resources.user.status.inactive')),
+                    ->color(fn (UserModel $record): string => $record->isActive() ? 'success' : 'danger')
+                    ->state(fn (UserModel $record): string => $record->isActive()
+                        ? __('users::resources.user.status.active')
+                        : __('users::resources.user.status.inactive')),
 
                 TextEntry::make('name')->label(__('users::resources.user.fields.name')),
 

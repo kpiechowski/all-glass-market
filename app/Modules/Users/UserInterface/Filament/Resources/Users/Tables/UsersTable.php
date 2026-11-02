@@ -7,6 +7,7 @@ namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Tables;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Actions\ImpersonateUserAction;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Support\RoleDisplay;
+use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
@@ -61,7 +62,8 @@ class UsersTable
             ->filters(UsersTableFilters::make())
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+                EditAction::make()
+                    ->visible(fn (UserModel $record): bool => UserResource::canEdit($record)),
                 ImpersonateUserAction::make(),
             ])
             ->defaultSort('created_at', 'desc');

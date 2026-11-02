@@ -79,4 +79,20 @@ class ViewUserTest extends TestCase
         Livewire::test(ViewUser::class, ['record' => $otherSuper->getKey()])->assertActionHidden('deactivate');
         Livewire::test(ViewUser::class, ['record' => $super->getKey()])->assertActionHidden('deactivate');
     }
+
+    public function test_a_company_shows_the_declaration_date_and_version_and_every_user_shows_the_active_state(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $company = UserModel::factory()->company()->create([
+            'seller_declaration_accepted_at' => '2026-03-04 10:00:00', 'seller_declaration_version' => 'V1',
+        ]);
+        $private = UserModel::factory()->create();
+
+        Livewire::test(ViewUser::class, ['record' => $company->getKey()])
+            ->assertSee([__('users::resources.user.fields.declaration_accepted_at'), '2026', __('users::resources.user.fields.declaration_version'), 'V1', __('users::resources.user.status.active')]);
+
+        Livewire::test(ViewUser::class, ['record' => $private->getKey()])
+            ->assertSee(__('users::resources.user.status.active'))
+            ->assertDontSee(__('users::resources.user.fields.declaration_version'));
+    }
 }

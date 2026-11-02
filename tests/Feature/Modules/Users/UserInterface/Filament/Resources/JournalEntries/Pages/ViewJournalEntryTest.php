@@ -103,4 +103,15 @@ class ViewJournalEntryTest extends TestCase
 
         Livewire::test(ViewJournalEntry::class, ['record' => $entry->getKey()])->assertActionHidden('go_to_subject');
     }
+
+    public function test_line_breaks_of_the_content_are_shown_while_html_stays_escaped(): void
+    {
+        $me = UserModel::factory()->create();
+        $entry = JournalEntryModel::factory()->create(['user_id' => $me->id, 'content' => "pierwsza <b>x</b>\ndruga"]);
+        $this->actingAs($me);
+
+        Livewire::test(ViewJournalEntry::class, ['record' => $entry->getKey()])
+            ->assertSeeHtml("pierwsza &lt;b&gt;x&lt;/b&gt;<br />\ndruga")
+            ->assertDontSeeHtml('<b>x</b>');
+    }
 }

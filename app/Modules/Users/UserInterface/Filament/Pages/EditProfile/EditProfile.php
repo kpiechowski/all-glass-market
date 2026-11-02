@@ -27,6 +27,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 /**
@@ -172,6 +173,12 @@ class EditProfile extends Page
                 sellerDeclarationAccepted: (bool) ($data['seller_declaration_accepted'] ?? false),
             ));
         } catch (DomainException $exception) {
+            if ($exception->translationKey === 'users::exceptions.company_data_missing') {
+                $message = __($exception->translationKey);
+
+                throw ValidationException::withMessages(['data.company_nip' => $message, 'data.company_address' => $message]);
+            }
+
             Notification::make()->danger()->title(__($exception->translationKey, $exception->parameters))->send();
 
             return;

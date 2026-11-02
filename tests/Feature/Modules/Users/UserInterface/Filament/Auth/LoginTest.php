@@ -165,4 +165,9 @@ class LoginTest extends TestCase
         $this->actingAs($user->fresh())->get('/admin')->assertRedirect(Filament::getPanel('admin')->getLoginUrl());
         $this->assertGuest();
     }
+
+    public function test_the_reset_link_reads_as_the_spec_says(): void
+    {
+        Livewire::test(Login::class)->assertSee('Nie pamiętasz hasła?');
+    }
 }

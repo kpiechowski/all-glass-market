@@ -8,6 +8,7 @@ use App\Core\Contracts\PanelNotifier;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
 
 /**
  * Sends to the database notifications of the panel's bell. Each recipient is
@@ -20,7 +21,7 @@ final class FilamentPanelNotifier implements PanelNotifier
         $notification = Notification::make()
             ->status($status)
             ->title($title)
-            ->body($body === '' ? null : e($body))
+            ->body($body === '' ? null : nl2br(e($body)))
             ->actions(array_map(
                 fn (array $action): Action => Action::make('action_'.md5($action['label'].$action['url']))
                     ->label($action['label'])
@@ -39,5 +40,21 @@ final class FilamentPanelNotifier implements PanelNotifier
                 $notification->sendToDatabase($recipient);
             }
         }
+    }
+
+    public function retract(string $url): void
+    {
+        // The SQL only narrows the candidates (LIKE escaping differs per driver); PHP decides.
+        $segment = str_replace('\\', '', basename((string) parse_url($url, PHP_URL_PATH)));
+
+        DatabaseNotification::query()
+            ->when($segment !== '', fn ($query) => $query->where('data', 'like', '%'.$segment.'%'))
+            ->each(function (DatabaseNotification $notification) use ($url): void {
+                $links = collect($notification->data['actions'] ?? [])->pluck('url');
+
+                if ($links->contains($url)) {
+                    $notification->delete();
+                }
+            });
     }
 }

@@ -61,7 +61,9 @@ class SetNewPassword extends SimplePage
         $data = $this->form->getState();
 
         try {
-            CommandSender::send(new CompleteForcedPasswordChangeCommand(CurrentActor::get(), $data['password']));
+            CommandSender::send(new CompleteForcedPasswordChangeCommand(CurrentActor::get(), $data['password']), [
+                'users::exceptions.password_same_as_current' => ['data.password'],
+            ]);
         } catch (Halt) {
             return;
         }

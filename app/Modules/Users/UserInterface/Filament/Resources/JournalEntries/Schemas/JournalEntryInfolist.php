@@ -7,6 +7,7 @@ namespace App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\Sche
 use App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\Support\JournalKindLabel;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
+use Illuminate\Support\HtmlString;
 
 class JournalEntryInfolist
 {
@@ -33,7 +34,7 @@ class JournalEntryInfolist
             TextEntry::make('content')
                 ->label(__('users::resources.journal_entry.fields.content'))
                 ->columnSpanFull()
-                ->extraAttributes(['class' => 'whitespace-pre-line']),
+                ->formatStateUsing(fn (string $state): HtmlString => new HtmlString(nl2br(e($state)))),
         ]);
     }
 }

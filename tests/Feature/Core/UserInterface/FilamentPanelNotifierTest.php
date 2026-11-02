@@ -33,4 +33,27 @@ class FilamentPanelNotifierTest extends TestCase
         $this->assertSame('&lt;b&gt;x&lt;/b&gt;', $data['body']);
         $this->assertSame('/a', $data['actions'][0]['url']);
     }
+
+    public function test_line_breaks_of_the_body_are_kept_and_the_rest_stays_escaped(): void
+    {
+        $user = UserModel::factory()->create();
+
+        app(PanelNotifier::class)->notify([$user->id], 'Tytuł', "<i>a</i>\nb");
+
+        $this->assertSame("&lt;i&gt;a&lt;/i&gt;<br />\nb", $user->notifications()->first()->data['body']);
+    }
+
+    public function test_retract_removes_only_the_notifications_linking_to_exactly_that_url(): void
+    {
+        $user = UserModel::factory()->create();
+        $notifier = app(PanelNotifier::class);
+
+        foreach (['A' => '/admin/journal_entries/1', 'B' => '/admin/journal_entries/10', 'C' => '/admin/journal_entries/1/edit'] as $title => $path) {
+            $notifier->notify([$user->id], $title, '', 'info', [['label' => 'x', 'url' => 'http://localhost'.$path]]);
+        }
+
+        $notifier->retract('http://localhost/admin/journal_entries/1');
+
+        $this->assertEqualsCanonicalizing(['B', 'C'], $user->notifications()->get()->pluck('data.title')->all());
+    }
 }

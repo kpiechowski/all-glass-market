@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'title' => 'Mój profil',
     'navigation_label' => 'Mój profil',
+    'user_menu_label' => 'Edytuj profil',
 
     'tabs' => [
         'general' => 'Ogólne',

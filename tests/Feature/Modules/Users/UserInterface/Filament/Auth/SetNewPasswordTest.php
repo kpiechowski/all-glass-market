@@ -57,16 +57,6 @@ class SetNewPasswordTest extends TestCase
         );
     }
 
-    public function test_the_current_password_is_refused_as_the_new_one(): void
-    {
-        $user = UserModel::factory()->withRole('user')->passwordChangeRequired()->create(['password' => 'temporary-pass']);
-        $this->actingAs($user);
-
-        $this->setPassword('temporary-pass')->assertNotified(__('users::exceptions.password_same_as_current'));
-
-        $this->assertTrue($user->fresh()->password_change_required);
-    }
-
     public function test_rule_03_a_short_or_unconfirmed_password_is_a_field_error(): void
     {
         $this->actingAs(UserModel::factory()->withRole('user')->passwordChangeRequired()->create());
@@ -80,5 +70,15 @@ class SetNewPasswordTest extends TestCase
         $this->actingAs(UserModel::factory()->withRole('user')->create());
 
         Livewire::test(SetNewPassword::class)->assertRedirect(Filament::getUrl());
+    }
+
+    public function test_the_current_password_is_refused_on_the_password_field(): void
+    {
+        $user = UserModel::factory()->withRole('user')->passwordChangeRequired()->create(['password' => 'temporary-pass']);
+        $this->actingAs($user);
+
+        $this->setPassword('temporary-pass')->assertHasFormErrors(['password' => __('users::exceptions.password_same_as_current')]);
+
+        $this->assertTrue($user->fresh()->password_change_required);
     }
 }

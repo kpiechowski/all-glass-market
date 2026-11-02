@@ -50,7 +50,7 @@ class EditUser extends EditRecord
             role: $data['role'] ?? null,
             password: $data['password'] ?? null,
             extraPermissions: isset($data['extra_permissions']) ? array_values($data['extra_permissions']) : null,
-        ));
+        ), ['users::exceptions.company_data_missing' => ['data.company_nip', 'data.company_address']]);
 
         if (filled($data['password'] ?? null)) {
             KeepsOwnSessionAfterPasswordChange::for((int) $record->getKey());

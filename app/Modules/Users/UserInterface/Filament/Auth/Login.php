@@ -9,9 +9,12 @@ use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Facades\Filament;
+use Filament\Schemas\Components\Component;
 use Filament\Support\Components\Attributes\Exposed;
 use Illuminate\Auth\SessionGuard;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -25,6 +28,16 @@ class Login extends BaseLogin
     private const int MAX_FAILED_ATTEMPTS = 5;
 
     private const int WINDOW_SECONDS = 60;
+
+    /** WF-01: the reset link reads "Nie pamiętasz hasła?", where Filament's own label differs. */
+    protected function getPasswordFormComponent(): Component
+    {
+        return parent::getPasswordFormComponent()
+            ->hint(new HtmlString(Blade::render(
+                '<x-filament::link :href="$url" tabindex="-1">{{ $label }}</x-filament::link>',
+                ['url' => Filament::getRequestPasswordResetUrl(), 'label' => __('users::login.forgot_password')],
+            )));
+    }
 
     #[Exposed]
     public function authenticate(): ?LoginResponse

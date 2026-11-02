@@ -10,9 +10,11 @@ use App\Modules\Users\UserInterface\Filament\Auth\Login;
 use App\Modules\Users\UserInterface\Filament\Auth\RequestPasswordReset;
 use App\Modules\Users\UserInterface\Filament\Auth\ResetPassword;
 use App\Modules\Users\UserInterface\Filament\Auth\SetNewPassword;
+use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\EditProfile;
 use App\Modules\Users\UserInterface\Http\Middleware\AuthenticatePanel;
 use App\Modules\Users\UserInterface\Http\Middleware\RequirePasswordChange;
 use App\Modules\Users\UserInterface\Support\ImpersonationSession;
+use Filament\Actions\Action;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -51,6 +53,11 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(PanelsRenderHook::BODY_START, fn (): string => ImpersonationSession::isActive()
                 ? Blade::render('@livewire("users-impersonation-banner")')
                 : '')
+            ->userMenuItems([
+                'profile' => fn (Action $action): Action => $action
+                    ->label(__('users::profile.user_menu_label'))
+                    ->url(EditProfile::getUrl()),
+            ])
             ->databaseNotifications()
             ->colors([
                 'primary' => '#003eb2',

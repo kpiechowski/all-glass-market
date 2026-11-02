@@ -35,6 +35,8 @@ return [
             'account_type' => 'Typ konta',
             'created_at' => 'Data dołączenia',
             'status' => 'Status',
+            'declaration_accepted_at' => 'Deklaracja sprzedawcy: data akceptacji',
+            'declaration_version' => 'Deklaracja sprzedawcy: wersja',
             'deactivated_at' => 'Dezaktywowano',
             'extra_permissions' => 'Dodatkowe uprawnienia',
             'password_method' => 'Hasło użytkownika',

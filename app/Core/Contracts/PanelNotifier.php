@@ -20,4 +20,10 @@ interface PanelNotifier
      * @param  list<array{label: string, url: string, markAsRead?: bool}>  $actions
      */
     public function notify(array $userIds, string $title, string $body, string $status = 'info', array $actions = []): void;
+
+    /**
+     * Removes every panel notification that has an action linking to `$url`,
+     * for when the thing it opens no longer exists.
+     */
+    public function retract(string $url): void;
 }

@@ -49,6 +49,13 @@ final class WriteAccountTypeChangeJournalEntries implements ShouldHandleEventsAf
             'type' => AccountType::from($event->accountType)->getLabel(),
         ]);
 
+        $content = __('users::notifications.account_type_changed.content', [
+            'name' => $user->name(),
+            'from' => AccountType::from($event->previousAccountType)->getLabel(),
+            'to' => AccountType::from($event->accountType)->getLabel(),
+            'when' => $event->changedAt->setTimezone('Europe/Warsaw')->format('d.m.Y H:i'),
+        ]);
+
         foreach ($this->admins->userIds() as $adminId) {
             $this->journal->add(
                 Actor::system('account type changed'),
@@ -56,7 +63,7 @@ final class WriteAccountTypeChangeJournalEntries implements ShouldHandleEventsAf
                 'users',
                 JournalSeverity::Info,
                 $title,
-                $title,
+                $content,
                 $event->userId,
             );
         }

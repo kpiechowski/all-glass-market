@@ -111,7 +111,7 @@ class ProfileForm
                     ->dehydrated(fn (): bool => self::lockedUntil() === null)
                     ->helperText(fn (): ?string => self::lockedUntil() === null
                         ? null
-                        : __('users::profile.account_type_locked', ['time' => self::lockedUntil()->format('H:i')]))
+                        : __('users::profile.account_type_locked', ['time' => self::lockedUntil()->setTimezone('Europe/Warsaw')->format('H:i')]))
                     ->afterStateUpdated(function (mixed $state, EditProfile $livewire): void {
                         if (self::stateValue($state) === AccountType::Private->value) {
                             $livewire->mountAction('privateAccountNotice');

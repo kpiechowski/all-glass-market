@@ -59,7 +59,7 @@ class EditProfileAccountTypeTest extends TestCase
         $this->actingAs($user->fresh());
 
         Livewire::test(EditProfile::class)
-            ->assertSee('Zmiana rodzaju konta jest zablokowana do: 10:30')
+            ->assertSee('Zmiana rodzaju konta jest zablokowana do: 11:30')
             ->assertFormFieldDisabled('account_type');
     }
 
@@ -119,5 +119,20 @@ class EditProfileAccountTypeTest extends TestCase
         Livewire::test(EditUser::class, ['record' => $target->id])
             ->assertFormFieldDoesNotExist('account_type')
             ->assertFormFieldDoesNotExist('seller_declaration_accepted');
+    }
+
+    public function test_becoming_company_without_nip_or_address_is_refused_on_those_fields(): void
+    {
+        $user = UserModel::factory()->create();
+        $this->actingAs($user);
+
+        Livewire::test(EditProfile::class)
+            ->set('data', $this->formData($user, [
+                'account_type' => 'company', 'company_nip' => '', 'company_address' => '', 'seller_declaration_accepted' => true,
+            ]))
+            ->call('save')
+            ->assertHasFormErrors(['company_nip', 'company_address']);
+
+        $this->assertSame(AccountType::Private, $user->fresh()->account_type);
     }
 }

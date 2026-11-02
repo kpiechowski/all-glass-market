@@ -88,6 +88,8 @@ final class UpdateUserCommandHandler
             $user->changeShippingText($command->shippingText);
         }
 
+        $previousType = $user->accountType();
+
         // WF-02: validated before anything is saved; a refusal throws here.
         $accountTypeChanged = $requestedType !== null
             && $user->changeAccountType($requestedType, $command->sellerDeclarationAccepted, CarbonImmutable::now());
@@ -125,7 +127,7 @@ final class UpdateUserCommandHandler
 
         // FR-21: announced only after the save.
         if ($accountTypeChanged) {
-            event(new AccountTypeChanged($command->userId, $user->accountType()->value));
+            event(new AccountTypeChanged($command->userId, $user->accountType()->value, $previousType->value, CarbonImmutable::now()));
         }
     }
 }

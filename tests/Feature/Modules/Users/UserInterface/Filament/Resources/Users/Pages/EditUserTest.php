@@ -80,4 +80,17 @@ class EditUserTest extends TestCase
 
         Livewire::test(EditUser::class, ['record' => $target->getKey()])->assertActionDoesNotExist('delete');
     }
+
+    public function test_a_company_without_nip_or_address_is_refused_on_those_fields(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $company = UserModel::factory()->company()->create();
+
+        Livewire::test(EditUser::class, ['record' => $company->getKey()])
+            ->fillForm(['company_nip' => '', 'company_address' => ''])
+            ->call('save')
+            ->assertHasFormErrors(['company_nip', 'company_address']);
+
+        $this->assertNotSame('', $company->fresh()->company_nip);
+    }
 }

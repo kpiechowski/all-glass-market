@@ -51,7 +51,7 @@ final class UserRefused extends DomainException
 
     public static function accountTypeLocked(CarbonImmutable $until): self
     {
-        return new self('users::exceptions.account_type_locked', ['time' => $until->format('H:i')]);
+        return new self('users::exceptions.account_type_locked', ['time' => $until->setTimezone('Europe/Warsaw')->format('H:i')]);
     }
 
     public static function declarationNotAccepted(): self

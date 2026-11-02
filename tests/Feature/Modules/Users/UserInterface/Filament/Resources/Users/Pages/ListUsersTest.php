@@ -78,4 +78,15 @@ class ListUsersTest extends TestCase
             ->assertCanSeeTableRecords([$active, $admin])
             ->assertCanNotSeeTableRecords([$inactive]);
     }
+
+    public function test_an_admin_gets_no_edit_action_on_the_row_of_a_super_admin(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $super = UserModel::factory()->superAdmin()->create();
+        $plain = UserModel::factory()->create();
+
+        Livewire::test(ListUsers::class)
+            ->assertTableActionHidden('edit', $super)
+            ->assertTableActionVisible('edit', $plain);
+    }
 }
