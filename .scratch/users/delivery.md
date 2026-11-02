@@ -20,4 +20,4 @@
 
 ## Next action
 
-Scope 01–09 done. QA round: 11 and 12 running; review, merge, then QA re-run. The V1 data import waits in `.scratch/data-migration/users/ticket.md`.
+Scope 01–09 done. QA round: 11 and 12 running; review, merge, then a short QA re-run: only the fixes from 11 and 12, plus each UI action that sends a command, once. Everything else is covered by tests and composer check. The V1 data import waits in `.scratch/data-migration/users/ticket.md`.
