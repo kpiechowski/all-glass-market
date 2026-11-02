@@ -20,4 +20,4 @@
 
 ## Next action
 
-Scope 01–09 done. QA round: 11 and 12 resolved; short QA re-run in progress: only the fixes from 11 and 12, plus each UI action that sends a command, once. Everything else is covered by tests and composer check. The V1 data import waits in `.scratch/data-migration/users/ticket.md`.
+Scope 01–09 done. QA round done: 11 and 12 resolved, re-run passed (all fixes and every command action). Further panel checks are manual, by the user. The V1 data import waits in `.scratch/data-migration/users/ticket.md`.
