@@ -14,10 +14,10 @@
 | 07 deactivation | resolved | removed | 0 | approved |
 | 08 extra-permissions-and-impersonation | resolved | removed | 0 | approved |
 | 09 dashboard-account-tile | resolved | removed | 1 | approved |
-| 11 qa-fixes | in progress | .worktrees/users-11 | 0 | — |
+| 11 qa-fixes | resolved | removed | 1 | approved |
 | 12 polish-translations | resolved (haiku) | removed | 1 | approved |
 | 05 journal | resolved | removed | 0 | approved |
 
 ## Next action
 
-Scope 01–09 done. QA round: 11 and 12 running; review, merge, then a short QA re-run: only the fixes from 11 and 12, plus each UI action that sends a command, once. Everything else is covered by tests and composer check. The V1 data import waits in `.scratch/data-migration/users/ticket.md`.
+Scope 01–09 done. QA round: 11 and 12 resolved; short QA re-run in progress: only the fixes from 11 and 12, plus each UI action that sends a command, once. Everything else is covered by tests and composer check. The V1 data import waits in `.scratch/data-migration/users/ticket.md`.
