@@ -1,7 +1,6 @@
 <?php
 
-use App\Modules\Users\Domain\Models\User;
-
+use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 
 return [
 
@@ -65,7 +64,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', User::class),
+            'model' => env('AUTH_MODEL', UserModel::class),
         ],
 
         // 'users' => [
@@ -98,7 +97,15 @@ return [
             'provider' => 'users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
-            'throttle' => 60,
+            'throttle' => 0,
+        ],
+
+        // RULE-14: invitation links last 7 days. Own token table (see the Users migration).
+        'invitations' => [
+            'provider' => 'users',
+            'table' => 'invitation_tokens',
+            'expire' => 60 * 24 * 7,
+            'throttle' => 0,
         ],
     ],
 

@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature\{{TestArea}}\{{ModuleName}}\Infrastructure\Persistence\Observers;
+
+use App\Core\Domain\Events\RecordChanged;
+use App\Core\Infrastructure\Persistence\ReadOnlyModel;
+use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Factories\{{SingularName}}ModelFactory;
+use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence\Models\{{SingularName}}Model;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
+use Tests\TestCase;
+
+class {{SingularName}}ObserverTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_creating_a_record_emits_record_changed_with_the_new_values(): void
+    {
+        Event::fake([RecordChanged::class]);
+
+        $id = {{SingularName}}ModelFactory::new()->create(['name' => 'gear'])->id;
+
+        Event::assertDispatched(
+            RecordChanged::class,
+            fn (RecordChanged $event) => $event->modelClass === {{SingularName}}Model::class
+                && $event->id === $id
+                && $event->changes['name'] === ['old' => null, 'new' => 'gear'],
+        );
+    }
+
+    public function test_updating_a_record_emits_the_old_and_new_value(): void
+    {
+        $model = {{SingularName}}ModelFactory::new()->create(['name' => 'gear']);
+        Event::fake([RecordChanged::class]);
+
+        ReadOnlyModel::writing(fn () => $model->update(['name' => 'cog']));
+
+        Event::assertDispatched(
+            RecordChanged::class,
+            fn (RecordChanged $event) => $event->changes['name'] === ['old' => 'gear', 'new' => 'cog'],
+        );
+    }
+}

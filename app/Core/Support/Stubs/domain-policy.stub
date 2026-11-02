@@ -1,0 +1,13 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{RootNamespace}}\{{ModuleName}}\Domain\Policies;
+
+final class {{SingularName}}DomainPolicy
+{
+    public static function isValidName(string $name): bool
+    {
+        return trim($name) !== '';
+    }
+}

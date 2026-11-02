@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace {{RootNamespace}}\{{ModuleName}}\Application\Listeners;
 
-class {{SingularName}}DomainEventListener
+use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
+
+final class {{SingularName}}EventListener implements ShouldHandleEventsAfterCommit
 {
-    public function handle(object $event): void
-    {
-        //
-    }
+    public function handle(object $event): void {}
 }

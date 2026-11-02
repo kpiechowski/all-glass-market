@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace {{RootNamespace}}\{{ModuleName}}\Domain\Repositories;
 
-use {{RootNamespace}}\{{ModuleName}}\Domain\Models\{{SingularName}};
-use App\Core\Abstracts\ModelRepository;
+use App\Core\Contracts\Repository;
+use {{RootNamespace}}\{{ModuleName}}\Domain\Entities\{{SingularName}};
 
-class {{SingularName}}Repository extends ModelRepository
+/** @extends Repository<{{SingularName}}> */
+interface {{SingularName}}Repository extends Repository
 {
-    protected function getModel(): string
-    {
-        return {{SingularName}}::class;
-    }
+    public function nameIsTaken(string $name): bool;
 }

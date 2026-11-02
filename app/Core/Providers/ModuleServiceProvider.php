@@ -22,7 +22,7 @@ use ReflectionClass;
  *   protected bool $loadsConfig       = true;   // Infrastructure/config
  *   protected bool $loadsViews        = true;   // UserInterface/resources/views  (namespace: module-name::)
  *   protected bool $loadsTranslations = false;  // UserInterface/resources/lang  (namespace: module-name::)
- *   protected bool $registersMorphMap = true;   // Domain/Models auto morph map
+ *   protected bool $registersMorphMap = true;   // Domain/Models and Infrastructure/Persistence/Models auto morph map
  *
  * Container bindings:
  *
@@ -169,26 +169,28 @@ abstract class ModuleServiceProvider extends ServiceProvider
     }
 
     /**
-     * Scans Domain/Models/*.php and registers a morph map using snake_case model names.
-     * Namespace is inferred from the concrete provider's namespace + \Domain\Models.
+     * Registers a snake_case morph map entry for every model in Domain/Models and
+     * Infrastructure/Persistence/Models; the latter drops its "Model" suffix.
      */
     private function registerMorphMap(): void
     {
-        $modelsPath = $this->modulePath('/Domain/Models');
-
-        if (! is_dir($modelsPath)) {
-            return;
-        }
-
-        $namespace = (new ReflectionClass(static::class))->getNamespaceName().'\\Domain\\Models';
+        $namespace = (new ReflectionClass(static::class))->getNamespaceName();
         $map = [];
 
-        foreach (glob($modelsPath.'/*.php') as $file) {
-            $className = basename($file, '.php');
-            $fqcn = $namespace.'\\'.$className;
+        foreach (['Domain/Models' => false, 'Infrastructure/Persistence/Models' => true] as $folder => $stripsSuffix) {
+            $path = $this->modulePath('/'.$folder);
 
-            if (class_exists($fqcn)) {
-                $map[Str::snake($className)] = $fqcn;
+            if (! is_dir($path)) {
+                continue;
+            }
+
+            foreach (glob($path.'/*.php') as $file) {
+                $className = basename($file, '.php');
+                $fqcn = $namespace.'\\'.str_replace('/', '\\', $folder).'\\'.$className;
+
+                if (class_exists($fqcn)) {
+                    $map[Str::snake($stripsSuffix ? Str::chopEnd($className, 'Model') : $className)] = $fqcn;
+                }
             }
         }
 

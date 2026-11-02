@@ -1,0 +1,96 @@
+/* table header bar */
+.fi-ta-header-ctn {
+    @apply border-b border-gray-200;
+
+    .fi-filters-button {
+        .fi-icon-btn-badge-ctn {
+            @apply bg-primary border-0 ring-0;
+
+            & > span {
+                @apply text-white relative border-0 ring-0 leading-4 px-[2px];
+            }
+        }
+
+        &:hover {
+            @apply text-primary;
+        }
+    }
+}
+
+/* table container */
+.fi-ta-table {
+    .fi-ta-ctn {
+        @apply bg-white border-gray-200;
+    }
+
+    thead tr {
+        @apply bg-gray-50;
+    }
+}
+
+/* table search */
+.fi-ta-search-field {
+    .fi-icon {
+        @apply text-primary;
+    }
+}
+
+/* text column — use gray-700 instead of default lighter gray */
+.fi-ta-text-item {
+    @apply text-gray-700;
+}
+
+/* row state shading */
+.fi-ta-row--bigger {
+    @apply !py-6;
+
+    &.ta-row-info-shade {
+        @apply bg-blue-50;
+    }
+
+    &.ta-row-success-shade {
+        @apply bg-green-50;
+    }
+
+    &.ta-row-danger-shade {
+        @apply bg-red-50;
+    }
+}
+
+/* pagination */
+.fi-pagination {
+    .fi-pagination-next-btn {
+        @apply bg-primary text-white;
+    }
+}
+
+.fi-pagination-item {
+    &.fi-active {
+        .fi-pagination-item-btn {
+            @apply bg-primary;
+        }
+
+        .fi-pagination-item-label {
+            @apply !text-white;
+        }
+    }
+
+    .fi-pagination-item-btn {
+        @apply bg-white hover:bg-gray-50 border border-gray-200;
+    }
+}
+
+/* records-per-page select */
+.fi-pagination-records-per-page-select-ctn {
+    .fi-input-wrp {
+        @apply bg-transparent;
+    }
+
+    .fi-input-wrp-label {
+        @apply text-gray-600;
+    }
+
+    select.fi-select-input {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23003eb2' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+    }
+}

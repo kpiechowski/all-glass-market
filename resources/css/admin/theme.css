@@ -1,0 +1,12 @@
+@import "../../../vendor/filament/filament/resources/css/theme.css";
+
+@source '../../../app/Filament/**/*';
+@source '../../../resources/views/filament/**/*';
+@source '../../../app/Modules/*/UserInterface/resources/views/**/*';
+
+@import "./_config.css";
+@import "./globals.css";
+
+@import "./layout/index.css";
+@import "./components/index.css";
+@import "./pages/login.css";

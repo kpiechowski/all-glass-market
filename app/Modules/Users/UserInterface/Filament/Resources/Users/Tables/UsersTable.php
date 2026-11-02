@@ -4,56 +4,69 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
+use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
+use App\Modules\Users\UserInterface\Filament\Resources\Users\Actions\ImpersonateUserAction;
+use App\Modules\Users\UserInterface\Filament\Resources\Users\Support\RoleDisplay;
+use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 
 class UsersTable
 {
+    /** Markers: inactive (07) and password change required (06). */
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label(__('users::resources.user.fields.name'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('email')
+                    ->label(__('users::resources.user.fields.email'))
                     ->searchable()
                     ->sortable(),
 
-                IconColumn::make('email_verified_at')
-                    ->label('Verified')
-                    ->boolean()
-                    ->sortable(),
+                TextColumn::make('account_type')
+                    ->label(__('users::resources.user.fields.account_type'))
+                    ->badge(),
+
+                TextColumn::make('role')
+                    ->label(__('users::resources.user.fields.role'))
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => RoleDisplay::label($state))
+                    ->color(fn (?string $state): string => RoleDisplay::color($state)),
+
+                TextColumn::make('deactivated_at')
+                    ->label(__('users::resources.user.fields.status'))
+                    ->badge()
+                    ->color('danger')
+                    ->state(fn (UserModel $record): ?string => $record->isActive() ? null : __('users::resources.user.status.inactive')),
+
+                TextColumn::make('password_change_required')
+                    ->label(__('users::resources.user.fields.password_change_required'))
+                    ->badge()
+                    ->color('warning')
+                    ->state(fn (UserModel $record): ?string => $record->password_change_required
+                        ? __('users::resources.user.markers.password_change_required')
+                        : null),
 
                 TextColumn::make('created_at')
+                    ->label(__('users::resources.user.fields.created_at'))
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
             ])
-            ->filters([
-                Filter::make('verified')
-                    ->label('Email verified')
-                    ->query(fn (Builder $query) => $query->whereNotNull('email_verified_at')),
-
-                Filter::make('unverified')
-                    ->label('Email unverified')
-                    ->query(fn (Builder $query) => $query->whereNull('email_verified_at')),
-            ])
+            ->filters(UsersTableFilters::make())
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make()
+                        ->visible(fn (UserModel $record): bool => UserResource::canEdit($record)),
+                    ImpersonateUserAction::make(),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');

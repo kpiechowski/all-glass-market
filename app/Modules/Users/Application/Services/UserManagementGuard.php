@@ -1,0 +1,157 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Users\Application\Services;
+
+use App\Core\Domain\Actor;
+use App\Modules\Users\Application\ModuleApi\RoleRegistry;
+use App\Modules\Users\Domain\Entities\User;
+use App\Modules\Users\Domain\Enums\UserRole;
+use App\Modules\Users\Domain\Exceptions\RoleAssignmentRefused;
+use App\Modules\Users\Domain\Exceptions\UserRefused;
+use App\Modules\Users\Domain\Policies\ExtraPermissionPolicy;
+use App\Modules\Users\Domain\Policies\ImpersonationPolicy;
+use App\Modules\Users\Domain\Policies\UserManagementPolicy;
+use App\Modules\Users\Domain\Repositories\UserRepository;
+
+/**
+ * Gathers the facts RULE-08 needs (ranks from the Role order) and asks the
+ * domain policy. Shared by the handlers that manage other Users.
+ */
+final class UserManagementGuard
+{
+    public function __construct(
+        private RoleRegistry $registry,
+        private UserRepository $users,
+    ) {}
+
+    public function ensureCanManage(Actor $actor, User $target): void
+    {
+        if (! UserManagementPolicy::canManage($this->rankOfActor($actor), $this->rankOfRole($target->roleKey()))) {
+            throw UserRefused::cannotManage();
+        }
+    }
+
+    /** RULE-08, D-48: edit data, password, links and marker; another Super Admin is read-only. */
+    public function ensureCanEditAccount(Actor $actor, User $target): void
+    {
+        $allowed = UserManagementPolicy::canEditAccountOf(
+            $actor->id,
+            (int) $target->id(),
+            $target->roleKey(),
+            $this->rankOfActor($actor),
+            $this->rankOfRole($target->roleKey()),
+        );
+
+        if (! $allowed) {
+            throw UserRefused::cannotManage();
+        }
+    }
+
+    /** RULE-08 (FR-27): not oneself, never a Super Admin, nobody of a higher rank. */
+    public function ensureCanDeactivate(Actor $actor, User $target): void
+    {
+        $allowed = UserManagementPolicy::canDeactivate(
+            $actor->id,
+            (int) $target->id(),
+            $target->roleKey(),
+            $this->rankOfActor($actor),
+            $this->rankOfRole($target->roleKey()),
+        );
+
+        if (! $allowed) {
+            throw UserRefused::cannotDeactivate();
+        }
+    }
+
+    /** A Role may be given to a new User (FR-24). */
+    public function ensureRoleAssignable(Actor $actor, string $roleKey): void
+    {
+        if (! UserManagementPolicy::canAssignRole($roleKey, $this->registry->rankOf($roleKey), $this->rankOfActor($actor))) {
+            throw UserRefused::roleNotAssignable();
+        }
+    }
+
+    /** A Role may replace the target's current one (FR-25). */
+    public function ensureRoleChangeAllowed(Actor $actor, User $target, string $roleKey): void
+    {
+        if ($target->roleKey() === UserRole::SuperAdmin->value || $roleKey === UserRole::SuperAdmin->value) {
+            throw RoleAssignmentRefused::superAdminConsoleOnly();
+        }
+
+        if (! $this->registry->isRegistered($roleKey)) {
+            throw RoleAssignmentRefused::roleNotRegistered();
+        }
+
+        if (! UserManagementPolicy::canChangeRoleOf($actor->id, (int) $target->id(), $target->roleKey())) {
+            throw UserRefused::cannotChangeOwnRole();
+        }
+
+        $this->ensureCanManage($actor, $target);
+        $this->ensureRoleAssignable($actor, $roleKey);
+    }
+
+    /**
+     * RULE-11, FR-06: only a Super Admin changes Extra Permissions, and only to
+     * registered Permissions. A list that changes nothing needs no right.
+     *
+     * @param  list<string>  $newKeys
+     * @param  list<string>  $currentKeys
+     */
+    public function ensureCanChangeExtraPermissions(Actor $actor, array $newKeys, array $currentKeys): void
+    {
+        $granted = array_diff($newKeys, $currentKeys);
+
+        if ($granted === [] && array_diff($currentKeys, $newKeys) === []) {
+            return;
+        }
+
+        if (! ExtraPermissionPolicy::canManage($this->rankOfActor($actor))) {
+            throw UserRefused::onlySuperAdminChangesExtraPermissions();
+        }
+
+        $registered = array_map(fn ($permission): string => (string) $permission->value, $this->registry->permissions());
+
+        if (! ExtraPermissionPolicy::allGrantsAreRegistered(array_values($granted), $registered)) {
+            throw UserRefused::permissionNotRegistered();
+        }
+    }
+
+    /** RULE-10, WF-06: a lower Role, never a Super Admin, active, registered Role, not nested. */
+    public function ensureCanImpersonate(Actor $actor, User $target, bool $alreadyImpersonating): void
+    {
+        if (! ImpersonationPolicy::canStart($alreadyImpersonating)) {
+            throw UserRefused::impersonationNested();
+        }
+
+        $allowed = ImpersonationPolicy::canImpersonate(
+            $this->rankOfActor($actor),
+            $this->rankOfRole($target->roleKey()),
+            $target->roleKey(),
+            $target->isActive(),
+            $this->registry->isRegistered($target->roleKey()),
+        );
+
+        if (! $allowed) {
+            throw UserRefused::cannotImpersonate();
+        }
+    }
+
+    private function rankOfActor(Actor $actor): int
+    {
+        if ($actor->isSystem()) {
+            return PHP_INT_MAX;
+        }
+
+        $roleKey = $this->users->roleKeyOf((int) $actor->id);
+
+        return $roleKey === null ? 0 : $this->rankOfRole($roleKey);
+    }
+
+    /** An unregistered Role ranks lowest, so an Admin can still repair that User. */
+    private function rankOfRole(string $roleKey): int
+    {
+        return $this->registry->rankOf($roleKey) ?? 0;
+    }
+}

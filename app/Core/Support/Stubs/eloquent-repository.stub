@@ -1,0 +1,25 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence;
+
+use App\Core\Abstracts\EloquentRepository;
+use {{RootNamespace}}\{{ModuleName}}\Domain\Entities\{{SingularName}};
+use {{RootNamespace}}\{{ModuleName}}\Domain\Repositories\{{SingularName}}Repository;
+use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence\Mappers\{{SingularName}}Mapper;
+use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence\Models\{{SingularName}}Model;
+
+/** @extends EloquentRepository<{{SingularName}}> */
+final class Eloquent{{SingularName}}Repository extends EloquentRepository implements {{SingularName}}Repository
+{
+    public function __construct({{SingularName}}Mapper $mapper)
+    {
+        parent::__construct({{SingularName}}Model::class, $mapper);
+    }
+
+    public function nameIsTaken(string $name): bool
+    {
+        return $this->query()->where('name', $name)->exists();
+    }
+}

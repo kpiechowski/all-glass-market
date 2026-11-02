@@ -1,0 +1,48 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Unit\{{TestArea}}\{{ModuleName}}\Domain\Entities;
+
+use {{RootNamespace}}\{{ModuleName}}\Domain\Entities\{{SingularName}};
+use {{RootNamespace}}\{{ModuleName}}\Domain\Exceptions\{{SingularName}}NameIsBlank;
+use PHPUnit\Framework\TestCase;
+
+class {{SingularName}}Test extends TestCase
+{
+    public function test_a_new_entity_has_no_id_until_it_is_added(): void
+    {
+        $entity = {{SingularName}}::create('gear');
+
+        $this->assertNull($entity->id());
+        $this->assertSame('gear', $entity->name());
+    }
+
+    public function test_it_refuses_a_blank_name_on_creation(): void
+    {
+        $this->expectException({{SingularName}}NameIsBlank::class);
+
+        {{SingularName}}::create('  ');
+    }
+
+    public function test_rename_changes_the_name(): void
+    {
+        $entity = {{SingularName}}::reconstitute(1, 'gear');
+
+        $entity->rename('cog');
+
+        $this->assertSame('cog', $entity->name());
+    }
+
+    public function test_rename_refuses_a_blank_name_and_keeps_the_old_one(): void
+    {
+        $entity = {{SingularName}}::reconstitute(1, 'gear');
+
+        try {
+            $entity->rename('');
+            $this->fail('A blank name was accepted');
+        } catch ({{SingularName}}NameIsBlank) {
+            $this->assertSame('gear', $entity->name());
+        }
+    }
+}

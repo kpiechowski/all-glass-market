@@ -1,0 +1,5 @@
+# Own Authorizer and an Actor value object instead of Laravel Policies
+
+Permissions are checked by `Core\Contracts\Authorizer` (implemented by the Users module) against per-module `Permission` enums. Handlers call `ensure()` and Filament calls it to show or hide. Laravel Policies and Gates are not used. A policy class per model does not fit permission checks in handlers that work on entities, and keeping one mechanism means it cannot drift between UI and handler.
+
+Every command carries a `Core\Domain\Actor` instead of a bare `int $actorId`. `Actor::user($id)` is a person, and jobs started by a person carry that person's actor. `Actor::system('<reason>')` is used only by the scheduler, integration webhooks and listeners. With a nullable id, a UI that forgot the actor would silently run as an all-powerful system. A system actor always names its reason, and the reason reaches the audit log. `Actor` is the one object allowed in a command, against the rule that commands carry primitives: it comes from Core and carries no business data. UserInterface never builds `Actor::system()`.

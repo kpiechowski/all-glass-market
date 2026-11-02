@@ -1,0 +1,7 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'name_is_blank' => 'Nazwa nie może być pusta.',
+];

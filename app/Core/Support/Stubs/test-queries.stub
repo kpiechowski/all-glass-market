@@ -1,0 +1,25 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature\{{TestArea}}\{{ModuleName}}\Infrastructure\Persistence\Queries;
+
+use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Factories\{{SingularName}}ModelFactory;
+use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence\Queries\{{SingularName}}Queries;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class {{SingularName}}QueriesTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_alphabetical_returns_every_record_ordered_by_name(): void
+    {
+        {{SingularName}}ModelFactory::new()->create(['name' => 'gear']);
+        {{SingularName}}ModelFactory::new()->create(['name' => 'cog']);
+
+        $names = (new {{SingularName}}Queries)->alphabetical()->pluck('name')->all();
+
+        $this->assertSame(['cog', 'gear'], $names);
+    }
+}

@@ -5,21 +5,31 @@ declare(strict_types=1);
 namespace App\Providers\Filament;
 
 use App\Core\Concerns\DiscoverModuleFilament;
-use Filament\Http\Middleware\Authenticate;
+use App\Modules\Users\UserInterface\Filament\Auth\AcceptInvitation;
+use App\Modules\Users\UserInterface\Filament\Auth\Login;
+use App\Modules\Users\UserInterface\Filament\Auth\RequestPasswordReset;
+use App\Modules\Users\UserInterface\Filament\Auth\ResetPassword;
+use App\Modules\Users\UserInterface\Filament\Auth\SetNewPassword;
+use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\EditProfile;
+use App\Modules\Users\UserInterface\Http\Middleware\AuthenticatePanel;
+use App\Modules\Users\UserInterface\Http\Middleware\RequirePasswordChange;
+use App\Modules\Users\UserInterface\Support\ImpersonationSession;
+use Filament\Actions\Action;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Route;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -33,9 +43,22 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->font('Poppins')
-            ->viteTheme('resources/css/filament/admin/theme.css')
+            ->viteTheme('resources/css/admin/theme.css')
             ->darkMode(false)
-            ->login()
+            ->login(Login::class)
+            ->passwordReset(RequestPasswordReset::class, ResetPassword::class)
+            ->routes(fn () => Route::get('/invitation', AcceptInvitation::class)->middleware('signed')->name('auth.invitation'))
+            ->authenticatedRoutes(fn () => Route::get('/set-new-password', SetNewPassword::class)->name(SetNewPassword::ROUTE))
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => '<meta name="robots" content="noindex, nofollow">')
+            ->renderHook(PanelsRenderHook::BODY_START, fn (): string => ImpersonationSession::isActive()
+                ? Blade::render('@livewire("users-impersonation-banner")')
+                : '')
+            ->userMenuItems([
+                'profile' => fn (Action $action): Action => $action
+                    ->label(__('users::profile.user_menu_label'))
+                    ->url(EditProfile::getUrl()),
+            ])
+            ->databaseNotifications()
             ->colors([
                 'primary' => '#003eb2',
             ])
@@ -46,7 +69,6 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                AccountWidget::class,
                 FilamentInfoWidget::class,
             ])
             ->middleware([
@@ -61,7 +83,8 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
-                Authenticate::class,
+                AuthenticatePanel::class,
+                RequirePasswordChange::class,
             ]);
 
         $this->discoverModuleFilament($panel);

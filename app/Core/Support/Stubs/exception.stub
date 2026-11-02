@@ -1,0 +1,15 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{RootNamespace}}\{{ModuleName}}\Domain\Exceptions;
+
+use App\Core\Exceptions\DomainException;
+
+final class {{SingularName}}NameIsBlank extends DomainException
+{
+    public static function create(): self
+    {
+        return new self('{{ModuleSnake}}::exceptions.name_is_blank');
+    }
+}

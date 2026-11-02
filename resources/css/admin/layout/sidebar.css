@@ -1,0 +1,56 @@
+.fi-sidebar {
+    @apply bg-white border-r border-gray-200;
+}
+
+/* group labels */
+.fi-sidebar-group-label {
+    @apply text-gray-400 uppercase tracking-wider text-xs font-semibold;
+}
+
+/* nav item */
+.fi-sidebar-item.fi-sidebar-item-has-url {
+    .fi-sidebar-item-btn {
+        @apply transition-colors border-l-[3px] border-transparent rounded-none;
+
+        .fi-sidebar-item-icon {
+            @apply text-gray-400 transition-colors;
+        }
+
+        .fi-sidebar-item-label {
+            @apply text-gray-600 transition-colors;
+        }
+    }
+
+    /* active state — left accent bar + tinted bg */
+    &.fi-active {
+        .fi-sidebar-item-btn {
+            @apply border-l-[3px] border-primary bg-primary-50;
+        }
+
+        .fi-sidebar-item-icon {
+            @apply text-primary;
+        }
+
+        .fi-sidebar-item-label {
+            @apply text-primary font-medium;
+        }
+    }
+
+    /* hover (non-active) */
+    &:hover:not(.fi-active) .fi-sidebar-item-btn {
+        @apply bg-gray-50 border-l-[3px] border-gray-200;
+
+        .fi-sidebar-item-icon {
+            @apply text-gray-600;
+        }
+
+        .fi-sidebar-item-label {
+            @apply text-gray-700 translate-x-0.5;
+        }
+    }
+}
+
+/* give the nav list some bottom clearance */
+.fi-sidebar .fi-sidebar-nav {
+    @apply pb-8;
+}

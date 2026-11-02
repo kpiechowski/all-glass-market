@@ -4,31 +4,130 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\Application\Commands\UpdateUser;
 
-use App\Modules\Users\Domain\Models\User;
+use App\Core\Contracts\Authorizer;
+use App\Core\Exceptions\AuthorizationException;
+use App\Modules\Users\Application\Services\UserManagementGuard;
+use App\Modules\Users\Domain\Enums\AccountType;
+use App\Modules\Users\Domain\Enums\PasswordChangeReason;
+use App\Modules\Users\Domain\Enums\UsersPermission;
+use App\Modules\Users\Domain\Events\AccountTypeChanged;
+use App\Modules\Users\Domain\Events\ExtraPermissionGranted;
+use App\Modules\Users\Domain\Events\ExtraPermissionRevoked;
+use App\Modules\Users\Domain\Events\PasswordChanged;
+use App\Modules\Users\Domain\Exceptions\UserRefused;
 use App\Modules\Users\Domain\Repositories\UserRepository;
+use App\Modules\Users\Domain\ValueObjects\Email;
+use App\Modules\Users\Domain\ValueObjects\PlainPassword;
+use Carbon\CarbonImmutable;
 use Ecotone\Modelling\Attribute\CommandHandler;
+use Illuminate\Contracts\Hashing\Hasher;
 
-class UpdateUserCommandHandler
+final class UpdateUserCommandHandler
 {
     public function __construct(
-        private UserRepository $userRepository,
-    ) {
-    }
+        private Authorizer $authorizer,
+        private UserManagementGuard $guard,
+        private UserRepository $users,
+        private Hasher $hasher,
+    ) {}
 
     #[CommandHandler]
-    public function handle(UpdateUserCommand $command): User
+    public function handle(UpdateUserCommand $command): void
     {
-        $user = $this->userRepository->findOrFail($command->id);
+        $user = $this->users->find($command->userId) ?? throw UserRefused::userNotFound();
 
-        $attributes = [
-            'name' => $command->name,
-            'email' => $command->email,
-        ];
+        $isSelf = $command->actor->id === $user->id();
+        $mayManage = $this->authorizer->can($command->actor, UsersPermission::ManageUsers);
 
-        if ($command->password !== null) {
-            $attributes['password'] = $command->password;
+        if (! $mayManage && ! $isSelf) {
+            throw new AuthorizationException;
         }
 
-        return $this->userRepository->update($user, $attributes);
+        if ($mayManage) {
+            $this->guard->ensureCanEditAccount($command->actor, $user);
+        }
+
+        $email = Email::from($command->email);
+
+        if ($this->users->emailIsTaken($email->value(), $command->userId)) {
+            throw UserRefused::emailTaken();
+        }
+
+        // FR-20: nobody but the User themself, not even the system, touches the Account type.
+        $requestedType = $command->accountType === null ? null : AccountType::from($command->accountType);
+
+        if ($requestedType !== null && $requestedType !== $user->accountType() && ! $isSelf) {
+            throw UserRefused::onlyOwnerChangesAccountType();
+        }
+
+        $password = $command->password === null || $command->password === ''
+            ? null
+            : PlainPassword::from($command->password);
+
+        $roleChanges = $command->role !== null && $command->role !== $user->roleKey();
+
+        if ($roleChanges) {
+            if (! $mayManage) {
+                throw new AuthorizationException;
+            }
+
+            $this->guard->ensureRoleChangeAllowed($command->actor, $user, $command->role);
+        }
+
+        if ($command->extraPermissions !== null) {
+            $this->guard->ensureCanChangeExtraPermissions($command->actor, $command->extraPermissions, $user->extraPermissions());
+        }
+
+        $user->updateData(
+            $command->name, $email, $command->phone, $command->companyName, $command->companyNip,
+            $command->companyAddress, $command->pickupAddress, $command->city, $command->postalCode,
+        );
+
+        // FR-15: only a manager edits the Otomoto shipping text.
+        if ($mayManage) {
+            $user->changeShippingText($command->shippingText);
+        }
+
+        $previousType = $user->accountType();
+
+        // WF-02: validated before anything is saved; a refusal throws here.
+        $accountTypeChanged = $requestedType !== null
+            && $user->changeAccountType($requestedType, $command->sellerDeclarationAccepted, CarbonImmutable::now());
+
+        $user->assertConsistent();
+
+        $extraPermissionChanges = $command->extraPermissions === null
+            ? ['granted' => [], 'revoked' => []]
+            : $user->changeExtraPermissions($command->extraPermissions);
+
+        if ($roleChanges) {
+            $user->assignRole($command->role);
+        }
+
+        if ($password !== null) {
+            $hash = $this->hasher->make($password->value());
+
+            // FR-25, FR-36: an Admin's new password for another User sets "password change required".
+            $isSelf ? $user->setOwnPassword($hash) : $user->setPasswordByAdmin($hash);
+        }
+
+        $this->users->save($user);
+
+        foreach ($extraPermissionChanges['granted'] as $permission) {
+            event(new ExtraPermissionGranted($command->userId, $permission, $command->actor->id, CarbonImmutable::now()));
+        }
+
+        foreach ($extraPermissionChanges['revoked'] as $permission) {
+            event(new ExtraPermissionRevoked($command->userId, $permission, $command->actor->id, CarbonImmutable::now()));
+        }
+
+        if ($password !== null) {
+            event(new PasswordChanged($command->userId, ($isSelf ? PasswordChangeReason::Own : PasswordChangeReason::ByAdmin)->value));
+        }
+
+        // FR-21: announced only after the save.
+        if ($accountTypeChanged) {
+            event(new AccountTypeChanged($command->userId, $user->accountType()->value, $previousType->value, CarbonImmutable::now()));
+        }
     }
 }

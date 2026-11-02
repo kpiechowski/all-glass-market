@@ -4,13 +4,36 @@ declare(strict_types=1);
 
 namespace App\Modules\Users\Application\Commands\UpdateUser;
 
-readonly class UpdateUserCommand
+use App\Core\Domain\Actor;
+
+/**
+ * FR-25. A null role keeps the current Role; a null password keeps the
+ * current password (RULE-03). Without the manage Permission the actor can
+ * only edit themself, and shipping text, role and password are ignored/refused.
+ * A non-null `accountType` ('private'|'company') asks for that Account type;
+ * only the User themself may (FR-20), and Company needs `sellerDeclarationAccepted`.
+ * A non-null `extraPermissions` (list of Permission values) replaces the User's
+ * Extra Permissions; only a Super Admin may change them (RULE-11).
+ */
+final readonly class UpdateUserCommand
 {
     public function __construct(
-        public int|string $id,
+        public Actor $actor,
+        public int $userId,
         public string $name,
         public string $email,
+        public ?string $phone = null,
+        public ?string $companyName = null,
+        public ?string $companyNip = null,
+        public ?string $companyAddress = null,
+        public ?string $pickupAddress = null,
+        public ?string $city = null,
+        public ?string $postalCode = null,
+        public ?string $shippingText = null,
+        public ?string $role = null,
         public ?string $password = null,
-    ) {
-    }
+        public ?string $accountType = null,
+        public bool $sellerDeclarationAccepted = false,
+        public ?array $extraPermissions = null,
+    ) {}
 }

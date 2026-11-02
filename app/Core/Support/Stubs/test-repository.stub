@@ -1,0 +1,72 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature\{{TestArea}}\{{ModuleName}}\Infrastructure\Persistence;
+
+use {{RootNamespace}}\{{ModuleName}}\Domain\Entities\{{SingularName}};
+use {{RootNamespace}}\{{ModuleName}}\Domain\Repositories\{{SingularName}}Repository;
+use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Factories\{{SingularName}}ModelFactory;
+use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence\Models\{{SingularName}}Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class Eloquent{{SingularName}}RepositoryTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private {{SingularName}}Repository $repository;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->repository = app({{SingularName}}Repository::class);
+    }
+
+    public function test_an_added_entity_can_be_fetched_again(): void
+    {
+        $id = $this->repository->add({{SingularName}}::create('gear'));
+
+        $this->assertSame('gear', $this->repository->get($id)->name());
+        $this->assertSame($id, $this->repository->find($id)?->id());
+    }
+
+    public function test_get_throws_and_find_returns_null_for_a_missing_id(): void
+    {
+        $this->assertNull($this->repository->find(999));
+
+        $this->expectException(ModelNotFoundException::class);
+
+        $this->repository->get(999);
+    }
+
+    public function test_a_saved_entity_keeps_its_changes(): void
+    {
+        $id = {{SingularName}}ModelFactory::new()->create(['name' => 'gear'])->id;
+        $entity = $this->repository->get($id);
+
+        $entity->rename('cog');
+        $this->repository->save($entity);
+
+        $this->assertSame('cog', {{SingularName}}Model::findOrFail($id)->name);
+    }
+
+    public function test_a_removed_entity_is_gone(): void
+    {
+        $id = {{SingularName}}ModelFactory::new()->create()->id;
+
+        $this->repository->remove($this->repository->get($id));
+
+        $this->assertNull($this->repository->find($id));
+    }
+
+    public function test_name_is_taken_matches_only_that_name(): void
+    {
+        {{SingularName}}ModelFactory::new()->create(['name' => 'gear']);
+
+        $this->assertTrue($this->repository->nameIsTaken('gear'));
+        $this->assertFalse($this->repository->nameIsTaken('cog'));
+    }
+}

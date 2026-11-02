@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ * @deprecated Superseded by App\Core\Contracts\Repository (port) plus
+ *             App\Core\Abstracts\EloquentRepository (adapter). Kept only until
+ *             Users and Audit are migrated; do not extend it in new code.
+ *
  * Eloquent-backed base repository.
  *
  * Concrete repositories only need to declare the model class:

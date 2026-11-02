@@ -1,0 +1,15 @@
+@theme {
+    /* AllGlass primary blue scale */
+    --color-primary:     #003eb2;
+    --color-primary-50:  #eff5ff;
+    --color-primary-100: #dce9ff;
+    --color-primary-200: #b8d1ff;
+    --color-primary-300: #7faaff;
+    --color-primary-400: #30a1f2;
+    --color-primary-500: #1a78d0;
+    --color-primary-600: #003eb2;
+    --color-primary-700: #002d8a;
+    --color-primary-800: #001f6b;
+    --color-primary-900: #001336;
+    --color-primary-950: #000820;
+}
