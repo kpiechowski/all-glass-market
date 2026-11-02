@@ -49,7 +49,7 @@ class EditUserTest extends TestCase
         Livewire::test(EditUser::class, ['record' => $admin->getKey()])->assertFormFieldVisible('role');
 
         Livewire::test(EditUser::class, ['record' => UserModel::factory()->superAdmin()->create()->getKey()])
-            ->assertFormFieldHidden('role');
+            ->assertForbidden();
     }
 
     public function test_an_admin_cannot_open_the_edit_page_of_a_super_admin(): void

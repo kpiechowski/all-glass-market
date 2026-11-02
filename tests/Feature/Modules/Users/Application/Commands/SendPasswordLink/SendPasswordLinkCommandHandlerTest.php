@@ -76,6 +76,16 @@ class SendPasswordLinkCommandHandlerTest extends TestCase
         $this->send(Actor::user($admin->id), $super, PasswordLinkKind::Reset);
     }
 
+    public function test_a_super_admin_cannot_send_a_link_to_another_super_admin(): void
+    {
+        $this->emailSendingWorks();
+        $super = UserModel::factory()->superAdmin()->create();
+        $other = UserModel::factory()->superAdmin()->create();
+
+        $this->expectException(UserRefused::class);
+        $this->send(Actor::user($super->id), $other, PasswordLinkKind::Reset);
+    }
+
     public function test_a_user_without_the_permission_is_rejected(): void
     {
         $this->emailSendingWorks();

@@ -53,4 +53,12 @@ class UserManagementPolicyTest extends TestCase
         $this->assertTrue(UserManagementPolicy::canDeactivate(actorId: null, targetId: 2, targetRoleKey: 'user', actorRank: PHP_INT_MAX, targetRank: 100));
         $this->assertFalse(UserManagementPolicy::canDeactivate(actorId: 1, targetId: 2, targetRoleKey: 'admin', actorRank: 100, targetRank: 200));
     }
+
+    public function test_another_super_admins_account_is_read_only_but_ones_own_is_not(): void
+    {
+        $this->assertFalse(UserManagementPolicy::canEditAccountOf(1, 2, 'super_admin', 300, 300));
+        $this->assertTrue(UserManagementPolicy::canEditAccountOf(1, 1, 'super_admin', 300, 300));
+        $this->assertTrue(UserManagementPolicy::canEditAccountOf(1, 2, 'admin', 300, 200));
+        $this->assertFalse(UserManagementPolicy::canEditAccountOf(1, 2, 'admin', 200, 300));
+    }
 }

@@ -12,6 +12,7 @@ use App\Modules\Users\Infrastructure\Persistence\Models\JournalEntryModel;
 use App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\Actions\GoToSubjectAction;
 use App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\Support\JournalKindLabel;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -52,19 +53,21 @@ class JournalEntriesTable
             ])
             ->filters(JournalEntriesTableFilters::make())
             ->recordActions([
-                ViewAction::make(),
-                GoToSubjectAction::make(),
-                Action::make('mark_read')
-                    ->label(__('users::resources.journal_entry.actions.mark_read'))
-                    ->icon(Heroicon::OutlinedCheck)
-                    ->visible(fn (JournalEntryModel $record): bool => ! $record->is_read)
-                    ->action(fn (JournalEntryModel $record) => CommandSender::send(
-                        new MarkJournalEntryReadCommand(CurrentActor::get(), $record->id)
-                    )),
-                DeleteAction::make()
-                    ->using(fn (JournalEntryModel $record) => CommandSender::send(
-                        new DeleteJournalEntriesCommand(CurrentActor::get(), [$record->id])
-                    )),
+                ActionGroup::make([
+                    ViewAction::make(),
+                    GoToSubjectAction::make(),
+                    Action::make('mark_read')
+                        ->label(__('users::resources.journal_entry.actions.mark_read'))
+                        ->icon(Heroicon::OutlinedCheck)
+                        ->visible(fn (JournalEntryModel $record): bool => ! $record->is_read)
+                        ->action(fn (JournalEntryModel $record) => CommandSender::send(
+                            new MarkJournalEntryReadCommand(CurrentActor::get(), $record->id)
+                        )),
+                    DeleteAction::make()
+                        ->using(fn (JournalEntryModel $record) => CommandSender::send(
+                            new DeleteJournalEntriesCommand(CurrentActor::get(), [$record->id])
+                        )),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

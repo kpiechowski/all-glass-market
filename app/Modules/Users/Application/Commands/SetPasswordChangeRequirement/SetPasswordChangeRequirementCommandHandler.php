@@ -25,7 +25,7 @@ final class SetPasswordChangeRequirementCommandHandler
         $this->authorizer->ensure($command->actor, UsersPermission::ManageUsers);
 
         $user = $this->users->find($command->userId) ?? throw UserRefused::userNotFound();
-        $this->guard->ensureCanManage($command->actor, $user);
+        $this->guard->ensureCanEditAccount($command->actor, $user);
 
         $command->required ? $user->requirePasswordChange() : $user->clearPasswordChangeRequirement();
 

@@ -34,7 +34,7 @@ final class ChangeUserPasswordCommandHandler
 
         if (! $isSelf) {
             $this->authorizer->ensure($command->actor, UsersPermission::ManageUsers);
-            $this->guard->ensureCanManage($command->actor, $user);
+            $this->guard->ensureCanEditAccount($command->actor, $user);
         }
 
         $hash = $this->hasher->make(PlainPassword::from($command->password)->value());

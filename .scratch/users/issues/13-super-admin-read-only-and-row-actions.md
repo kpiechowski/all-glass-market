@@ -1,6 +1,6 @@
 # 13 - Another Super Admin is read-only; grouped row actions
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: none
 
 Spec: FR-25, RULE-08, §3 Super Admin row, §11 "A Super Admin opens another Super Admin". Decision: D-48 (replaces part of D-23). Skill: `filament-module-ui` "Record actions" row.
@@ -22,3 +22,14 @@ Spec: FR-25, RULE-08, §3 Super Admin row, §11 "A Super Admin opens another Sup
 - `composer check` passes.
 
 ## Comments
+
+### Worker — 2026-11-02
+- **Built:** D-48 / RULE-08: `UserManagementPolicy::canEditAccountOf` (not self + target Super Admin = refused, else rank rule) and `UserManagementGuard::ensureCanEditAccount`, used by `UpdateUser`, `ChangeUserPassword` (non-self branch), `SendPasswordLink`, `SetPasswordChangeRequirement`. UI mirrors it through `RoleDisplay::canEditAccount` -> `UserResource::canEdit` (edit, edit page, password/link/marker actions all follow). Both Users tables put record actions in one `ActionGroup`. Tests added/updated (policy, 4 handlers, ListUsers, ListJournalEntries, EditUser).
+- **Deviations:** `ReactivateUser` and `AssignUserRole` keep `ensureCanManage` / their own Super Admin refusal (a Super Admin cannot be deactivated, role moves are console-only). A Super Admin's own record stays editable in the user form (issue says "actor is not the target"). Row-action visibility tests read the group's actions directly because Filament's `assertTableActionHidden` does not resolve record state inside a group.
+- **Seams left:** none
+- **Open questions:** none
+- **Check:** composer check green
+
+### Review — 2026-11-02
+- **Verdict:** approved after 0 fix rounds
+- **Notes:** D-48 lives in `UserManagementPolicy::canEditAccountOf`, enforced by `UserManagementGuard::ensureCanEditAccount` in UpdateUser, ChangeUserPassword (non-self), SendPasswordLink and SetPasswordChangeRequirement. ReactivateUser and AssignUserRole keep `ensureCanManage` (a Super Admin can't be deactivated, and their Role is console-only). Three older tests changed to D-48. Both Users tables group record actions in one `ActionGroup`.

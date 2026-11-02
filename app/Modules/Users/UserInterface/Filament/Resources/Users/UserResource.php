@@ -57,12 +57,12 @@ class UserResource extends Resource
         return CurrentActor::can(UsersPermission::ManageUsers);
     }
 
-    /** RULE-08: a Super Admin is read-only for an Admin. The handler checks again. */
+    /** RULE-08: another Super Admin is read-only (D-48), a higher rank too. The handler checks again. */
     public static function canEdit(Model $record): bool
     {
         return CurrentActor::can(UsersPermission::ManageUsers)
             && $record instanceof UserModel
-            && RoleDisplay::canManage($record);
+            && RoleDisplay::canEditAccount($record);
     }
 
     /** There is no delete in V2 (D-39). */

@@ -44,7 +44,7 @@ final class UpdateUserCommandHandler
         }
 
         if ($mayManage) {
-            $this->guard->ensureCanManage($command->actor, $user);
+            $this->guard->ensureCanEditAccount($command->actor, $user);
         }
 
         $email = Email::from($command->email);

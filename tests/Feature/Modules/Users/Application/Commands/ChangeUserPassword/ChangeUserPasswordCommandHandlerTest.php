@@ -45,6 +45,19 @@ class ChangeUserPasswordCommandHandlerTest extends TestCase
         $this->change(Actor::user($admin->id), $super);
     }
 
+    public function test_a_super_admin_cannot_change_another_super_admins_password_but_can_for_admins(): void
+    {
+        $super = UserModel::factory()->superAdmin()->create();
+        $other = UserModel::factory()->superAdmin()->create();
+        $admin = UserModel::factory()->admin()->create();
+
+        $this->change(Actor::user($super->id), $admin);
+        $this->assertTrue(Hash::check('brand-new-pass', $admin->fresh()->password));
+
+        $this->expectException(UserRefused::class);
+        $this->change(Actor::user($super->id), $other);
+    }
+
     public function test_a_user_cannot_change_another_users_password(): void
     {
         $user = UserModel::factory()->create();

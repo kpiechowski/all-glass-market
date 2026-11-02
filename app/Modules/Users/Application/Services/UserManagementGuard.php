@@ -33,6 +33,22 @@ final class UserManagementGuard
         }
     }
 
+    /** RULE-08, D-48: edit data, password, links and marker; another Super Admin is read-only. */
+    public function ensureCanEditAccount(Actor $actor, User $target): void
+    {
+        $allowed = UserManagementPolicy::canEditAccountOf(
+            $actor->id,
+            (int) $target->id(),
+            $target->roleKey(),
+            $this->rankOfActor($actor),
+            $this->rankOfRole($target->roleKey()),
+        );
+
+        if (! $allowed) {
+            throw UserRefused::cannotManage();
+        }
+    }
+
     /** RULE-08 (FR-27): not oneself, never a Super Admin, nobody of a higher rank. */
     public function ensureCanDeactivate(Actor $actor, User $target): void
     {

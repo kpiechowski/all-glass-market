@@ -87,15 +87,22 @@ class UpdateUserCommandHandlerTest extends TestCase
         }
     }
 
-    public function test_a_super_admin_edits_another_super_admin(): void
+    public function test_a_super_admin_cannot_edit_another_super_admin_but_edits_users_admins_and_self(): void
     {
         $super = UserModel::factory()->superAdmin()->create();
-        $other = UserModel::factory()->superAdmin()->create();
+        $other = UserModel::factory()->superAdmin()->create(['name' => 'Original']);
 
-        $this->update(Actor::user($super->id), $other);
+        try {
+            $this->update(Actor::user($super->id), $other);
+            $this->fail('A Super Admin edited another Super Admin');
+        } catch (UserRefused) {
+            $this->assertSame('Original', $other->fresh()->name);
+        }
 
-        $this->assertSame('Zmieniony', $other->fresh()->name);
-        $this->assertSame('super_admin', $other->fresh()->role);
+        foreach ([UserModel::factory()->create(), UserModel::factory()->admin()->create(), $super] as $target) {
+            $this->update(Actor::user($super->id), $target);
+            $this->assertSame('Zmieniony', $target->fresh()->name);
+        }
     }
 
     public function test_an_admin_demotes_an_admin_to_user(): void
@@ -139,7 +146,7 @@ class UpdateUserCommandHandlerTest extends TestCase
             try {
                 $this->update(Actor::user($super->id), $target, role: $role);
                 $this->fail('Super Admin moved from the panel');
-            } catch (RoleAssignmentRefused) {
+            } catch (RoleAssignmentRefused|UserRefused) {
                 $this->addToAssertionCount(1);
             }
         }

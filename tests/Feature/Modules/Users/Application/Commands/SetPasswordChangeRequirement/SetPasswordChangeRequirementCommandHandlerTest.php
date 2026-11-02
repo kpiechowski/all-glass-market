@@ -46,6 +46,19 @@ class SetPasswordChangeRequirementCommandHandlerTest extends TestCase
         $this->set(Actor::user($admin->id), $super, true);
     }
 
+    public function test_a_super_admin_cannot_mark_another_super_admin_but_marks_admins(): void
+    {
+        $super = UserModel::factory()->superAdmin()->create();
+        $other = UserModel::factory()->superAdmin()->create();
+        $admin = UserModel::factory()->admin()->create();
+
+        $this->set(Actor::user($super->id), $admin, true);
+        $this->assertTrue($admin->fresh()->password_change_required);
+
+        $this->expectException(UserRefused::class);
+        $this->set(Actor::user($super->id), $other, true);
+    }
+
     public function test_a_user_without_the_permission_is_rejected(): void
     {
         $seller = UserModel::factory()->create();

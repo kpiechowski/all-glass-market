@@ -6,6 +6,8 @@ namespace Tests\Feature\Modules\Users\UserInterface\Filament\Resources\Users\Pag
 
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Pages\ListUsers;
+use App\Modules\Users\UserInterface\Filament\Resources\Users\Pages\ViewUser;
+use Filament\Actions\ActionGroup;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -79,14 +81,55 @@ class ListUsersTest extends TestCase
             ->assertCanNotSeeTableRecords([$inactive]);
     }
 
+    public function test_a_super_admin_gets_no_edit_on_another_super_admin_but_row_and_detail_stay_read_only(): void
+    {
+        $me = UserModel::factory()->superAdmin()->create();
+        $this->actingAs($me);
+        $other = UserModel::factory()->superAdmin()->create();
+
+        Livewire::test(ListUsers::class)
+            ->assertSuccessful();
+
+        $this->assertNotContains('edit', $this->visibleRowActions($other));
+        $this->assertContains('view', $this->visibleRowActions($other));
+        $this->assertContains('edit', $this->visibleRowActions($me));
+
+        Livewire::test(ViewUser::class, ['record' => $other->getKey()])
+            ->assertActionHidden('edit')
+            ->assertActionHidden('send_reset_link')
+            ->assertActionHidden('require_password_change');
+    }
+
+    public function test_record_actions_sit_inside_one_action_group(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+
+        $actions = Livewire::test(ListUsers::class)->instance()->getTable()->getRecordActions();
+
+        $this->assertCount(1, $actions);
+        $this->assertInstanceOf(ActionGroup::class, $actions[0]);
+    }
+
     public function test_an_admin_gets_no_edit_action_on_the_row_of_a_super_admin(): void
     {
         $this->actingAs(UserModel::factory()->admin()->create());
         $super = UserModel::factory()->superAdmin()->create();
         $plain = UserModel::factory()->create();
 
-        Livewire::test(ListUsers::class)
-            ->assertTableActionHidden('edit', $super)
-            ->assertTableActionVisible('edit', $plain);
+        $this->assertNotContains('edit', $this->visibleRowActions($super));
+        $this->assertContains('edit', $this->visibleRowActions($plain));
+    }
+
+    /** @return list<string> */
+    private function visibleRowActions(UserModel $record): array
+    {
+        $group = Livewire::test(ListUsers::class)->instance()->getTable()->getRecordActions()[0];
+
+        return collect($group->getActions())
+            ->each(fn ($action) => $action->record($record))
+            ->filter(fn ($action): bool => $action->isVisible())
+            ->map(fn ($action): string => $action->getName())
+            ->values()
+            ->all();
     }
 }

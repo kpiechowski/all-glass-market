@@ -34,7 +34,7 @@ final class SendPasswordLinkCommandHandler
         $kind = PasswordLinkKind::from($command->kind);
         $user = $this->users->find($command->userId) ?? throw UserRefused::userNotFound();
 
-        $this->guard->ensureCanManage($command->actor, $user);
+        $this->guard->ensureCanEditAccount($command->actor, $user);
 
         if (! $this->emailSending->isAvailable()) {
             throw UserRefused::emailSendingUnavailable();

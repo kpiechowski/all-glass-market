@@ -19,6 +19,19 @@ final class UserManagementPolicy
         return $targetRank <= $actorRank;
     }
 
+    /**
+     * RULE-08, D-48: another Super Admin's account is read-only to everyone; a
+     * Super Admin edits their own data. Otherwise the rank rule applies.
+     */
+    public static function canEditAccountOf(?int $actorId, int $targetId, string $targetRoleKey, int $actorRank, int $targetRank): bool
+    {
+        if ($actorId !== $targetId && $targetRoleKey === UserRole::SuperAdmin->value) {
+            return false;
+        }
+
+        return self::canManage($actorRank, $targetRank);
+    }
+
     /** Nobody changes their own Role, and a Super Admin's Role moves only through the console. */
     public static function canChangeRoleOf(?int $actorId, int $targetId, string $targetRoleKey): bool
     {

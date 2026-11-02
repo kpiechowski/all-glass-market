@@ -9,6 +9,7 @@ use App\Modules\Users\Infrastructure\Persistence\Models\JournalEntryModel;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\JournalEntryResource;
 use App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\Pages\ListJournalEntries;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -39,6 +40,16 @@ class ListJournalEntriesTest extends TestCase
         Livewire::test(ListJournalEntries::class)
             ->assertCanSeeTableRecords([$newer, $older], inOrder: true)
             ->assertCanNotSeeTableRecords([$foreign]);
+    }
+
+    public function test_record_actions_sit_inside_one_action_group(): void
+    {
+        $this->actingAs(UserModel::factory()->create());
+
+        $actions = Livewire::test(ListJournalEntries::class)->instance()->getTable()->getRecordActions();
+
+        $this->assertCount(1, $actions);
+        $this->assertInstanceOf(ActionGroup::class, $actions[0]);
     }
 
     public function test_an_admin_sees_only_their_own_journal(): void

@@ -84,6 +84,20 @@ final class RoleDisplay
         );
     }
 
+    /** RULE-08, D-48: edit and password actions are absent on another Super Admin. */
+    public static function canEditAccount(UserModel $target): bool
+    {
+        $actor = auth()->user();
+
+        return $actor instanceof UserModel && UserManagementPolicy::canEditAccountOf(
+            (int) $actor->getKey(),
+            (int) $target->getKey(),
+            (string) $target->role,
+            self::actorRank(),
+            app(RoleRegistry::class)->rankOf((string) $target->role) ?? 0,
+        );
+    }
+
     /** RULE-08, D-47: the Deactivate action is absent for oneself, a Super Admin and anyone above the actor. */
     public static function canDeactivate(UserModel $target): bool
     {
