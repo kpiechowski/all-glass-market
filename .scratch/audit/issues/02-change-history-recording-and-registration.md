@@ -1,6 +1,6 @@
 # 02 - Change history: registration and recording
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 01
 
 Spec: FR-01..FR-08, RULE-01, RULE-02, RULE-04, RULE-07, WF-01, §2 (Auditable record type, Kind of change), §3 permissions, §8 Change entry. Decisions: D-03, D-06, D-41, D-07, D-10, D-12, D-14, D-17, D-18, D-33, D-35, D-38, D-39, D-40. Glossary: Change history, Change entry, Actor. Also closes `.scratch/architecture/issues/06-migrate-audit.md`.
@@ -60,3 +60,21 @@ Spec: FR-01..FR-08, RULE-01, RULE-02, RULE-04, RULE-07, WF-01, §2 (Auditable re
 - `composer check` passes.
 
 ## Comments
+
+### Worker — 2026-11-05
+- **Built:** V1 scaffold removed (`ChangesLog`, `HasChangesLog`, `LoggableModel`, service, repository, relation manager, resource, translations, `changes_logs` migration, deptrac baseline lines; test-presence baseline was already empty). Registration (FR-07, D-33): `AuditableRecords` + `AuditableRecordType`, `TrackedRelation`, `ValuePresenter` in `Application/ModuleApi`. Recording (FR-01..FR-06, RULE-01/02/04, WF-01): `RecordChangeInHistory` listens to `RecordChanged` and sends `RecordChangeCommand` with the event's Actor; the handler filters excluded fields and untracked relations, drops net-empty Changed, keeps the last title on Deleted, and adds a `Change` entity through an add-only port (no edit/delete path). `ChangeModel` has no observer, so entries never produce `RecordChanged` (tested). No re-merging: Core already coalesces. A failing add rolls back the outer command (tested with a failing repository). `AuditPermission` (4 cases) declared via Users' `RoleRegistry`, `RecordHistory` granted to Admin. Display support: `ChangeQueries` (`forRecord`, `all`) and `ChangePresenter` (references by current name; soft-deleted shows name + removed; gone shows id + removed; unregistered field/relation/type shows technical name and raw values). Table `audit_changes`. Translations in Polish (`permissions`, `exceptions`, `presentation`). Architecture issue 06 set `resolved`.
+- **Deviations:** (see fix 1 for 3 and 6) (1) Orphaned `changes_logs` table stays on an existing dev database (V2 never shipped; no drop migration). (2) `ChangePresenter` lives in `Application/Queries/PresentChange/` as a plain service, not a bus query: deptrac lets UserInterface reach Application only through Commands/Queries/ModuleApi, and it is a display read (ADR 0002). It takes the entry's stored arrays so no model enters Application. (3) The record id and timestamps appear as dirty fields on Created, so a module must list `id` etc. in `excludedFields` (documented in `AuditableRecords`); Audit does not guess the key. (4) Money presenter reads the raw value as a number of zloty ("1 200 zł"), the spec does not fix the unit; Offers can revisit. (5) `usunięto` title is read from the record at flush time (soft-deleted rows are found); a force-deleted record is already gone, so its title is null and display must fall back to the id. (6) Record type is stored as the model class string, not a morph alias. (7) No Permission check in the recording handler: any actor's write must be recorded. (8) The `Change` entity `record()` factory carries no "restored from" reference; ticket 06 adds it. (9) `ModelRepository` (Core, legacy) is now unused; left untouched.
+- **Seams left:** `ChangeQueries`/`ChangePresenter` for tickets 04/05; `restorableFields`, `title`/`url` closures stored for 04/05/06; retention (07) adds its removal method to `ChangeRepository`; Users registers its record type and observer (03).
+- **Open questions:** Should Audit exclude the primary key automatically instead of every module listing `id`? Money unit (zloty vs grosze) for Offers.
+- **Check:** composer check green
+
+### Worker — fix 1
+- **Built:** (1) Audit always ignores `id`, `created_at`, `updated_at`, `deleted_at` (`AuditableRecordType::TECHNICAL_FIELDS`, applied in `isAudited`); `excludedFields` is for business fields only; documented in the `AuditableRecords` docblock. Tested: Created holds no id or timestamps, an update touching only `updated_at` leaves no entry. (2) Registration has a stable `key` (first argument, e.g. `things.thing`); `audit_changes.record_type`, the `Change` entity, `ChangeQueries::forRecord` and `ChangePresenter::present` work from the key; `AuditableRecords::findByKey()` resolves it, the listener still matches events by model class. Tested: stored type is the key, found by key (and not by class).
+- **Deviations:** none (previous deviations 3 and 6 are resolved by this round).
+- **Seams left:** tickets 04-06 read and filter by the type key.
+- **Open questions:** none
+- **Check:** composer check green
+
+### Review — 2026-11-05
+- **Verdict:** approved after 1 fix round
+- **Notes:** Record types are stored by a stable registration `key` (e.g. `users.user`), never the model class; the listener matches events by model class. `id`, `created_at`, `updated_at`, `deleted_at` are always ignored (`AuditableRecordType::TECHNICAL_FIELDS`). Accepted: orphaned `changes_logs` table on dev DBs; `ChangePresenter` as a plain service in `Application/Queries/PresentChange`; money presenter reads zloty (Offers may revisit); a force-deleted record's `usunięto` has no title; restore-source reference added in 06. Seams: `ChangeQueries`/`ChangePresenter` (04, 05), `restorableFields` (06), retention removal on `ChangeRepository` (07), Users registration + observer (03).
