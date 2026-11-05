@@ -1,0 +1,112 @@
+/*
+ * Sidebar (D-25, D-31): a white column with a hairline edge. The navigation is two blocks built
+ * in AdminPanelProvider; the second one (`sidebar-group--bottom`) sits at the foot.
+ * Items are quiet grey; only the active one takes the accent.
+ */
+.fi-sidebar {
+    @media (min-width: 64rem) {
+        background-color: var(--ag-surface);
+        border-inline-end: var(--ag-border-width) solid var(--ag-border);
+    }
+}
+
+/* Mobile drawer header (logo + close button): a hairline instead of the ring and shadow. */
+.fi-body-has-topbar .fi-sidebar-header {
+    padding-inline: var(--ag-space-4);
+    box-shadow: none;
+    border-bottom: var(--ag-border-width) solid var(--ag-border);
+}
+
+.fi-sidebar-nav {
+    padding: var(--ag-space-4) var(--ag-space-3);
+    row-gap: var(--ag-space-4);
+}
+
+/* The groups list fills the nav, so the bottom block can drop to its end. */
+.fi-sidebar-nav-groups {
+    flex-grow: 1;
+    margin-inline: 0;
+    row-gap: var(--ag-space-6);
+}
+
+.fi-sidebar-group.sidebar-group--bottom {
+    margin-top: auto;
+    padding-top: var(--ag-space-3);
+    border-top: var(--ag-border-width) solid var(--ag-border);
+}
+
+.fi-sidebar-group-label {
+    font-size: var(--ag-text-xs);
+    font-weight: var(--ag-weight-medium);
+    color: var(--ag-text-muted);
+}
+
+.fi-sidebar-group-items {
+    row-gap: var(--ag-space-0-5);
+}
+
+.fi-sidebar-item-btn {
+    column-gap: var(--ag-space-2-5);
+    padding: var(--ag-space-1-5) var(--ag-space-2-5);
+    border-radius: var(--ag-radius-control);
+
+    & > .fi-icon {
+        color: var(--ag-icon);
+    }
+}
+
+.fi-sidebar-item-label {
+    font-size: var(--ag-text-base);
+    line-height: var(--ag-leading-base);
+    font-weight: var(--ag-weight-medium);
+    color: var(--gray-700);
+}
+
+.fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn {
+    &:hover,
+    &:focus-visible {
+        background-color: var(--ag-surface-hover);
+
+        & > .fi-icon {
+            color: var(--ag-text-secondary);
+        }
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--ag-focus-ring);
+        outline-offset: -2px;
+    }
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    &,
+    &:hover {
+        background-color: var(--ag-accent-soft);
+    }
+
+    /* Indicator: a short navy bar on the leading edge of the active item. */
+    &::before {
+        content: "";
+        position: absolute;
+        inset-block: var(--ag-space-1-5);
+        inset-inline-start: 0;
+        width: 3px;
+        border-radius: var(--ag-radius-pill);
+        background-color: var(--ag-accent-text);
+    }
+
+    & > .fi-icon,
+    &:hover > .fi-icon {
+        color: var(--ag-accent);
+    }
+
+    & > .fi-sidebar-item-label {
+        color: var(--ag-accent-text);
+        font-weight: var(--ag-weight-semibold);
+    }
+}
+
+.fi-sidebar-footer {
+    margin-inline: var(--ag-space-3);
+    border-top-color: var(--ag-border);
+}

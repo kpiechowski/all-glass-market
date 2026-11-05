@@ -39,7 +39,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 /**
  * Styleguide (D-33, D-34): every main component on one page, built from the admin-ui-design
  * templates (B form, C record view, A list, E action modals). It is the reference for them and a
- * regression check, and carries the font switcher (D-32) until the font is chosen.
+ * regression check.
  *
  * - Registered in AdminPanelProvider only when `app()->isLocal()`; elsewhere its route does not exist.
  * - Static data only: the table reads DemoUsers through `records()`, the forms keep page state.

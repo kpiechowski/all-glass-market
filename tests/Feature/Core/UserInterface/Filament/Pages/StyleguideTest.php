@@ -57,10 +57,19 @@ class StyleguideTest extends TestCase
         $this->get('/admin/styleguide')
             ->assertOk()
             ->assertSeeInOrder(['Formularz', 'Zakładki', 'Karta rekordu', 'Lista', 'Akcje i powiadomienia'])
-            ->assertSee('Krój pisma')
             ->assertSee('Wpisz 10 cyfr NIP bez kresek i spacji.')
             ->assertSee('Zaproszeni')
             ->assertSee('Anna Kowalska');
+    }
+
+    public function test_it_is_the_last_item_of_the_top_sidebar_block_locally(): void
+    {
+        Filament::setCurrentPanel('admin');
+        $this->actingAs(UserModel::factory()->superAdmin()->create());
+
+        $topItems = Filament::getNavigation()[0]->getItems();
+
+        $this->assertSame('Styleguide', (string) end($topItems)->getLabel());
     }
 
     public function test_the_empty_state_switch_empties_the_table_locally(): void

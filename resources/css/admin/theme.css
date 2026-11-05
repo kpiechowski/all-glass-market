@@ -1,12 +1,32 @@
 @import "../../../vendor/filament/filament/resources/css/theme.css";
 
-@source '../../../app/Filament/**/*';
-@source '../../../resources/views/filament/**/*';
+@source '../../../app/Core/UserInterface/resources/views/**/*';
 @source '../../../app/Modules/*/UserInterface/resources/views/**/*';
 
-@import "./_config.css";
-@import "./globals.css";
+/* Tokens: our variables and the Filament / Tailwind variables they override. */
+@import "./tokens/colors.css";
+@import "./tokens/typography.css";
+@import "./tokens/spacing.css";
+@import "./tokens/radii.css";
+@import "./tokens/borders.css";
+@import "./tokens/shadows.css";
 
-@import "./layout/index.css";
-@import "./components/index.css";
+/* Base: page canvas and text defaults. */
+@import "./base/globals.css";
+@import "./base/typography.css";
+
+/* Overrides of native fi-* components, one file per component. */
+@import "./filament/layout/page.css";
+@import "./filament/layout/topbar.css";
+@import "./filament/layout/sidebar.css";
+@import "./filament/layout/page-header.css";
+@import "./filament/layout/breadcrumbs.css";
+@import "./filament/actions/button.css";
+@import "./filament/actions/icon-button.css";
+@import "./filament/actions/link.css";
+
+/* Our own Blade components. */
+@import "./components/list-card.css";
+
+/* Page-specific CSS. */
 @import "./pages/login.css";

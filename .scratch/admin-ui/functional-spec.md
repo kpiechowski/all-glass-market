@@ -195,7 +195,14 @@ resources/css/admin/
   - Medium density: table rows ~48–52 px, base text 14 px, one font family.
 
   The exact look is settled on the Styleguide.
-- **D-32** Font: Poppins is replaced. **Roboto, Inter and Manrope** are compared live on the Styleguide, and the winner goes into `->font()`.
+- **D-32** Font: Poppins is replaced. **Roboto, Inter and Manrope** were compared live on the Styleguide. **Manrope won** (2026-11-05): it is precise and lighter. Numbers in tables use tabular figures.
+- **D-40** Brand colours, taken from the client's logo and website:
+  - navy `#001B4E` (logo text): the darker accent;
+  - royal `#003eb2`: primary;
+  - `#0070C0` (logo stars): light accent.
+
+  The site uses dark navy blocks, royal-blue buttons and simple geometry (chamfered corners). The admin uses the navy as a stronger accent than the first theme did. The logo sits in the panel (`->brandLogo()`).
+- **D-41 (open: ask the user)** Accenting the sidebar (navy and/or decorative accents), and whether the site's chamfered-corner geometry carries into buttons or containers. The user will bring this up. Ask before closing issue 09.
 
 ## 10. Styleguide
 
@@ -221,7 +228,7 @@ resources/css/admin/
   1. rename the skill;
   2. write the `admin-ui-design` skill (rules and templates, no variants);
   3. Styleguide on the default look;
-  4. tokens, base, layout and navigation, with the font chosen;
+  4. tokens, base, layout and navigation, with the font chosen; buttons were pulled forward into 04 at the user's request (2026-11-05);
   5. schema components;
   6. forms;
   7. infolists;

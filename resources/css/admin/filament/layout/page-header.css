@@ -1,0 +1,27 @@
+/* Page header: a calm title row; breadcrumbs above, actions on the right. */
+.fi-page-header-main-ctn {
+    padding-block: var(--ag-space-6) var(--ag-space-8);
+    row-gap: var(--ag-space-6);
+}
+
+.fi-header {
+    & .fi-breadcrumbs {
+        margin-bottom: var(--ag-space-1-5);
+    }
+}
+
+.fi-header-heading {
+    font-size: var(--ag-text-xl);
+    line-height: var(--ag-leading-xl);
+    font-weight: var(--ag-weight-bold);
+    letter-spacing: var(--ag-tracking-tight);
+    color: var(--ag-heading);
+}
+
+.fi-header-subheading {
+    margin-top: var(--ag-space-1);
+    max-width: 48rem;
+    font-size: var(--ag-text-base);
+    line-height: var(--ag-leading-base);
+    color: var(--ag-text-muted);
+}

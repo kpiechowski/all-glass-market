@@ -1,0 +1,15 @@
+/*
+ * Two radii carry the interface: controls (buttons, inputs, nav items) and containers
+ * (sections, tables, modals). Filament draws them with `rounded-lg` and `rounded-xl`, so the
+ * Tailwind theme variables are tightened here rather than every fi-* rule.
+ */
+@theme {
+    --radius-lg: 0.375rem;   /* 6 px, was 8 px */
+    --radius-xl: 0.625rem;   /* 10 px, was 12 px */
+}
+
+:root {
+    --ag-radius-control: var(--radius-lg);
+    --ag-radius-container: var(--radius-xl);
+    --ag-radius-pill: 9999px;
+}

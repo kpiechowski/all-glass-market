@@ -1,0 +1,50 @@
+/*
+ * List card (template A): the one cell a list table shows below `md`.
+ * Markup: core::filament.pages.styleguide.user-card (the reference for module cards).
+ */
+.list-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ag-space-1-5);
+    padding: var(--ag-space-3) var(--ag-space-4);
+}
+
+.list-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ag-space-2);
+}
+
+.list-card__title {
+    font-weight: var(--ag-weight-semibold);
+    color: var(--ag-text);
+}
+
+.list-card__flag {
+    display: inline;
+    width: 1rem;
+    height: 1rem;
+    margin-inline-start: var(--ag-space-1);
+    vertical-align: -0.125em;
+    color: var(--warning-600);
+}
+
+.list-card__meta {
+    font-size: var(--ag-text-sm);
+    line-height: var(--ag-leading-sm);
+    color: var(--ag-text-muted);
+}
+
+.list-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ag-space-1-5);
+}
+
+.list-card__note {
+    font-size: var(--ag-text-xs);
+    line-height: var(--ag-leading-xs);
+    color: var(--ag-text-muted);
+}

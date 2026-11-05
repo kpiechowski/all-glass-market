@@ -1,0 +1,24 @@
+/*
+ * Spacing on a 4 px step, plus the layout measures. Tailwind's `--spacing` stays untouched so
+ * Filament's own utilities keep their rhythm; our CSS uses these names.
+ */
+:root {
+    --ag-space-0-5: 0.125rem;
+    --ag-space-1: 0.25rem;
+    --ag-space-1-5: 0.375rem;
+    --ag-space-2: 0.5rem;
+    --ag-space-2-5: 0.625rem;
+    --ag-space-3: 0.75rem;
+    --ag-space-4: 1rem;
+    --ag-space-5: 1.25rem;
+    --ag-space-6: 1.5rem;
+    --ag-space-8: 2rem;
+    --ag-space-10: 2.5rem;
+    --ag-space-12: 3rem;
+
+    /* Layout. The sidebar width itself is `->sidebarWidth()` in the panel provider. */
+    --ag-topbar-height: 3.5rem;
+    --ag-page-gutter: var(--ag-space-4);
+    --ag-page-gutter-md: var(--ag-space-6);
+    --ag-page-gutter-lg: var(--ag-space-8);
+}

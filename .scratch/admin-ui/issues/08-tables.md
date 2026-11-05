@@ -16,3 +16,7 @@ Spec: D-12..D-15, D-21, D-27, D-29, D-37.
 
 - The user has accepted the desktop and mobile table on screenshots.
 - `npm run build` and `composer check` pass.
+
+## Comments
+
+- 2026-11-05 (user review of 04): inline filters above the table lay out inconsistently, sometimes on one line and sometimes full width. Filters in the dropdown panel are cramped. Fix both here.

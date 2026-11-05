@@ -14,3 +14,7 @@ Spec: D-16..D-21, D-27, D-31, D-37.
 
 - The user has accepted the look on screenshots.
 - `npm run build` and `composer check` pass.
+
+## Comments
+
+- 2026-11-05 (manager): buttons were pulled forward into 04. Here, only check them against modals and dropdowns. **Before closing 09, ask the user about accenting the sidebar and about chamfered-corner geometry (spec D-41).**
