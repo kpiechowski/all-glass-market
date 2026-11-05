@@ -10,4 +10,6 @@ return [
     'restore_not_offered' => 'Dla tego rodzaju rekordu przywracanie nie jest dostępne.',
     'restore_nothing_restorable' => 'Ten wpis nie zawiera pól, które można przywrócić.',
     'restore_record_gone' => 'Rekord został usunięty, więc nie można go przywrócić z wpisu.',
+    'log_unknown_channel' => 'Nieznany kanał logów.',
+    'log_invalid_day' => 'Dzień musi być poprawną datą w formacie RRRR-MM-DD.',
 ];
