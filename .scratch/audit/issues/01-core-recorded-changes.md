@@ -1,6 +1,6 @@
 # 01 - Core: recorded changes carry kind, relations and the Actor
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: —
 
 Spec: FR-01, FR-03, FR-04, RULE-02, RULE-03, WF-01 (Core part). Decisions: D-07, D-08, D-14, D-39, D-42. Glossary: Actor, Change entry. Design reference: `docs/adr/0004`.
@@ -28,3 +28,21 @@ Today `Core\Domain\Events\RecordChanged` holds only model class, id and field ch
 - `composer check` passes.
 
 ## Comments
+
+### Worker — 2026-11-05
+- **Built:** `RecordChanged` now carries `ChangeKind` (Created/Changed/Deleted/Restored), field changes, relation changes (`added`/`removed` raw ids per relation) and the `Actor` (FR-01, FR-03, FR-04, RULE-02, RULE-03). `ActorStack` + `HoldCommandActor` bus interceptor hold the command's Actor (nested inner applies, outer restored); `NoCurrentActorException` when recording outside a command (no fallback). `ChangeRecorder` builds/emits the event synchronously in the command transaction (D-39; nothing after-commit). `EloquentRepository::syncRelation()` syncs a pivot relation and reports the diff. Observer stubs, test-observer and test-repository stubs and the `module-events` skill updated. Tests: unit (RecordChanged, ActorStack), feature (HoldCommandActor incl. nested, ChangeRecorder for each kind, outside-command failure, listener failure rollback, relation sync).
+- **Deviations:** (1) `ReadOnlyModel::forceDelete()` lost its `?bool` return type: the `SoftDeletes` trait declares it untyped and any soft-deleting model was a fatal error (needed for "brought back"). (2) `ModelFactory::create()` records as `Actor::system('factory')` when no Actor is current; factories are test/seed tooling and would otherwise fail on every audited model. Repository/model writes outside a command still fail. (3) A restore save is emitted once as Restored (the accompanying `updated` is suppressed, so field changes in that same save are not carried). (4) `syncRelation()` emits its own `RecordChanged` (Changed, relation changes only); a command that changes fields and relations of one record yields two events, Audit (issue 02) must merge them per command/record to keep "exactly one entry".
+- **Seams left:** Audit listener (issue 02) consumes `RecordChanged`; Users observer wiring (issue 03). `HoldCommandActor` relies on Ecotone auto-discovery as `WrapCommandInTransaction` does.
+- **Open questions:** Is the two-events-per-record case in deviation 4 acceptable for Audit to merge, or should `syncRelation` stash its diff for the observer instead?
+- **Check:** composer check green
+
+### Worker — fix 1
+- **Built:** One `RecordChanged` per record per command. `ChangeRecorder` now buffers into the current `ActorStack` frame; on successful frame close `RecordChangeCoalescer` folds Changed into an earlier Created/Changed of the same record (first old, last new, reverted field dropped, relation diffs united with add/remove cancelling, net-empty Changed dropped; Deleted/Restored never folded) and dispatches with the frame's Actor; a throwing command discards its buffer; nested frames flush with the inner Actor; `ModelFactory` frames flush the same way. `WrapCommandInTransaction` (precedence 10) is the outer interceptor and `HoldCommandActor` (20) inner, so the flush happens before commit; verified that swapping them fails the rollback test. Tests: coalescer unit tests, ChangeRecorder (fields+sync one event, update+delete two events, throw dispatches nothing), and a through-the-bus test (Created with relations in one event, nested inner Actor, throw, throwing listener rolls back). ChangeRecorder docblock fixed; skill and observer stub reworded.
+- **Deviations:** none (deviation 4 resolved).
+- **Seams left:** Audit (02) listens to one event per record per command.
+- **Open questions:** none
+- **Check:** composer check green
+
+### Review — 2026-11-05
+- **Verdict:** approved after 1 fix round
+- **Notes:** Core delivers one `RecordChanged` per record per command: `ChangeRecorder` buffers into the `ActorStack` frame, `RecordChangeCoalescer` folds Changed into an earlier Created/Changed (Deleted/Restored never folded) and the frame flushes on success, before commit (`WrapCommandInTransaction` precedence 10 outer, `HoldCommandActor` 20). Accepted deviations: untyped `ReadOnlyModel::forceDelete()`; `ModelFactory` records as `Actor::system('factory')` outside a command; a restore save yields only Restored. Seams: Audit listener on `RecordChanged` (02), Users observer + `syncRelation` (03). Commands must carry `public Actor $actor`, or writes inside them throw `NoCurrentActorException`.

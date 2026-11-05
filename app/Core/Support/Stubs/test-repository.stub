@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\{{TestArea}}\{{ModuleName}}\Infrastructure\Persistence;
 
+use App\Core\Domain\Actor;
+use App\Core\Infrastructure\Bus\ActorStack;
 use {{RootNamespace}}\{{ModuleName}}\Domain\Entities\{{SingularName}};
 use {{RootNamespace}}\{{ModuleName}}\Domain\Repositories\{{SingularName}}Repository;
 use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Factories\{{SingularName}}ModelFactory;
@@ -25,9 +27,15 @@ class Eloquent{{SingularName}}RepositoryTest extends TestCase
         $this->repository = app({{SingularName}}Repository::class);
     }
 
+    /** Repository writes record a change, which needs the Actor of a running command. */
+    private function asCommand(callable $callback): mixed
+    {
+        return app(ActorStack::class)->run(Actor::user(1), $callback);
+    }
+
     public function test_an_added_entity_can_be_fetched_again(): void
     {
-        $id = $this->repository->add({{SingularName}}::create('gear'));
+        $id = $this->asCommand(fn () => $this->repository->add({{SingularName}}::create('gear')));
 
         $this->assertSame('gear', $this->repository->get($id)->name());
         $this->assertSame($id, $this->repository->find($id)?->id());
@@ -48,7 +56,7 @@ class Eloquent{{SingularName}}RepositoryTest extends TestCase
         $entity = $this->repository->get($id);
 
         $entity->rename('cog');
-        $this->repository->save($entity);
+        $this->asCommand(fn () => $this->repository->save($entity));
 
         $this->assertSame('cog', {{SingularName}}Model::findOrFail($id)->name);
     }
@@ -57,7 +65,7 @@ class Eloquent{{SingularName}}RepositoryTest extends TestCase
     {
         $id = {{SingularName}}ModelFactory::new()->create()->id;
 
-        $this->repository->remove($this->repository->get($id));
+        $this->asCommand(fn () => $this->repository->remove($this->repository->get($id)));
 
         $this->assertNull($this->repository->find($id));
     }
