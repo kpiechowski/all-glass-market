@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core\Infrastructure\Bus;
 
+use App\Core\Contracts\CommandContext;
 use App\Core\Domain\Actor;
 use App\Core\Domain\Events\RecordChanged;
 use App\Core\Exceptions\NoCurrentActorException;
@@ -17,11 +18,17 @@ use App\Core\Exceptions\NoCurrentActorException;
  * successfully they are coalesced to one RecordChanged per record and
  * dispatched synchronously, still inside the command's transaction, with that
  * frame's Actor. When the command throws, its buffer is discarded.
+ *
+ * It is also the CommandContext: values set around a callback are copied into
+ * every frame pushed inside it and stamped on that frame's events when it flushes.
  */
-final class ActorStack
+final class ActorStack implements CommandContext
 {
-    /** @var list<array{actor: Actor|null, events: list<RecordChanged>}> */
+    /** @var list<array{actor: Actor|null, events: list<RecordChanged>, context: array<string, mixed>}> */
     private array $frames = [];
+
+    /** @var array<string, mixed> */
+    private array $context = [];
 
     public function __construct(private readonly RecordChangeCoalescer $coalescer = new RecordChangeCoalescer) {}
 
@@ -33,7 +40,7 @@ final class ActorStack
      */
     public function run(?Actor $actor, callable $callback): mixed
     {
-        $this->frames[] = ['actor' => $actor, 'events' => []];
+        $this->frames[] = ['actor' => $actor, 'events' => [], 'context' => $this->context];
 
         try {
             $result = $callback();
@@ -42,6 +49,18 @@ final class ActorStack
             return $result;
         } finally {
             array_pop($this->frames);
+        }
+    }
+
+    public function with(string $key, mixed $value, callable $callback): mixed
+    {
+        $previous = $this->context;
+        $this->context[$key] = $value;
+
+        try {
+            return $callback();
+        } finally {
+            $this->context = $previous;
         }
     }
 
@@ -72,7 +91,7 @@ final class ActorStack
             $this->frames[$top]['events'] = [];
 
             foreach ($this->coalescer->coalesce($batch) as $event) {
-                event($event);
+                event($event->withContext($this->frames[$top]['context']));
             }
         }
     }

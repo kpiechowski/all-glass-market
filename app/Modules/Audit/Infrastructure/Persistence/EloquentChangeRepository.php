@@ -22,4 +22,9 @@ final class EloquentChangeRepository extends EloquentRepository implements Chang
     {
         parent::__construct(ChangeModel::class, $mapper);
     }
+
+    public function find(int $id): ?Change
+    {
+        return parent::find($id);
+    }
 }

@@ -8,6 +8,7 @@ use App\Core\Console\CreateDevUserCommand;
 use App\Core\Console\DeleteModuleCommand;
 use App\Core\Console\MakeIntegrationCommand;
 use App\Core\Console\MakeModuleCommand;
+use App\Core\Contracts\CommandContext;
 use App\Core\Contracts\PanelNotifier;
 use App\Core\Infrastructure\Bus\ActorStack;
 use App\Core\UserInterface\FilamentPanelNotifier;
@@ -19,6 +20,7 @@ class CoreServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(ActorStack::class);
+        $this->app->bind(CommandContext::class, ActorStack::class);
         $this->app->bind(PanelNotifier::class, FilamentPanelNotifier::class);
 
         $this->discoverModuleProviders();

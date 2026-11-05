@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Audit\Application\ModuleApi;
 
+use App\Modules\Audit\Domain\Contracts\RestoresRecord;
 use Closure;
 
 /**
@@ -27,7 +28,8 @@ final readonly class AuditableRecordType
      * @param  array<string, string>  $fieldLabels  field => label (translation key or plain text)
      * @param  array<string, ValuePresenter>  $valuePresenters  field => presenter; others show plain
      * @param  array<string, TrackedRelation>  $trackedRelations  relation name => declaration
-     * @param  list<string>  $restorableFields  fields Restore may write back (ticket 06)
+     * @param  list<string>  $restorableFields  fields Restore may write back
+     * @param  RestoresRecord|null  $restorer  carries a Restore out as the module's own command; without it the type offers no Restore
      */
     public function __construct(
         public string $key,
@@ -40,11 +42,37 @@ final readonly class AuditableRecordType
         public array $valuePresenters = [],
         public array $trackedRelations = [],
         public array $restorableFields = [],
+        public ?RestoresRecord $restorer = null,
     ) {}
 
     public function isAudited(string $field): bool
     {
         return ! in_array($field, self::TECHNICAL_FIELDS, true) && ! in_array($field, $this->excludedFields, true);
+    }
+
+    /** Whether the module offers Restore on this type at all (FR-13). */
+    public function offersRestore(): bool
+    {
+        return $this->restorer !== null && $this->restorableFields !== [];
+    }
+
+    /**
+     * The raw old values an entry's changes would write back: restorable and audited fields only (RULE-05).
+     *
+     * @param  array<string, array{old: mixed, new: mixed}>  $changes
+     * @return array<string, mixed>
+     */
+    public function restorableValues(array $changes): array
+    {
+        $values = [];
+
+        foreach ($changes as $field => $change) {
+            if (in_array($field, $this->restorableFields, true) && $this->isAudited($field)) {
+                $values[$field] = $change['old'];
+            }
+        }
+
+        return $values;
     }
 
     public function isTracked(string $relation): bool

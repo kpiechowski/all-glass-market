@@ -8,6 +8,7 @@ use App\Core\Domain\Actor;
 use App\Core\Infrastructure\Bus\ActorStack;
 use App\Core\Infrastructure\Bus\HoldCommandActor;
 use App\Core\Infrastructure\Bus\WrapCommandInTransaction;
+use App\Modules\Audit\Application\Commands\RestoreChange\RestoreChangeCommandHandler;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecords;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecordType;
 use App\Modules\Audit\Application\ModuleApi\TrackedRelation;
@@ -56,12 +57,13 @@ trait RegistersThings
                 valuePresenters: ['price' => ValuePresenter::money(), 'status' => ValuePresenter::enum(ThingStatus::class)],
                 trackedRelations: ['producers' => new TrackedRelation('Producenci', ValuePresenter::reference(ProducerModel::class))],
                 restorableFields: ['price', 'status'],
+                restorer: new ThingRestorer(fn (): CommandBus => $this->thingBus),
             ));
         }
 
         $this->thingBus = EcotoneLite::bootstrapFlowTesting(
-            [ChangeThingHandler::class, HoldCommandActor::class, WrapCommandInTransaction::class],
-            [new ChangeThingHandler, new HoldCommandActor(app(ActorStack::class)), new WrapCommandInTransaction],
+            [ChangeThingHandler::class, RestoreChangeCommandHandler::class, HoldCommandActor::class, WrapCommandInTransaction::class],
+            [new ChangeThingHandler, app(RestoreChangeCommandHandler::class), new HoldCommandActor(app(ActorStack::class)), new WrapCommandInTransaction],
         )->getGateway(CommandBus::class);
     }
 

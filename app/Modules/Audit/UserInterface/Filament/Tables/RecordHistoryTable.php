@@ -6,6 +6,7 @@ namespace App\Modules\Audit\UserInterface\Filament\Tables;
 
 use App\Modules\Audit\Application\Queries\PresentChange\ChangePresenter;
 use App\Modules\Audit\Infrastructure\Persistence\Models\ChangeModel;
+use App\Modules\Audit\UserInterface\Filament\Actions\RestoreChangeAction;
 use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -19,7 +20,7 @@ class RecordHistoryTable
             ->columns(self::columns())
             ->filters(RecordHistoryTableFilters::make($recordType, $recordId))
             ->defaultSort('occurred_at', 'desc')
-            ->recordActions([self::detailsAction()])
+            ->recordActions([self::detailsAction(), RestoreChangeAction::make()])
             ->recordAction('details')
             ->headerActions([])
             ->toolbarActions([]);
@@ -39,7 +40,10 @@ class RecordHistoryTable
             TextColumn::make('kind')
                 ->label(__('audit::resources.record_history.fields.kind'))
                 ->badge()
-                ->formatStateUsing(fn (ChangeModel $record): string => __('audit::enums.change_kind.'.$record->kind->value)),
+                ->formatStateUsing(fn (ChangeModel $record): string => __('audit::enums.change_kind.'.$record->kind->value))
+                ->description(fn (ChangeModel $record): ?string => $record->restored_from_at === null
+                    ? null
+                    : __('audit::resources.restore.marker', ['date' => $record->restored_from_at->format('d.m.Y H:i')])),
         ];
     }
 

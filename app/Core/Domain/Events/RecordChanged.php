@@ -17,6 +17,7 @@ final readonly class RecordChanged
      * @param  class-string  $modelClass
      * @param  array<string, array{old: mixed, new: mixed}>  $changes  raw values per field
      * @param  array<string, array{added: list<int|string>, removed: list<int|string>}>  $relationChanges  raw ids per tracked relation
+     * @param  array<string, mixed>  $context  what the command context carried when the frame closed (see CommandContext)
      */
     public function __construct(
         public string $modelClass,
@@ -25,5 +26,12 @@ final readonly class RecordChanged
         public array $changes,
         public array $relationChanges,
         public Actor $actor,
+        public array $context = [],
     ) {}
+
+    /** @param  array<string, mixed>  $context */
+    public function withContext(array $context): self
+    {
+        return new self($this->modelClass, $this->id, $this->kind, $this->changes, $this->relationChanges, $this->actor, $context);
+    }
 }

@@ -13,4 +13,6 @@ use App\Modules\Audit\Domain\Entities\Change;
 interface ChangeRepository
 {
     public function add(Change $change): int;
+
+    public function find(int $id): ?Change;
 }

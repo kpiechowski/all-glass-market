@@ -6,6 +6,7 @@ namespace App\Modules\Audit\UserInterface\Filament\Tables;
 
 use App\Modules\Audit\Application\ModuleApi\AuditableRecords;
 use App\Modules\Audit\Infrastructure\Persistence\Models\ChangeModel;
+use App\Modules\Audit\UserInterface\Filament\Actions\RestoreChangeAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
@@ -26,7 +27,7 @@ class AuditLogTable
             ])
             ->filters(AuditLogTableFilters::make(), layout: FiltersLayout::AboveContentCollapsible)
             ->defaultSort('occurred_at', 'desc')
-            ->recordActions([RecordHistoryTable::detailsAction()])
+            ->recordActions([RecordHistoryTable::detailsAction(), RestoreChangeAction::make()])
             ->recordAction('details')
             ->headerActions([])
             ->toolbarActions([]);

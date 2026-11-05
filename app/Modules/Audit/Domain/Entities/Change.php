@@ -31,6 +31,8 @@ final class Change
         private readonly ?int $actorId,
         private readonly ?string $actorReason,
         private readonly DateTimeImmutable $occurredAt,
+        private readonly ?int $restoredFromId = null,
+        private readonly ?DateTimeImmutable $restoredFromAt = null,
     ) {}
 
     /**
@@ -51,6 +53,8 @@ final class Change
         ?int $actorId,
         ?string $actorReason,
         DateTimeImmutable $occurredAt,
+        ?int $restoredFromId = null,
+        ?DateTimeImmutable $restoredFromAt = null,
     ): self {
         if (($actorId === null) === ($actorReason === null || trim($actorReason) === '')) {
             throw ChangeRefused::invalidActor();
@@ -69,7 +73,11 @@ final class Change
             $title = null;
         }
 
-        return new self(null, $recordType, $recordId, $kind, $title, $changes, $relationChanges, $actorId, $actorReason, $occurredAt);
+        if ($restoredFromId !== null && ($kind !== ChangeKind::Changed || $restoredFromAt === null)) {
+            throw ChangeRefused::invalidRestoreMarker();
+        }
+
+        return new self(null, $recordType, $recordId, $kind, $title, $changes, $relationChanges, $actorId, $actorReason, $occurredAt, $restoredFromId, $restoredFromAt);
     }
 
     /**
@@ -90,8 +98,10 @@ final class Change
         ?int $actorId,
         ?string $actorReason,
         DateTimeImmutable $occurredAt,
+        ?int $restoredFromId = null,
+        ?DateTimeImmutable $restoredFromAt = null,
     ): self {
-        return new self($id, $recordType, $recordId, $kind, $title, $changes, $relationChanges, $actorId, $actorReason, $occurredAt);
+        return new self($id, $recordType, $recordId, $kind, $title, $changes, $relationChanges, $actorId, $actorReason, $occurredAt, $restoredFromId, $restoredFromAt);
     }
 
     public function id(): ?int
@@ -145,5 +155,17 @@ final class Change
     public function occurredAt(): DateTimeImmutable
     {
         return $this->occurredAt;
+    }
+
+    /** The entry a Restore wrote back from; set only on a Changed entry made by a Restore (FR-14, D-38). */
+    public function restoredFromId(): ?int
+    {
+        return $this->restoredFromId;
+    }
+
+    /** When the source entry was made, kept so the marker survives the source's retention. */
+    public function restoredFromAt(): ?DateTimeImmutable
+    {
+        return $this->restoredFromAt;
     }
 }

@@ -6,6 +6,7 @@ namespace App\Modules\Audit\Application\Listeners;
 
 use App\Core\Domain\Events\RecordChanged;
 use App\Modules\Audit\Application\Commands\RecordChange\RecordChangeCommand;
+use App\Modules\Audit\Application\Commands\RestoreChange\RestoreChangeCommand;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecords;
 use Ecotone\Modelling\CommandBus;
 
@@ -38,6 +39,7 @@ final class RecordChangeInHistory
             $event->kind->value,
             $event->changes,
             $event->relationChanges,
+            $event->context[RestoreChangeCommand::CONTEXT_KEY] ?? null,
         ));
     }
 }

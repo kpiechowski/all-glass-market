@@ -23,6 +23,7 @@ namespace App\Modules\Audit\Application\ModuleApi;
  *         ],
  *         trackedRelations: ['eurocodes' => new TrackedRelation('offers::audit.relations.eurocodes', ValuePresenter::reference(EurocodeModel::class, 'code'))],
  *         restorableFields: ['price', 'status'],
+ *         restorer: new RestoreOffer(app(CommandBus::class)),   // implements RestoresRecord; sends the module's own update command
  *     ));
  *
  * From then on every creation, change, deletion and return from deletion of

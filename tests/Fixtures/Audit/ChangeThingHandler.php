@@ -26,6 +26,10 @@ final class ChangeThingHandler
 
                     break;
                 case 'update':
+                    if (($command->attributes['price'] ?? 0) > 9999) {
+                        throw new ThingRefused('Cena rzeczy nie może przekraczać 9999.');
+                    }
+
                     $thing->update($command->attributes);
 
                     if ($command->producerIds !== []) {

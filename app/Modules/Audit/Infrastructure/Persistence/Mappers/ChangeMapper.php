@@ -27,6 +27,8 @@ final class ChangeMapper implements Mapper
             $model->actor_id,
             $model->actor_reason,
             DateTimeImmutable::createFromInterface($model->occurred_at),
+            $model->restored_from_id,
+            $model->restored_from_at === null ? null : DateTimeImmutable::createFromInterface($model->restored_from_at),
         );
     }
 
@@ -43,6 +45,8 @@ final class ChangeMapper implements Mapper
             'actor_id' => $entity->actorId(),
             'actor_reason' => $entity->actorReason(),
             'occurred_at' => $entity->occurredAt(),
+            'restored_from_id' => $entity->restoredFromId(),
+            'restored_from_at' => $entity->restoredFromAt(),
         ];
     }
 }

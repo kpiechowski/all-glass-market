@@ -53,6 +53,8 @@ final class RecordChangeCommandHandler
             $title = $record === null ? null : $type->titleOf($record);
         }
 
+        $source = $this->restoreSource($command, $type->key, $kind);
+
         return $this->changes->add(Change::record(
             $type->key,
             $command->recordId,
@@ -63,6 +65,23 @@ final class RecordChangeCommandHandler
             $command->actor->id,
             $command->actor->reason,
             new DateTimeImmutable,
+            $source?->id(),
+            $source?->occurredAt(),
         ));
+    }
+
+    /**
+     * The marker counts only for the record the Restore is about: another
+     * record changed inside the same command is an ordinary change.
+     */
+    private function restoreSource(RecordChangeCommand $command, string $typeKey, ChangeKind $kind): ?Change
+    {
+        if ($command->restoredFromId === null || $kind !== ChangeKind::Changed) {
+            return null;
+        }
+
+        $source = $this->changes->find($command->restoredFromId);
+
+        return $source !== null && $source->recordType() === $typeKey && $source->recordId() === $command->recordId ? $source : null;
     }
 }

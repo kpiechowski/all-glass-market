@@ -39,6 +39,7 @@ final class ChangeModel extends ReadOnlyModel
             'changes' => 'array',
             'relation_changes' => 'array',
             'occurred_at' => 'immutable_datetime',
+            'restored_from_at' => 'immutable_datetime',
         ];
     }
 

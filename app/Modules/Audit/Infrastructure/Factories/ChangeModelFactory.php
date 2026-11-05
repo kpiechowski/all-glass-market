@@ -39,6 +39,11 @@ final class ChangeModelFactory extends ModelFactory
         return $this->state(fn (): array => ['record_type' => $recordType, 'record_id' => $recordId]);
     }
 
+    public function restoredFrom(ChangeModel $source): static
+    {
+        return $this->state(fn (): array => ['restored_from_id' => $source->id, 'restored_from_at' => $source->occurred_at]);
+    }
+
     public function deleted(?string $title = null): static
     {
         return $this->state(fn (): array => [

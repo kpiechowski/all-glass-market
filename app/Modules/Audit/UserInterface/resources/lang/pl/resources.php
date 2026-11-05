@@ -16,6 +16,14 @@ return [
             'kind' => 'Rodzaj',
         ],
     ],
+    'restore' => [
+        'label' => 'Przywróć',
+        'heading' => 'Przywrócić wartości z wpisu?',
+        'description' => 'Przywrócić: :values?',
+        'submit' => 'Przywróć',
+        'done' => 'Przywrócono wartości z wpisu.',
+        'marker' => 'przywrócono z wpisu z :date',
+    ],
     'audit_log' => [
         'navigation_label' => 'Dziennik audytu',
         'title' => 'Dziennik audytu',

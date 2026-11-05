@@ -14,4 +14,9 @@ final class FailingChangeRepository implements ChangeRepository
     {
         throw new RuntimeException('entry could not be stored');
     }
+
+    public function find(int $id): ?Change
+    {
+        return null;
+    }
 }

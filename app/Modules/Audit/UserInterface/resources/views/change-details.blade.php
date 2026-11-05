@@ -8,6 +8,10 @@
         <dd class="col-span-2">{{ __('audit::enums.change_kind.'.$entry->kind->value) }}</dd>
     </dl>
 
+    @if ($entry->restored_from_at)
+        <p class="text-sm italic">{{ __('audit::resources.restore.marker', ['date' => $entry->restored_from_at->format('d.m.Y H:i')]) }}</p>
+    @endif
+
     @if ($lines !== [])
         <ul class="space-y-2 text-sm">
             @foreach ($lines as $line)

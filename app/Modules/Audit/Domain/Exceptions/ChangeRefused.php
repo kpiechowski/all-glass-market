@@ -17,4 +17,29 @@ final class ChangeRefused extends DomainException
     {
         return new self('audit::exceptions.change_invalid_actor');
     }
+
+    public static function invalidRestoreMarker(): self
+    {
+        return new self('audit::exceptions.change_invalid_restore_marker');
+    }
+
+    public static function restoreNotFound(): self
+    {
+        return new self('audit::exceptions.restore_not_found');
+    }
+
+    public static function restoreNotOffered(): self
+    {
+        return new self('audit::exceptions.restore_not_offered');
+    }
+
+    public static function restoreNothingRestorable(): self
+    {
+        return new self('audit::exceptions.restore_nothing_restorable');
+    }
+
+    public static function restoreRecordGone(): self
+    {
+        return new self('audit::exceptions.restore_record_gone');
+    }
 }
