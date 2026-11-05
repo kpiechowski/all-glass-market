@@ -10,6 +10,7 @@
 @import "./tokens/radii.css";
 @import "./tokens/borders.css";
 @import "./tokens/shadows.css";
+@import "./tokens/sidebar.css";
 
 /* Base: page canvas and text defaults. */
 @import "./base/globals.css";
@@ -21,12 +22,20 @@
 @import "./filament/layout/sidebar.css";
 @import "./filament/layout/page-header.css";
 @import "./filament/layout/breadcrumbs.css";
+/* D-41 trial: navy sidebar. Delete this one line to revert (see the file header). */
+@import "./filament/layout/sidebar-navy.css";
+@import "./filament/schema/section.css";
+@import "./filament/schema/tabs.css";
+@import "./filament/schema/fieldset.css";
+@import "./filament/schema/grid.css";
 @import "./filament/actions/button.css";
 @import "./filament/actions/icon-button.css";
 @import "./filament/actions/link.css";
 
 /* Our own Blade components. */
+@import "./components/brand-logo.css";
 @import "./components/list-card.css";
 
 /* Page-specific CSS. */
 @import "./pages/login.css";
+@import "./pages/styleguide.css";

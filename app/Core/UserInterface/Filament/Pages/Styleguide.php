@@ -24,11 +24,8 @@ use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\EmbeddedTable;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Html;
-use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
-use Filament\Support\Enums\FontWeight;
-use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -268,12 +265,20 @@ class Styleguide extends Page implements HasTable
         $this->resetPage();
     }
 
-    /** @return list<Text> */
+    /**
+     * A page-level block heading (h2 + grey description), one step above the section titles below it.
+     * Styled by `pages/styleguide.css`.
+     *
+     * @return list<Html>
+     */
     private static function blockHeading(string $title, string $description): array
     {
         return [
-            Text::make($title)->size(TextSize::Large)->weight(FontWeight::Bold),
-            Text::make($description)->color('gray'),
+            Html::make(sprintf(
+                '<div class="styleguide-block-heading"><h2 class="styleguide-block-heading__title">%s</h2><p class="styleguide-block-heading__description">%s</p></div>',
+                e($title),
+                e($description),
+            )),
         ];
     }
 }

@@ -89,18 +89,24 @@ class AdminPanelProviderTest extends TestCase
             ->assertSeeInOrder([AuditLog::getNavigationLabel(), EditProfile::getNavigationLabel()]);
     }
 
-    /** D-40: the brand logo replaces the brand name on the login page and in the panel. */
+    /**
+     * D-40: the brand logo replaces the brand name. Both versions are rendered; the theme shows the
+     * dark one on white (login, topbar) and the client's white one in the navy sidebar.
+     */
     public function test_the_brand_logo_shows_on_the_login_page_and_in_the_panel(): void
     {
         $this->get(Filament::getLoginUrl())
             ->assertOk()
+            ->assertSee('class="brand-logo brand-logo--on-light"', escape: false)
             ->assertSee('images/brand/allglass-logotype.svg');
 
         $this->actingAs(UserModel::factory()->superAdmin()->create());
 
         $this->get(Dashboard::getUrl())
             ->assertOk()
-            ->assertSee('images/brand/allglass-logotype.svg');
+            ->assertSee('images/brand/allglass-logotype.svg')
+            ->assertSee('class="brand-logo brand-logo--on-dark"', escape: false)
+            ->assertSee('images/brand/allglass-logotype-white.svg');
     }
 
     /** @return array{0: NavigationGroup, 1: NavigationGroup} */

@@ -1,0 +1,24 @@
+/*
+ * Sidebar colours. `filament/layout/sidebar.css` reads only these variables.
+ *
+ * These are the light sidebar (issue 04). The navy trial (D-41) overrides them in
+ * `filament/layout/sidebar-navy.css`, together with the full-height layout and the white logo.
+ */
+:root {
+    --ag-sidebar-bg: var(--ag-surface);
+    --ag-sidebar-edge: var(--ag-border);
+    --ag-sidebar-divider: var(--ag-border);
+    --ag-sidebar-scrollbar: var(--gray-300);
+    --ag-sidebar-overlay: rgb(13 14 17 / 0.5);
+    --ag-sidebar-group-label: var(--ag-text-muted);
+    --ag-sidebar-text: var(--gray-700);
+    --ag-sidebar-text-hover: var(--ag-text);
+    --ag-sidebar-icon: var(--ag-icon);
+    --ag-sidebar-icon-hover: var(--ag-text-secondary);
+    --ag-sidebar-hover-bg: var(--ag-surface-hover);
+    --ag-sidebar-active-bg: var(--ag-accent-soft);
+    --ag-sidebar-active-text: var(--ag-accent-text);
+    --ag-sidebar-active-icon: var(--ag-accent);
+    --ag-sidebar-indicator: var(--ag-accent-text);
+    --ag-sidebar-focus: var(--ag-focus-ring);
+}

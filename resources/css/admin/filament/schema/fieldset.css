@@ -1,0 +1,35 @@
+/*
+ * Fieldset: a group of fields inside a section (opening hours, a pair of dates). A hairline
+ * frame on the section's white, the legend set in the frame line like a small heading.
+ * Padding steps down one size from the section so the frame reads as a part, not a second card.
+ *
+ *   ≥ md   padding 20 px   legend 14 px semibold
+ *   < md   padding 16 px
+ */
+.fi-fieldset {
+    --fieldset-padding: var(--ag-space-5);
+
+    @media (max-width: 47.999rem) {
+        --fieldset-padding: var(--ag-space-4);
+    }
+
+    & > legend {
+        margin-inline-start: calc(-1 * var(--ag-space-1-5));
+        padding-inline: var(--ag-space-1-5);
+        font-size: var(--ag-text-base);
+        line-height: var(--ag-leading-base);
+        font-weight: var(--ag-weight-semibold);
+        color: var(--ag-text);
+    }
+
+    &:not(.fi-fieldset-not-contained) {
+        padding: var(--fieldset-padding);
+        padding-top: calc(var(--fieldset-padding) - var(--ag-space-1));
+        border-color: var(--ag-border);
+        border-radius: var(--ag-radius-container);
+    }
+
+    &.fi-fieldset-not-contained {
+        padding-top: var(--ag-space-3);
+    }
+}

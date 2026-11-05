@@ -1,0 +1,165 @@
+/*
+ * Tabs (D-11): the base look is the underlined one. One long baseline under the whole bar,
+ * the active tab marked by a 2 px navy bar sitting on it, no pills and no item backgrounds.
+ * Variants (`tabs--pills`) come in issue 10.
+ *
+ * Three places share it:
+ *   - page tabs: list tabs (`x-filament::tabs`, resource `HasTabs`) and record tabs, uncontained
+ *     schema Tabs. They sit on the canvas, so the baseline is the stronger border;
+ *   - contained schema Tabs (tabs inside a form): a white surface like a section, the bar inset
+ *     by the section padding;
+ *   - vertical tabs: the same marks on the inline-end edge.
+ *
+ * The baseline and the indicator are inset shadows: the item's indicator paints over the bar's
+ * baseline, nothing is clipped by the horizontal scroll, and no border shifts the height.
+ * Every label is semibold, so the active state changes colour only and the bar never jumps.
+ * Narrow screens scroll the bar sideways (`->scrollable()` is Filament's default); labels never wrap.
+ */
+.fi-tabs {
+    --tabs-baseline: var(--ag-border);
+    --tabs-indicator: var(--brand-navy);
+    --tabs-indicator-hover: var(--gray-300);
+    --tabs-padding-x: 0;
+
+    column-gap: var(--ag-space-5);
+    padding-inline: var(--tabs-padding-x);
+    box-shadow: inset 0 -1px 0 var(--tabs-baseline);
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300) transparent;
+
+    @media (pointer: coarse) {
+        scrollbar-width: none;
+    }
+
+    @media (max-width: 47.999rem) {
+        column-gap: var(--ag-space-4);
+    }
+}
+
+/* Page tabs: no box around the bar, flush left, the baseline drawn across the whole width. */
+.fi-tabs:not(.fi-contained) {
+    --tabs-baseline: var(--ag-border-strong);
+
+    margin-inline: 0;
+    padding-block: 0;
+    border-radius: 0;
+    background-color: transparent;
+}
+
+/* Inside a contained Tabs card: the bar starts where the section content starts. */
+.fi-tabs.fi-contained {
+    --tabs-padding-x: var(--ag-space-6);
+
+    padding-block: 0;
+    border-bottom-width: 0;
+
+    @media (max-width: 47.999rem) {
+        --tabs-padding-x: var(--ag-space-4);
+    }
+}
+
+.fi-tabs-item {
+    min-height: 2.5rem;
+    padding: var(--ag-space-2-5) var(--ag-space-0-5);
+    column-gap: var(--ag-space-2);
+    border-radius: 0;
+    background-color: transparent;
+    font-size: var(--ag-text-base);
+    line-height: var(--ag-leading-base);
+    font-weight: var(--ag-weight-semibold);
+    transition:
+        box-shadow 120ms ease,
+        color 120ms ease;
+
+    & .fi-tabs-item-label {
+        color: var(--ag-text-secondary);
+    }
+
+    & > .fi-icon {
+        color: var(--ag-icon);
+    }
+
+    &:hover,
+    &:focus-visible {
+        background-color: transparent;
+    }
+
+    &:hover:not(.fi-active) {
+        box-shadow: inset 0 -2px 0 var(--tabs-indicator-hover);
+
+        & .fi-tabs-item-label {
+            color: var(--ag-text);
+        }
+
+        & > .fi-icon {
+            color: var(--ag-text-secondary);
+        }
+    }
+
+    &:focus-visible {
+        outline: var(--ag-focus-ring-width) solid var(--ag-focus-ring);
+        outline-offset: -2px;
+    }
+
+    &.fi-active {
+        background-color: transparent;
+        box-shadow: inset 0 -2px 0 var(--tabs-indicator);
+
+        & .fi-tabs-item-label,
+        & > .fi-icon {
+            color: var(--ag-accent-text);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+}
+
+/* The overflow trigger ("⋯", non-scrollable tabs) is not a tab: no indicator on hover. */
+.fi-tabs-item[data-tabs-overflow-ellipsis]:hover {
+    box-shadow: none;
+}
+
+/* Vertical: the baseline and the indicator move to the inline-end edge. */
+.fi-tabs.fi-vertical {
+    padding-inline: 0;
+    row-gap: 0;
+    box-shadow: inset -1px 0 0 var(--tabs-baseline);
+
+    &.fi-contained {
+        border-inline-end-width: 0;
+    }
+
+    & .fi-tabs-item {
+        padding-inline: var(--ag-space-3);
+
+        &:hover:not(.fi-active) {
+            box-shadow: inset -2px 0 0 var(--tabs-indicator-hover);
+        }
+
+        &.fi-active {
+            box-shadow: inset -2px 0 0 var(--tabs-indicator);
+        }
+    }
+}
+
+/* Contained schema Tabs: the same surface as a section, the panel padded like section content. */
+.fi-sc-tabs.fi-contained {
+    border-radius: var(--ag-radius-container);
+    background-color: var(--ag-surface);
+    box-shadow: var(--ag-surface-edge);
+
+    & .fi-sc-tabs-tab.fi-active {
+        padding: var(--ag-space-6);
+
+        @media (max-width: 47.999rem) {
+            padding: var(--ag-space-4);
+        }
+    }
+}
+
+/* Uncontained schema Tabs: the panel opens below the bar at the page gap. */
+.fi-sc-tabs:not(.fi-contained):not(.fi-vertical) .fi-sc-tabs-tab.fi-active {
+    margin-top: var(--ag-space-6);
+}

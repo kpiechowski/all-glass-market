@@ -16,6 +16,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -23,7 +24,8 @@ use Filament\Schemas\Schema;
 /**
  * Template B, layout (a): one column of stacked sections on a 12-column grid.
  * Covers every common field type, helper text, a validation error (NIP), a field that
- * appears reactively, section header actions and a collapsed section of rare settings.
+ * appears reactively, section header and footer actions, a nested section with a fieldset
+ * and a collapsed section of rare settings.
  */
 final class StyleguideForm
 {
@@ -40,6 +42,7 @@ final class StyleguideForm
                 self::companySection(),
                 self::companyAddressSection(),
                 self::offerSection(),
+                self::pickupSection(),
                 self::descriptionSection(),
                 self::attachmentsSection(),
                 self::advancedSection(),
@@ -69,6 +72,9 @@ final class StyleguideForm
             'delivery' => ['pickup', 'courier'],
             'condition' => 'new',
             'available_from' => now()->format('Y-m-d'),
+            'pickup_opens_at' => '08:00',
+            'pickup_closes_at' => '16:00',
+            'pickup_on_saturday' => false,
             'is_published' => true,
             'short_description' => null,
             'description' => '<p>Szyba czołowa z czujnikiem deszczu, <strong>oryginalna</strong>.</p>',
@@ -216,6 +222,33 @@ final class StyleguideForm
                     ->label('Krótki opis')
                     ->rows(3)
                     ->columnSpanFull(),
+            ]);
+    }
+
+    /** A nested section with a fieldset, and a footer action that concerns this section only. */
+    private static function pickupSection(): Section
+    {
+        return Section::make('Punkty odbioru')
+            ->description('Każdy magazyn to sekcja zagnieżdżona; godziny otwarcia to grupa pól.')
+            ->footerActions([
+                Action::make('addPickupPoint')
+                    ->label('Dodaj punkt odbioru')
+                    ->color('gray')
+                    ->action(fn () => DemoNotification::success('Dodano punkt odbioru')),
+            ])
+            ->schema([
+                self::grid(Section::make('Magazyn Poznań'))
+                    ->description('ul. Głogowska 120, 60-243 Poznań')
+                    ->schema([
+                        Fieldset::make('Godziny otwarcia')
+                            ->columns(['default' => 1, 'md' => 2])
+                            ->columnSpan(self::span(6))
+                            ->schema([
+                                TextInput::make('pickup_opens_at')->label('Od')->placeholder('08:00'),
+                                TextInput::make('pickup_closes_at')->label('Do')->placeholder('16:00'),
+                            ]),
+                        Toggle::make('pickup_on_saturday')->label('Odbiór w soboty')->columnSpanFull(),
+                    ]),
             ]);
     }
 

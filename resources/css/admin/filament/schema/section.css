@@ -1,0 +1,151 @@
+/*
+ * Section (D-08, D-31): a white surface on the grey canvas, edged by one hairline ring.
+ * The header carries the structure: a navy title in bold, a muted description, actions on the
+ * right, and one divider above the content. No tinted header band, no accent bar (D-41 is open).
+ *
+ *                   header (y / x)   content   footer (y / x)
+ *   default ≥ md    16 / 24 px       24 px     12 / 24 px
+ *   default < md    12 / 16 px       16 px     12 / 16 px
+ *   nested, compact 10 / 16 px       16 px     10 / 16 px
+ *
+ * Every measure is a `--section-*` variable set on `.fi-section`, so the mobile, nested and
+ * compact cases (and the variants of issue 10) only reset variables, never padding rules.
+ */
+.fi-section {
+    --section-padding-x: var(--ag-space-6);
+    --section-header-padding-y: var(--ag-space-4);
+    --section-content-padding-y: var(--ag-space-6);
+    --section-footer-padding-y: var(--ag-space-3);
+    --section-heading-size: var(--ag-text-md);
+    --section-heading-leading: var(--ag-leading-md);
+    --section-heading-weight: var(--ag-weight-bold);
+    --section-heading-color: var(--ag-heading);
+
+    @media (max-width: 47.999rem) {
+        --section-padding-x: var(--ag-space-4);
+        --section-header-padding-y: var(--ag-space-3);
+        --section-content-padding-y: var(--ag-space-4);
+    }
+}
+
+/* Nested in another section, or compact: tighter, and the title steps down to body size. */
+.fi-section .fi-section,
+.fi-section.fi-compact {
+    --section-padding-x: var(--ag-space-4);
+    --section-header-padding-y: var(--ag-space-2-5);
+    --section-content-padding-y: var(--ag-space-4);
+    --section-footer-padding-y: var(--ag-space-2-5);
+    --section-heading-size: var(--ag-text-base);
+    --section-heading-leading: var(--ag-leading-base);
+    --section-heading-weight: var(--ag-weight-semibold);
+    --section-heading-color: var(--ag-text);
+}
+
+/* The surface: the card itself, or only the content column of an aside section. */
+.fi-section:not(.fi-section-not-contained):not(.fi-aside),
+.fi-section.fi-aside:not(.fi-section-not-contained) > .fi-section-content-ctn {
+    border-radius: var(--ag-radius-container);
+    background-color: var(--ag-surface);
+    box-shadow: var(--ag-surface-edge);
+}
+
+/* A section inside a section already sits on white: the ring alone, no lift. */
+.fi-section .fi-section:not(.fi-section-not-contained):not(.fi-aside),
+.fi-section .fi-section.fi-aside:not(.fi-section-not-contained) > .fi-section-content-ctn {
+    box-shadow: 0 0 0 var(--ag-border-width) var(--ag-border);
+}
+
+.fi-section:not(.fi-section-not-contained) {
+    &:not(.fi-aside) > .fi-section-header {
+        padding: var(--section-header-padding-y) var(--section-padding-x);
+    }
+
+    &.fi-section-has-header:not(.fi-collapsed):not(.fi-aside) > .fi-section-content-ctn {
+        border-top-color: var(--ag-border);
+    }
+
+    &:not(.fi-divided) > .fi-section-content-ctn > .fi-section-content,
+    &.fi-divided > .fi-section-content-ctn > .fi-section-content > * {
+        padding: var(--section-content-padding-y) var(--section-padding-x);
+    }
+
+    & > .fi-section-content-ctn > .fi-section-footer {
+        padding: var(--section-footer-padding-y) var(--section-padding-x);
+        border-top-color: var(--ag-border);
+    }
+}
+
+.fi-section.fi-divided > .fi-section-content-ctn > .fi-section-content {
+    border-color: var(--ag-divider);
+
+    & > * {
+        border-color: var(--ag-divider);
+    }
+}
+
+/* Header: title and description on the left, actions on the right, chevron last. */
+.fi-section > .fi-section-header {
+    align-items: center;
+    column-gap: var(--ag-space-3);
+
+    & > .fi-icon {
+        align-self: flex-start;
+        color: var(--ag-icon);
+    }
+}
+
+.fi-section .fi-section-header-content {
+    align-items: center;
+    column-gap: var(--ag-space-4);
+    row-gap: var(--ag-space-2);
+}
+
+.fi-section .fi-section-header-text-ctn {
+    row-gap: var(--ag-space-0-5);
+}
+
+.fi-section .fi-section-header-heading {
+    font-size: var(--section-heading-size);
+    line-height: var(--section-heading-leading);
+    font-weight: var(--section-heading-weight);
+    letter-spacing: var(--ag-tracking-tight);
+    color: var(--section-heading-color);
+}
+
+.fi-section .fi-section-header-description {
+    max-width: 48rem;
+    font-size: var(--ag-text-sm);
+    line-height: var(--ag-leading-sm);
+    color: var(--ag-text-muted);
+}
+
+/* Collapsible: the whole header is the target; the chevron answers hover on the header. */
+.fi-section.fi-collapsible > .fi-section-header {
+    user-select: none;
+
+    & > .fi-section-collapse-btn {
+        transition:
+            rotate 150ms ease,
+            background-color 120ms ease,
+            color 120ms ease;
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
+    &:hover > .fi-section-collapse-btn {
+        background-color: var(--ag-surface-hover);
+        color: var(--ag-text);
+    }
+
+    &:hover .fi-section-header-heading {
+        color: var(--ag-accent);
+    }
+}
+
+/* Aside: the heading column sits on the canvas, so its gap follows the section padding. */
+.fi-section.fi-aside {
+    column-gap: var(--ag-space-8);
+    row-gap: var(--ag-space-3);
+}

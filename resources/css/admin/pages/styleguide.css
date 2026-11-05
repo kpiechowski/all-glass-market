@@ -1,0 +1,26 @@
+/*
+ * Styleguide only (core::filament.pages.styleguide): the block headings that split the page
+ * ("Formularz", "Zakładki", "Karta rekordu"…). They rank between the page title (22 px navy)
+ * and the section titles (16 px navy): 18 px bold near-black, the description in grey below,
+ * and extra air above each block.
+ */
+.styleguide-block-heading {
+    display: grid;
+    row-gap: var(--ag-space-1);
+    padding-top: var(--ag-space-4);
+}
+
+.styleguide-block-heading__title {
+    font-size: var(--ag-text-lg);
+    line-height: var(--ag-leading-lg);
+    font-weight: var(--ag-weight-bold);
+    letter-spacing: var(--ag-tracking-tight);
+    color: var(--ag-text);
+}
+
+.styleguide-block-heading__description {
+    max-width: 48rem;
+    font-size: var(--ag-text-base);
+    line-height: var(--ag-leading-base);
+    color: var(--ag-text-muted);
+}

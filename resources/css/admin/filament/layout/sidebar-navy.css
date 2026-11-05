@@ -1,0 +1,106 @@
+/*
+ * D-41 TRIAL: navy sidebar, full window height, white logo in its header.
+ * The whole trial lives in this file. To revert it, delete its @import line in theme.css:
+ * the sidebar goes back to the light tokens in tokens/sidebar.css, the topbar to full width
+ * with the dark logo.
+ *
+ * Desktop (lg+): the sidebar is pulled up over the topbar row (sticky, top 0, 100dvh, negative
+ * margin of one topbar height); the topbar starts after the sidebar width and drops its logo;
+ * the sidebar header shows the white logo at the topbar height, its divider level with the
+ * topbar's bottom border. Mobile: the white topbar is unchanged; the opened drawer is navy
+ * including its header.
+ *
+ * Contrast on navy #001b4e: label 78 % white 10.4:1, group label 58 % white 6.2:1,
+ * white on the active fill 11.8:1, sky-light bar and icon 6.5:1 (AA needs 4.5 / 3).
+ */
+:root {
+    --ag-sidebar-bg: var(--brand-navy);
+    --ag-sidebar-edge: transparent;
+    --ag-sidebar-divider: rgb(255 255 255 / 0.12);
+    --ag-sidebar-scrollbar: rgb(255 255 255 / 0.2);
+    --ag-sidebar-overlay: rgb(0 27 78 / 0.55);
+    --ag-sidebar-group-label: rgb(255 255 255 / 0.58);
+    --ag-sidebar-text: rgb(255 255 255 / 0.78);
+    --ag-sidebar-text-hover: #fff;
+    --ag-sidebar-icon: rgb(255 255 255 / 0.6);
+    --ag-sidebar-icon-hover: #fff;
+    --ag-sidebar-hover-bg: rgb(255 255 255 / 0.08);
+    --ag-sidebar-active-bg: rgb(255 255 255 / 0.12);
+    --ag-sidebar-active-text: #fff;
+    --ag-sidebar-active-icon: var(--brand-sky-light);
+    --ag-sidebar-indicator: var(--brand-sky-light);
+    --ag-sidebar-focus: var(--brand-sky-light);
+}
+
+/* Sidebar header (mobile drawer and desktop): navy, white logo, light icon buttons. */
+.fi-sidebar .fi-sidebar-header,
+.fi-body-has-topbar .fi-sidebar .fi-sidebar-header {
+    background-color: var(--ag-sidebar-bg);
+    border-bottom: var(--ag-border-width) solid var(--ag-sidebar-divider);
+
+    & .brand-logo--on-light {
+        display: none;
+    }
+
+    & .brand-logo--on-dark {
+        display: block;
+    }
+
+    & .fi-icon-btn {
+        color: var(--ag-sidebar-icon);
+
+        &:not(.fi-disabled):not([disabled]):hover {
+            background-color: var(--ag-sidebar-hover-bg);
+            color: var(--ag-sidebar-icon-hover);
+        }
+
+        &:focus-visible {
+            outline-color: var(--ag-sidebar-focus);
+        }
+    }
+}
+
+@media (min-width: 64rem) {
+    .fi-body-has-topbar:not(.fi-body-has-top-navigation) {
+        & .fi-sidebar {
+            top: 0;
+            height: 100dvh;
+            margin-top: calc(-1 * var(--topbar-height));
+        }
+
+        /* Logo aligned with the item icons below (nav 12 px + item 10 px). */
+        & .fi-sidebar .fi-sidebar-header {
+            display: flex;
+            justify-content: flex-start;
+            height: var(--topbar-height);
+            padding-inline: calc(var(--ag-space-3) + var(--ag-space-2-5));
+        }
+
+        & .fi-topbar-ctn {
+            margin-inline-start: var(--sidebar-width);
+        }
+
+        /* The topbar keeps search, notifications and the user menu; the logo lives in the sidebar. */
+        & .fi-topbar-start {
+            width: auto;
+
+            & > a:has(.fi-logo),
+            & > .fi-logo {
+                display: none;
+            }
+        }
+
+        &:not(.fi-body-has-sidebar-collapsible-on-desktop):not(.fi-body-has-sidebar-fully-collapsible-on-desktop) .fi-topbar-start {
+            display: none;
+        }
+
+        /* Collapsible sidebars (not enabled today): the topbar follows the sidebar's current width. */
+        &.fi-body-has-sidebar-collapsible-on-desktop:has(.fi-main-sidebar:not(.fi-sidebar-open)) .fi-topbar-ctn {
+            margin-inline-start: var(--collapsed-sidebar-width);
+        }
+
+        &.fi-body-has-sidebar-fully-collapsible-on-desktop:has(.fi-main-sidebar:not(.fi-sidebar-open)) .fi-topbar-ctn {
+            margin-inline-start: 0;
+        }
+    }
+}

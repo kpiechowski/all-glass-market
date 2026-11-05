@@ -11,6 +11,7 @@
     --brand-navy: #001b4e;   /* logo text, the site's dark blocks: the heavier accent */
     --brand-royal: #003eb2;  /* the site's buttons: primary */
     --brand-sky: #0070c0;    /* logo stars: light accent */
+    --brand-sky-light: #5aa9e6; /* the sky lifted to read on navy (sidebar trial, D-41) */
 
     /* Neutral grey with a faint cool cast: not the blue of slate, not the warmth of stone. */
     --gray-50: #f7f8fa;
@@ -89,7 +90,8 @@
     --info-950: #0b2435;
 
     /* Roles. Our CSS uses these, never a raw shade, where a role exists. */
-    --ag-canvas: var(--gray-50);
+    /* Canvas: a very light cool blue in the navy's hue, so white surfaces stand off it without grey. */
+    --ag-canvas: #f3f6fb;
     --ag-surface: #fff;
     --ag-surface-hover: var(--gray-100);
     --ag-text: var(--gray-900);

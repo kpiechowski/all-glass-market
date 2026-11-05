@@ -10,3 +10,11 @@
     --shadow-lg: 0 10px 24px -8px rgb(16 18 22 / 0.12), 0 2px 6px -2px rgb(16 18 22 / 0.05);
     --shadow-xl: 0 20px 40px -12px rgb(16 18 22 / 0.18), 0 4px 10px -4px rgb(16 18 22 / 0.06);
 }
+
+/*
+ * The edge of a flat surface (section, contained tabs, later tables): a 1 px ring drawn as a
+ * shadow, so it adds no size, plus the hairline `xs` that lifts the surface off the canvas.
+ */
+:root {
+    --ag-surface-edge: 0 0 0 var(--ag-border-width) var(--ag-border), var(--shadow-xs);
+}
