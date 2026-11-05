@@ -15,9 +15,13 @@
 | 07 retention-cleanup | resolved (5bd7b94) | removed | 0 | approved |
 | 08 technical-log-channels | resolved (c12e92f) | removed | 1 | approved |
 | 09 security-events | resolved (351176d) | removed | 1 | approved |
-| 10 technical-log-page | resolved | removed | 0 | approved |
-| 11 failed-jobs-tab | in progress | .worktrees/audit-11 | 0 | — |
+| 10 technical-log-page | resolved (40ae71d) | removed | 0 | approved |
+| 11 failed-jobs-tab | resolved (f803405) | removed | 0 | approved |
 
 ## Next action
 
-Review issue 11 when its worker returns. User: set `LOG_STACK=aplikacja` in local `.env`. Note: `ListUsersTest` flaked once during 04 review (passed on rerun). Migrations so far: Audit `2026_11_05_000000_create_audit_changes_table`, `2026_11_05_100000_add_restore_marker_to_audit_changes_table`.
+Closed 2026-11-05: issues 01–11 resolved. Open for the user:
+- Run `dartisan migrate` (Audit: `2026_11_05_000000_create_audit_changes_table`, `2026_11_05_100000_add_restore_marker_to_audit_changes_table`).
+- Set `LOG_STACK=aplikacja` in local `.env`.
+- Check the panel by hand: Historia zmian on a user, Dziennik audytu, Logi techniczne + Nieudane zadania.
+- Notes: `ListUsersTest` flaked once (Users); no module offers Restore yet; money presenter assumes zloty (Offers to confirm); failed-jobs paging is in memory.
