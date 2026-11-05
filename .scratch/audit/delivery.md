@@ -14,9 +14,10 @@
 | 06 restore | resolved (695c4dc) | removed | 0 | approved |
 | 07 retention-cleanup | resolved (5bd7b94) | removed | 0 | approved |
 | 08 technical-log-channels | resolved (c12e92f) | removed | 1 | approved |
-| 09 security-events | resolved | removed | 1 | approved |
-| 10 technical-log-page | in progress | .worktrees/audit-10 | 0 | — |
+| 09 security-events | resolved (351176d) | removed | 1 | approved |
+| 10 technical-log-page | resolved | removed | 0 | approved |
+| 11 failed-jobs-tab | in progress | .worktrees/audit-11 | 0 | — |
 
 ## Next action
 
-Review issue 10 when its worker returns. User: set `LOG_STACK=aplikacja` in local `.env`. Note: `ListUsersTest` flaked once during 04 review (passed on rerun). Migrations so far: Audit `2026_11_05_000000_create_audit_changes_table`, `2026_11_05_100000_add_restore_marker_to_audit_changes_table`.
+Review issue 11 when its worker returns. User: set `LOG_STACK=aplikacja` in local `.env`. Note: `ListUsersTest` flaked once during 04 review (passed on rerun). Migrations so far: Audit `2026_11_05_000000_create_audit_changes_table`, `2026_11_05_100000_add_restore_marker_to_audit_changes_table`.
