@@ -1,11 +1,13 @@
 ---
-name: filament-module-ui
-description: "Filament v5 inside a module: resources, pages, tables, forms, infolists, filters, actions, widgets, relation managers and translations. Use when building or changing anything under UserInterface/Filament — how to split classes, send every write as a command, gate visibility, and the v5 namespaces."
+name: filament-module-wiring
+description: "Filament v5 mechanics inside a module: writes as commands, visibility, reads through {X}Queries, class split, v5 namespaces and translations. Use when writing or changing code under UserInterface/Filament."
 ---
 
-# Filament module UI
+# Filament module wiring
 
 Everything Filament lives in `{Module}/UserInterface/Filament/`. It describes what the user sees and sends intents. It reads models and `{X}Queries`; it writes only by sending commands.
+
+How a screen looks (template, layout, action placement, columns, colours, copy) is `admin-ui-design`.
 
 ## Every write sends a command
 
@@ -74,8 +76,7 @@ UserInterface/Filament/Resources/Offers/
 | Piece | Rule |
 |---|---|
 | `{X}Table::configure()` | query, default sort, pagination, toggles, record and bulk actions |
-| Record actions | one visible action stands alone; two or more go into one `ActionGroup` (the three-dot menu) |
-| Columns | inline up to 6 columns; above that `{X}TableColumns::make(): array` |
+| Columns | never inline in `configure()`: a private `columns(): array` method of `{X}Table`; a separate `{X}TableColumns::make(): array` when the list passes ~10 columns (card and toggleable ones count) or carries composite-column logic |
 | Filters | always their own class `{X}TableFilters::make(): array` |
 | Form, infolist | always their own class: `{X}Form::configure()`, `{X}Infolist::configure()` |
 | Form section | own class when it has more than ~8 fields or is used in two places |
@@ -94,7 +95,7 @@ public static function configure(Schema $schema): Schema
 }
 ```
 
-Widgets go in `Filament/Widgets/`, clusters in `Filament/Clusters/`, relation managers in `Filament/RelationManagers/`. `DiscoverModuleFilament` registers everything under `UserInterface/Filament/`; the panel provider lists nothing by hand.
+Widgets go in `Filament/Widgets/`, clusters in `Filament/Clusters/`, relation managers in `Filament/RelationManagers/`. `DiscoverModuleFilament` registers everything under `UserInterface/Filament/`; the panel provider lists nothing by hand except sidebar entries (`admin-ui-design`, Navigation).
 
 ## Enums carry their own presentation
 
@@ -137,6 +138,6 @@ Use `search-docs` for any API detail. Generate files with `dartisan make:filamen
 - No field saves a relation or media by itself.
 - Every `visible()` on a guarded action uses `CurrentActor::can()` and, where a rule applies, the domain policy.
 - Every class respects the split table, and `configure()` reads as an outline.
-- Every table with two or more record actions groups them in one `ActionGroup`.
 - Every user-facing string is a translation key in the right file.
+- The `admin-ui-design` checklist holds.
 - The resource has its Livewire test for create, edit and delete (`module-testing`).

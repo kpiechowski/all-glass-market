@@ -98,14 +98,14 @@ public function activate(): void
 }
 ```
 
-Filament calls the same method with the model's fields (`filament-module-ui`). One rule, one source.
+Filament calls the same method with the model's fields (`filament-module-wiring`). One rule, one source.
 
 ## Authorization
 
 `Core\Contracts\Authorizer` answers "may this actor do this", implemented by the Users module. Modules check **permissions** from their own `{Name}Permission` enum, never roles.
 
 - Handlers call `ensure()`, which throws.
-- Filament calls `actorCan()` from the Core trait to show or hide (`filament-module-ui`).
+- Filament calls `actorCan()` from the Core trait to show or hide (`filament-module-wiring`).
 - `Actor::user($id)` represents a person. A job a person started carries that person's actor.
 - `Actor::system('<reason>')` is for the scheduler, integration webhooks and listeners only. The authorizer lets it through and the reason reaches the audit log. UserInterface builds `Actor::user()` from the Core trait, always.
 

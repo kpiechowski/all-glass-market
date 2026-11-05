@@ -34,7 +34,8 @@ Load the matching skill **before** writing code for that step:
 | Commands, handlers, validation, authorization, jobs, `ModuleApi` | `module-cqrs` |
 | Entities, mappers, repositories, models, `{X}Queries`, migrations | `module-persistence` |
 | Domain events, listeners, observers, audit | `module-events` |
-| Filament resources, pages, tables, forms, actions, translations | `filament-module-ui` |
+| Filament code: commands from the UI, visibility, reads, class split, translations | `filament-module-wiring` |
+| Screen layout, actions, tables, theme CSS | `admin-ui-design` |
 | Writing or running tests, finishing any task | `module-testing` |
 
 The reasons behind the trade-offs are in `docs/adr/`.
