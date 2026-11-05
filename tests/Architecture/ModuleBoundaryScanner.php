@@ -17,6 +17,7 @@ final class ModuleBoundaryScanner
         'Domain\\Contracts\\',
         'Domain\\Enums\\',
         'Infrastructure\\Persistence\\Models\\',
+        'UserInterface\\Filament\\RelationManagers\\',
     ];
 
     public function __construct(private readonly string $projectRoot) {}
