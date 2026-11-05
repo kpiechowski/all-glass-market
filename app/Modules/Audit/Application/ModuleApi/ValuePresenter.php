@@ -14,6 +14,8 @@ use App\Modules\Audit\Domain\Enums\ValuePresenterKind;
  *     ValuePresenter::money()   // a number of zloty, shown "1 200 zł"
  *     ValuePresenter::date()    // an ISO date or date-time
  *     ValuePresenter::list()    // an array, shown comma separated
+ *     ValuePresenter::boolean()   // 0/1 -> tak / nie
+ *     ValuePresenter::translated('users::permissions.')   // 'users.manage' -> the translation at prefix + 'users_manage'; raw when missing
  *     ValuePresenter::plain()   // as stored
  *
  * The entry always keeps the raw value; this only decides the display.
@@ -21,7 +23,7 @@ use App\Modules\Audit\Domain\Enums\ValuePresenterKind;
 final readonly class ValuePresenter
 {
     /**
-     * @param  class-string|null  $target  the referenced model or the enum
+     * @param  string|null  $target  the referenced model or the enum class, or the translation key prefix
      */
     private function __construct(
         public ValuePresenterKind $kind,
@@ -58,6 +60,18 @@ final readonly class ValuePresenter
     public static function list(): self
     {
         return new self(ValuePresenterKind::List);
+    }
+
+    /** A flag stored as 0/1 (or true/false), shown "tak" / "nie". */
+    public static function boolean(): self
+    {
+        return new self(ValuePresenterKind::Boolean);
+    }
+
+    /** The value, dots turned to underscores, is looked up as a translation key under `$keyPrefix`. */
+    public static function translated(string $keyPrefix): self
+    {
+        return new self(ValuePresenterKind::Translated, $keyPrefix);
     }
 
     public static function plain(): self

@@ -19,7 +19,7 @@ class RevokeSuperAdminConsoleCommand extends Command
     public function handle(CommandBus $bus): int
     {
         try {
-            $bus->send(new RevokeSuperAdminCommand(Actor::system('console: users:revoke-super-admin'), (string) $this->argument('email')));
+            $bus->send(new RevokeSuperAdminCommand(Actor::system('users::actors.console_revoke_super_admin'), (string) $this->argument('email')));
         } catch (DomainException $exception) {
             $this->error(__($exception->translationKey, $exception->parameters));
 

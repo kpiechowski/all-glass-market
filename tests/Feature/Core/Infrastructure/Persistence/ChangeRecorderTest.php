@@ -29,6 +29,7 @@ class ChangeRecorderTest extends TestCase
             $table->id();
             $table->string('name');
             $table->integer('stock')->default(0);
+            $table->timestamp('launched_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -191,5 +192,17 @@ class ChangeRecorderTest extends TestCase
         });
 
         $this->assertSame([], $events);
+    }
+
+    public function test_old_and_new_values_are_both_raw_even_for_a_cast_field(): void
+    {
+        $widget = $this->asActor(Actor::user(1), fn () => RecordedWidgetModel::create(['name' => 'gear', 'launched_at' => '2026-01-02 03:04:05']));
+
+        $events = $this->recorded(fn () => $this->asActor(Actor::user(1), fn () => $widget->fresh()->update(['launched_at' => '2026-02-03 04:05:06'])));
+
+        $this->assertSame(
+            ['launched_at' => ['old' => '2026-01-02 03:04:05', 'new' => '2026-02-03 04:05:06']],
+            $events[0]->changes,
+        );
     }
 }

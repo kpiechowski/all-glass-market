@@ -31,7 +31,7 @@ final class ChangeRecorder
             }
 
             foreach ($model->getDirty() as $field => $new) {
-                $changes[$field] = ['old' => $model->getOriginal($field), 'new' => $new];
+                $changes[$field] = ['old' => $this->raw($model->getRawOriginal($field)), 'new' => $this->raw($new)];
             }
         }
 
@@ -44,6 +44,16 @@ final class ChangeRecorder
     public function recordRelations(Model $model, array $relationChanges): void
     {
         $this->actors->buffer(new RecordChanged($model::class, (int) $model->getKey(), ChangeKind::Changed, [], $relationChanges, $this->actors->current()));
+    }
+
+    /**
+     * Values are kept as stored in the column, never cast. The driver returns
+     * a boolean column as 0/1 while a freshly set attribute may still be a
+     * PHP bool, so booleans are written as 0/1 on both sides.
+     */
+    private function raw(mixed $value): mixed
+    {
+        return is_bool($value) ? (int) $value : $value;
     }
 
     /**

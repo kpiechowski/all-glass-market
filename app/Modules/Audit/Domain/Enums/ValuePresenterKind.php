@@ -13,4 +13,6 @@ enum ValuePresenterKind: string
     case Money = 'money';
     case Date = 'date';
     case List = 'list';
+    case Boolean = 'boolean';
+    case Translated = 'translated';
 }

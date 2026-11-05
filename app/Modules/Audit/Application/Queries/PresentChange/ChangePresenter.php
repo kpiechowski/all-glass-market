@@ -28,6 +28,14 @@ final class ChangePresenter
         private ReferenceNames $references,
     ) {}
 
+    /** A System actor's reason as shown: a translation key is translated, any other text stays as written. */
+    public function actorReason(string $reason): string
+    {
+        $text = __($reason);
+
+        return is_string($text) ? $text : $reason;
+    }
+
     /**
      * @param  string  $recordType  the entry's stored type key
      * @param  array<string, array{old: mixed, new: mixed}>  $changes
@@ -74,6 +82,8 @@ final class ChangePresenter
             ValuePresenterKind::Money => new PresentedValue($this->money($raw)),
             ValuePresenterKind::Date => new PresentedValue($this->date($raw)),
             ValuePresenterKind::List => new PresentedValue($this->list($raw)),
+            ValuePresenterKind::Boolean => new PresentedValue($this->plain(filter_var($raw, FILTER_VALIDATE_BOOLEAN))),
+            ValuePresenterKind::Translated => new PresentedValue($this->translated((string) $presenter->target, $raw)),
             ValuePresenterKind::Plain => new PresentedValue($this->plain($raw)),
         };
     }
@@ -104,6 +114,18 @@ final class ChangePresenter
         }
 
         return method_exists($case, 'getLabel') ? (string) $case->getLabel() : $case->name;
+    }
+
+    private function translated(string $keyPrefix, mixed $raw): string
+    {
+        if (! is_string($raw)) {
+            return $this->plain($raw);
+        }
+
+        $key = $keyPrefix.str_replace('.', '_', $raw);
+        $text = __($key);
+
+        return $text === $key ? $raw : (string) $text;
     }
 
     private function money(mixed $raw): string

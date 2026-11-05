@@ -127,4 +127,24 @@ class ChangePresenterTest extends TestCase
     {
         return app(ChangePresenter::class)->present('things.thing', $changes, []);
     }
+
+    public function test_a_boolean_flag_shows_tak_or_nie_lowercase(): void
+    {
+        app(AuditableRecords::class)->register(new AuditableRecordType(
+            key: 'flags.flag', modelClass: 'App\\Flag', name: 'x', title: fn (): string => 'f', url: fn (): ?string => null,
+            valuePresenters: ['on' => ValuePresenter::boolean()],
+        ));
+
+        $line = app(ChangePresenter::class)->present('flags.flag', ['on' => ['old' => 0, 'new' => 1]], [])[0];
+
+        $this->assertSame(['nie', 'tak'], [$line->old->text, $line->new->text]);
+    }
+
+    public function test_a_system_reason_that_is_a_translation_key_shows_translated_and_plain_text_stays(): void
+    {
+        $presenter = app(ChangePresenter::class);
+
+        $this->assertSame('Reset hasła przez link (niezalogowany)', $presenter->actorReason('users::actors.password_reset_redeemed'));
+        $this->assertSame('Import WooCommerce', $presenter->actorReason('Import WooCommerce'));
+    }
 }

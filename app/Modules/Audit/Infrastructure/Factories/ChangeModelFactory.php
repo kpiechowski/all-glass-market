@@ -23,7 +23,7 @@ final class ChangeModelFactory extends ModelFactory
             'title' => null,
             'changes' => ['name' => ['old' => 'a', 'new' => 'b']],
             'relation_changes' => [],
-            'actor_id' => UserModel::factory(),
+            'actor_id' => fn (): int => UserModel::withoutEvents(fn (): int => UserModel::factory()->create()->id), // the actor's own creation is not part of the history under test
             'actor_reason' => null,
             'occurred_at' => now(),
         ];

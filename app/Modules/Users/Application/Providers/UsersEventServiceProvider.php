@@ -9,6 +9,8 @@ use App\Modules\Users\Application\Listeners\SendJournalEntryNotification;
 use App\Modules\Users\Application\Listeners\WriteAccountTypeChangeJournalEntries;
 use App\Modules\Users\Domain\Events\AccountTypeChanged;
 use App\Modules\Users\Domain\Events\JournalEntryAdded;
+use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
+use App\Modules\Users\Infrastructure\Persistence\Observers\UserObserver;
 
 class UsersEventServiceProvider extends CoreEventServiceProvider
 {
@@ -17,5 +19,7 @@ class UsersEventServiceProvider extends CoreEventServiceProvider
         JournalEntryAdded::class => [SendJournalEntryNotification::class],
     ];
 
-    protected $observers = [];
+    protected $observers = [
+        UserModel::class => UserObserver::class,
+    ];
 }

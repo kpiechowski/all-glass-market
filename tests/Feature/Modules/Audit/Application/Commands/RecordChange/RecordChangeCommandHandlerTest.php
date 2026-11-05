@@ -34,7 +34,7 @@ class RecordChangeCommandHandlerTest extends TestCase
 
         $id = $this->createThing(Actor::user($user->id), ['name' => 'szyba', 'price' => 1200, 'secret' => 'x']);
 
-        $entry = ChangeModel::sole();
+        $entry = ChangeModel::query()->where('record_type', 'things.thing')->sole();
         $this->assertSame('things.thing', $entry->record_type);
         $this->assertSame($id, $entry->record_id);
         $this->assertSame(ChangeKind::Created, $entry->kind);
@@ -147,7 +147,7 @@ class RecordChangeCommandHandlerTest extends TestCase
 
         $this->createThing(Actor::user($user->id));
 
-        $entry = ChangeModel::sole();
+        $entry = ChangeModel::query()->where('record_type', 'things.thing')->sole();
         $this->assertSame($user->id, $entry->actor_id);
         $this->assertNull($entry->actor_reason);
     }

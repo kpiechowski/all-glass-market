@@ -10,4 +10,8 @@ return [
     'inactive' => 'Nieaktywny',
     'created_at' => 'Utworzono',
     'updated_at' => 'Zaktualizowano',
+
+    'actors' => [
+        'dev_create_user' => 'Konsola: dev:create-user',
+    ],
 ];

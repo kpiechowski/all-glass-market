@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Core\Console;
 
+use App\Core\Domain\Actor;
+use App\Core\Infrastructure\Bus\ActorStack;
 use App\Core\Infrastructure\Persistence\ReadOnlyModel;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
@@ -76,7 +78,10 @@ class CreateDevUserCommand extends Command
 
         // ── 5. Persist ───────────────────────────────────────────────────────
         /** @var Model $model */
-        $model = ReadOnlyModel::writing(fn () => $modelClass::updateOrCreate(['email' => $email], $attributes));
+        $model = app(ActorStack::class)->run(
+            Actor::system('core::common.actors.dev_create_user'),
+            fn () => ReadOnlyModel::writing(fn () => $modelClass::updateOrCreate(['email' => $email], $attributes)),
+        );
 
         $action = $model->wasRecentlyCreated ? 'Created' : 'Updated';
         $this->info("{$action} [{$guard}] user: {$email}");

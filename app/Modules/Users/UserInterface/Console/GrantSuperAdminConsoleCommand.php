@@ -19,7 +19,7 @@ class GrantSuperAdminConsoleCommand extends Command
     public function handle(CommandBus $bus): int
     {
         try {
-            $bus->send(new GrantSuperAdminCommand(Actor::system('console: users:grant-super-admin'), (string) $this->argument('email')));
+            $bus->send(new GrantSuperAdminCommand(Actor::system('users::actors.console_grant_super_admin'), (string) $this->argument('email')));
         } catch (DomainException $exception) {
             $this->error(__($exception->translationKey, $exception->parameters));
 

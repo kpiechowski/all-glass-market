@@ -19,6 +19,11 @@ final class RecordedWidgetModel extends ReadOnlyModel
 
     protected $guarded = [];
 
+    protected function casts(): array
+    {
+        return ['launched_at' => 'datetime', 'stock' => 'integer'];
+    }
+
     protected static function booted(): void
     {
         $record = fn (ChangeKind $kind) => fn (self $model) => app(ChangeRecorder::class)->record($model, $kind);
