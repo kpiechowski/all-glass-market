@@ -10,9 +10,10 @@
 | 02 change-history-recording-and-registration | resolved (8f5657e) | removed | 1 | approved |
 | 03 users-auditable | resolved (74d14b4) | removed | 1 | approved |
 | 04 record-history-section | resolved (a834e40) | removed | 0 | approved |
-| 05 central-audit-page | resolved | removed | 0 | approved |
-| 06 restore | in progress | .worktrees/audit-06 | 0 | — |
+| 05 central-audit-page | resolved (fafc4bc) | removed | 0 | approved |
+| 06 restore | resolved | removed | 0 | approved |
+| 07 retention-cleanup | in progress | .worktrees/audit-07 | 0 | — |
 
 ## Next action
 
-Review issue 06 when its worker returns. Note: `ListUsersTest` flaked once during 04 review (passed on rerun). Migrations so far: Audit `2026_11_05_000000_create_audit_changes_table`.
+Review issue 07 when its worker returns. Note: `ListUsersTest` flaked once during 04 review (passed on rerun). Migrations so far: Audit `2026_11_05_000000_create_audit_changes_table`, `2026_11_05_100000_add_restore_marker_to_audit_changes_table`.
