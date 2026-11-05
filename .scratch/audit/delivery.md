@@ -16,7 +16,7 @@
 | 08 technical-log-channels | resolved (c12e92f) | removed | 1 | approved |
 | 09 security-events | resolved (351176d) | removed | 1 | approved |
 | 10 technical-log-page | resolved (40ae71d) | removed | 0 | approved |
-| 12 review-fixes | resolved (6d1e8d0) | removed | 0 | approved |
+| 12 review-fixes | resolved (3956144) | removed | 0 | approved |
 | 11 failed-jobs-tab | resolved (f803405) | removed | 0 | approved |
 
 ## Next action
