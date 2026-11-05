@@ -13,6 +13,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Livewire\Attributes\Locked;
 
 /**
  * The "Historia zmian" tab (FR-09, FR-10). A hosting resource lists it in
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class RecordHistoryRelationManager extends RelationManager
 {
+    #[Locked]
     public string $recordType = '';
 
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool

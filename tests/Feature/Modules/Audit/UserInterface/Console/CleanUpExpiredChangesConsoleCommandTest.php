@@ -73,6 +73,38 @@ class CleanUpExpiredChangesConsoleCommandTest extends TestCase
         $this->assertStringNotContainsString('ERROR', $this->loggedText());
     }
 
+    public function test_it_deletes_labelled_channel_files_older_than_14_days_only(): void
+    {
+        $directory = sys_get_temp_dir().'/audit-logs-'.uniqid();
+        mkdir($directory);
+        config(['logging.channels.kolejka.path' => $directory.'/kolejka.log']);
+
+        $file = fn (string $name): string => $directory.'/'.$name;
+        $dated = fn (int $days): string => $file('kolejka-'.now()->subDays($days)->format('Y-m-d').'.log');
+        foreach ([20, 15, 14, 13, 0] as $days) {
+            touch($dated($days));
+        }
+        touch($file('kolejka-2020-02-31.log'));
+        touch($file('kolejka-2020-01-01.log.bak'));
+        touch($file('other-2020-01-01.log'));
+        touch($file('notes.txt'));
+
+        $this->artisan('audit:cleanup-retention')->assertSuccessful();
+
+        $this->assertFileDoesNotExist($dated(20));
+        $this->assertFileDoesNotExist($dated(15));
+        foreach ([14, 13, 0] as $days) {
+            $this->assertFileExists($dated($days));
+        }
+        $this->assertFileExists($file('kolejka-2020-02-31.log'));
+        $this->assertFileExists($file('kolejka-2020-01-01.log.bak'));
+        $this->assertFileExists($file('other-2020-01-01.log'));
+        $this->assertFileExists($file('notes.txt'));
+
+        array_map(unlink(...), glob($directory.'/*') ?: []);
+        rmdir($directory);
+    }
+
     private function logToTemporaryFile(): void
     {
         $this->logPath = sys_get_temp_dir().'/audit-cleanup-'.uniqid().'.log';

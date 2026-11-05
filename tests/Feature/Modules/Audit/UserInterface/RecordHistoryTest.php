@@ -13,6 +13,7 @@ use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Pages\ViewUser;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -113,6 +114,15 @@ class RecordHistoryTest extends TestCase
 
         $this->assertStringContainsString('Stary warsztat', $html);
         $this->assertStringContainsString('usunięto', $html);
+    }
+
+    public function test_the_record_type_cannot_be_set_from_the_client(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+
+        $this->expectException(CannotUpdateLockedPropertyException::class);
+
+        $this->history()->set('recordType', 'users.role');
     }
 
     public function test_it_is_read_only(): void
