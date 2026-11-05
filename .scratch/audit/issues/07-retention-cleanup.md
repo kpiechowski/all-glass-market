@@ -1,6 +1,6 @@
 # 07 - Retention cleanup
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 02
 
 Spec: FR-20, FR-21, WF-03, §7. Decisions: D-01, D-13, D-30, D-38.
@@ -21,3 +21,14 @@ Spec: FR-20, FR-21, WF-03, §7. Decisions: D-01, D-13, D-30, D-38.
 - `composer check` passes.
 
 ## Comments
+
+### Worker — 2026-11-05
+- **Built:** FR-20/WF-03 step 1: `CleanUpExpiredChangesCommand` + handler (System actor only, reason key `audit::actors.retention_cleanup`; a User actor gets AuthorizationException) calling `ChangeRepository::removeOlderThan()`, the only delete path. Retention period behind `Domain\Contracts\RetentionPeriod`, adapter `Infrastructure\Settings\ConfigRetentionPeriod` reading `audit.retention_days` (env `AUDIT_RETENTION_DAYS`, default 365). Console `audit:cleanup-retention` scheduled daily at 03:00 from the module provider; it also verifies the daily log driver's `days` is 1..14 (FR-21).
+- **Deviations:** the schedule is registered in `AuditModuleServiceProvider` (callAfterResolving Schedule), not routes/console.php, to keep it in the module. Cutoff is `now - N days` (entries strictly older are removed). Failure (including a bad `days` config) logs `error` and exits non-zero; next night's run retries. Added `removeOlderThan` to the test fixture `FailingChangeRepository`.
+- **Seams left:** Settings module rebinds `RetentionPeriod`. Ticket 08: `logFailure()` in the console command uses `Log::channel('aplikacja')` once that channel is configured, otherwise the default channel.
+- **Open questions:** none
+- **Check:** composer check green
+
+### Review — 2026-11-05
+- **Verdict:** approved after 0 fix rounds
+- **Notes:** `audit:cleanup-retention` (03:00, scheduled from `AuditModuleServiceProvider`) sends `CleanUpExpiredChangesCommand` under `Actor::system('audit::actors.retention_cleanup')`; only a System Actor may send it. `ChangeRepository::removeOlderThan()` is the only delete path. Retention seam: `Domain/Contracts/RetentionPeriod` ← `ConfigRetentionPeriod` (`audit.retention_days`, 365, `AUDIT_RETENTION_DAYS`) until Settings exists. Seams for 08: failure logs to `aplikacja` once it exists; the log-retention check reads only `logging.channels.daily.days` — 08 must extend it to every daily channel it defines.
