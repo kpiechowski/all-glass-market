@@ -1,0 +1,14 @@
+# Audit — delivery log
+
+- **Branch:** `feat/audit` (spec + issues @ 6e754e1)
+- **Scope:** issues 01–11, one worker at a time (user's rule). Another agent works on skills/MD files on this branch — never touch their uncommitted files.
+- **Order:** 01 → 02 → 03 → 04 → {05, 06} ; 07 after 02 ; 08 → {09, 10} → 11
+
+| Issue | Status | Worktree | Round | Last verdict |
+|---|---|---|---|---|
+| 01 core-recorded-changes | resolved (c7a84da) | removed | 1 | approved |
+| 02 change-history-recording-and-registration | in progress | .worktrees/audit-02 | 0 | — |
+
+## Next action
+
+Review issue 02 when its worker returns.
