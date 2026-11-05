@@ -8,8 +8,9 @@
 |---|---|---|---|---|
 | 01 core-recorded-changes | resolved (c7a84da) | removed | 1 | approved |
 | 02 change-history-recording-and-registration | resolved (8f5657e) | removed | 1 | approved |
-| 03 users-auditable | in progress | .worktrees/audit-03 | 0 | — |
+| 03 users-auditable | resolved | removed | 1 | approved |
+| 04 record-history-section | in progress | .worktrees/audit-04 | 0 | — |
 
 ## Next action
 
-Review issue 03 when its worker returns. Migrations so far: Audit `2026_11_05_000000_create_audit_changes_table`.
+Review issue 04 when its worker returns. Migrations so far: Audit `2026_11_05_000000_create_audit_changes_table`.
