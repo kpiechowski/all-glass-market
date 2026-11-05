@@ -32,4 +32,17 @@ class ChangeQueriesTest extends TestCase
 
         $this->assertSame([$newer->id, $older->id], app(ChangeQueries::class)->all()->pluck('id')->all());
     }
+
+    public function test_all_actors_lists_every_acting_user_and_flags_system_entries(): void
+    {
+        $queries = app(ChangeQueries::class);
+        $entry = ChangeModel::factory()->create();
+
+        $this->assertSame([$entry->actor_id], array_keys($queries->allActors()));
+        $this->assertFalse($queries->anySystemEntries());
+
+        ChangeModel::factory()->bySystem()->create();
+
+        $this->assertTrue($queries->anySystemEntries());
+    }
 }

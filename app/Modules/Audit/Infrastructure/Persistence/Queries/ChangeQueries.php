@@ -52,6 +52,24 @@ final class ChangeQueries
         return $this->forRecord($recordType, $recordId)->whereNull('actor_id')->exists();
     }
 
+    /**
+     * The Users who made any entry, id to name (the central page's Actor filter).
+     *
+     * @return array<string, string>
+     */
+    public function allActors(): array
+    {
+        $ids = $this->all()->whereNotNull('actor_id')->reorder()->distinct()->pluck('actor_id');
+
+        return UserModel::query()->whereIn('id', $ids)->orderBy('name')->pluck('name', 'id')
+            ->mapWithKeys(fn (string $name, int $id): array => [(string) $id => $name])->all();
+    }
+
+    public function anySystemEntries(): bool
+    {
+        return $this->all()->whereNull('actor_id')->exists();
+    }
+
     /** @return Builder<ChangeModel> */
     private function newestFirst(): Builder
     {

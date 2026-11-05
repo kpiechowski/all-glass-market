@@ -16,4 +16,15 @@ return [
             'kind' => 'Rodzaj',
         ],
     ],
+    'audit_log' => [
+        'navigation_label' => 'Dziennik audytu',
+        'title' => 'Dziennik audytu',
+        'fields' => [
+            'record_type' => 'Rodzaj rekordu',
+            'record' => 'Rekord',
+            'record_id' => 'Identyfikator rekordu',
+            'from' => 'Od',
+            'until' => 'Do',
+        ],
+    ],
 ];

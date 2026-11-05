@@ -26,7 +26,7 @@ class RecordHistoryTable
     }
 
     /** @return list<TextColumn> */
-    private static function columns(): array
+    public static function columns(): array
     {
         return [
             TextColumn::make('occurred_at')
@@ -54,7 +54,7 @@ class RecordHistoryTable
         return $record->actor?->name ?? '#'.$record->actor_id;
     }
 
-    private static function detailsAction(): Action
+    public static function detailsAction(): Action
     {
         return Action::make('details')
             ->label(__('audit::resources.record_history.details'))
