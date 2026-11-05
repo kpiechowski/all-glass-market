@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers\Filament;
 
 use App\Core\Concerns\DiscoverModuleFilament;
+use App\Core\UserInterface\Filament\Pages\Styleguide;
 use App\Modules\Users\UserInterface\Filament\Auth\AcceptInvitation;
 use App\Modules\Users\UserInterface\Filament\Auth\Login;
 use App\Modules\Users\UserInterface\Filament\Auth\RequestPasswordReset;
@@ -88,6 +89,11 @@ class AdminPanelProvider extends PanelProvider
             ]);
 
         $this->discoverModuleFilament($panel);
+
+        /* D-33: the Styleguide exists only locally; elsewhere its route is never registered. */
+        if (app()->isLocal()) {
+            $panel->pages([Styleguide::class]);
+        }
 
         return $panel;
     }

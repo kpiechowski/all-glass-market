@@ -1,6 +1,6 @@
 # 03 - Styleguide page on the default look
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 02
 
 Spec: D-33, D-34, D-32.
@@ -24,3 +24,18 @@ Spec: D-33, D-34, D-32.
 - `/admin/styleguide` renders locally and returns 404 outside `local` (test).
 - `composer check` passes.
 - The user has opened it and confirmed every block is present.
+
+## Comments
+
+**2026-11-05, agent**
+
+- Page `app/Core/UserInterface/Filament/Pages/Styleguide.php` (`/admin/styleguide`), registered in `AdminPanelProvider` inside `if (app()->isLocal())`. Pieces split per `filament-module-wiring` under `Pages/Styleguide/`: `Schemas/` (StyleguideForm = B, StyleguideSettingsForm = in-form tabs, StyleguideTabs = page tabs, StyleguideInfolist = C), `Tables/` (StyleguideUsersTable = A, StyleguideUsersTableFilters, DemoUsers static rows), `Actions/` (InviteUser modal, EditPricing slide-over, DeactivateUser dangerous confirmation, DemoNotification).
+- Core had no view namespace: added `loadViewsFrom(.../UserInterface/resources/views, 'core')` in `CoreServiceProvider`. Views: `core::filament.pages.styleguide` + `styleguide/{font-switcher,list-tabs,user-card}`.
+- Nothing is persisted, so no commands: every action only sends a notification; forms call `validate()`, never `getState()`, so uploads are never stored. Hard-coded Polish copy is noted in the class docblock (D-33).
+- Table on `records()` with search, list tabs (Aktywni/Nieaktywni/Zaproszeni/Wszyscy), 3 inline filters, sort, pagination (5/10/25) applied in memory. Two grey table header switches: "Pokaż pusty stan" and "Filtry w panelu" (swaps `AboveContent` ↔ `Dropdown` to show the filter panel). Row click goes to `#karta-rekordu` (no record page exists).
+- NIP is prefilled invalid and its error is added on mount; "Zapisz" validates for real.
+- Font switcher: Bunny Fonts link for Roboto/Inter/Manrope, sets `--font-family` on `<html>` (the variable Filament's base layout declares on `:root`), remembered in `localStorage` (`styleguide:font`), try/catch around storage. `->font()` untouched.
+- No CSS file changed and no build needed: the card and switcher use Filament Blade components plus a few inline styles, because `app/Core/UserInterface/resources/views` is not a Tailwind `@source` in `theme.css` yet. Adding that line is a follow-up for 04+.
+- `infolist--sheet` class is set on the infolist sections as in template C; it has no CSS yet (variants pending), so the look is unchanged.
+- Test `tests/Feature/Core/UserInterface/Filament/Pages/StyleguideTest.php`: 404 outside local, full render locally, empty-state switch, list tab, demo save validation. Tests named `*_locally` boot the app with `env=local` via `afterBootstrapping(LoadConfiguration)`.
+- `composer check`: pint pass, deptrac 0 violations, 633 tests passed.

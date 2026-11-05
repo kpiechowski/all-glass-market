@@ -17,3 +17,7 @@ Spec: D-25..D-32, D-37.
 
 - The user has accepted the layout and the font on screenshots (D-37). Note each review round under Comments.
 - `npm run build` and `composer check` pass.
+
+## Comments
+
+- 2026-11-05 (manager, from 03): `theme.css` has no `@source` for `app/Core/UserInterface/resources/views/**/*`, so Tailwind utilities in Core Blade (Styleguide card, font switcher) do not compile; 03 used inline styles. Add the `@source` and move those inline styles to classes.

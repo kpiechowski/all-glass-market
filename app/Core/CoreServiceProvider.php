@@ -30,6 +30,7 @@ class CoreServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__.'/Infrastructure/migrations');
         $this->loadTranslationsFrom(__DIR__.'/UserInterface/resources/lang', 'core');
+        $this->loadViewsFrom(__DIR__.'/UserInterface/resources/views', 'core');
 
         if ($this->app->runningInConsole()) {
             $this->commands([
