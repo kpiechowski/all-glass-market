@@ -7,6 +7,7 @@ namespace App\Modules\Users\UserInterface\Support;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Filament\Facades\Filament;
 use Illuminate\Auth\SessionGuard;
+use Illuminate\Events\NullDispatcher;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -69,7 +70,16 @@ final class ImpersonationSession
     {
         /** @var SessionGuard $guard */
         $guard = Filament::auth();
-        $guard->login($user);
+
+        // Switching accounts is not a sign-in: keep the guard's Login event out of the security log.
+        $events = $guard->getDispatcher();
+        $guard->setDispatcher(new NullDispatcher($events));
+
+        try {
+            $guard->login($user);
+        } finally {
+            $guard->setDispatcher($events);
+        }
 
         session()->put('password_hash_'.Auth::getDefaultDriver(), $guard->hashPasswordForCookie($user->getAuthPassword()));
         session()->regenerate();

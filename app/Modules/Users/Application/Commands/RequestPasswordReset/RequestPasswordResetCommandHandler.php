@@ -9,6 +9,7 @@ use App\Modules\Users\Application\ModuleApi\EmailSending;
 use App\Modules\Users\Application\Services\PasswordLinkEligibility;
 use App\Modules\Users\Domain\Contracts\PasswordLinks;
 use App\Modules\Users\Domain\Enums\PasswordLinkKind;
+use App\Modules\Users\Domain\Events\PasswordResetRequested;
 use App\Modules\Users\Domain\Exceptions\UserRefused;
 use App\Modules\Users\Domain\Repositories\UserRepository;
 use Ecotone\Modelling\Attribute\CommandHandler;
@@ -48,6 +49,7 @@ final class RequestPasswordResetCommandHandler
 
         try {
             $this->links->send((int) $user->id(), PasswordLinkKind::Reset);
+            event(new PasswordResetRequested((int) $user->id()));
         } catch (UserRefused) {
             // Reported by the adapter; the Guest gets the usual neutral response.
         }
