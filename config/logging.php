@@ -50,11 +50,22 @@ return [
     |
     */
 
+    /*
+    | Channels shown on the Technical log page: disk-safe channel name (also
+    | the log file name) => translation key of its Polish label. A new channel
+    | adds its daily config here plus a key from its own module's lang files.
+    */
+    'labels' => [
+        'aplikacja' => 'audit::channels.aplikacja',
+        'bezpieczenstwo' => 'audit::channels.bezpieczenstwo',
+        'kolejka' => 'audit::channels.kolejka',
+    ],
+
     'channels' => [
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => explode(',', (string) env('LOG_STACK', 'single')),
+            'channels' => explode(',', (string) env('LOG_STACK', 'aplikacja')),
             'ignore_exceptions' => false,
         ],
 
@@ -68,6 +79,30 @@ return [
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => env('LOG_DAILY_DAYS', 14),
+            'replace_placeholders' => true,
+        ],
+
+        'aplikacja' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/aplikacja.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => env('LOG_DAILY_DAYS', 14),
+            'replace_placeholders' => true,
+        ],
+
+        'bezpieczenstwo' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/bezpieczenstwo.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => env('LOG_DAILY_DAYS', 14),
+            'replace_placeholders' => true,
+        ],
+
+        'kolejka' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/kolejka.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,

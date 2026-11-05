@@ -44,28 +44,25 @@ class CleanUpExpiredChangesConsoleCommand extends Command
 
     /**
      * Laravel's daily driver deletes old files itself through `days`; this only
-     * proves the option is set and not above the fixed 14 days.
+     * proves the option is set on every daily channel and not above the fixed 14 days.
      */
     private function verifyDailyLogRetention(): void
     {
-        $days = config('logging.channels.daily.days');
+        foreach (config('logging.channels', []) as $name => $channel) {
+            if (($channel['driver'] ?? null) !== 'daily') {
+                continue;
+            }
 
-        if (! is_numeric($days) || (int) $days < 1 || (int) $days > self::LOG_FILE_DAYS) {
-            throw new RuntimeException('The daily log driver must keep files for 1 to '.self::LOG_FILE_DAYS.' days, found '.var_export($days, true).'.');
+            $days = $channel['days'] ?? null;
+
+            if (! is_numeric($days) || (int) $days < 1 || (int) $days > self::LOG_FILE_DAYS) {
+                throw new RuntimeException("The daily log channel {$name} must keep files for 1 to ".self::LOG_FILE_DAYS.' days, found '.var_export($days, true).'.');
+            }
         }
     }
 
-    /** Seam for ticket 08: the aplikacja channel does not exist until then, so the default channel is used. */
     private function logFailure(Throwable $exception): void
     {
-        $context = ['exception' => $exception];
-
-        if (config('logging.channels.aplikacja') !== null) {
-            Log::channel('aplikacja')->error('Audit retention cleanup failed.', $context);
-
-            return;
-        }
-
-        Log::error('Audit retention cleanup failed.', $context);
+        Log::channel('aplikacja')->error('Audit retention cleanup failed.', ['exception' => $exception]);
     }
 }

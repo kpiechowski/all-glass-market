@@ -16,6 +16,15 @@ class CleanUpExpiredChangesConsoleCommandTest extends TestCase
 {
     use RefreshDatabase;
 
+    private string $logPath = '';
+
+    protected function tearDown(): void
+    {
+        array_map(unlink(...), glob(str_replace('.log', '-*.log', $this->logPath)) ?: []);
+
+        parent::tearDown();
+    }
+
     public function test_it_removes_expired_entries(): void
     {
         $old = ChangeModel::factory()->bySystem()->create(['occurred_at' => now()->subDays(400)]);
@@ -39,29 +48,40 @@ class CleanUpExpiredChangesConsoleCommandTest extends TestCase
     public function test_a_failure_is_logged_as_an_error_and_fails_the_command(): void
     {
         $this->app->bind(ChangeRepository::class, fn () => throw new RuntimeException('db down'));
-        Log::spy();
+        $this->logToTemporaryFile();
 
         $this->artisan('audit:cleanup-retention')->assertFailed();
 
-        Log::shouldHaveReceived('error')->once();
+        $this->assertStringContainsString('testing.ERROR: Audit retention cleanup failed.', $this->loggedText());
     }
 
     public function test_a_daily_log_driver_that_keeps_files_too_long_is_logged_as_an_error(): void
     {
-        config(['logging.channels.daily.days' => 0]);
-        Log::spy();
+        config(['logging.channels.kolejka.days' => 30]);
+        $this->logToTemporaryFile();
 
         $this->artisan('audit:cleanup-retention')->assertFailed();
 
-        Log::shouldHaveReceived('error')->once();
+        $this->assertStringContainsString('testing.ERROR: Audit retention cleanup failed.', $this->loggedText());
     }
 
     public function test_the_default_daily_driver_keeps_14_days(): void
     {
-        Log::spy();
-
+        $this->logToTemporaryFile();
         $this->artisan('audit:cleanup-retention')->assertSuccessful();
 
-        Log::shouldNotHaveReceived('error');
+        $this->assertStringNotContainsString('ERROR', $this->loggedText());
+    }
+
+    private function logToTemporaryFile(): void
+    {
+        $this->logPath = sys_get_temp_dir().'/audit-cleanup-'.uniqid().'.log';
+        config(['logging.channels.aplikacja.path' => $this->logPath]);
+        Log::forgetChannel('aplikacja');
+    }
+
+    private function loggedText(): string
+    {
+        return implode('', array_map(file_get_contents(...), glob(str_replace('.log', '-*.log', $this->logPath)) ?: []));
     }
 }
