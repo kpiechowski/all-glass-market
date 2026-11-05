@@ -12,9 +12,10 @@
 | 04 record-history-section | resolved (a834e40) | removed | 0 | approved |
 | 05 central-audit-page | resolved (fafc4bc) | removed | 0 | approved |
 | 06 restore | resolved (695c4dc) | removed | 0 | approved |
-| 07 retention-cleanup | resolved | removed | 0 | approved |
-| 08 technical-log-channels | in progress | .worktrees/audit-08 | 0 | — |
+| 07 retention-cleanup | resolved (5bd7b94) | removed | 0 | approved |
+| 08 technical-log-channels | resolved | removed | 1 | approved |
+| 09 security-events | in progress | .worktrees/audit-09 | 0 | — |
 
 ## Next action
 
-Review issue 08 when its worker returns. Note: `ListUsersTest` flaked once during 04 review (passed on rerun). Migrations so far: Audit `2026_11_05_000000_create_audit_changes_table`, `2026_11_05_100000_add_restore_marker_to_audit_changes_table`.
+Review issue 09 when its worker returns. User: set `LOG_STACK=aplikacja` in local `.env`. Note: `ListUsersTest` flaked once during 04 review (passed on rerun). Migrations so far: Audit `2026_11_05_000000_create_audit_changes_table`, `2026_11_05_100000_add_restore_marker_to_audit_changes_table`.
