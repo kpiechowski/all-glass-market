@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Modules\Audit\UserInterface\Filament\Pages\TechnicalLog;
 
 use App\Core\UserInterface\CurrentActor;
+use App\Modules\Audit\Application\Queries\TechnicalLog\FailedJobEntry;
+use App\Modules\Audit\Application\Queries\TechnicalLog\ListFailedJobs;
 use App\Modules\Audit\Application\Queries\TechnicalLog\LogEntry;
 use App\Modules\Audit\Application\Queries\TechnicalLog\LogFiles;
 use App\Modules\Audit\Application\Queries\TechnicalLog\ReadLogEntries;
 use App\Modules\Audit\Domain\Enums\AuditPermission;
 use App\Modules\Audit\Domain\Enums\LogLevel;
 use App\Modules\Audit\UserInterface\Filament\Pages\TechnicalLog\Schemas\LogSelectionForm;
+use App\Modules\Audit\UserInterface\Filament\Tables\FailedJobsTable;
 use App\Modules\Audit\UserInterface\Filament\Tables\TechnicalLogTable;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -21,11 +24,13 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Livewire\Attributes\Url;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * The "Logi techniczne" page (FR-16, WF-04): holders of "logi techniczne" only.
  * Reads the daily files and offers one for download; nothing is written or deleted.
+ * The Nieudane zadania tab (FR-18) lists failed background jobs; Ponów and Usuń are commands.
  */
 class TechnicalLog extends Page implements HasTable
 {
@@ -41,6 +46,10 @@ class TechnicalLog extends Page implements HasTable
 
     /** @var array{channel?: string|null, day?: string|null} */
     public ?array $data = [];
+
+    /** `failed` opens Nieudane zadania (FR-18); anything else is the log files. */
+    #[Url]
+    public string $activeTab = 'files';
 
     public static function canAccess(): bool
     {
@@ -70,8 +79,18 @@ class TechnicalLog extends Page implements HasTable
         return LogSelectionForm::configure($schema, fn () => $this->resetPage());
     }
 
+    public function isFailedJobsTab(): bool
+    {
+        return $this->activeTab === 'failed';
+    }
+
     public function table(Table $table): Table
     {
+        if ($this->isFailedJobsTab()) {
+            return FailedJobsTable::configure($table)
+                ->records(fn (int $page, int|string $recordsPerPage): LengthAwarePaginator => $this->failedJobRecords($page, (int) $recordsPerPage));
+        }
+
         return TechnicalLogTable::configure($table)
             ->records(fn (?string $search, array $filters, int $page, int|string $recordsPerPage): LengthAwarePaginator => $this->records(
                 $search,
@@ -88,7 +107,7 @@ class TechnicalLog extends Page implements HasTable
             Action::make('download')
                 ->label(__('audit::pages.technical_log.download'))
                 ->icon('heroicon-o-arrow-down-tray')
-                ->visible(fn (): bool => $this->file() !== null)
+                ->visible(fn (): bool => ! $this->isFailedJobsTab() && $this->file() !== null)
                 ->action(fn (): ?BinaryFileResponse => $this->download()),
         ];
     }
@@ -130,6 +149,30 @@ class TechnicalLog extends Page implements HasTable
                 ],
             ]),
             total: $result?->total ?? 0,
+            perPage: $perPage,
+            currentPage: $page,
+        );
+    }
+
+    private function failedJobRecords(int $page, int $perPage): LengthAwarePaginator
+    {
+        abort_unless(self::canAccess(), 403);
+
+        $entries = collect(app(ListFailedJobs::class)->all());
+
+        return new LengthAwarePaginator(
+            $entries->forPage($page, $perPage)->mapWithKeys(fn (FailedJobEntry $entry): array => [
+                $entry->id => [
+                    'id' => $entry->id,
+                    'name' => $entry->name,
+                    'job_class' => $entry->jobClass,
+                    'queue' => $entry->queue,
+                    'time' => $entry->time,
+                    'error' => $entry->error,
+                    'exception' => $entry->exception,
+                ],
+            ]),
+            total: $entries->count(),
             perPage: $perPage,
             currentPage: $page,
         );

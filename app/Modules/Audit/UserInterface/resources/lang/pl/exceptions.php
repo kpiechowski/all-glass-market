@@ -12,4 +12,5 @@ return [
     'restore_record_gone' => 'Rekord został usunięty, więc nie można go przywrócić z wpisu.',
     'log_unknown_channel' => 'Nieznany kanał logów.',
     'log_invalid_day' => 'Dzień musi być poprawną datą w formacie RRRR-MM-DD.',
+    'failed_job_not_found' => 'Nie znaleziono nieudanego zadania. Mogło zostać już ponowione lub usunięte.',
 ];

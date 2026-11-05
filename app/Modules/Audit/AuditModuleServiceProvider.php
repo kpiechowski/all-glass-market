@@ -7,6 +7,7 @@ namespace App\Modules\Audit;
 use App\Core\Providers\ModuleServiceProvider;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecords;
 use App\Modules\Audit\Application\Providers\AuditEventServiceProvider;
+use App\Modules\Audit\Domain\Contracts\FailedJobs;
 use App\Modules\Audit\Domain\Contracts\RecordLoader;
 use App\Modules\Audit\Domain\Contracts\ReferenceNames;
 use App\Modules\Audit\Domain\Contracts\RetentionPeriod;
@@ -15,6 +16,7 @@ use App\Modules\Audit\Domain\Repositories\ChangeRepository;
 use App\Modules\Audit\Infrastructure\Persistence\EloquentChangeRepository;
 use App\Modules\Audit\Infrastructure\Persistence\EloquentRecordLoader;
 use App\Modules\Audit\Infrastructure\Persistence\EloquentReferenceNames;
+use App\Modules\Audit\Infrastructure\Queue\LaravelFailedJobs;
 use App\Modules\Audit\Infrastructure\Settings\ConfigRetentionPeriod;
 use App\Modules\Audit\UserInterface\Console\CleanUpExpiredChangesConsoleCommand;
 use App\Modules\Users\Application\ModuleApi\RoleRegistry;
@@ -36,6 +38,7 @@ class AuditModuleServiceProvider extends ModuleServiceProvider
         RecordLoader::class => EloquentRecordLoader::class,
         ReferenceNames::class => EloquentReferenceNames::class,
         RetentionPeriod::class => ConfigRetentionPeriod::class,
+        FailedJobs::class => LaravelFailedJobs::class,
     ];
 
     public function register(): void

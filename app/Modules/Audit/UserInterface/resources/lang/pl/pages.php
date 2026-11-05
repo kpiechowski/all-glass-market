@@ -11,6 +11,26 @@ return [
         'details' => 'Szczegóły',
         'details_heading' => 'Szczegóły wpisu',
         'close' => 'Zamknij',
+        'tabs' => [
+            'files' => 'Pliki logów',
+            'failed_jobs' => 'Nieudane zadania',
+        ],
+        'failed_jobs' => [
+            'empty' => 'Brak nieudanych zadań',
+            'details_heading' => 'Szczegóły nieudanego zadania',
+            'retry' => 'Ponów',
+            'retried' => 'Zadanie wróciło do kolejki.',
+            'remove' => 'Usuń',
+            'remove_heading' => 'Usunąć nieudane zadanie?',
+            'remove_description' => 'Zadanie zostanie zapomniane i nie zostanie uruchomione. Historia zmian nie jest naruszana.',
+            'removed' => 'Nieudane zadanie usunięto.',
+            'fields' => [
+                'name' => 'Zadanie',
+                'error' => 'Błąd',
+                'queue' => 'Kolejka',
+                'exception' => 'Wyjątek',
+            ],
+        ],
         'fields' => [
             'channel' => 'Kanał',
             'day' => 'Dzień',
