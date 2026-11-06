@@ -1,0 +1,112 @@
+/*
+ * List tables below md (D-12): rows become cards. Applies only to a table that declares a
+ * RecordCardColumn (cells `.ta-card-cell`, head `.ta-card-header`); every other table keeps
+ * Filament's scrolling table. No vendor view is overridden.
+ *
+ * Below md (48 rem):
+ *   - the column head is hidden (also in the empty state);
+ *   - the table surface steps back: heading, filters, toolbar and pagination sit on the canvas,
+ *     aligned with the page gutter;
+ *   - each row is a white card with the section edge and the container radius, 8 px apart,
+ *     with no row lines; checkbox (if any) on the left, the card, then the row actions on the
+ *     right, all top-aligned;
+ *   - a tap tints the card like a desktop hover; a selected card gets a royal edge.
+ */
+@media (max-width: 47.999rem) {
+    .fi-ta-table:has(.ta-card-header) > thead {
+        display: none;
+    }
+
+    .fi-ta-ctn:has(.ta-card-cell) {
+        background-color: transparent;
+        box-shadow: none;
+        border-radius: 0;
+
+        & .fi-ta-header,
+        & .fi-ta-filters-above-content-ctn,
+        & .fi-ta-header-toolbar,
+        & .fi-ta-filter-indicators,
+        & .fi-pagination {
+            padding-inline: 0;
+        }
+
+        & .fi-ta-header-ctn {
+            padding-bottom: var(--ag-table-zone-padding-y);
+        }
+
+        & .fi-ta-header {
+            padding-top: 0;
+        }
+
+        & .fi-ta-selection-indicator {
+            margin-bottom: var(--ag-table-card-gap);
+            padding-inline: var(--ag-space-4);
+            border: var(--ag-border-width) solid var(--ag-soft-primary-border);
+            border-radius: var(--ag-radius-container);
+        }
+
+        & .fi-ta-content-ctn {
+            overflow: visible;
+            border-top-width: 0;
+        }
+
+        & .fi-pagination {
+            border-top-width: 0;
+        }
+
+        & .fi-ta-table {
+            display: block;
+        }
+
+        & .fi-ta-table > tbody {
+            display: flex;
+            flex-direction: column;
+            gap: var(--ag-table-card-gap);
+        }
+
+        & .fi-ta-table > tbody > tr {
+            display: flex;
+            align-items: flex-start;
+            border-width: 0;
+            border-radius: var(--ag-radius-container);
+            background-color: var(--ag-surface);
+            box-shadow: var(--ag-surface-edge);
+        }
+
+        & .fi-ta-row.fi-clickable:active {
+            background-color: var(--ag-table-row-hover);
+        }
+
+        & .fi-ta-row.fi-selected {
+            box-shadow: 0 0 0 var(--ag-border-width) var(--ag-accent);
+
+            & > *:first-child {
+                box-shadow: none;
+            }
+        }
+
+        & .fi-ta-row > .ta-card-cell {
+            flex: 1 1 auto;
+            min-width: 0;
+            padding: 0;
+        }
+
+        /* Checkbox: on the title line (20 px line, 16 px box). */
+        & .fi-ta-row > .fi-ta-selection-cell {
+            padding: calc(var(--ag-table-card-padding) + 0.125rem) 0 0 var(--ag-table-card-padding);
+        }
+
+        & .fi-ta-row > .fi-ta-selection-cell + .ta-card-cell .list-card {
+            padding-inline-start: var(--ag-space-3);
+        }
+
+        /* Row actions: top right, the 32 px buttons centred on the title line. */
+        & .fi-ta-row > .fi-ta-cell:has(> .fi-ta-actions) {
+            padding: calc(var(--ag-table-card-padding) - 0.375rem) var(--ag-space-2) 0 0;
+        }
+
+        & .fi-ta-row > .ta-card-cell:has(+ .fi-ta-cell > .fi-ta-actions) .list-card {
+            padding-inline-end: var(--ag-space-1);
+        }
+    }
+}

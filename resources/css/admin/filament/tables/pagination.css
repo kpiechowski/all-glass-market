@@ -1,0 +1,81 @@
+/*
+ * Pagination (`.fi-pagination`) under a table. Values: tokens/tables.css.
+ *
+ *   overview        "Pozycje od 1 do 5 z 12 łącznie", 13 px muted
+ *   per page        the 06 field frame (36 px) with its "na stronę" affix
+ *   pages           separate 32 px squares, no outer frame; hover gray-100, current page
+ *                   primary-50 with royal semibold text; "…" muted
+ *   narrow widths   Filament's previous / next buttons (container query), unchanged
+ */
+.fi-ta-ctn .fi-pagination {
+    padding: var(--ag-pagination-padding-y) var(--ag-table-edge-padding-x);
+    border-top-color: var(--ag-table-zone-rule);
+
+    @media (max-width: 39.999rem) {
+        padding-inline: var(--ag-space-4);
+    }
+}
+
+.fi-pagination {
+    & .fi-pagination-overview {
+        font-size: var(--ag-text-sm);
+        line-height: var(--ag-leading-sm);
+        font-weight: var(--ag-weight-regular);
+        color: var(--ag-text-muted);
+    }
+
+    & .fi-pagination-items {
+        gap: var(--ag-space-0-5);
+        border-radius: 0;
+        background-color: transparent;
+        box-shadow: none;
+    }
+
+    & .fi-pagination-item {
+        border-inline-width: 0;
+
+        & .fi-pagination-item-btn {
+            align-items: center;
+            justify-content: center;
+            min-width: var(--ag-pagination-item-size);
+            height: var(--ag-pagination-item-size);
+            padding: 0 var(--ag-space-1-5);
+            border-radius: var(--ag-radius-control);
+            transition: background-color var(--ag-duration-fast) var(--ag-ease-out), color var(--ag-duration-fast) var(--ag-ease-out);
+
+            &:enabled:hover {
+                background-color: var(--ag-surface-hover);
+            }
+
+            &:focus-visible {
+                box-shadow: none;
+                outline: var(--ag-focus-ring-width) solid var(--ag-focus-ring);
+                outline-offset: 0;
+            }
+
+            & .fi-pagination-item-label {
+                padding-inline: 0;
+                font-size: var(--ag-text-sm);
+                font-weight: var(--ag-weight-medium);
+                color: var(--ag-text-secondary);
+            }
+
+            & .fi-icon {
+                color: var(--ag-text-muted);
+            }
+        }
+
+        &.fi-active .fi-pagination-item-btn {
+            background-color: var(--ag-pagination-item-active-bg);
+
+            & .fi-pagination-item-label {
+                font-weight: var(--ag-weight-semibold);
+                color: var(--ag-pagination-item-active-text);
+            }
+        }
+
+        &.fi-disabled .fi-pagination-item-label {
+            color: var(--ag-text-muted);
+        }
+    }
+}

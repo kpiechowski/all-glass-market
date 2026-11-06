@@ -18,3 +18,6 @@ Spec: D-35, D-36, D-27.
 
 - The variants are accepted on screenshots and documented.
 - `composer check` passes.
+
+## Comments
+- 2026-11-06 (manager): `infolist--sheet` (and the new `infolist--identity`) were built and accepted in 07 (D-10a). Here they are only documented in `variants.md`.

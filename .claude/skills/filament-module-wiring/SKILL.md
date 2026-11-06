@@ -97,6 +97,8 @@ public static function configure(Schema $schema): Schema
 
 Widgets go in `Filament/Widgets/`, clusters in `Filament/Clusters/`, relation managers in `Filament/RelationManagers/`. `DiscoverModuleFilament` registers everything under `UserInterface/Filament/`; the panel provider lists nothing by hand except sidebar entries (`admin-ui-design`, Navigation).
 
+Panel-wide Filament configuration (`Table::configureUsing()`, `Field::configureUsing()` and other component defaults, render hooks) is registered in `AdminPanelProvider`: defaults in its `boot()`, panel settings in `panel()`. `CoreServiceProvider` and module service providers never register Filament-only configuration. A shared Filament helper class may live in `app/Core/UserInterface/Filament/`, but it is wired up in the panel provider.
+
 ## Enums carry their own presentation
 
 A domain enum shown in Filament implements `HasLabel` / `HasColor` / `HasIcon` / `HasDescription` and may use Core enum traits (ADR 0003). `TextColumn::make('status')->badge()` and `Select::make('status')->options(OfferStatus::class)` then need nothing more. Search existing enums before adding one.
@@ -139,5 +141,6 @@ Use `search-docs` for any API detail. Generate files with `dartisan make:filamen
 - Every `visible()` on a guarded action uses `CurrentActor::can()` and, where a rule applies, the domain policy.
 - Every class respects the split table, and `configure()` reads as an outline.
 - Every user-facing string is a translation key in the right file.
+- No Filament-only configuration is registered in `CoreServiceProvider` or a module service provider; panel-wide defaults sit in `AdminPanelProvider::boot()`.
 - The `admin-ui-design` checklist holds.
 - The resource has its Livewire test for create, edit and delete (`module-testing`).

@@ -1,0 +1,74 @@
+/*
+ * Tables (issue 08, template A). A table is one white surface with the section edge; inside it
+ * only hairlines separate the zones (header, filters, toolbar, rows, pagination). No grey bands
+ * stacked on top of each other, so nothing reads as a frame inside a frame.
+ *
+ *   row          50 px for one line: 15 px + 20 px line + 15 px; 14 px text, tabular figures
+ *   head         13 px medium gray-600 (the entry label of issue 07), white, one hairline below
+ *   rows         gray-100 hairlines; hover a faint royal tint on the fast motion token
+ *   selected     primary-50 fill + the 2 px royal bar of Filament
+ *   below md     rows become white cards on the canvas (D-12), 8 px apart
+ */
+:root {
+    --ag-table-cell-padding-x: var(--ag-space-3);       /* 12 px between columns */
+    --ag-table-edge-padding-x: var(--ag-space-6);       /* first and last cell, aligned with the section padding */
+    --ag-table-cell-padding-y: 0.9375rem;               /* 15 px: a one-line row is 50 px */
+    --ag-table-cell-padding-y-stacked: 0.625rem;        /* 10 px: text + description (or the person cell) is 60 px */
+    --ag-table-cell-size: var(--ag-text-base);          /* 14 px */
+    --ag-table-cell-leading: var(--ag-leading-base);    /* 20 px */
+    --ag-table-cell-text: var(--ag-text);
+    --ag-table-cell-weight: var(--ag-weight-medium);    /* Manrope 400 reads thin in a dense row */
+    --ag-table-description: var(--ag-text-muted);       /* `->description()` and the e-mail line */
+    --ag-table-description-size: var(--ag-text-sm);     /* 13 px */
+    --ag-table-description-leading: var(--ag-leading-sm);
+
+    --ag-table-head-bg: var(--ag-surface);
+    --ag-table-head-text: var(--ag-entry-label);        /* gray-600, like infolist labels */
+    --ag-table-head-size: var(--ag-entry-label-size);   /* 13 px */
+    --ag-table-head-weight: var(--ag-entry-label-weight);
+    --ag-table-head-padding-y: var(--ag-space-2-5);     /* 10 px: a 38 px head row */
+    --ag-table-head-sorted: var(--ag-text);
+    --ag-table-sort-icon: var(--gray-300);
+    --ag-table-sort-icon-hover: var(--gray-500);
+    --ag-table-sort-icon-active: var(--brand-royal);
+
+    --ag-table-zone-rule: var(--ag-border);             /* between header zones, head and pagination: gray-200 */
+    --ag-table-row-rule: var(--ag-divider);             /* between rows: gray-100 */
+    --ag-table-row-hover: color-mix(in srgb, var(--primary-50) 70%, var(--ag-surface));
+    --ag-table-row-selected: var(--primary-50);
+    --ag-table-row-transition: background-color var(--ag-duration-fast) var(--ag-ease-out);
+
+    --ag-table-action-size: 2rem;                       /* row icon actions and the "⋮" trigger, both 32 px */
+    --ag-table-action-icon: var(--ag-text-muted);
+    --ag-table-action-icon-hover: var(--brand-royal);
+
+    /* Header zone: heading, inline filters and toolbar share one block, 16 px vertical rhythm. */
+    --ag-table-zone-padding-y: var(--ag-space-4);
+    --ag-table-zone-gap: var(--ag-space-3);
+    --ag-table-search-width: 18rem;                     /* 288 px from sm; full width below */
+
+    /* Filters (D-14). */
+    --ag-filter-inline-width: 13rem;                    /* 208 px per select or date: fixed, so the row never stretches */
+    --ag-filter-inline-gap-x: var(--ag-space-3);
+    --ag-filter-inline-gap-y: var(--ag-space-3);
+    --ag-filter-panel-padding: var(--ag-space-5);       /* 20 px inside the 24 rem panel (TableDefaults sets the width) */
+    --ag-filter-panel-gap: var(--ag-space-4);           /* 16 px between panel fields */
+    --ag-filter-chip-label: var(--ag-text-muted);
+
+    /* Pagination. */
+    --ag-pagination-padding-y: var(--ag-space-3);
+    --ag-pagination-item-size: 2rem;                    /* 32 px page buttons */
+    --ag-pagination-item-active-bg: var(--primary-50);
+    --ag-pagination-item-active-text: var(--brand-royal);
+
+    /* Empty state (D-15). */
+    --ag-empty-padding-y: var(--ag-space-12);
+    --ag-empty-icon-box: 3rem;                          /* 48 px circle */
+    --ag-empty-icon-bg: var(--primary-50);
+    --ag-empty-icon: var(--brand-royal);
+    --ag-empty-max-width: 26rem;
+
+    /* Mobile card rows (D-12), below md. */
+    --ag-table-card-gap: var(--ag-space-2);             /* 8 px between cards */
+    --ag-table-card-padding: var(--ag-space-4);         /* 16 px inside a card */
+}

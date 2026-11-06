@@ -32,6 +32,7 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Size;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -85,6 +86,8 @@ class Styleguide extends Page implements HasTable
     public bool $showsEmptyTable = false;
 
     public bool $showsFilterPanel = false;
+
+    public bool $showsPersonCell = true;
 
     public static function getNavigationLabel(): string
     {
@@ -168,15 +171,37 @@ class Styleguide extends Page implements HasTable
                 Action::make('toggleEmptyState')
                     ->label(fn (): string => $this->showsEmptyTable ? 'Pokaż rekordy' : 'Pokaż pusty stan')
                     ->color('gray')
+                    ->size(Size::Small)
                     ->action(function (): void {
                         $this->showsEmptyTable = ! $this->showsEmptyTable;
+                        $this->removeTableFilters();
+                        $this->refreshTable();
+                    }),
+                Action::make('showNoResults')
+                    ->label('Pokaż brak wyników')
+                    ->color('gray')
+                    ->size(Size::Small)
+                    ->action(function (): void {
+                        $this->showsEmptyTable = false;
+                        $this->tableSearch = 'Zając';
                         $this->refreshTable();
                     }),
                 Action::make('toggleFiltersLayout')
                     ->label(fn (): string => $this->showsFilterPanel ? 'Filtry nad tabelą' : 'Filtry w panelu')
                     ->color('gray')
+                    ->size(Size::Small)
                     ->action(function (): void {
                         $this->showsFilterPanel = ! $this->showsFilterPanel;
+                        $this->removeTableFilters();
+                        unset($this->cachedSchemas['tableFiltersForm']);
+                        $this->refreshTable();
+                    }),
+                Action::make('togglePersonCell')
+                    ->label(fn (): string => $this->showsPersonCell ? 'Komórka: opis' : 'Komórka: osoba')
+                    ->color('gray')
+                    ->size(Size::Small)
+                    ->action(function (): void {
+                        $this->showsPersonCell = ! $this->showsPersonCell;
                         $this->refreshTable();
                     }),
             ]);
@@ -315,7 +340,7 @@ class Styleguide extends Page implements HasTable
     private function tableTab(): array
     {
         return [
-            ...self::blockHeading('Lista', 'Szablon A: zakładki listy, filtry, karta na telefonie, akcje wiersza i masowe, pusty stan.'),
+            ...self::blockHeading('Lista', 'Szablon A: zakładki listy, wyszukiwarka, filtry nad tabelą lub w panelu, sortowanie, ukryte kolumny, komórka osoby lub opis, akcje wiersza i masowe, paginacja, oba puste stany. Poniżej md wiersze są kartami.'),
             View::make('core::filament.pages.styleguide.list-tabs'),
             EmbeddedTable::make(),
         ];

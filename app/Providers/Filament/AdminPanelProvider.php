@@ -6,6 +6,7 @@ namespace App\Providers\Filament;
 
 use App\Core\Concerns\DiscoverModuleFilament;
 use App\Core\UserInterface\Filament\Pages\Styleguide;
+use App\Core\UserInterface\Filament\Tables\TableDefaults;
 use App\Modules\Audit\UserInterface\Filament\Pages\AuditLog\AuditLog;
 use App\Modules\Audit\UserInterface\Filament\Pages\TechnicalLog\TechnicalLog;
 use App\Modules\Users\UserInterface\Filament\Auth\AcceptInvitation;
@@ -31,6 +32,7 @@ use Filament\Pages\Page;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Resources\Resource as FilamentResource;
+use Filament\Tables\Table;
 use Filament\View\PanelsRenderHook;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Contracts\Support\Htmlable;
@@ -48,6 +50,12 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 class AdminPanelProvider extends PanelProvider
 {
     use DiscoverModuleFilament;
+
+    /** Panel-wide Filament component defaults (`configureUsing`) live here, never in CoreServiceProvider. */
+    public function boot(): void
+    {
+        Table::configureUsing(TableDefaults::apply(...));
+    }
 
     public function panel(Panel $panel): Panel
     {

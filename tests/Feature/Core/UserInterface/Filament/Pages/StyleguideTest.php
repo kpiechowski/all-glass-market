@@ -118,6 +118,54 @@ class StyleguideTest extends TestCase
             ->assertSet('showsFilterPanel', true);
     }
 
+    /** Issue 08, D-12 / D-13: every row carries the mobile card; the name cell switches between the person cell and `->description()`. */
+    public function test_the_table_renders_the_mobile_card_and_both_name_cells_locally(): void
+    {
+        Filament::setCurrentPanel('admin');
+        $this->actingAs(UserModel::factory()->superAdmin()->create());
+
+        Livewire::test(Styleguide::class)
+            ->assertSeeHtml(['ta-card-cell', 'list-card__title', 'person-cell__initials'])
+            ->assertSeeInOrder(['Piotr Nowak', 'Zmiana hasła', 'p.nowak@autoglass.pl'])
+            ->callTableAction('togglePersonCell')
+            ->assertDontSeeHtml('person-cell__initials')
+            ->assertSeeHtml('fi-ta-text-description');
+    }
+
+    /** D-15: a search or filter without results gets its own message and "Wyczyść filtry" instead of the primary action. */
+    public function test_an_empty_search_offers_to_clear_the_filters_locally(): void
+    {
+        Filament::setCurrentPanel('admin');
+        $this->actingAs(UserModel::factory()->superAdmin()->create());
+
+        Livewire::test(Styleguide::class)
+            ->callTableAction('showNoResults')
+            ->assertCountTableRecords(0)
+            ->assertSee(['Brak wyników dla tych filtrów', 'Wyczyść filtry'])
+            ->assertDontSee('Nie ma jeszcze użytkowników')
+            ->callTableAction('clearTableFiltersFromEmptyState')
+            ->assertSet('tableSearch', '')
+            ->assertCanSeeTableRecords(['1']);
+    }
+
+    /** D-14 (TableDefaults): inline filters apply at once; the panel defers them, is 24 rem wide and hides a zero count. */
+    public function test_the_filter_layouts_follow_the_table_defaults_locally(): void
+    {
+        Filament::setCurrentPanel('admin');
+        $this->actingAs(UserModel::factory()->superAdmin()->create());
+
+        $page = Livewire::test(Styleguide::class)
+            ->assertDontSee('Zastosuj filtry')
+            ->assertDontSee('Dołączył od')
+            ->set('tableFilters.role.value', 'admin')
+            ->assertCanSeeTableRecords(['1', '9'])
+            ->assertCanNotSeeTableRecords(['2']);
+
+        $page->callTableAction('toggleFiltersLayout')
+            ->assertSee(['Zastosuj filtry', 'Dołączył od'])
+            ->assertSeeHtml(['data-active-filters="0"', 'fi-width-sm']);
+    }
+
     public function test_saving_the_demo_form_validates_and_stores_nothing_locally(): void
     {
         Filament::setCurrentPanel('admin');

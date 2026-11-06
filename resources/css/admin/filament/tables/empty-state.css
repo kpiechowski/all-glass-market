@@ -1,0 +1,54 @@
+/*
+ * Empty table (D-15, `.fi-ta-empty-state`). Values: tokens/tables.css. The two messages
+ * (no records / no results for these filters) come from TableEmptyState.
+ *
+ *   icon         24 px royal in a 48 px primary-50 circle (the table surface is white)
+ *   heading      16 px semibold near-black
+ *   sentence     14 px muted, at most 26 rem wide
+ *   action       20 px below: the primary action, or grey "Wyczyść filtry"
+ */
+.fi-ta-empty-state {
+    padding: var(--ag-empty-padding-y) var(--ag-table-edge-padding-x);
+
+    &:not(.fi-ta-ctn-with-content-layout .fi-ta-empty-state) {
+        border-top-color: var(--ag-table-zone-rule);
+    }
+
+    & .fi-ta-empty-state-content {
+        max-width: var(--ag-empty-max-width);
+    }
+
+    & .fi-ta-empty-state-icon-bg {
+        display: grid;
+        place-items: center;
+        width: var(--ag-empty-icon-box);
+        height: var(--ag-empty-icon-box);
+        margin-bottom: var(--ag-space-4);
+        padding: 0;
+        background-color: var(--ag-empty-icon-bg);
+
+        & .fi-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: var(--ag-empty-icon);
+        }
+    }
+
+    & .fi-ta-empty-state-heading {
+        font-size: var(--ag-text-md);
+        line-height: var(--ag-leading-md);
+        font-weight: var(--ag-weight-semibold);
+        color: var(--ag-text);
+    }
+
+    & .fi-ta-empty-state-description {
+        margin-top: var(--ag-space-1);
+        font-size: var(--ag-text-base);
+        line-height: var(--ag-leading-base);
+        color: var(--ag-text-muted);
+    }
+
+    & .fi-ta-actions {
+        margin-top: var(--ag-space-5);
+    }
+}

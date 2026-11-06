@@ -30,7 +30,7 @@ class OffersTable
 {
     public static function configure(Table $table): Table
     {
-        return $table
+        $table = $table
             ->columns(self::columns())
             ->filters(OffersTableFilters::make(), layout: FiltersLayout::AboveContent)
             ->recordUrl(fn (OfferModel $record): string => OfferResource::getUrl('view', ['record' => $record]))
@@ -38,22 +38,27 @@ class OffersTable
                 ReserveOfferAction::make()->iconButton()->tooltip(__('offers::resources.offer.actions.reserve.label')),
             ])
             ->toolbarActions([/* bulk actions, each sending a command */])
-            ->emptyStateIcon(Heroicon::OutlinedTag)
-            ->emptyStateHeading(fn (Table $table): string => $table->isFiltered() || $table->getLivewire()->hasTableSearch()
-                ? __('offers::resources.offer.empty.filtered')
-                : __('offers::resources.offer.empty.heading'))
-            ->emptyStateDescription(__('offers::resources.offer.empty.description'))
-            ->emptyStateActions([CreateAction::make()])
             ->defaultSort('published_at', 'desc');
+
+        return TableEmptyState::configure(               // both empty states (D-15)
+            $table,
+            icon: Heroicon::OutlinedTag,
+            heading: __('offers::resources.offer.empty.heading'),
+            description: __('offers::resources.offer.empty.description'),
+            actions: [CreateAction::make()],
+        );
     }
 
     /** Columns stay out of configure(); past ~10 they move to OffersTableColumns (filament-module-wiring). */
     private static function columns(): array
     {
         return [
-            ViewColumn::make('card')                       // mobile card
-                ->view('offers::filament.tables.offer-card')
-                ->hiddenFrom('md'),
+            RecordCardColumn::make()                       // mobile card, hidden from md
+                ->title(fn (OfferModel $record): string => $record->title)
+                ->subtitle(fn (OfferModel $record): string => $record->vehicle_name)
+                ->status(fn (OfferModel $record): OfferStatus => $record->status)
+                ->badges(fn (OfferModel $record): array => [$record->category])
+                ->meta(fn (OfferModel $record): array => [$record->published_at?->format('d.m.Y')]),
             TextColumn::make('title')
                 ->label(__('offers::resources.offer.fields.title'))
                 ->description(fn (OfferModel $record): string => $record->vehicle_name)
@@ -63,6 +68,11 @@ class OffersTable
             TextColumn::make('status')
                 ->label(__('offers::resources.offer.fields.status'))
                 ->badge()                                   // enum carries a state colour
+                ->visibleFrom('md'),
+            TextColumn::make('price')
+                ->label(__('offers::resources.offer.fields.price'))
+                ->money('PLN')
+                ->alignEnd()
                 ->visibleFrom('md'),
             TextColumn::make('published_at')
                 ->label(__('offers::resources.offer.fields.published_at'))
@@ -80,14 +90,30 @@ class OffersTable
 }
 ```
 
-The card view is our own Blade under `UserInterface/resources/views/filament/tables/`; Tailwind utilities are allowed there. The theme hides the table header and row lines on mobile — see variants (pending).
+`RecordCardColumn`, `PersonColumn` and `TableEmptyState` live in `App\Core\UserInterface\Filament\Tables`. A module writes no card Blade and no card CSS.
 
+## Mobile card
+
+- Every list table declares exactly one `RecordCardColumn::make()`. It hides from `md` by itself; every other column is `->visibleFrom('md')`.
+- `title()`: the value of the main column. `subtitle()`: its description (e-mail, vehicle, number).
+- `status()`: the one state badge (an enum with `HasLabel` + `HasColor`, or `['label' => …, 'color' => …]`).
+- `badges()`: category values, neutral; an enum or a plain string.
+- `flags()`: the indicators of the main cell (`['label' => 'Zmiana hasła', 'icon' => Heroicon::OutlinedKey]`, `warning` by default).
+- `meta()`: up to two short facts, the date column first ("od 12.03.2024"). Empty values drop out.
+- Below `md` the theme hides the head and renders each row as a card; the row click, checkbox and row actions keep working. Never override the table view for this.
+
+## Person cell
+
+- A list of people (users, contacts, sales reps) shows the person as `PersonColumn::make('name')->email(fn ($record) => $record->email)->flags(…)`: initials, name, text flags after the name, e-mail below. Named after the name attribute, it takes `->sortable()` and `->searchable()` like a `TextColumn`.
+- Any other title + secondary line is a `TextColumn` with `->description()`.
+- An indicator inside a `->description()` cell is an icon after the text with a tooltip (`->icon()->iconPosition(IconPosition::After)->tooltip()`); inside a person cell it is a flag.
 ## Columns
 
 - 5–6 visible columns at most. Every further column is `->toggleable(isToggledHiddenByDefault: true)`.
-- Data that belongs together shares one cell: name + email through `->description()`; a composite `ViewColumn` when that is not enough.
+- Data that belongs together shares one cell: a person through `PersonColumn`, anything else through `->description()`.
 - A column that is empty for most rows does not exist. Its fact becomes an indicator in the main cell: an icon or small badge next to the name.
-- Every regular column is `->visibleFrom('md')`; the `card` column is `->hiddenFrom('md')`.
+- Every regular column is `->visibleFrom('md')`; the one `RecordCardColumn` hides from `md` by itself.
+- Numbers (counts, money) are `->numeric()` / `->money()` with `->alignEnd()`.
 - Dates: `->date()`, or `->since()` with `->dateTooltip()`. Never `->dateTime()` with seconds.
 - Category columns use neutral badges; state columns use state colours (SKILL.md, Colour = state).
 
@@ -95,7 +121,9 @@ The card view is our own Blade under `UserInterface/resources/views/filament/tab
 
 - The main split (Aktywne / Nieaktywne / Zaproszone) is list tabs, never a filter.
 - Up to 3 simple, frequent filters: `FiltersLayout::AboveContent`. More than 3: the default funnel layout, with the frequent ones first.
-- Keep Filament's native active-filter count; it shows only above 0.
+- Inline filters are selects, dates, toggles or checkboxes; no `->columnSpan()` and no `->filtersFormColumns()` on them.
+- Keep the defaults of `TableDefaults` (`app/Core/UserInterface/Filament/Tables`, registered in `AdminPanelProvider::boot()`): inline filters apply on change, the panel has "Zastosuj filtry" and is 24 rem wide, the count badge shows only above 0, "Zresetuj filtry" shows only while a filter is active. Do not set `deferFilters()`, `filtersFormWidth()` or `filtersTriggerAction()` without the user's approval.
+- A filter without a fixed option list gets `->indicateUsing()`, so its chip under the toolbar names the value.
 
 ## Actions
 
@@ -106,7 +134,7 @@ The card view is our own Blade under `UserInterface/resources/views/filament/tab
 
 ## Empty state
 
-Every table has its own: icon, one-sentence heading, and the primary action when the user may perform it. An empty result under a search or filter says so instead ("Brak wyników dla tych filtrów"), as in the skeleton.
+Every table calls `TableEmptyState::configure()` with its own icon, one-sentence heading, one-sentence description and the primary action when the user may perform it. Under a search or filter it switches by itself to "Brak wyników dla tych filtrów" with "Wyczyść filtry". Never set `emptyState*()` by hand.
 
 ## Not like this
 
@@ -121,8 +149,10 @@ The Users list, before the retrofit:
 ## Before you finish
 
 - ≤6 visible columns; no column mostly empty; related data shares a cell.
-- Every regular column `->visibleFrom('md')`, one card column `->hiddenFrom('md')`.
+- Every regular column `->visibleFrom('md')`; exactly one `RecordCardColumn` with title, status and the main cell's flags.
+- A list of people uses `PersonColumn`; every other two-line cell uses `->description()`.
 - No date column shows seconds.
 - The main split is tabs; ≤3 inline filters, else the funnel.
 - `recordUrl` set; ≤1 standalone row action.
-- Own empty state with icon, sentence and primary action.
+- Empty state through `TableEmptyState::configure()` with icon, sentence and primary action.
+- No `deferFilters()`, `filtersFormWidth()` or vendor table view override.

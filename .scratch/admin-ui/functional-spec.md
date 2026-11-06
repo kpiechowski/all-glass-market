@@ -264,3 +264,4 @@ resources/css/admin/
     - slanted navy cuts at 60–80°: a navy notch at the page edge, a skewed gradient, and colours the panel never uses.
   - Lessons: an ornament in the chrome must not mark the topbar's bottom edge next to the page, and it uses only colours the panel already uses.
   - The geode moves to the login screen as one pair in opposite corners (issue 09).
+- **D-45** (2026-11-06) Panel-wide Filament configuration (`Table::configureUsing()` and other component defaults) is registered in `AdminPanelProvider::boot()`, never in `CoreServiceProvider` or a module service provider. Core is not the place for Filament-only wiring; a shared Filament helper class may live in `app/Core/UserInterface/Filament/` but is wired up in the panel provider. Rule in `filament-module-wiring`.
