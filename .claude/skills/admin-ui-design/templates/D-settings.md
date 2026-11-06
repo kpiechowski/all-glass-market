@@ -63,7 +63,7 @@ class ShopSettings extends Page
 
 The Users "Mój profil" page, before the retrofit:
 
-- The sidebar item shows an "i" badge while the account is private. Sidebar badges count only things to do.
+- The sidebar item shows an "i" badge whose meaning is unclear. A sidebar indicator must say plainly that something needs attention ("!" or a warning icon with a tooltip).
 - Tab "Zmiana hasła" holds a section "Zmiana hasła". The tab and section label repeat each other.
 - Only the password tab has an icon. Tab labels carry none.
 
@@ -71,4 +71,4 @@ The Users "Mój profil" page, before the retrofit:
 
 - One form, one sticky save; the success notification is past tense.
 - Each independent capability appears once: modal action or section, not both.
-- No informational sidebar badge.
+- A sidebar badge is a clear attention indicator or a cheap count (SKILL.md, Colour = state).

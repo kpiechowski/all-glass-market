@@ -18,7 +18,7 @@ use Filament\Pages\Dashboard;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-/** D-25: the sidebar is built explicitly, a top block of work screens and a bottom block with the profile. */
+/** D-25, D-25a: the sidebar is built explicitly: a top block with the dashboard, a main block of work screens and a bottom block with the profile. */
 class AdminPanelProviderTest extends TestCase
 {
     use RefreshDatabase;
@@ -30,19 +30,20 @@ class AdminPanelProviderTest extends TestCase
         Filament::setCurrentPanel('admin');
     }
 
-    public function test_the_super_admin_sees_every_screen_on_top_and_the_profile_at_the_bottom(): void
+    public function test_the_super_admin_sees_the_dashboard_on_top_every_screen_in_the_main_block_and_the_profile_at_the_bottom(): void
     {
         $this->actingAs(UserModel::factory()->superAdmin()->create());
 
-        [$top, $bottom] = $this->blocks();
+        [$top, $main, $bottom] = $this->blocks();
 
+        $this->assertSame([Dashboard::getNavigationLabel()], $this->labels($top));
+        $this->assertStringContainsString('sidebar-group--top', $top->getExtraSidebarAttributeBag()->get('class'));
         $this->assertSame([
-            Dashboard::getNavigationLabel(),
             UserResource::getNavigationLabel(),
             JournalEntryResource::getNavigationLabel(),
             AuditLog::getNavigationLabel(),
             TechnicalLog::getNavigationLabel(),
-        ], $this->labels($top));
+        ], $this->labels($main));
         $this->assertSame([EditProfile::getNavigationLabel()], $this->labels($bottom));
         $this->assertStringContainsString('sidebar-group--bottom', $bottom->getExtraSidebarAttributeBag()->get('class'));
     }
@@ -51,12 +52,10 @@ class AdminPanelProviderTest extends TestCase
     {
         $this->actingAs(UserModel::factory()->create());
 
-        [$top, $bottom] = $this->blocks();
+        [$top, $main, $bottom] = $this->blocks();
 
-        $this->assertSame([
-            Dashboard::getNavigationLabel(),
-            JournalEntryResource::getNavigationLabel(),
-        ], $this->labels($top));
+        $this->assertSame([Dashboard::getNavigationLabel()], $this->labels($top));
+        $this->assertSame([JournalEntryResource::getNavigationLabel()], $this->labels($main));
         $this->assertSame([EditProfile::getNavigationLabel()], $this->labels($bottom));
     }
 
@@ -64,7 +63,7 @@ class AdminPanelProviderTest extends TestCase
     {
         $this->actingAs(UserModel::factory()->create());
 
-        [, $bottom] = $this->blocks();
+        [, , $bottom] = $this->blocks();
 
         $this->assertSame('i', $bottom->getItems()[0]->getBadge());
     }
@@ -85,8 +84,9 @@ class AdminPanelProviderTest extends TestCase
 
         $this->get(Dashboard::getUrl())
             ->assertOk()
+            ->assertSee('sidebar-group--top')
             ->assertSee('sidebar-group--bottom')
-            ->assertSeeInOrder([AuditLog::getNavigationLabel(), EditProfile::getNavigationLabel()]);
+            ->assertSeeInOrder([Dashboard::getNavigationLabel(), AuditLog::getNavigationLabel(), EditProfile::getNavigationLabel()]);
     }
 
     /**
@@ -109,13 +109,13 @@ class AdminPanelProviderTest extends TestCase
             ->assertSee('images/brand/allglass-logotype-white.svg');
     }
 
-    /** @return array{0: NavigationGroup, 1: NavigationGroup} */
+    /** @return array{0: NavigationGroup, 1: NavigationGroup, 2: NavigationGroup} */
     private function blocks(): array
     {
-        $groups = Filament::getNavigation();
-        $this->assertCount(2, $groups);
+        $groups = array_values(Filament::getNavigation());
+        $this->assertCount(3, $groups);
 
-        return [$groups[0], $groups[1]];
+        return [$groups[0], $groups[1], $groups[2]];
     }
 
     /** @return list<string> */

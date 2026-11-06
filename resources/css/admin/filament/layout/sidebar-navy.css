@@ -10,8 +10,14 @@
  * topbar's bottom border. Mobile: the white topbar is unchanged; the opened drawer is navy
  * including its header.
  *
- * Contrast on navy #001b4e: label 78 % white 10.4:1, group label 58 % white 6.2:1,
- * white on the active fill 11.8:1, sky-light bar and icon 6.5:1 (AA needs 4.5 / 3).
+ * Readability (round 4): items 42 px tall with 4 px between them, 20 px between groups;
+ * labels white 88 %, icons 72 %. On hover the label slides 4 px away from its icon while the
+ * overlay and colours fade in (motion tokens, D-42); the active item keeps the slide.
+ * Badges are soft chips (white 14 %, white text) instead of white boxes.
+ *
+ * Contrast on navy #001b4e: label 88 % white 13.0:1, group label 60 % white 6.6:1,
+ * white on the active fill 11.5:1, sky-light bar and icon 6.5:1, badge text 11:1 (7.5:1 on the
+ * active item); AA needs 4.5 / 3.
  */
 :root {
     --ag-sidebar-bg: var(--brand-navy);
@@ -19,17 +25,20 @@
     --ag-sidebar-divider: rgb(255 255 255 / 0.12);
     --ag-sidebar-scrollbar: rgb(255 255 255 / 0.2);
     --ag-sidebar-overlay: rgb(0 27 78 / 0.55);
-    --ag-sidebar-group-label: rgb(255 255 255 / 0.58);
-    --ag-sidebar-text: rgb(255 255 255 / 0.78);
+    --ag-sidebar-group-label: rgb(255 255 255 / 0.6);
+    --ag-sidebar-text: rgb(255 255 255 / 0.88);
     --ag-sidebar-text-hover: #fff;
-    --ag-sidebar-icon: rgb(255 255 255 / 0.6);
+    --ag-sidebar-icon: rgb(255 255 255 / 0.72);
     --ag-sidebar-icon-hover: #fff;
-    --ag-sidebar-hover-bg: rgb(255 255 255 / 0.08);
-    --ag-sidebar-active-bg: rgb(255 255 255 / 0.12);
+    --ag-sidebar-hover-bg: rgb(255 255 255 / 0.07);
+    --ag-sidebar-active-bg: rgb(255 255 255 / 0.13);
     --ag-sidebar-active-text: #fff;
     --ag-sidebar-active-icon: var(--brand-sky-light);
     --ag-sidebar-indicator: var(--brand-sky-light);
     --ag-sidebar-focus: var(--brand-sky-light);
+    --ag-sidebar-badge-bg: rgb(255 255 255 / 0.14);
+    --ag-sidebar-badge-text: #fff;
+    --ag-sidebar-item-slide: 4px;
 }
 
 /* Sidebar header (mobile drawer and desktop): navy, white logo, light icon buttons. */
@@ -102,5 +111,63 @@
         &.fi-body-has-sidebar-fully-collapsible-on-desktop:has(.fi-main-sidebar:not(.fi-sidebar-open)) .fi-topbar-ctn {
             margin-inline-start: 0;
         }
+    }
+}
+
+/* Breathing room: 42 px items (20 px line + 2 x 11 px), 4 px apart, 12 px between groups,
+   so the dashboard divider has the same 12 px above and below it. */
+.fi-sidebar-nav-groups {
+    row-gap: var(--ag-space-3);
+}
+
+.fi-sidebar-group-items {
+    row-gap: var(--ag-space-1);
+}
+
+.fi-sidebar-item-btn,
+.fi-sidebar-database-notifications-btn {
+    min-height: 2.625rem;
+    padding-block: 0.6875rem;
+    padding-inline: var(--ag-space-3);
+    column-gap: var(--ag-space-3);
+    transition:
+        background-color var(--ag-duration-fast) var(--ag-ease-out),
+        color var(--ag-duration-fast) var(--ag-ease-out);
+
+    & > .fi-icon {
+        transition: color var(--ag-duration-fast) var(--ag-ease-out);
+    }
+}
+
+/* Hover: the label slides away from its icon; the active item keeps the slide. */
+.fi-sidebar-item-label,
+.fi-sidebar-database-notifications-btn-label {
+    transition:
+        transform var(--ag-duration-base) var(--ag-ease-out),
+        color var(--ag-duration-fast) var(--ag-ease-out);
+}
+
+.fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:is(:hover, :focus-visible) > .fi-sidebar-item-label,
+.fi-sidebar-database-notifications-btn:is(:hover, :focus-visible) > .fi-sidebar-database-notifications-btn-label,
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-label {
+    transform: translateX(var(--ag-sidebar-item-slide));
+}
+
+/* The active bar sits on the leading edge of the fill, a little shorter than the taller item.
+   (An inset bar was tried and rejected: it read as a third container line.) */
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn::before {
+    inset-block: var(--ag-space-2-5);
+}
+
+/* Badges: a soft chip on navy, whatever colour the item asks for. */
+.fi-sidebar-item-badge-ctn .fi-badge,
+.fi-sidebar-database-notifications-btn-badge-ctn .fi-badge {
+    background-color: var(--ag-sidebar-badge-bg);
+    color: var(--ag-sidebar-badge-text);
+    box-shadow: none;
+    font-weight: var(--ag-weight-semibold);
+
+    & .fi-icon {
+        color: var(--ag-sidebar-badge-text);
     }
 }

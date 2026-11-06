@@ -49,27 +49,29 @@ class StyleguideTest extends TestCase
         $this->get('/admin/styleguide')->assertNotFound();
     }
 
-    public function test_it_renders_every_block_locally(): void
+    /** D-43: the blocks sit in page tabs by component area; every panel is rendered. */
+    public function test_it_renders_every_tab_and_block_locally(): void
     {
         $this->assertTrue(app()->isLocal());
         $this->actingAs(UserModel::factory()->superAdmin()->create());
 
         $this->get('/admin/styleguide')
             ->assertOk()
-            ->assertSeeInOrder(['Formularz', 'Zakładki', 'Karta rekordu', 'Lista', 'Akcje i powiadomienia'])
+            ->assertSeeInOrder(['Formularze', 'Sekcje i układ', 'Karta rekordu', 'Tabele i filtry', 'Akcje i modale'])
+            ->assertSeeInOrder(['Punkty odbioru', 'Ustawienia sklepu', 'Historia zmian', 'Zaproszeni', 'Przyciski', 'Odznaki'])
             ->assertSee('Wpisz 10 cyfr NIP bez kresek i spacji.')
             ->assertSee('Zaproszeni')
             ->assertSee('Anna Kowalska');
     }
 
-    public function test_it_is_the_last_item_of_the_top_sidebar_block_locally(): void
+    public function test_it_is_the_last_item_of_the_main_sidebar_block_locally(): void
     {
         Filament::setCurrentPanel('admin');
         $this->actingAs(UserModel::factory()->superAdmin()->create());
 
-        $topItems = Filament::getNavigation()[0]->getItems();
+        $mainItems = array_values(Filament::getNavigation())[1]->getItems();
 
-        $this->assertSame('Styleguide', (string) end($topItems)->getLabel());
+        $this->assertSame('Styleguide', (string) end($mainItems)->getLabel());
     }
 
     public function test_the_empty_state_switch_empties_the_table_locally(): void

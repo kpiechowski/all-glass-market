@@ -13,7 +13,7 @@ Spec: D-38, D-39, D-21, D-23, D-24.
 - The work includes:
   - enum colours to D-21;
   - copy to D-22;
-  - sidebar badges to D-23;
+  - sidebar badges to D-23 (amended): clear indicators, cheap or cached counts;
   - the "Dziennik" vs "Dziennik zmian" naming (D-24, with the user);
   - record view tabs (D-10).
 - Every place the worker went wrong is logged under Comments as a skill gap. The skill is fixed first, then the code.

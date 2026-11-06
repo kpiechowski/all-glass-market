@@ -8,8 +8,10 @@ use App\Core\UserInterface\Filament\Pages\Styleguide\Actions\DeactivateUserDemoA
 use App\Core\UserInterface\Filament\Pages\Styleguide\Actions\DemoNotification;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Actions\EditPricingDemoAction;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Actions\InviteUserDemoAction;
+use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideButtons;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideForm;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideInfolist;
+use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideLayoutForm;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideSettingsForm;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideTabs;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Tables\DemoUsers;
@@ -20,10 +22,13 @@ use Filament\Actions\ActionGroup;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\EmbeddedTable;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Html;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -34,9 +39,9 @@ use Filament\Tables\Table;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
- * Styleguide (D-33, D-34): every main component on one page, built from the admin-ui-design
- * templates (B form, C record view, A list, E action modals). It is the reference for them and a
- * regression check.
+ * Styleguide (D-33, D-34, D-43): every main component on one page, in underlined page tabs by
+ * component area, built from the admin-ui-design templates (B form, C record view, A list,
+ * E action modals). It is the reference for them and a regression check.
  *
  * - Registered in AdminPanelProvider only when `app()->isLocal()`; elsewhere its route does not exist.
  * - Static data only: the table reads DemoUsers through `records()`, the forms keep page state.
@@ -46,6 +51,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
  *
  * @property-read Schema $form
  * @property-read Schema $settingsForm
+ * @property-read Schema $layoutForm
  * @property-read Schema $infolist
  */
 class Styleguide extends Page implements HasTable
@@ -65,6 +71,9 @@ class Styleguide extends Page implements HasTable
 
     /** @var array<string, mixed>|null */
     public ?array $settings = [];
+
+    /** @var array<string, mixed>|null */
+    public ?array $layoutDemo = [];
 
     public string $listTab = 'active';
 
@@ -91,6 +100,7 @@ class Styleguide extends Page implements HasTable
     {
         $this->form->fill(StyleguideForm::demoState());
         $this->settingsForm->fill(StyleguideSettingsForm::demoState());
+        $this->layoutForm->fill(StyleguideLayoutForm::demoState());
 
         /* Shows the error state on first load; Zapisz then validates for real. */
         $this->addError('data.company_nip', StyleguideForm::nipError());
@@ -106,65 +116,34 @@ class Styleguide extends Page implements HasTable
         return StyleguideSettingsForm::configure($schema);
     }
 
+    public function layoutForm(Schema $schema): Schema
+    {
+        return StyleguideLayoutForm::configure($schema);
+    }
+
     public function infolist(Schema $schema): Schema
     {
         return StyleguideInfolist::configure($schema);
     }
 
+    /**
+     * D-43: underlined page tabs by component area, so a component is compared without scrolling
+     * the whole page. Every panel stays rendered, so switching tabs keeps form state; the active
+     * tab is kept in the query string (`?obszar=`) across reloads.
+     */
     public function content(Schema $schema): Schema
     {
         return $schema->components([
-            ...self::blockHeading('Formularz', 'Szablon B, układ (a): sekcje jedna pod drugą, siatka 12 kolumn.'),
-            Form::make([EmbeddedSchema::make('form')])
-                ->id('form')
-                ->livewireSubmitHandler('save')
-                ->footer([
-                    Actions::make([
-                        Action::make('save')->label('Zapisz')->submit('save'),
-                        Action::make('cancel')->label('Anuluj')->color('gray')->action(fn () => $this->cancel()),
-                    ])->sticky()->key('form-actions'),
+            Tabs::make('Obszary komponentów')
+                ->contained(false)
+                ->persistTabInQueryString('obszar')
+                ->tabs([
+                    Tab::make('Formularze')->key('formularze')->schema($this->formsTab()),
+                    Tab::make('Sekcje i układ')->key('sekcje')->schema($this->layoutTab()),
+                    Tab::make('Karta rekordu')->key('karta-rekordu')->schema($this->recordTab()),
+                    Tab::make('Tabele i filtry')->key('tabele')->schema($this->tableTab()),
+                    Tab::make('Akcje i modale')->key('akcje')->schema($this->actionsTab()),
                 ]),
-
-            ...self::blockHeading('Zakładki', 'Zakładki strony (bez ramki) oraz zakładki w formularzu.'),
-            StyleguideTabs::make(),
-            Form::make([EmbeddedSchema::make('settingsForm')])
-                ->id('settingsForm')
-                ->livewireSubmitHandler('saveSettings')
-                ->footer([
-                    Actions::make([
-                        Action::make('saveSettings')->label('Zapisz ustawienia')->submit('saveSettings'),
-                    ])->key('settings-form-actions'),
-                ]),
-
-            Html::make('<span id="karta-rekordu"></span>'),
-            ...self::blockHeading('Karta rekordu', 'Szablon C: arkusz, jeden wpis w wierszu, „—” dla pustych wartości.'),
-            EmbeddedSchema::make('infolist'),
-
-            ...self::blockHeading('Lista', 'Szablon A: zakładki listy, filtry, karta na telefonie, akcje wiersza i masowe.'),
-            View::make('core::filament.pages.styleguide.list-tabs'),
-            EmbeddedTable::make(),
-
-            ...self::blockHeading('Akcje i powiadomienia', 'Szablon E: modal, panel boczny, niebezpieczne potwierdzenie, powiadomienia.'),
-            Actions::make([
-                InviteUserDemoAction::make('demoModal')->color('gray'),
-                EditPricingDemoAction::make('demoSlideOver'),
-                Action::make('demoNotification')
-                    ->label('Pokaż powiadomienie')
-                    ->icon(Heroicon::OutlinedBell)
-                    ->color('gray')
-                    ->action(fn () => DemoNotification::success('Zapisano zmiany')),
-                Action::make('demoErrorNotification')
-                    ->label('Pokaż błąd')
-                    ->color('gray')
-                    ->action(fn () => Notification::make()
-                        ->danger()
-                        ->title('Nie udało się wysłać zaproszenia')
-                        ->body('Sprawdź adres e-mail i spróbuj ponownie.')
-                        ->send()),
-                ActionGroup::make([
-                    DeactivateUserDemoAction::make('demoDanger'),
-                ]),
-            ]),
         ]);
     }
 
@@ -263,6 +242,93 @@ class Styleguide extends Page implements HasTable
     {
         $this->flushCachedTableRecords();
         $this->resetPage();
+    }
+
+    /** @return list<Component> */
+    private function formsTab(): array
+    {
+        return [
+            ...self::blockHeading('Formularz', 'Szablon B, układ (a): sekcje jedna pod drugą, siatka 12 kolumn, przyklejona stopka.'),
+            Form::make([EmbeddedSchema::make('form')])
+                ->id('form')
+                ->livewireSubmitHandler('save')
+                ->footer([
+                    Actions::make([
+                        Action::make('save')->label('Zapisz')->submit('save'),
+                        Action::make('cancel')->label('Anuluj')->color('gray')->action(fn () => $this->cancel()),
+                    ])->sticky()->key('form-actions'),
+                ]),
+        ];
+    }
+
+    /** @return list<Component> */
+    private function layoutTab(): array
+    {
+        return [
+            ...self::blockHeading('Sekcje', 'Sekcja z akcją w nagłówku, sekcja zagnieżdżona z grupą pól i akcją w stopce, sekcja zwinięta.'),
+            EmbeddedSchema::make('layoutForm'),
+            ...self::blockHeading('Zakładki w formularzu', 'Tylko dla 4+ niezależnych grup, bez pól wymaganych poza pierwszą zakładką.'),
+            Form::make([EmbeddedSchema::make('settingsForm')])
+                ->id('settingsForm')
+                ->livewireSubmitHandler('saveSettings')
+                ->footer([
+                    Actions::make([
+                        Action::make('saveSettings')->label('Zapisz ustawienia')->submit('saveSettings'),
+                    ])->key('settings-form-actions'),
+                ]),
+        ];
+    }
+
+    /** @return list<Component> */
+    private function recordTab(): array
+    {
+        return [
+            ...self::blockHeading('Karta rekordu', 'Szablon C: zakładki rekordu, w pierwszej arkusz, jeden wpis w wierszu, „—” dla pustych wartości.'),
+            StyleguideTabs::make(EmbeddedSchema::make('infolist')),
+        ];
+    }
+
+    /** @return list<Component> */
+    private function tableTab(): array
+    {
+        return [
+            ...self::blockHeading('Lista', 'Szablon A: zakładki listy, filtry, karta na telefonie, akcje wiersza i masowe, pusty stan.'),
+            View::make('core::filament.pages.styleguide.list-tabs'),
+            EmbeddedTable::make(),
+        ];
+    }
+
+    /** @return list<Component> */
+    private function actionsTab(): array
+    {
+        return [
+            ...self::blockHeading('Przyciski', 'Główny, szary, link, ikona; czerwony wypełniony tylko jako przycisk potwierdzenia.'),
+            StyleguideButtons::kinds(),
+            StyleguideButtons::sizes(),
+            ...self::blockHeading('Modale i powiadomienia', 'Szablon E: modal, panel boczny, niebezpieczne potwierdzenie, powiadomienia.'),
+            Actions::make([
+                InviteUserDemoAction::make('demoModal')->color('gray'),
+                EditPricingDemoAction::make('demoSlideOver'),
+                Action::make('demoNotification')
+                    ->label('Pokaż powiadomienie')
+                    ->icon(Heroicon::OutlinedBell)
+                    ->color('gray')
+                    ->action(fn () => DemoNotification::success('Zapisano zmiany')),
+                Action::make('demoErrorNotification')
+                    ->label('Pokaż błąd')
+                    ->color('gray')
+                    ->action(fn () => Notification::make()
+                        ->danger()
+                        ->title('Nie udało się wysłać zaproszenia')
+                        ->body('Sprawdź adres e-mail i spróbuj ponownie.')
+                        ->send()),
+                ActionGroup::make([
+                    DeactivateUserDemoAction::make('demoDanger'),
+                ]),
+            ]),
+            ...self::blockHeading('Odznaki', 'Kolor oznacza stan; kategorie są neutralne.'),
+            StyleguideButtons::badges(),
+        ];
     }
 
     /**

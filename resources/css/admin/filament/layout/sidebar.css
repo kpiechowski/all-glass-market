@@ -40,6 +40,12 @@
     row-gap: var(--ag-space-6);
 }
 
+/* D-25a: the top block (dashboard only) is closed by a divider; the main block follows right under it. */
+.fi-sidebar-group.sidebar-group--top {
+    padding-bottom: var(--ag-space-3);
+    border-bottom: var(--ag-border-width) solid var(--ag-sidebar-divider);
+}
+
 .fi-sidebar-group.sidebar-group--bottom {
     margin-top: auto;
     padding-top: var(--ag-space-3);

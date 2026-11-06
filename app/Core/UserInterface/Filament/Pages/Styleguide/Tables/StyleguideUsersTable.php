@@ -33,7 +33,7 @@ final class StyleguideUsersTable
             ->filters(StyleguideUsersTableFilters::make(), layout: FiltersLayout::AboveContent)
             ->searchable()
             ->searchPlaceholder('Szukaj po nazwisku lub e-mailu')
-            ->recordUrl(fn (): string => '#karta-rekordu')
+            ->recordUrl(fn (): string => '?obszar=karta-rekordu')
             ->recordActions(self::recordActions())
             ->toolbarActions([
                 BulkActionGroup::make([

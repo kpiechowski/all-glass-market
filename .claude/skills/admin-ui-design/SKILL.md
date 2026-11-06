@@ -64,7 +64,7 @@ Every grid declares its breakpoints: `->columns(['default' => 1, 'md' => 2])`, `
 - `success`, `warning`, `danger` mark operational states only: active/blocked, needs action, error.
 - No value means "—" or no element; a badge is never empty.
 - A domain enum's `getColor()` (ADR 0003) follows the same rule.
-- Sidebar badges count only things to do.
+- A sidebar badge is a count or an attention indicator ("!", warning, gear). Filament evaluates every navigation badge on every page load, so a count is cached or comes from a small indexed query, never a heavy count. If it cannot be cheap, show an indicator instead.
 
 ## Copy (Polish)
 

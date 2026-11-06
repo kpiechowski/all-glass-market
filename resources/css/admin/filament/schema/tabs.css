@@ -14,6 +14,10 @@
  * baseline, nothing is clipped by the horizontal scroll, and no border shifts the height.
  * Every label is semibold, so the active state changes colour only and the bar never jumps.
  * Narrow screens scroll the bar sideways (`->scrollable()` is Filament's default); labels never wrap.
+ * Transitions use tokens/motion.css, which zeroes them under `prefers-reduced-motion`.
+ *
+ * Page-level tabs (round 5) also take a soft fill, mirroring the sidebar's fill + bar: see the
+ * last block. Tabs inside a section or a contained Tabs card keep the plain underline.
  */
 .fi-tabs {
     --tabs-baseline: var(--ag-border);
@@ -68,8 +72,14 @@
     line-height: var(--ag-leading-base);
     font-weight: var(--ag-weight-semibold);
     transition:
-        box-shadow 120ms ease,
-        color 120ms ease;
+        background-color var(--ag-duration-fast) var(--ag-ease-out),
+        box-shadow var(--ag-duration-fast) var(--ag-ease-out),
+        color var(--ag-duration-fast) var(--ag-ease-out);
+
+    & .fi-tabs-item-label,
+    & > .fi-icon {
+        transition: color var(--ag-duration-fast) var(--ag-ease-out);
+    }
 
     & .fi-tabs-item-label {
         color: var(--ag-text-secondary);
@@ -109,10 +119,6 @@
         & > .fi-icon {
             color: var(--ag-accent-text);
         }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        transition: none;
     }
 }
 
@@ -162,4 +168,72 @@
 /* Uncontained schema Tabs: the panel opens below the bar at the page gap. */
 .fi-sc-tabs:not(.fi-contained):not(.fi-vertical) .fi-sc-tabs-tab.fi-active {
     margin-top: var(--ag-space-6);
+}
+
+/*
+ * Page-level tabs only: Styleguide areas, record tabs, list tabs. The selector keeps uncontained
+ * horizontal bars that are not inside a section or a contained Tabs card, so tabs in a form or
+ * card keep the plain underline.
+ *
+ *   active   a glow rising from the indicator (transparent -> primary-100), a 3 px navy indicator
+ *            inset 8 px with rounded top ends, navy label, royal icon
+ *   hover    a fainter glow, darker label, no indicator
+ *   weight   labels are 500; the active one looks bolder through a hairline text-shadow, so the
+ *            tab width never changes and the bar never shifts
+ *
+ * A sliding indicator between tabs is not built: Filament's tabs expose no indicator position,
+ * so it would need new Alpine or a vendor view.
+ */
+.fi-tabs:not(.fi-contained):not(.fi-vertical):not(.fi-section .fi-tabs):not(.fi-sc-tabs.fi-contained .fi-tabs) {
+    /* primary-50 is almost the canvas tint (#f3f6fb), so the glow ends one step darker. */
+    --tabs-glow-active: linear-gradient(to top, var(--primary-100), color-mix(in srgb, var(--primary-100) 0%, transparent));
+    --tabs-glow-hover: linear-gradient(to top, color-mix(in srgb, var(--primary-100) 55%, transparent), transparent);
+
+    column-gap: var(--ag-space-1);
+    margin-top: var(--ag-space-2);
+
+    & .fi-tabs-item {
+        position: relative;
+        padding-inline: 0.875rem;
+        border-radius: var(--ag-radius-control) var(--ag-radius-control) 0 0;
+        font-weight: var(--ag-weight-medium);
+
+        &::after {
+            content: "";
+            position: absolute;
+            inset-inline: var(--ag-space-2);
+            bottom: 0;
+            height: 3px;
+            border-radius: 3px 3px 0 0;
+            background-color: var(--tabs-indicator);
+            opacity: 0;
+            transform: scaleX(0.6);
+            transition:
+                opacity var(--ag-duration-base) var(--ag-ease-out),
+                transform var(--ag-duration-base) var(--ag-ease-out);
+        }
+
+        &:hover:not(.fi-active) {
+            background-image: var(--tabs-glow-hover);
+            box-shadow: none;
+        }
+
+        &.fi-active {
+            background-image: var(--tabs-glow-active);
+            box-shadow: none;
+
+            &::after {
+                opacity: 1;
+                transform: scaleX(1);
+            }
+
+            & .fi-tabs-item-label {
+                text-shadow: 0.35px 0 0 currentColor;
+            }
+
+            & > .fi-icon {
+                color: var(--brand-royal);
+            }
+        }
+    }
 }

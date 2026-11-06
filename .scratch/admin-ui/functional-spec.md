@@ -143,7 +143,7 @@ What is out of scope:
   - buttons are verbs in the infinitive, with an object when it clarifies ("Utwórz użytkownika", "Zapisz", "Dezaktywuj");
   - notifications use the past tense and stay short ("Zapisano zmiany");
   - error messages say what to do, not only what is wrong.
-- **D-23** Sidebar badges only count things **to do** (pending, new requests). An informational badge such as "i" on "Mój profil", or a count that needs no action, is not shown.
+- **D-23** (amended 2026-11-06) A sidebar badge is either a **count** or an **indicator** ("!", a warning triangle, a gear) that signals the area needs attention or action. A **count must be cheap**: Filament evaluates every navigation badge on every panel page load, so a badge never runs an unbounded or unindexed count. It uses a cached value (invalidated by the relevant event) or a small indexed query. When neither is possible, it shows an indicator instead of a number.
 - **D-24** Navigation items must not be confusable. "Dziennik" next to "Dziennik zmian" is a naming problem for the retrofit, not a CSS problem.
 
 ## 8. Navigation
@@ -239,3 +239,13 @@ resources/css/admin/
 
   Style issues run one at a time, and each ends with the user's review.
 - **D-39** The retrofit tests the skill. Every mistake the agent makes there is a gap in the skill, so the skill is fixed first and the code second.
+
+## 12. Amendments (2026-11-06)
+
+- **D-41 (partly settled)** The sidebar is **navy, full height**, with the white logo at the top. It is being refined for readability: more spacing, lighter text, smooth hover motion. Chamfered geometry is still open.
+- **D-25a** The sidebar has three blocks:
+  - a **top group** holding only the dashboard, separated by a border;
+  - the **main group** with the remaining items, aligned to the top;
+  - the **bottom group** (profile).
+- **D-42** Motion: subtle, pleasant animations are wanted, because the client's customers use the panel. Shared motion tokens (duration, easing) are used for all hover and active transitions. `prefers-reduced-motion` turns them off.
+- **D-43** The Styleguide is organised in underlined page tabs by component area, so the user can compare without scrolling the whole page. Nested tabs (underlined or pills) are allowed inside.

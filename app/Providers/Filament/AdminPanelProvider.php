@@ -132,14 +132,15 @@ class AdminPanelProvider extends PanelProvider
     }
 
     /**
-     * D-25: the sidebar is built here, not discovered. The top block holds the work screens; the
-     * bottom block (profile, later settings) is pushed to the foot of the sidebar by the theme
-     * (`.sidebar-group--bottom`). A new resource or page appears only once it is listed here.
+     * D-25, D-25a: the sidebar is built here, not discovered. Three blocks: the top one holds only
+     * the dashboard and is closed by a divider (`.sidebar-group--top`); the main one holds the work
+     * screens right under it; the bottom one (profile, later settings) is pushed to the foot of the
+     * sidebar by the theme (`.sidebar-group--bottom`). A new resource or page appears only once it
+     * is listed here.
      */
     private function navigation(NavigationBuilder $builder): NavigationBuilder
     {
-        $top = [
-            Dashboard::class,
+        $main = [
             UserResource::class,
             JournalEntryResource::class,
             AuditLog::class,
@@ -148,12 +149,17 @@ class AdminPanelProvider extends PanelProvider
 
         /* D-33: the Styleguide route exists only locally, so its item may not be built elsewhere. */
         if (app()->isLocal()) {
-            $top[] = Styleguide::class;
+            $main[] = Styleguide::class;
         }
 
         return $builder->groups([
             NavigationGroup::make()
-                ->items($this->navigationItems($top)),
+                ->extraSidebarAttributes(['class' => 'sidebar-group--top'])
+                ->items($this->navigationItems([
+                    Dashboard::class,
+                ])),
+            NavigationGroup::make()
+                ->items($this->navigationItems($main)),
             NavigationGroup::make()
                 ->extraSidebarAttributes(['class' => 'sidebar-group--bottom'])
                 ->items($this->navigationItems([
