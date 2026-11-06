@@ -31,14 +31,16 @@ The CLAUDE.md rule applies: "a shared need goes into Core or becomes a small mod
 | B | **Core feature**: the registry, a `user_panel_preferences` table, a command and handler, and the widget all live in Core | The widget is a panel-wide thing, and Core already hosts the panel pieces (Styleguide, navigation) | Core becomes a place with business data and a write path, but it is meant for contracts and base classes. Deptrac rules for Core would need loosening. |
 | C | **A small new module `Preferences`** owns a `user_preferences` table (`user_id`, `key`, JSON `value`, unique per user+key), a `SavePreference` command and a `UserPreferences` ModuleApi; the widget lives in its UserInterface. **The registry contract lives in Core** (`Core\Contracts\QuickAccessItem` or similar), so modules register items without depending on Preferences. | Fits the architecture rule as written. Reusable for every later per-user setting (the "users link meta" idea, generalised). Users stays about identity. User deletion is handled by a listener on the Users event. | One more module's boilerplate (provider, migration, entity, mapper, repository, handler). There is a cross-module link to `users` (an id, not an FK relation in the domain). |
 
-**Manager's recommendation:** C, with the registry contract in Core. Write an ADR once it is agreed.
+**Decided (user, 2026-11-06): option C.** A small `Preferences` module, built to grow; the registry contract lives in Core. Record it in an ADR when the work starts.
 
 ## Notes for the design
 
 - Store item **keys** in the JSON, never URLs or class names. Keys survive refactors; URLs and visibility are resolved from the registry at render time.
   - Unknown or no-longer-accessible keys are skipped silently.
   - The handler enforces the 10-item limit and the "registered keys only" rule.
-- Default for a user with no preference: an empty state with an "Add" action, or a default set per role. Ask the user.
+- **Decided:** a user with no preference sees an **empty grid** with an "Add" action.
+  - Later, a small **onboarding** feature (its own issue) gets a step that pre-fills the grid with 3–4 suggested items, and the user confirms or changes them there.
+  - So each registry item can carry a "suggested" flag, possibly per role. The onboarding step saves through the same `SavePreference` command.
 - One registry also feeds 12 (the topbar hub), which shows all items grouped. So each item needs a group too.
 
 ## Done when
@@ -48,3 +50,4 @@ The CLAUDE.md rule applies: "a shared need goes into Core or becomes a small mod
 - `composer check` passes, and handler and entity tests are written test-first.
 
 ## Comments
+- 2026-11-06 (manager): the user chose option C, a small `Preferences` module with the registry contract in Core. Start state: an empty grid. The 3–4 suggested items come later, through an onboarding step (a separate future feature).
