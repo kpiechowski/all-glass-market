@@ -1,0 +1,166 @@
+/*
+ * Entry wrapper (`.fi-in-entry`): label, value, helper text and the empty placeholder around
+ * every infolist entry. Values: tokens/entries.css.
+ *
+ * - Label: 13 px, weight 500, gray-600. Read-only, so it steps back behind the value (form
+ *   labels are 14 px gray-800 because they ask for input).
+ * - Value: set by each entry type (text-entry.css...); 4 px below the label.
+ * - Helper text (`helperText()` renders a schema Text below the content) and hints: 13 px muted.
+ * - Empty value: the "—" placeholder (D-10) in light grey at value size, so the row keeps its
+ *   height and the eye skips it.
+ * - A whole-entry link (`->url()` on the entry) or action reads as a link.
+ *
+ * Base rules stay on `fi-*` and set no layout columns. Two variants follow at the end of the
+ * file: the sheet (`infolist--sheet`) and the identity header (`infolist--identity`).
+ */
+.fi-in-entry {
+    row-gap: var(--ag-entry-gap);
+
+    & .fi-in-entry-label-col,
+    & .fi-in-entry-content-col {
+        row-gap: var(--ag-entry-gap);
+    }
+
+    /* An entry with a hidden label leaves an empty label column: drop it and its gap. */
+    & > .fi-in-entry-label-col:not(:has(*)) {
+        display: none;
+    }
+
+    & .fi-in-entry-label {
+        font-size: var(--ag-entry-label-size);
+        line-height: var(--ag-entry-label-leading);
+        font-weight: var(--ag-entry-label-weight);
+        color: var(--ag-entry-label);
+    }
+
+    /* Helper text below the value, and a hint next to the label. */
+    & .fi-in-entry-content-col > .fi-sc .fi-sc-text:not(.fi-badge),
+    & .fi-in-entry-label-ctn > .fi-sc .fi-sc-text:not(.fi-badge) {
+        font-size: var(--ag-text-sm);
+        line-height: var(--ag-leading-sm);
+        color: var(--ag-entry-helper);
+    }
+
+    & .fi-in-placeholder {
+        font-size: var(--ag-entry-value-size);
+        line-height: var(--ag-entry-value-leading);
+        color: var(--ag-entry-placeholder);
+    }
+
+    /* The whole entry as a link (`->url()`) or an action button. */
+    & a.fi-in-entry-content,
+    & button.fi-in-entry-content {
+        border-radius: var(--ag-radius-control);
+        outline: none;
+
+        & .fi-in-text-item {
+            color: var(--ag-entry-link);
+            text-decoration: underline;
+            text-decoration-color: transparent;
+            text-underline-offset: 0.1875rem;
+            transition: var(--ag-entry-transition);
+        }
+
+        &:hover .fi-in-text-item {
+            color: var(--ag-entry-link-hover);
+            text-decoration-color: currentColor;
+        }
+
+        &:focus-visible {
+            outline: var(--ag-focus-ring-width) solid var(--ag-focus-ring);
+            outline-offset: var(--ag-focus-ring-offset);
+        }
+    }
+}
+
+/*
+ * Variant: sheet (`infolist--sheet` on a Section, D-10a A and B).
+ *
+ * - Rows: every entry of the section is a row, 12 px above and below, a gray-200 hairline on top.
+ *   Each row is pulled up 1 px, so the first row's hairline lies exactly on the section divider
+ *   (or on the card edge when there is no header) and no line is doubled or left over. Hairlines
+ *   are on top only, so a short last row in two columns leaves no orphan line.
+ * - Two sheet columns come from the schema (`->columns(['default' => 1, 'xl' => 2])`); grid rows
+ *   keep both columns aligned, 32 px apart.
+ * - Label | value: from md, a row at least 20 rem wide puts the grey label in a column of
+ *   180 px (36 % of a narrower row, at least 112 px) and the value beside it, on one baseline
+ *   (both on a 20 px line). Each row is its own size container, so a narrow side column or a
+ *   narrow sheet column falls back to label above value on its own. Below md: always stacked.
+ * - An entry with a hidden label takes the whole row. Images align to the top of the label.
+ *
+ * Pure CSS on the class: no `inlineLabel()` (Filament's version is a 1/3 split on the viewport,
+ * so it would be overridden anyway).
+ */
+.infolist--sheet > .fi-section {
+    --section-content-padding-y: var(--ag-space-1);
+}
+
+.infolist--sheet > .fi-section > .fi-section-content-ctn > .fi-section-content.fi-sc-has-gap {
+    row-gap: 0;
+    column-gap: var(--ag-sheet-column-gap);
+    padding-top: 0;
+
+    & > .fi-grid-col {
+        container-type: inline-size;
+        margin-top: calc(-1 * var(--ag-border-width));
+        padding-block: var(--ag-sheet-row-padding-y);
+        border-top: var(--ag-border-width) solid var(--ag-sheet-rule);
+    }
+
+    /* A link's underline hangs below the text; without extra room it reads as touching the next hairline. */
+    & > .fi-grid-col:has(.fi-in-text-item a) {
+        padding-bottom: calc(var(--ag-sheet-row-padding-y) + var(--ag-space-1));
+    }
+}
+
+@media (min-width: 48rem) {
+    @container (min-width: 20rem) {
+        .infolist--sheet .fi-section-content > .fi-grid-col > .fi-sc-component > .fi-in-entry {
+            grid-template-columns: var(--ag-sheet-label-width) minmax(0, 1fr);
+            column-gap: var(--ag-sheet-label-gap);
+            align-items: baseline;
+
+            & .fi-in-entry-label {
+                line-height: var(--ag-entry-value-leading);
+            }
+
+            &:has(> .fi-in-entry-label.fi-sr-only) {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            &:has(.fi-in-image) {
+                align-items: start;
+            }
+        }
+    }
+}
+
+/*
+ * Variant: identity header (`infolist--identity` on a heading-less Section, D-10a D).
+ *
+ * One calm block that opens the record: the avatar, the name in navy 18 px bold, the main
+ * contact under it in grey. Built from native parts: a Flex with an ImageEntry and a Group of
+ * two TextEntries with hidden labels (still read by screen readers).
+ */
+.infolist--identity > .fi-section {
+    --section-content-padding-y: var(--ag-identity-padding-y);
+
+    & .fi-sc-flex {
+        column-gap: var(--ag-identity-gap);
+    }
+
+    & .fi-sc.fi-sc-has-gap:not(.fi-sc-dense) {
+        gap: var(--ag-space-0-5);
+    }
+
+    & .fi-in-text-item.fi-size-lg {
+        font-size: var(--ag-identity-name-size);
+        line-height: var(--ag-identity-name-leading);
+        letter-spacing: var(--ag-tracking-tight);
+        color: var(--ag-identity-name);
+    }
+
+    & .fi-in-text-item.fi-size-sm:not(.fi-color) {
+        color: var(--ag-identity-contact);
+    }
+}

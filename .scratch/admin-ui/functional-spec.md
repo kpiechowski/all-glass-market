@@ -248,4 +248,13 @@ resources/css/admin/
   - the **main group** with the remaining items, aligned to the top;
   - the **bottom group** (profile).
 - **D-42** Motion: subtle, pleasant animations are wanted, because the client's customers use the panel. Shared motion tokens (duration, easing) are used for all hover and active transitions. `prefers-reduced-motion` turns them off.
+- **D-10a** (amends D-10, D-35; 2026-11-06, issue 07 round 2) The record-view infolist is space-aware:
+  - **(A)** The `infolist--sheet` variant is built in issue 07, not 10: grey fixed-width label (~180 px) on the left, value on the right, a hairline between rows, label and value on one baseline; on mobile the label moves above the value.
+  - **(B)** A sheet section with short values (name, e-mail, phone, NIP, dates) runs **two sheet columns from `xl`**: `->columns(['default' => 1, 'xl' => 2])`, entries paired by meaning. Long values (address, notes, repeatable, key-value, image lists) span the full width.
+  - **(C)** A record with status or metadata (status, type, role, confirmations, dates, author) uses layout (b): the main column holds the data, the side column (1/3) holds the status and metadata, and on mobile the side column drops above the main one.
+  - **(D)** An identity header opens the record: avatar, name and the main contact (e-mail) in one block at the top, instead of a separate "Zdjęcie profilowe" entry.
+  - **(E)** A boolean entry shows the icon **with the text** "Tak" / "Nie", never the icon alone.
+  - **Two sheet columns start at `xl`**, as accepted by the user on 2026-11-06. The xl-vs-2xl question was left open, and the current look is fine.
+  - **Variation (informative, not required):** layout (b) does not have to span the whole page. It may hold only the top sections next to the side column, while the last sections below it (e.g. long lists, repeatables, key-value tables) run full width under both columns. The Styleguide uses the full-page (b) for now, and it is accepted.
+- **D-07a** (clarifies D-07) "One field per row" applies to form fields. Infolists follow D-10a.
 - **D-43** The Styleguide is organised in underlined page tabs by component area, so the user can compare without scrolling the whole page. Nested tabs (underlined or pills) are allowed inside.

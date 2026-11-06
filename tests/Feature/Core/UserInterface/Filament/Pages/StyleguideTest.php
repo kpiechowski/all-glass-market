@@ -66,6 +66,23 @@ class StyleguideTest extends TestCase
             ->assertSee('Anna Kowalska');
     }
 
+    /** Issue 07: the record sheet shows every native entry type with static demo data. */
+    public function test_the_record_sheet_renders_every_entry_type_locally(): void
+    {
+        $this->actingAs(UserModel::factory()->superAdmin()->create());
+
+        $this->get('/admin/styleguide?obszar=karta-rekordu')
+            ->assertOk()
+            ->assertSee('mailto:ksiegowosc@autoglass.pl', escape: false)
+            ->assertSee(['infolist--identity', 'infolist--sheet', 'fi-in-image', 'fi-in-key-value', 'fi-in-repeatable', 'fi-in-table-repeatable'], escape: false)
+            ->assertSeeInOrder(['Pilkington', 'Fuyao'])
+            ->assertSeeInOrder(['Warsztat główny', 'Magazyn Swarzędz'])
+            ->assertSeeInOrder(['Marta Nowak', 'Adam Kubiak'])
+            ->assertSeeInOrder(['E-mail potwierdzony', 'Tak', 'Zgoda marketingowa', 'Nie'])
+            ->assertSee('K-00412')
+            ->assertSee('Faktury wyłącznie elektronicznie');
+    }
+
     public function test_it_is_the_last_item_of_the_main_sidebar_block_locally(): void
     {
         Filament::setCurrentPanel('admin');

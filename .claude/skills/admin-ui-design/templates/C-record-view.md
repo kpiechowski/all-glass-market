@@ -45,35 +45,77 @@ public static function getRelations(): array
 Relation managers load lazily by default; leave `$isLazyLoaded` alone.
 
 ```php
+/** Layout (b): status, type, role and dates stay in view beside the data. */
 class CustomerInfolist
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema->columns(1)->components([
-            self::contactSection(),
-            self::companySection(),
+            self::identityHeader(),
+            Grid::make(['default' => 1, 'lg' => 3])->schema([
+                Group::make([self::companySection(), self::notesSection()])
+                    ->columnSpan(['default' => 'full', 'lg' => 2])
+                    ->columnOrder(['default' => 2, 'lg' => 1]),
+                Group::make([self::accountSection()])
+                    ->columnSpan(['default' => 'full', 'lg' => 1])
+                    ->columnOrder(['default' => 1, 'lg' => 2]),   // above the main column on mobile
+            ]),
         ]);
     }
 
-    private static function contactSection(): Section
+    /** Avatar, name and the main contact; hidden labels stay for screen readers. */
+    private static function identityHeader(): Section
     {
-        return Section::make(__('customers::resources.customer.sections.contact'))
-            ->extraAttributes(['class' => 'infolist--sheet'])   // see variants (pending)
+        return Section::make()
+            ->extraAttributes(['class' => 'infolist--identity'])
             ->schema([
-                TextEntry::make('name')->label(…),
-                TextEntry::make('email')->label(…)->copyable(),
-                TextEntry::make('phone')->label(…)->placeholder('—'),
+                Flex::make([
+                    ImageEntry::make('avatar')->label(…)->hiddenLabel()->circular()->imageSize(56)->grow(false),
+                    Group::make([
+                        TextEntry::make('name')->label(…)->hiddenLabel()->size(TextSize::Large)->weight(FontWeight::Bold),
+                        TextEntry::make('email')->label(…)->hiddenLabel()->copyable(),
+                    ]),
+                ])->verticallyAlignCenter(),
+            ]);
+    }
+
+    /** Side column: status and metadata, one sheet column. */
+    private static function accountSection(): Section
+    {
+        return Section::make(__('customers::resources.customer.sections.account'))
+            ->extraAttributes(['class' => 'infolist--sheet'])
+            ->schema([
+                TextEntry::make('status')->label(…)->badge(),
+                TextEntry::make('account_type')->label(…)->badge()->color('gray'),
+                self::booleanEntry('email_verified', …),
                 TextEntry::make('created_at')->label(…)->date(),
             ]);
     }
 
-    /** Hidden as a whole on a private account. */
+    /** Short values paired by meaning, two sheet columns from xl; long values span the row. */
     private static function companySection(): Section
     {
         return Section::make(__('customers::resources.customer.sections.company'))
             ->visible(fn (CustomerModel $record): bool => $record->account_type === AccountType::Company)
             ->extraAttributes(['class' => 'infolist--sheet'])
-            ->schema([/* … */]);
+            ->columns(['default' => 1, 'xl' => 2])
+            ->schema([
+                TextEntry::make('company_name')->label(…),
+                TextEntry::make('nip')->label(…)->copyable(),
+                TextEntry::make('invoice_email')->label(…)->url(fn (string $state): string => 'mailto:'.$state),
+                TextEntry::make('phone')->label(…)->placeholder('—'),
+                TextEntry::make('address')->label(…)->placeholder('—')->columnSpanFull(),
+            ]);
+    }
+
+    /** "Tak" / "Nie" with an icon: green check, grey cross (red only when "no" is a problem). */
+    private static function booleanEntry(string $name, string $label): TextEntry
+    {
+        return TextEntry::make($name)
+            ->label($label)
+            ->formatStateUsing(fn (bool $state): string => __($state ? 'filament-infolists::components.entries.icon.true' : 'filament-infolists::components.entries.icon.false'))
+            ->icon(fn (bool $state): Heroicon => $state ? Heroicon::CheckCircle : Heroicon::XCircle)
+            ->iconColor(fn (bool $state): string => $state ? 'success' : 'gray');
     }
 }
 ```
@@ -82,9 +124,12 @@ class CustomerInfolist
 
 - Tab 1 is the infolist. Audit history and relations are the following tabs, never sections stacked under the infolist.
 - Page tabs are underlined — see variants (pending).
-- The infolist is a horizontal sheet: grey fixed-width label left, value right; on mobile the label moves above. One entry per row, so the section stays one column.
+- An identity header opens the record: avatar, name and main contact in one `infolist--identity` section, never a separate "Zdjęcie profilowe" entry.
+- The infolist is a horizontal sheet (`infolist--sheet`): grey fixed-width label left, value right, a hairline between rows; on mobile the label moves above. The theme does this; never set `inlineLabel()`.
+- A sheet section with short values runs two sheet columns from xl: `->columns(['default' => 1, 'xl' => 2])`, neighbours paired by meaning (name + NIP, e-mail + phone). Long values (address, notes, lists, images, repeatable, key-value) take `->columnSpanFull()`. A section of only long values stays one column.
+- A boolean is a `TextEntry` showing "Tak" / "Nie" with an icon (`booleanEntry()` above), never an `IconEntry` alone.
 - An empty value shows "—" (`->placeholder('—')`). A whole group that does not apply to this record hides as a section.
-- Layout (a). Layout (b) when status and metadata deserve a side column: same `Grid` + `columnOrder` as B-form.
+- Layout (b) when the record has status or metadata (status, type, role, confirmations, dates, author): data in the main column, those in the side column, which drops above the main one on mobile. Otherwise layout (a). The (b) grid may hold only the top sections: long sections at the bottom (repeatables, key-value tables, long lists) may follow it full width, under both columns.
 - Status is one badge with a state colour; role and type are neutral.
 - Header: Edit is the primary action; dangerous actions in "⋮".
 
@@ -92,7 +137,7 @@ class CustomerInfolist
 
 The Users record view, before the retrofit:
 
-- "Dane konta" is a 2-column grid mixing role, account type, declaration date, status, name, e-mail, phone, creation date and "Zmiana hasła". A sheet has one entry per row, grouped by meaning.
+- "Dane konta" is a 2-column grid mixing role, account type, declaration date, status, name, e-mail, phone, creation date and "Zmiana hasła". Status, type, role and dates belong in the side column; the sheet pairs the remaining data by meaning.
 - "Zmiana hasła" shows a lone warning badge or "-". It is an indicator next to the status, or nothing.
 - "Typ konta" and "Rola" are saturated orange and green badges. Neutral.
 - The header repeats the edit page's four buttons (Hasło, Edytuj, Wejdź na konto, Dezaktywuj). Edit is primary; the rest go to "⋮".
@@ -101,6 +146,8 @@ The Users record view, before the retrofit:
 ## Before you finish
 
 - `hasCombinedRelationManagerTabsWithContent()` returns true when the resource has relation managers.
-- Infolist is one column of sheet sections; every optional entry has `->placeholder('—')`.
+- An identity header opens the record; layout (b) whenever status or metadata exist.
+- Every label–value section is a sheet (repeatable lists and metric grids may stay plain); short-value sections have `['default' => 1, 'xl' => 2]` columns with paired entries, and long values span the full width.
+- Every boolean shows "Tak" / "Nie" with an icon; every optional entry has `->placeholder('—')`.
 - Non-applicable groups hidden as whole sections.
 - Header follows the action hierarchy.

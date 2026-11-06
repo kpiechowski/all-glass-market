@@ -30,7 +30,7 @@ A screen that fits none of them: stop and ask the user. A new template is added 
 
 ## Fields
 
-- One field per row. Two fields share a row only when both are short and belong together: City + Postcode, First + Last name.
+- Form fields: one field per row. Two fields share a row only when both are short and belong together: City + Postcode, First + Last name. Infolist entries follow the sheet rules of [template C](templates/C-record-view.md).
 - Width follows the data: a 12-column grid, and short values (postcode, NIP, phone) span only what they need.
 - Label above the field. A placeholder shows only a format example ("00-000").
 - `helperText` is one sentence at most; longer text goes into the section description.

@@ -12,6 +12,7 @@
 @import "./tokens/shadows.css";
 @import "./tokens/motion.css";
 @import "./tokens/fields.css";
+@import "./tokens/entries.css";
 @import "./tokens/sidebar.css";
 
 /* Base: page canvas and text defaults. */
@@ -40,6 +41,12 @@
 @import "./filament/forms/toggle.css";
 @import "./filament/forms/rich-editor.css";
 @import "./filament/forms/file-upload.css";
+@import "./filament/infolists/entry.css";
+@import "./filament/infolists/text-entry.css";
+@import "./filament/infolists/icon-entry.css";
+@import "./filament/infolists/image-entry.css";
+@import "./filament/infolists/key-value-entry.css";
+@import "./filament/infolists/repeatable-entry.css";
 @import "./filament/actions/button.css";
 @import "./filament/actions/icon-button.css";
 @import "./filament/actions/link.css";

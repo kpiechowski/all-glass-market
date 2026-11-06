@@ -1,0 +1,30 @@
+/*
+ * Icon entry (`.fi-in-icon`): icon-only values (a list of channels, a status mark). A boolean on
+ * a record is a TextEntry with "Tak" / "Nie" and an icon instead (D-10a E, template C).
+ * Values: tokens/entries.css.
+ *
+ * - The row is one value line tall (20 px), so an icon lines up with text values.
+ * - Filament's default icon size here is `lg` (24 px); it steps down to 20 px to sit in that
+ *   line. An explicit `->size()` other than `lg` is left alone.
+ * - Colours stay Filament's: grey for plain icons, the state colour for `->boolean()`.
+ */
+.fi-in-icon {
+    min-height: var(--ag-entry-value-leading);
+    align-items: center;
+
+    & > .fi-icon.fi-size-lg,
+    & > a > .fi-icon.fi-size-lg {
+        width: var(--ag-entry-icon-size);
+        height: var(--ag-entry-icon-size);
+    }
+
+    & > a {
+        border-radius: var(--ag-radius-pill);
+        outline: none;
+
+        &:focus-visible {
+            outline: var(--ag-focus-ring-width) solid var(--ag-focus-ring);
+            outline-offset: var(--ag-focus-ring-offset);
+        }
+    }
+}

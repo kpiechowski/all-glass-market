@@ -1,0 +1,65 @@
+/*
+ * Key-value entry (`.fi-in-key-value`): a small two-column table. Values: tokens/entries.css.
+ *
+ * - Frame: the 1 px gray-200 edge, control radius, no lift (it already sits on a white section).
+ * - Head: gray-50 band, 13 px semibold gray-600.
+ * - Rows: body font (Filament sets monospace), 14 px; the key in grey medium, the value in the
+ *   entry value colour; 8 / 12 px cells, gray-200 row dividers, a gray-100 column divider.
+ * - Empty: the "—" placeholder, centred, in the placeholder grey.
+ */
+.fi-in-key-value {
+    overflow: hidden;
+    border-radius: var(--ag-radius-control);
+    box-shadow: var(--ag-entry-box-edge);
+    border-collapse: separate;
+    border-spacing: 0;
+
+    & thead th {
+        padding: var(--ag-entry-box-padding-y) var(--ag-entry-box-padding-x);
+        background-color: var(--ag-entry-box-head-bg);
+        font-size: var(--ag-text-sm);
+        line-height: var(--ag-leading-sm);
+        font-weight: var(--ag-weight-semibold);
+        color: var(--ag-entry-box-head-text);
+    }
+
+    & tbody {
+        font-family: var(--ag-font);
+        font-size: var(--ag-entry-value-size);
+        line-height: var(--ag-entry-value-leading);
+    }
+
+    & tbody th,
+    & tbody td {
+        padding: var(--ag-entry-box-padding-y) var(--ag-entry-box-padding-x);
+        vertical-align: top;
+    }
+
+    & tbody th {
+        font-weight: var(--ag-weight-medium);
+        color: var(--ag-entry-box-key);
+    }
+
+    & tbody td {
+        font-weight: var(--ag-entry-value-weight);
+        color: var(--ag-entry-value);
+
+        &.fi-in-placeholder {
+            font-weight: var(--ag-weight-regular);
+            color: var(--ag-entry-placeholder);
+        }
+    }
+
+    /* Separate borders so the radius holds; dividers are drawn on the cells. */
+    & thead th {
+        border-bottom: var(--ag-border-width) solid var(--ag-border);
+    }
+
+    & tbody tr:not(:last-child) > * {
+        border-bottom: var(--ag-border-width) solid var(--ag-border);
+    }
+
+    & tr > :not(:last-child) {
+        border-inline-end: var(--ag-border-width) solid var(--ag-divider);
+    }
+}

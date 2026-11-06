@@ -306,7 +306,7 @@ class Styleguide extends Page implements HasTable
     private function recordTab(): array
     {
         return [
-            ...self::blockHeading('Karta rekordu', 'Szablon C: zakładki rekordu, w pierwszej arkusz, jeden wpis w wierszu, „—” dla pustych wartości.'),
+            ...self::blockHeading('Karta rekordu', 'Szablon C: nagłówek rekordu, kolumna boczna ze statusem, arkusz etykieta–wartość w dwóch kolumnach od xl, „—” dla pustych wartości.'),
             StyleguideTabs::make(EmbeddedSchema::make('infolist')),
         ];
     }
