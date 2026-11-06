@@ -11,6 +11,7 @@
 @import "./tokens/borders.css";
 @import "./tokens/shadows.css";
 @import "./tokens/motion.css";
+@import "./tokens/fields.css";
 @import "./tokens/sidebar.css";
 
 /* Base: page canvas and text defaults. */
@@ -29,6 +30,16 @@
 @import "./filament/schema/tabs.css";
 @import "./filament/schema/fieldset.css";
 @import "./filament/schema/grid.css";
+@import "./filament/forms/field-wrapper.css";
+@import "./filament/forms/input.css";
+@import "./filament/forms/select.css";
+@import "./filament/forms/textarea.css";
+@import "./filament/forms/date-time-picker.css";
+@import "./filament/forms/checkbox.css";
+@import "./filament/forms/radio.css";
+@import "./filament/forms/toggle.css";
+@import "./filament/forms/rich-editor.css";
+@import "./filament/forms/file-upload.css";
 @import "./filament/actions/button.css";
 @import "./filament/actions/icon-button.css";
 @import "./filament/actions/link.css";

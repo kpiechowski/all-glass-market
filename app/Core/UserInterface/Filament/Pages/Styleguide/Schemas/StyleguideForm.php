@@ -226,17 +226,25 @@ final class StyleguideForm
             ]);
     }
 
-    /** Files are never stored: the page validates and never calls getState(). */
+    /**
+     * Images as previews in FilePond's grid: 3 per row on wide screens, 2 on tablets, 1 on
+     * phones (`forms/file-upload.css`). Tiles are 4:3 landscape: FilePond takes the item panel
+     * ratio as height / width, so 0.75. Files are never stored: the page validates and never
+     * calls getState().
+     */
     private static function attachmentsSection(): Section
     {
         return Section::make('Załączniki')
-            ->description('Zdjęcia szyby lub faktura, do 5 plików.')
+            ->description('Zdjęcia szyby, do 6 plików. Podglądy układają się w siatce.')
             ->schema([
                 FileUpload::make('attachments')
                     ->label('Załączniki')
                     ->hiddenLabel()
                     ->multiple()
-                    ->maxFiles(5),
+                    ->image()
+                    ->panelLayout('grid')
+                    ->itemPanelAspectRatio(0.75)
+                    ->maxFiles(6),
             ]);
     }
 }

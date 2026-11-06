@@ -1,0 +1,70 @@
+/*
+ * Rich editor (`.fi-fo-rich-editor`), inside the shared input frame (`input.css`), so its edge,
+ * focus halo, error and disabled states match every other field.
+ *
+ * - Toolbar: a gray-50 band with a gray-200 divider, tools 32 px with the control radius.
+ *   Hover gray-100; an active tool (bold on, current heading) is royal on primary-50. The
+ *   toolbar lies on white, so primary-50 stays visible there (on the canvas it would not).
+ * - Content: 12/16 px padding, placeholder gray-400.
+ * - Disabled: the toolbar loses its band so the whole field reads as one grey surface.
+ */
+.fi-fo-rich-editor {
+    & .fi-fo-rich-editor-toolbar,
+    & .fi-fo-rich-editor-toolbar.fi-fo-rich-editor-sticky-toolbar {
+        background-color: var(--ag-field-affix-bg);
+        border-color: var(--ag-border);
+        border-start-start-radius: inherit;
+        border-start-end-radius: inherit;
+    }
+
+    & .fi-fo-rich-editor-tool,
+    & .fi-fo-rich-editor-dropdown-tool-trigger,
+    & .fi-fo-rich-editor-dropdown-tool-option {
+        border-radius: var(--ag-radius-control);
+        color: var(--ag-text-secondary);
+        transition: var(--ag-field-transition);
+
+        &:hover,
+        &:focus-visible {
+            background-color: var(--gray-100);
+            color: var(--ag-text);
+        }
+
+        &.fi-active {
+            background-color: var(--primary-50);
+            color: var(--ag-accent);
+        }
+
+        &:focus-visible {
+            outline-color: var(--ag-field-border-focus);
+        }
+    }
+
+    & .fi-fo-rich-editor-floating-toolbar,
+    & .fi-fo-rich-editor-dropdown-tool-panel {
+        border-color: var(--ag-border);
+        border-radius: var(--ag-radius-control);
+        box-shadow: var(--shadow-md);
+    }
+
+    & .fi-fo-rich-editor-content {
+        padding-block: var(--ag-space-3);
+        padding-inline: var(--ag-space-4);
+        color: var(--ag-field-text);
+    }
+
+    & .tiptap p.is-editor-empty:first-child::before {
+        color: var(--ag-field-placeholder);
+    }
+
+    &.fi-disabled {
+        & .fi-fo-rich-editor-toolbar {
+            background-color: transparent;
+            border-color: var(--ag-field-disabled-border);
+        }
+
+        & .fi-fo-rich-editor-content {
+            color: var(--ag-field-disabled-text);
+        }
+    }
+}

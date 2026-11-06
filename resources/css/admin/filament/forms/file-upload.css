@@ -1,0 +1,96 @@
+/*
+ * File upload (`.fi-fo-file-upload`, FilePond). The drop zone is a dashed field edge, so it
+ * reads as "drop here" rather than as a text field; the files inside keep FilePond's panels.
+ *
+ * - Rest: white, 1 px dashed #c2c6cd, control radius, 13 px muted label, the "Przeglądaj"
+ *   action royal semibold.
+ * - Hover or file dragged over: royal dashed edge on a primary-50 tint (white section, so the
+ *   tint stays visible).
+ * - Invalid (the wrapper has an error): danger dashed edge. Disabled: gray-100, gray-200 edge.
+ * - Uploaded file panel: dark grey instead of FilePond's warm brown-grey.
+ * - Images (`image()` + `panelLayout('grid')`): previews in a grid, 3 / 2 / 1 per row.
+ */
+.fi-fo-file-upload {
+    --ag-upload-grid-item-width: calc(100% - 0.5rem);
+
+    @media (min-width: 48rem) {
+        --ag-upload-grid-item-width: calc(50% - 0.5rem);
+    }
+
+    @media (min-width: 64rem) {
+        --ag-upload-grid-item-width: calc(33.333% - 0.5rem);
+    }
+
+    & .filepond--root {
+        background-color: var(--ag-field-bg);
+        border: var(--ag-border-width) dashed var(--ag-field-border);
+        border-radius: var(--ag-radius-control);
+        box-shadow: none;
+        transition: var(--ag-field-transition);
+
+        &:hover,
+        &[data-hopper-state='drag-over'] {
+            background-color: var(--primary-50);
+            border-color: var(--ag-field-border-focus);
+        }
+
+        &:focus-within {
+            border-color: var(--ag-field-border-focus);
+            box-shadow: 0 0 0 4px var(--ag-field-focus-halo);
+        }
+    }
+
+    & .filepond--root[data-disabled='disabled'] {
+        background-color: var(--ag-field-disabled-bg);
+        border-color: var(--ag-field-disabled-border);
+    }
+
+    & .filepond--drop-label label {
+        font-size: var(--ag-text-sm);
+    }
+
+    & .filepond--label-action {
+        font-weight: var(--ag-weight-semibold);
+        color: var(--ag-accent);
+        text-decoration: none;
+
+        &:hover {
+            color: var(--ag-accent-hover);
+        }
+    }
+
+    & .filepond--item-panel {
+        background-color: var(--gray-700);
+        border-radius: var(--ag-radius-control);
+    }
+
+    /* Image previews: control radius, a light letterbox instead of FilePond's #222, no shadow. */
+    & .filepond--image-preview-wrapper {
+        border-radius: var(--ag-radius-control);
+    }
+
+    & .filepond--image-preview {
+        background-color: var(--gray-100);
+    }
+
+    /*
+     * Grid layout (`panelLayout('grid')`): FilePond places every item absolutely and reads the
+     * item width to decide how many fit per row; Filament sets that width (50 % / 33 % at lg).
+     * Each item keeps FilePond's 0.25em margin, hence `- 0.5rem`. Rows: 1 on phones, 2 from md
+     * (48rem), 3 from lg (64rem). The tile height follows `itemPanelAspectRatio()`.
+     */
+    & .filepond--root[data-style-panel-layout='grid'] .filepond--item {
+        width: var(--ag-upload-grid-item-width);
+    }
+
+
+    & .fi-fo-file-upload-error-message {
+        font-size: var(--ag-text-sm);
+        font-weight: var(--ag-weight-medium);
+        color: var(--ag-field-error-text);
+    }
+}
+
+.fi-fo-field:has([data-validation-error]) .fi-fo-file-upload .filepond--root {
+    border-color: var(--ag-field-border-invalid);
+}

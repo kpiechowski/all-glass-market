@@ -9,6 +9,7 @@ use App\Core\UserInterface\Filament\Pages\Styleguide\Actions\DemoNotification;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Actions\EditPricingDemoAction;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Actions\InviteUserDemoAction;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideButtons;
+use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideFieldStates;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideForm;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideInfolist;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideLayoutForm;
@@ -52,6 +53,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
  * @property-read Schema $form
  * @property-read Schema $settingsForm
  * @property-read Schema $layoutForm
+ * @property-read Schema $fieldStatesForm
  * @property-read Schema $infolist
  */
 class Styleguide extends Page implements HasTable
@@ -74,6 +76,9 @@ class Styleguide extends Page implements HasTable
 
     /** @var array<string, mixed>|null */
     public ?array $layoutDemo = [];
+
+    /** @var array<string, mixed>|null */
+    public ?array $fieldStates = [];
 
     public string $listTab = 'active';
 
@@ -101,9 +106,9 @@ class Styleguide extends Page implements HasTable
         $this->form->fill(StyleguideForm::demoState());
         $this->settingsForm->fill(StyleguideSettingsForm::demoState());
         $this->layoutForm->fill(StyleguideLayoutForm::demoState());
+        $this->fieldStatesForm->fill(StyleguideFieldStates::demoState());
 
-        /* Shows the error state on first load; Zapisz then validates for real. */
-        $this->addError('data.company_nip', StyleguideForm::nipError());
+        $this->showDemoErrors();
     }
 
     public function form(Schema $schema): Schema
@@ -119,6 +124,11 @@ class Styleguide extends Page implements HasTable
     public function layoutForm(Schema $schema): Schema
     {
         return StyleguideLayoutForm::configure($schema);
+    }
+
+    public function fieldStatesForm(Schema $schema): Schema
+    {
+        return StyleguideFieldStates::configure($schema);
     }
 
     public function infolist(Schema $schema): Schema
@@ -211,6 +221,7 @@ class Styleguide extends Page implements HasTable
     {
         $this->resetErrorBag();
         $this->form->fill(StyleguideForm::demoState());
+        $this->showDemoErrors();
     }
 
     /** One capability, one place: header holds 1 primary, 2 secondary, the rest in "⋮" (danger last). */
@@ -238,6 +249,16 @@ class Styleguide extends Page implements HasTable
         ];
     }
 
+    /** Shows the error state on first load; Zapisz then validates the main form for real. */
+    private function showDemoErrors(): void
+    {
+        $this->addError('data.company_nip', StyleguideForm::nipError());
+
+        foreach (StyleguideFieldStates::demoErrors() as $statePath => $message) {
+            $this->addError($statePath, $message);
+        }
+    }
+
     private function refreshTable(): void
     {
         $this->flushCachedTableRecords();
@@ -258,6 +279,8 @@ class Styleguide extends Page implements HasTable
                         Action::make('cancel')->label('Anuluj')->color('gray')->action(fn () => $this->cancel()),
                     ])->sticky()->key('form-actions'),
                 ]),
+            ...self::blockHeading('Stany pól', 'Etykiety, podpowiedzi, prefiksy i sufiksy, pola wyboru, daty, pola tylko do odczytu i wyłączone, błędy walidacji.'),
+            EmbeddedSchema::make('fieldStatesForm'),
         ];
     }
 

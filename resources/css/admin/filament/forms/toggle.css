@@ -1,0 +1,67 @@
+/*
+ * Toggle (`.fi-toggle`), 44 x 24 px with a 20 px white knob (Filament's size).
+ *
+ * - Off: gray-300 track (gray-400 on hover), so it reads on a white section.
+ * - On (default primary colour): royal track, navy on hover. Other `onColor()`s keep
+ *   Filament's colour; variants are issue 10.
+ * - The track colour fades on the fast motion token; the knob slides on the base token with
+ *   the ease-out curve. Both stop under reduced motion.
+ * - Keyboard focus: a white gap, a 1 px royal ring and the input frame's 16 % halo.
+ * - Disabled: grey track (gray-200 off, gray-400 on), no fade, cursor not-allowed.
+ */
+.fi-toggle {
+    transition: background-color var(--ag-duration-fast) var(--ag-ease-out), box-shadow var(--ag-duration-fast) var(--ag-ease-out);
+
+    &.fi-toggle-off:is(:not(.fi-color), .fi-color-gray) {
+        background-color: var(--ag-control-off);
+
+        &:hover {
+            background-color: var(--ag-control-off-hover);
+        }
+    }
+
+    &.fi-toggle-on.fi-color-primary {
+        background-color: var(--ag-control-checked);
+
+        &:hover {
+            background-color: var(--ag-control-checked-hover);
+        }
+
+        & .fi-icon {
+            color: var(--ag-control-checked);
+        }
+    }
+
+    & > :first-child {
+        box-shadow: var(--shadow-sm), 0 0 0 0.5px rgb(16 18 22 / 0.06);
+        transition: transform var(--ag-duration-base) var(--ag-ease-out);
+
+        & > * {
+            transition: opacity var(--ag-duration-fast) var(--ag-ease-out);
+        }
+    }
+
+    &:focus-visible {
+        box-shadow: 0 0 0 2px var(--ag-surface), 0 0 0 3px var(--ag-field-border-focus), 0 0 0 6px var(--ag-field-focus-halo);
+        --tw-ring-shadow: 0 0 #0000;
+        --tw-ring-offset-shadow: 0 0 #0000;
+    }
+
+    &:disabled,
+    &[disabled] {
+        opacity: 1;
+        cursor: not-allowed;
+
+        &.fi-toggle-off {
+            background-color: var(--gray-200);
+        }
+
+        &.fi-toggle-on {
+            background-color: var(--gray-400);
+
+            & .fi-icon {
+                color: var(--gray-400);
+            }
+        }
+    }
+}
