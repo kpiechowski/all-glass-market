@@ -34,6 +34,7 @@ use Filament\Resources\Resource as FilamentResource;
 use Filament\View\PanelsRenderHook;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -68,6 +69,7 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(PanelsRenderHook::BODY_START, fn (): string => ImpersonationSession::isActive()
                 ? Blade::render('@livewire("users-impersonation-banner")')
                 : '')
+            ->renderHook(PanelsRenderHook::TOPBAR_START, fn (): View => view('core::filament.topbar.ornament'))
             ->userMenuItems([
                 'profile' => fn (Action $action): Action => $action
                     ->label(__('users::profile.user_menu_label'))

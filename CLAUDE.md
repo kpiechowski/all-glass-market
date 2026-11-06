@@ -4,6 +4,8 @@ A Laravel + Filament application built as hexagonal architecture with DDD-lite m
 
 Runs on Laradock PHP 8.5: **Artisan is `dartisan`**, never `php artisan`.
 
+**Run every command in the container as `laradock` (uid 1000), never as root:** `docker exec -u laradock -w /var/www/all-glass-market laradock8_5-workspace-1 sh -c '...'`. This applies to composer, phpunit, artisan, tinker, npm and pint alike. The web server runs as uid 1000. A root run leaves root-owned files in `storage/` and `bootstrap/cache/`, and the panel then fails with a 500 `touch(): Utime failed: Operation not permitted`. If that happens, repair it with `docker exec laradock8_5-workspace-1 sh -c 'cd /var/www/all-glass-market && find . ! -user 1000 -exec chown 1000:1000 {} +'`.
+
 ## Layers
 
 | Layer | Holds | May depend on |
