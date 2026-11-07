@@ -76,7 +76,7 @@ class OffersTable
                 ->visibleFrom('md'),
             TextColumn::make('published_at')
                 ->label(__('offers::resources.offer.fields.published_at'))
-                ->date()
+                ->date('d.m.Y')
                 ->sortable()
                 ->visibleFrom('md'),
             TextColumn::make('updated_at')
@@ -99,6 +99,7 @@ class OffersTable
 - `status()`: the one state badge (an enum with `HasLabel` + `HasColor`, or `['label' => …, 'color' => …]`).
 - `badges()`: category values, neutral; an enum or a plain string.
 - `flags()`: the indicators of the main cell (`['label' => 'Zmiana hasła', 'icon' => Heroicon::OutlinedKey]`, `warning` by default).
+- A state that marks only the exception (Nieaktywne, Zmiana hasła) is a flag, in the main cell and on the card. `status()` is for a state every row has (Szkic / Opublikowana).
 - `meta()`: up to two short facts, the date column first ("od 12.03.2024"). Empty values drop out.
 - Below `md` the theme hides the head and renders each row as a card; the row click, checkbox and row actions keep working. Never override the table view for this.
 
@@ -114,12 +115,14 @@ class OffersTable
 - A column that is empty for most rows does not exist. Its fact becomes an indicator in the main cell: an icon or small badge next to the name.
 - Every regular column is `->visibleFrom('md')`; the one `RecordCardColumn` hides from `md` by itself.
 - Numbers (counts, money) are `->numeric()` / `->money()` with `->alignEnd()`.
-- Dates: `->date()`, or `->since()` with `->dateTooltip()`. Never `->dateTime()` with seconds.
+- Dates: `->date('d.m.Y')`, or `->since()` with `->dateTooltip('d.m.Y H:i')`. Never `->dateTime()` with seconds.
 - Category columns use neutral badges; state columns use state colours (SKILL.md, Colour = state).
 
 ## Tabs and filters
 
 - The main split (Aktywne / Nieaktywne / Zaproszone) is list tabs, never a filter.
+- The first tab is the default and holds the working set (Aktywne). A last tab "Wszystkie" exists when people search across the split (a person by name).
+- List tabs carry no count badge unless the count is cheap (SKILL.md, Colour = state).
 - Up to 3 simple, frequent filters: `FiltersLayout::AboveContent`. More than 3: the default funnel layout, with the frequent ones first.
 - Inline filters are selects, dates, toggles or checkboxes; no `->columnSpan()` and no `->filtersFormColumns()` on them.
 - Keep the defaults of `TableDefaults` (`app/Filament/Tables`, registered through `ComponentDefaults` in `AdminPanelProvider::boot()`): inline filters apply on change, the panel has "Zastosuj filtry" and is 24 rem wide, the count badge shows only above 0, "Zresetuj filtry" shows only while a filter is active. Do not set `deferFilters()`, `filtersFormWidth()` or `filtersTriggerAction()` without the user's approval.
@@ -127,7 +130,7 @@ class OffersTable
 
 ## Actions
 
-- The row click opens the record (`recordUrl`); View is not a row action.
+- The row click opens the record (`recordUrl`); View is not a row action. Edit may stay in the row "⋮" beside other actions.
 - One extra row action stands alone as `->iconButton()` with a tooltip. Two or more go into one `ActionGroup`.
 - Header: one primary (`CreateAction`), at most two secondary, the rest in "⋮".
 - Bulk actions go in `toolbarActions()` and send commands (`filament-module-wiring`).

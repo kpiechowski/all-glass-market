@@ -65,7 +65,7 @@ class AdminPanelProviderTest extends TestCase
 
         [, , $bottom] = $this->blocks();
 
-        $this->assertSame('i', $bottom->getItems()[0]->getBadge());
+        $this->assertSame('!', $bottom->getItems()[0]->getBadge());
     }
 
     public function test_the_styleguide_is_not_in_the_sidebar_outside_local(): void

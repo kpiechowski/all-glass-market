@@ -7,6 +7,7 @@ namespace Tests\Feature\Modules\Users\UserInterface\Filament\Resources\Users\Pag
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Pages\ListUsers;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Pages\ViewUser;
+use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
 use Filament\Actions\ActionGroup;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -63,7 +64,7 @@ class ListUsersTest extends TestCase
         Livewire::test(ListUsers::class)->assertForbidden();
     }
 
-    public function test_the_list_marks_deactivated_users_and_filters_by_activity(): void
+    public function test_the_list_tabs_split_active_and_inactive_users_and_all_marks_the_inactive_ones(): void
     {
         $admin = UserModel::factory()->admin()->create();
         $inactive = UserModel::factory()->deactivated()->create();
@@ -72,13 +73,24 @@ class ListUsersTest extends TestCase
         $this->actingAs($admin);
 
         Livewire::test(ListUsers::class)
-            ->assertSee('konto nieaktywne')
-            ->filterTable('is_active', false)
+            ->assertCanSeeTableRecords([$active, $admin])
+            ->assertCanNotSeeTableRecords([$inactive])
+            ->set('activeTab', 'inactive')
             ->assertCanSeeTableRecords([$inactive])
             ->assertCanNotSeeTableRecords([$active, $admin])
-            ->filterTable('is_active', true)
-            ->assertCanSeeTableRecords([$active, $admin])
-            ->assertCanNotSeeTableRecords([$inactive]);
+            ->set('activeTab', 'all')
+            ->assertCanSeeTableRecords([$inactive, $active, $admin])
+            ->assertSee(__('users::resources.user.status.inactive'));
+    }
+
+    public function test_the_row_opens_the_record_view(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $target = UserModel::factory()->create();
+
+        $table = Livewire::test(ListUsers::class)->instance()->getTable();
+
+        $this->assertSame(UserResource::getUrl('view', ['record' => $target]), $table->getRecordUrl($target));
     }
 
     public function test_a_super_admin_gets_no_edit_on_another_super_admin_but_row_and_detail_stay_read_only(): void
@@ -91,7 +103,6 @@ class ListUsersTest extends TestCase
             ->assertSuccessful();
 
         $this->assertNotContains('edit', $this->visibleRowActions($other));
-        $this->assertContains('view', $this->visibleRowActions($other));
         $this->assertContains('edit', $this->visibleRowActions($me));
 
         Livewire::test(ViewUser::class, ['record' => $other->getKey()])

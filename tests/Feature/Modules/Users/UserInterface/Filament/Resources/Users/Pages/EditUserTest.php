@@ -23,13 +23,13 @@ class EditUserTest extends TestCase
         Filament::setCurrentPanel('admin');
     }
 
-    public function test_an_admin_edits_a_user_and_an_empty_password_keeps_the_old_one(): void
+    public function test_an_admin_edits_a_user_and_the_password_stays(): void
     {
         $this->actingAs(UserModel::factory()->admin()->create());
         $target = UserModel::factory()->create();
 
         Livewire::test(EditUser::class, ['record' => $target->getKey()])
-            ->fillForm(['name' => 'Zmieniony', 'role' => 'admin', 'password' => ''])
+            ->fillForm(['name' => 'Zmieniony', 'role' => 'admin'])
             ->call('save')
             ->assertHasNoFormErrors();
 

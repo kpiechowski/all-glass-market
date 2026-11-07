@@ -27,13 +27,10 @@ enum UserRole: string implements HasColor, HasLabel, Role
         return $this->label();
     }
 
+    /** A Role is a category, so its badge stays neutral (D-21). */
     public function getColor(): string
     {
-        return match ($this) {
-            self::SuperAdmin => 'danger',
-            self::Admin => 'warning',
-            self::User => 'gray',
-        };
+        return 'gray';
     }
 
     public function rank(): int

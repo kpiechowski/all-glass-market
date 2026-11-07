@@ -21,24 +21,29 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Str;
 
+/**
+ * Template B, layout (a): one column of sections. Status, role and dates are read on the record
+ * view; the edit form carries only inputs, so no side column. On edit the password is an action
+ * in the page's "⋮" (SetUserPasswordAction), so the password section exists only on create.
+ */
 class UserForm
 {
     public static function configure(Schema $schema): Schema
     {
-        return $schema->components([
+        return $schema->columns(1)->components([
             self::accountSection(),
+            self::passwordSection(),
             self::extraPermissionsSection(),
             self::companySection(),
+            self::pickupAddressSection(),
             self::shippingSection(),
-            self::passwordSection(),
         ]);
     }
 
     private static function accountSection(): Section
     {
         return Section::make(__('users::resources.user.sections.account_details'))
-            ->icon(Heroicon::UserCircle)
-            ->columns(2)
+            ->columns(['default' => 1, 'md' => 12])
             ->schema([
                 // FR-24/25: never Super Admin; hidden when editing oneself or a Super Admin (RULE-08).
                 Select::make('role')
@@ -47,24 +52,30 @@ class UserForm
                     ->required()
                     ->visible(fn (?UserModel $record): bool => $record === null
                         || UserManagementPolicy::canChangeRoleOf((int) auth()->id(), (int) $record->id, (string) $record->role))
-                    ->columnSpanFull(),
+                    ->columnSpan(['default' => 'full', 'md' => 6])
+                    ->columnStart(['default' => 1]),
 
                 TextInput::make('name')
                     ->label(__('users::resources.user.fields.name'))
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->columnSpan(['default' => 'full', 'md' => 8])
+                    ->columnStart(['default' => 1]),
 
                 TextInput::make('email')
                     ->label(__('users::resources.user.fields.email'))
                     ->email()
                     ->required()
                     ->unique(table: 'users', column: 'email', ignoreRecord: true)
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->columnSpan(['default' => 'full', 'md' => 8])
+                    ->columnStart(['default' => 1]),
 
                 TextInput::make('phone')
                     ->label(__('users::resources.user.fields.phone'))
                     ->tel()
-                    ->maxLength(50),
+                    ->maxLength(50)
+                    ->columnSpan(['default' => 'full', 'md' => 4]),
             ]);
     }
 
@@ -72,40 +83,68 @@ class UserForm
     private static function extraPermissionsSection(): Section
     {
         return Section::make(__('users::resources.user.sections.extra_permissions'))
-            ->icon(Heroicon::Key)
+            ->description(__('users::resources.user.descriptions.extra_permissions'))
             ->visible(fn (): bool => RoleDisplay::actorSeesExtraPermissions())
             ->schema([
                 CheckboxList::make('extra_permissions')
-                    ->label(__('users::resources.user.fields.extra_permissions'))
-                    ->helperText(__('users::resources.user.helpers.extra_permissions'))
+                    ->label(__('users::resources.user.sections.extra_permissions'))
+                    ->hiddenLabel()
                     ->options(fn (): array => RoleDisplay::permissionOptions())
-                    ->columns(2),
+                    ->columns(['default' => 1, 'md' => 2]),
             ]);
     }
 
     private static function companySection(): Section
     {
         return Section::make(__('users::resources.user.sections.company_details'))
-            ->icon(Heroicon::BuildingOffice2)
-            ->columns(2)
+            ->columns(['default' => 1, 'md' => 12])
             ->schema([
-                TextInput::make('company_name')->label(__('users::resources.user.fields.company_name'))->maxLength(255),
-                TextInput::make('company_nip')->label(__('users::resources.user.fields.company_nip'))->maxLength(255),
-                TextInput::make('company_address')->label(__('users::resources.user.fields.company_address'))->maxLength(255),
-                TextInput::make('shipment_address')->label(__('users::resources.user.fields.pickup_address'))->maxLength(255),
-                TextInput::make('city')->label(__('users::resources.user.fields.city'))->maxLength(255),
-                TextInput::make('city_code')->label(__('users::resources.user.fields.postal_code'))->maxLength(10),
+                TextInput::make('company_name')
+                    ->label(__('users::resources.user.fields.company_name'))
+                    ->maxLength(255)
+                    ->columnSpanFull(),
+                TextInput::make('company_nip')
+                    ->label(__('users::resources.user.fields.company_nip'))
+                    ->maxLength(255)
+                    ->columnSpan(['default' => 'full', 'md' => 4]),
+                TextInput::make('company_address')
+                    ->label(__('users::resources.user.fields.company_address'))
+                    ->maxLength(255)
+                    ->columnSpanFull(),
             ]);
     }
 
+    /** One address, one section: street, then postcode + city. */
+    private static function pickupAddressSection(): Section
+    {
+        return Section::make(__('users::resources.user.sections.pickup_address'))
+            ->columns(['default' => 1, 'md' => 12])
+            ->schema([
+                TextInput::make('shipment_address')
+                    ->label(__('users::resources.user.fields.street'))
+                    ->maxLength(255)
+                    ->columnSpanFull(),
+                TextInput::make('city_code')
+                    ->label(__('users::resources.user.fields.postal_code'))
+                    ->placeholder('00-000')
+                    ->maxLength(10)
+                    ->columnSpan(['default' => 'full', 'md' => 3]),
+                TextInput::make('city')
+                    ->label(__('users::resources.user.fields.city'))
+                    ->maxLength(255)
+                    ->columnSpan(['default' => 'full', 'md' => 9]),
+            ]);
+    }
+
+    /** The section's only field is named like the section, so its label is hidden. */
     private static function shippingSection(): Section
     {
         return Section::make(__('users::resources.user.sections.shipping'))
-            ->icon(Heroicon::Truck)
+            ->description(__('users::resources.user.descriptions.shipping'))
             ->schema([
                 RichEditor::make('shipping_note')
-                    ->label(__('users::resources.user.fields.shipping_text'))
-                    ->helperText(__('users::resources.user.helpers.shipping_text')),
+                    ->label(__('users::resources.user.sections.shipping'))
+                    ->hiddenLabel(),
             ]);
     }
 
@@ -120,37 +159,30 @@ class UserForm
             ])
             ->default(fn (): string => app(EmailSending::class)->isAvailable() ? 'invitation' : 'temporary')
             ->live()
-            ->visible(fn (string $operation): bool => $operation === 'create' && app(EmailSending::class)->isAvailable())
-            ->dehydrated(fn (string $operation): bool => $operation === 'create');
+            ->visible(fn (): bool => app(EmailSending::class)->isAvailable());
     }
 
-    /** True when the password fields apply: always on edit, on create unless an invitation is sent. */
-    private static function asksForPassword(string $operation, Get $get): bool
+    /** True when the temporary password fields apply: no invitation is sent. */
+    private static function asksForPassword(Get $get): bool
     {
-        return $operation !== 'create' || ($get('password_method') ?? 'temporary') === 'temporary';
+        return ($get('password_method') ?? 'temporary') === 'temporary';
     }
 
-    /** Invitation or temporary password on create (WF-04); on edit an optional, collapsed change (FR-25). */
+    /** Create only (WF-04): an invitation, or a temporary password the User changes after signing in. */
     private static function passwordSection(): Section
     {
         return Section::make(__('users::resources.user.sections.password'))
-            ->icon(Heroicon::LockClosed)
-            ->collapsed(fn (string $operation): bool => $operation === 'edit')
-            ->columns(1)
+            ->visible(fn (string $operation): bool => $operation === 'create')
             ->schema([
                 self::passwordMethodField(),
 
                 TextInput::make('password')
-                    ->label(fn (string $operation): string => $operation === 'create'
-                        ? __('users::resources.user.fields.password')
-                        : __('users::resources.user.fields.password_edit'))
-                    ->helperText(fn (string $operation): string => $operation === 'create'
-                        ? __('users::resources.user.helpers.password_create')
-                        : __('users::resources.user.helpers.password_edit'))
+                    ->label(__('users::resources.user.fields.password'))
+                    ->helperText(__('users::resources.user.helpers.password_create'))
                     ->password()
                     ->revealable()
-                    ->visible(fn (string $operation, Get $get): bool => self::asksForPassword($operation, $get))
-                    ->required(fn (string $operation, Get $get): bool => $operation === 'create' && self::asksForPassword($operation, $get))
+                    ->visible(fn (Get $get): bool => self::asksForPassword($get))
+                    ->required(fn (Get $get): bool => self::asksForPassword($get))
                     ->dehydrated(fn (?string $state): bool => filled($state))
                     ->minLength(8)
                     ->maxLength(255)
@@ -166,7 +198,7 @@ class UserForm
                     ->label(__('users::resources.user.fields.password_confirmation'))
                     ->password()
                     ->revealable()
-                    ->visible(fn (string $operation, Get $get): bool => self::asksForPassword($operation, $get))
+                    ->visible(fn (Get $get): bool => self::asksForPassword($get))
                     ->requiredWith('password')
                     ->same('password')
                     ->dehydrated(false),

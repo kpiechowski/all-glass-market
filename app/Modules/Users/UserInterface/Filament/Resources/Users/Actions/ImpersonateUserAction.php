@@ -13,6 +13,7 @@ use App\Modules\Users\UserInterface\Filament\Resources\Users\Support\RoleDisplay
 use App\Modules\Users\UserInterface\Support\ImpersonationSession;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
+use Filament\Support\Icons\Heroicon;
 use Livewire\Component;
 
 /** WF-06: absent when RULE-10 excludes the target; the handler checks again. */
@@ -22,11 +23,11 @@ final class ImpersonateUserAction
     {
         return Action::make('impersonate')
             ->label(__('users::resources.user.actions.impersonate.label'))
-            ->icon('heroicon-o-arrow-right-end-on-rectangle')
-            ->color('warning')
+            ->icon(Heroicon::OutlinedArrowRightEndOnRectangle)
             ->requiresConfirmation()
             ->modalHeading(__('users::resources.user.actions.impersonate.heading'))
             ->modalDescription(__('users::resources.user.actions.impersonate.description'))
+            ->modalSubmitActionLabel(__('users::resources.user.actions.impersonate.label'))
             ->visible(fn (UserModel $record): bool => CurrentActor::can(UsersPermission::Impersonate)
                 && RoleDisplay::canImpersonate($record))
             ->action(function (UserModel $record, Component $livewire): void {

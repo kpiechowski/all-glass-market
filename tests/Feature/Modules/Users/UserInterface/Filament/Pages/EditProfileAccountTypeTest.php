@@ -101,10 +101,11 @@ class EditProfileAccountTypeTest extends TestCase
             ->assertActionMounted('privateAccountNotice');
     }
 
-    public function test_the_badge_shows_until_the_user_is_company(): void
+    public function test_the_attention_badge_shows_until_the_user_is_company(): void
     {
         $this->actingAs(UserModel::factory()->create());
-        $this->assertSame('i', EditProfile::getNavigationBadge());
+        $this->assertSame('!', EditProfile::getNavigationBadge());
+        $this->assertSame('warning', EditProfile::getNavigationBadgeColor());
 
         $this->actingAs(UserModel::factory()->company()->create());
         $this->assertNull(EditProfile::getNavigationBadge());

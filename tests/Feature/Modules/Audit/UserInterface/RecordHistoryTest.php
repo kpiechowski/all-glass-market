@@ -140,11 +140,16 @@ class RecordHistoryTest extends TestCase
         $this->assertTrue(RecordHistoryRelationManager::make(['recordType' => 'users.user'])->relationManager === RecordHistoryRelationManager::class);
     }
 
-    public function test_the_user_detail_mounts_the_section_for_an_admin(): void
+    /** D-10: the history is a tab after the infolist, mounted only once the tab is opened. */
+    public function test_the_user_detail_mounts_the_history_tab_for_an_admin_once_opened(): void
     {
         $this->actingAs(UserModel::factory()->admin()->create());
 
         Livewire::test(ViewUser::class, ['record' => $this->subject->getKey()])
+            ->assertDontSeeLivewire(RecordHistoryRelationManager::class);
+
+        Livewire::withQueryParams(['relation' => '0'])
+            ->test(ViewUser::class, ['record' => $this->subject->getKey()])
             ->assertSeeLivewire(RecordHistoryRelationManager::class);
     }
 

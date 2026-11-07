@@ -22,17 +22,16 @@ use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
 /**
+ * Template D (settings), layout (a): one form with one sticky Zapisz; the password change is the
+ * header action "Zmień hasło" opening a modal (template E), so it appears once.
+ *
  * @property-read Schema $form
- * @property-read Schema $passwordForm
  */
 class EditProfile extends Page
 {
@@ -45,21 +44,28 @@ class EditProfile extends Page
     /** @var array<string, mixed>|null */
     public ?array $data = [];
 
-    /** @var array<string, mixed>|null */
-    public ?array $passwordData = [];
-
     public static function getNavigationLabel(): string
     {
         return __('users::profile.navigation_label');
     }
 
-    /** FR-16: an "i" badge while the Account type is not Company. */
+    /** FR-16, D-23: an attention indicator while the Account type is not Company; read from the signed-in User, no query. */
     public static function getNavigationBadge(): ?string
     {
         /** @var UserModel|null $user */
         $user = Auth::user();
 
-        return $user !== null && $user->account_type !== AccountType::Company ? 'i' : null;
+        return $user !== null && $user->account_type !== AccountType::Company ? '!' : null;
+    }
+
+    public static function getNavigationBadgeColor(): string
+    {
+        return 'warning';
+    }
+
+    public static function getNavigationBadgeTooltip(): string
+    {
+        return __('users::profile.navigation_badge_tooltip');
     }
 
     public function getTitle(): string
@@ -83,40 +89,18 @@ class EditProfile extends Page
         return ProfileForm::configure($schema);
     }
 
-    public function passwordForm(Schema $schema): Schema
-    {
-        return PasswordForm::configure($schema);
-    }
-
     public function content(Schema $schema): Schema
     {
         return $schema->components([
-            Tabs::make()->tabs([
-                Tab::make(__('users::profile.tabs.general'))
-                    ->schema([
-                        Form::make([EmbeddedSchema::make('form')])
-                            ->id('form')
-                            ->livewireSubmitHandler('save')
-                            ->footer([
-                                Actions::make([$this->getSaveFormAction()])
-                                    ->alignment($this->getFormActionsAlignment())
-                                    ->key('form-actions'),
-                            ]),
-                    ]),
-
-                Tab::make(__('users::profile.tabs.change_password'))
-                    ->icon(Heroicon::LockClosed)
-                    ->schema([
-                        Form::make([EmbeddedSchema::make('passwordForm')])
-                            ->id('passwordForm')
-                            ->livewireSubmitHandler('changePassword')
-                            ->footer([
-                                Actions::make([$this->getChangePasswordAction()])
-                                    ->alignment($this->getFormActionsAlignment())
-                                    ->key('password-form-actions'),
-                            ]),
-                    ]),
-            ]),
+            Form::make([EmbeddedSchema::make('form')])
+                ->id('form')
+                ->livewireSubmitHandler('save')
+                ->footer([
+                    Actions::make([$this->getSaveFormAction()])
+                        ->alignment($this->getFormActionsAlignment())
+                        ->sticky()
+                        ->key('form-actions'),
+                ]),
         ]);
     }
 
@@ -139,12 +123,17 @@ class EditProfile extends Page
             ->action(fn () => null);
     }
 
-    protected function getChangePasswordAction(): Action
+    /** A grey secondary header action; the modal holds the two password fields. */
+    protected function changePasswordAction(): Action
     {
         return Action::make('changePassword')
             ->label(__('users::profile.actions.change_password'))
-            ->submit('changePassword')
-            ->color('warning');
+            ->color('gray')
+            ->modalHeading(__('users::profile.actions.change_password'))
+            ->modalSubmitActionLabel(__('users::profile.actions.change_password'))
+            ->modalWidth('md')
+            ->schema(PasswordForm::components())
+            ->action(fn (array $data, Action $action) => $this->changePassword($data, $action));
     }
 
     public function save(): void
@@ -191,9 +180,9 @@ class EditProfile extends Page
         Notification::make()->success()->title(__('users::profile.notifications.saved'))->send();
     }
 
-    public function changePassword(): void
+    /** @param  array<string, mixed>  $data */
+    private function changePassword(array $data, Action $action): void
     {
-        $data = $this->passwordForm->getState();
         /** @var UserModel $user */
         $user = Auth::user();
 
@@ -205,13 +194,12 @@ class EditProfile extends Page
             ));
         } catch (Throwable) {
             Notification::make()->danger()->title(__('users::profile.notifications.password_change_failed'))->send();
+            $action->halt();
 
             return;
         }
 
         KeepsOwnSessionAfterPasswordChange::for((int) $user->getKey());
-
-        $this->passwordForm->fill([]);
 
         Notification::make()->success()->title(__('users::profile.notifications.password_changed'))->send();
     }
@@ -219,6 +207,6 @@ class EditProfile extends Page
     /** @return array<Action|ActionGroup> */
     protected function getHeaderActions(): array
     {
-        return [];
+        return [$this->changePasswordAction()];
     }
 }

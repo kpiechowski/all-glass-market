@@ -6,6 +6,7 @@ namespace Tests\Feature\Modules\Users\UserInterface\Filament\Resources\Users\Pag
 
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Pages\ViewUser;
+use Filament\Actions\ActionGroup;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -94,5 +95,23 @@ class ViewUserTest extends TestCase
         Livewire::test(ViewUser::class, ['record' => $private->getKey()])
             ->assertSee(__('users::resources.user.status.active'))
             ->assertDontSee(__('users::resources.user.fields.declaration_version'));
+    }
+
+    public function test_the_header_keeps_edit_outside_and_the_dangerous_actions_inside_the_menu(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $target = UserModel::factory()->passwordChangeRequired()->create();
+
+        $page = Livewire::test(ViewUser::class, ['record' => $target->getKey()])
+            ->assertSee(__('users::resources.user.markers.password_change_required'));
+
+        $topLevel = collect($page->instance()->getCachedHeaderActions())
+            ->map(fn ($action): ?string => $action instanceof ActionGroup ? null : $action->getName())
+            ->filter()
+            ->values()
+            ->all();
+
+        $this->assertSame(['edit', 'reactivate'], $topLevel);
+        $page->assertActionVisible('deactivate')->assertActionVisible('set_password');
     }
 }

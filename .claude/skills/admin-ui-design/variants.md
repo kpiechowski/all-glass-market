@@ -40,7 +40,7 @@ Section::make('Dane firmy')->schema([
 | `tabs--underline` | page and record tabs | — |
 | `tabs--pills` | a switcher between views inside a section ("Dziś / 7 dni / 30 dni") | page or record tabs; groups of form fields |
 
-- Page and record tabs (uncontained, outside any section) get the underline look **without** the class. Set `tabs--underline` on them anyway to name the intent; it also forces that look where the default would not reach (inside a section or a contained card).
+- Page and record tabs (uncontained, outside any section) get the underline look **without** the class. Set `tabs--underline` on page tabs you build to name the intent; it also forces that look where the default would not reach (inside a section or a contained card). Tabs Filament builds (list tabs, record tabs) take the look by themselves.
 - `tabs--pills` works only on horizontal, uncontained Tabs: `->contained(false)`, never `->vertical()`.
 
 ```php

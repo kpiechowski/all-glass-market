@@ -18,11 +18,9 @@ enum AccountType: string implements HasColor, HasLabel
         return __('users::enums.account_type.'.$this->value);
     }
 
+    /** An Account type is a category, so its badge stays neutral (D-21). */
     public function getColor(): string
     {
-        return match ($this) {
-            self::Company => 'success',
-            self::Private => 'warning',
-        };
+        return 'gray';
     }
 }

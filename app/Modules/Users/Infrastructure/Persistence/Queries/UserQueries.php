@@ -18,4 +18,26 @@ final class UserQueries
     {
         return UserModel::query()->orderByDesc('created_at');
     }
+
+    /**
+     * The "Aktywne" list tab: accounts that can sign in.
+     *
+     * @param  Builder<UserModel>  $query
+     * @return Builder<UserModel>
+     */
+    public function onlyActive(Builder $query): Builder
+    {
+        return $query->whereNull('deactivated_at');
+    }
+
+    /**
+     * The "Nieaktywne" list tab: deactivated accounts (WF-05).
+     *
+     * @param  Builder<UserModel>  $query
+     * @return Builder<UserModel>
+     */
+    public function onlyInactive(Builder $query): Builder
+    {
+        return $query->whereNotNull('deactivated_at');
+    }
 }

@@ -40,6 +40,7 @@ A screen that fits none of them: stop and ask the user. A new template is added 
 ## Sections
 
 - Heading with no icon. A description is fine.
+- Sections stack at full width; never `->aside()`.
 - A section whose only field is named like the section hides that field's label (`->hiddenLabel()`).
 - Collapse only rarely used settings, never required data.
 - One capability lives in one place: "Hasło" is an action or a section, not both.
@@ -52,8 +53,11 @@ Every grid declares its breakpoints: `->columns(['default' => 1, 'md' => 2])`, `
 ## Action hierarchy
 
 - **Page header:** one primary action (filled, primary colour), at most two secondary (grey), everything else in one `ActionGroup` "⋮". On mobile only the primary stays outside "⋮"; the theme does that, not the page class.
+- **Secondary** is a harmless action people use often on this record (Podgląd on the edit page, Aktywuj ponownie on an inactive record). When unsure, it goes into "⋮".
 - **Dangerous actions** (Dezaktywuj, Usuń) live in "⋮" as red menu items. Full red appears only on the confirmation button.
-- `warning` and `info` colour states, never buttons.
+- Related items inside "⋮" form one block: a nested `ActionGroup::make([…])->dropdown(false)`, which the menu separates with a divider.
+- Action colours: `primary` for the one primary action, `gray` for the rest, `danger` only for a dangerous menu item and its confirmation button. `success`, `warning` and `info` never colour an action.
+- Every confirmation sets `modalSubmitActionLabel()`; Filament's default reads "Potwierdź".
 - **Table row:** the row click opens the record (`recordUrl`). One more action may stand alone as an icon with a tooltip; two or more go into "⋮".
 - **Form footer:** Zapisz (primary) and Anuluj (grey), sticky at the bottom.
 - **Modal:** up to ~5 fields or a confirmation. Longer goes to its own page, or a slide-over when the list underneath must stay visible.
@@ -65,6 +69,7 @@ Every grid declares its breakpoints: `->columns(['default' => 1, 'md' => 2])`, `
 - No value means "—" or no element; a badge is never empty.
 - A domain enum's `getColor()` (ADR 0003) follows the same rule.
 - A sidebar badge is a count or an attention indicator ("!", warning, gear). Filament evaluates every navigation badge on every page load, so a count is cached or comes from a small indexed query, never a heavy count. If it cannot be cheap, show an indicator instead.
+- An indicator is `getNavigationBadge()` returning `'!'`, `getNavigationBadgeColor()` returning `'warning'`, and `getNavigationBadgeTooltip()` saying what to do.
 
 ## Copy (Polish)
 
@@ -72,6 +77,7 @@ Every grid declares its breakpoints: `->columns(['default' => 1, 'md' => 2])`, `
 - Buttons are infinitive verbs, with an object when it helps: "Utwórz użytkownika", "Zapisz", "Dezaktywuj". A confirmation button names the act.
 - Notifications in the past tense, short: "Zapisano zmiany".
 - An error message says what to do next.
+- Dates read `->date('d.m.Y')`, with time `->dateTime('d.m.Y H:i')`. Filament's default format renders "lis 5, 2026".
 - A section heading and a field label inside it never repeat each other; neither do two navigation items ("Dziennik" vs "Dziennik zmian").
 
 ## Styling
@@ -102,7 +108,8 @@ The panel builds the sidebar explicitly in `app/Filament/Navigation/PanelNavigat
 - The page header has ≤1 primary, ≤2 secondary, and every dangerous action inside "⋮".
 - Every table row opens its record by click; 2+ row actions sit in one `ActionGroup`.
 - Every badge colour marks a state, and every category badge is neutral.
-- Every list date omits seconds; every empty value shows "—".
+- Every date has an explicit `d.m.Y` format and omits seconds; every empty value shows "—".
+- Action colours are primary, gray or danger only; every confirmation names its act on the submit button.
 - Every label, button and notification follows the copy rules.
 - No Tailwind utility sits on a schema component; no vendor view is overridden.
 - Every `extraAttributes` class is a variant from [variants.md](variants.md), on the component it names.

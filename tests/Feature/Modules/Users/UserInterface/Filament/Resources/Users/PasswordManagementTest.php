@@ -13,6 +13,7 @@ use App\Modules\Users\UserInterface\Filament\Resources\Users\Pages\ListUsers;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Pages\ViewUser;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 use Tests\Support\CapturesPasswordLinks;
@@ -136,16 +137,25 @@ class PasswordManagementTest extends TestCase
         $this->assertTrue(UserModel::where('email', 'temp@example.com')->firstOrFail()->password_change_required);
     }
 
-    public function test_an_admins_new_password_from_the_edit_form_sets_the_marker(): void
+    public function test_an_admins_new_password_from_the_set_password_action_sets_the_marker(): void
     {
         $target = UserModel::factory()->withRole('user')->create();
 
         Livewire::test(EditUser::class, ['record' => $target->getKey()])
-            ->fillForm(['password' => 'brand-new-pass', 'password_confirmation' => 'brand-new-pass'])
-            ->call('save')
-            ->assertHasNoFormErrors();
+            ->callAction('set_password', data: ['password' => 'brand-new-pass', 'password_confirmation' => 'brand-new-pass'])
+            ->assertHasNoActionErrors()
+            ->assertNotified(__('users::resources.user.actions.set_password.done'));
 
+        $this->assertTrue(Hash::check('brand-new-pass', $target->fresh()->password));
         $this->assertTrue($target->fresh()->password_change_required);
+    }
+
+    public function test_the_edit_form_has_no_password_section(): void
+    {
+        $target = UserModel::factory()->withRole('user')->create();
+
+        Livewire::test(EditUser::class, ['record' => $target->getKey()])
+            ->assertFormFieldHidden('password');
     }
 
     public function test_the_model_refuses_a_direct_password_write(): void

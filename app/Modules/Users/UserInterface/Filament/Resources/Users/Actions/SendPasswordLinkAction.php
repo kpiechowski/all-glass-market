@@ -22,6 +22,7 @@ class SendPasswordLinkAction
         return Action::make('send_'.$kind->value.'_link')
             ->label(__('users::resources.user.actions.send_'.$kind->value))
             ->requiresConfirmation()
+            ->modalSubmitActionLabel(__('users::resources.user.actions.send'))
             ->visible(fn (UserModel $record): bool => UserResource::canEdit($record) && app(EmailSending::class)->isAvailable())
             ->action(function (UserModel $record) use ($kind): void {
                 CommandSender::send(new SendPasswordLinkCommand(CurrentActor::get(), (int) $record->getKey(), $kind->value));

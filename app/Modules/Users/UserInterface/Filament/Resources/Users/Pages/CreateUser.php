@@ -13,9 +13,12 @@ use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 
+/** Template B (form). */
 class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
+
+    public static bool $formActionsAreSticky = true;
 
     public function getTitle(): string|Htmlable
     {
