@@ -8,8 +8,7 @@ use BackedEnum;
 use InvalidArgumentException;
 
 /**
- * A heading quick-access items are shown under: in the dashboard palette (issue 13) and in the
- * topbar hub (issue 12). A module registers its group in `QuickAccessItems` before its items,
+ * A heading quick-access items are shown under in the dashboard palette (issue 13). A module registers its group in `QuickAccessItems` before its items,
  * usually one group per module:
  *
  *     $items->registerGroup(new QuickAccessGroup('users', 'users::quick_access.group', Heroicon::OutlinedUsers));

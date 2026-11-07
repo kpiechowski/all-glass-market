@@ -1,6 +1,6 @@
 # 12 - Topbar: universal "back" action and the quick-access hub
 
-Status: needs-triage
+Status: wontfix
 Blocked by: 11 (and real modules to link to)
 
 Spec: D-44 (topbar ornament).
@@ -27,3 +27,4 @@ These are the user's ideas from 2026-11-06, noted for later. Nothing has been de
 - `npm run build` and `composer check` pass.
 
 ## Comments
+- 2026-11-07 (manager): rejected by the user, together with everything tied to it (the topbar back action and the quick-access hub). Quick access lives only in the dashboard widget (13). The Core group objects stay, because the widget's palette uses them.

@@ -20,7 +20,7 @@ You are the **manager** of the admin UI restyle of AllGlass Market (Laravel + Fi
 ## Status (2026-11-06)
 
 - **Done:** 01 (skill rename), 02 (admin-ui-design skill), 03 (Styleguide), 04 (theme, layout, Manrope, logos, buttons), 05 (sections, tabs, navy sidebar, Styleguide in tabs), 06 (form fields), 07 (infolists, incl. the sheet and identity variants, D-10a), 08 (tables, filters, empty states, mobile card, person cell; panel-wide `TableDefaults`, D-45), 09 (actions, modals, badges, notifications, login geodes; D-41 no chamfers or accents, D-46), 10 (variants + `variants.md`, D-47).
-- **Side track (separate session):** topbar ornament (D-44, done); issue 12, topbar back action and quick-access hub (idea).
+- **Side track (separate session):** topbar ornament (D-44, done); issue 12 (topbar back action and quick-access hub) rejected on 2026-11-07. Issue 13 (Preferences module, "Szybki dostęp" widget) done on `feat/quick-access`, merged into `feat/audit`.
 - **Next:** 11 retrofit of Users and Audit from the skill alone (also switch on sticky form actions on resource forms).
 - **Open for later:**
   - breadcrumbs or the page title in the empty topbar;

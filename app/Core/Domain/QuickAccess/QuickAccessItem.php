@@ -9,8 +9,7 @@ use Closure;
 use InvalidArgumentException;
 
 /**
- * One place in the panel a user can pin as a quick-access tile (issue 13) or find in the topbar
- * hub (issue 12). Only the key is ever stored; label, icon, URL and visibility are resolved from
+ * One place in the panel a user can pin as a quick-access tile (issue 13). Only the key is ever stored; label, icon, URL and visibility are resolved from
  * code when the tile is drawn, so a URL never comes from user input and a moved page keeps its
  * saved tiles. A module builds its items for its own Filament pages with
  * `Core\UserInterface\Filament\QuickAccess\FilamentQuickAccessItem::for()`.
