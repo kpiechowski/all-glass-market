@@ -83,6 +83,8 @@ Climb this ladder and stop at the first rung that works:
 3. Own Blade component, `ViewColumn` or `ViewEntry`, with its CSS in `resources/css/admin/components/`.
 4. Overriding a published vendor view: only on the user's explicit order, and listed in docs.
 
+Corners stay rounded with the theme radii: no chamfered shapes and no decorative accents beyond the topbar ornament and the login geodes.
+
 Schema components (`extraAttributes`, `extraInputAttributes`…) receive only our variant classes. Tailwind utilities belong only in our own Blade views. A module registers its own CSS asset only for styles that belong to that module alone.
 
 ## Navigation

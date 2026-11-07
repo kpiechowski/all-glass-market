@@ -46,3 +46,60 @@
     line-height: var(--ag-leading-base);
     color: var(--ag-text-muted);
 }
+
+/*
+ * Geodes (issue 09, D-44): `core::filament.auth.geode`, one pair in opposite corners behind the
+ * card. Colours are only those the panel already uses (sky-light, royal, navy). Size follows the
+ * viewport: 160 px on a phone, 28 vw in between, 448 px from a wide screen up (1.75x the first round). The card sits above
+ * them, so on a phone they peek out at the corners instead of crowding the form.
+ */
+.fi-simple-layout:has(> .login-geode) {
+    position: relative;
+    isolation: isolate;
+
+    & > .fi-simple-main-ctn {
+        position: relative;
+        z-index: 1;
+    }
+}
+
+.login-geode-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.login-geode {
+    position: absolute;
+    z-index: 0;
+    width: clamp(10rem, 28vw, 28rem);
+    height: clamp(10rem, 28vw, 28rem);
+    pointer-events: none;
+
+    &.login-geode--top-start {
+        inset-block-start: 0;
+        inset-inline-start: 0;
+    }
+
+    &.login-geode--bottom-end {
+        inset-block-end: 0;
+        inset-inline-end: 0;
+        rotate: 180deg;
+    }
+}
+
+.login-geode__fade-stop {
+    stop-color: var(--brand-sky-light);
+    stop-opacity: 0.16;
+
+    &.login-geode__fade-stop--end {
+        stop-opacity: 0;
+    }
+}
+
+.login-geode__fade { fill: url(#login-geode-fade); }
+.login-geode__sky { fill: var(--brand-sky-light); fill-opacity: 0.22; }
+.login-geode__royal { fill: var(--brand-royal); fill-opacity: 0.38; }
+.login-geode__royal-deep { fill: var(--brand-royal); fill-opacity: 0.62; }
+.login-geode__navy { fill: var(--brand-navy); }

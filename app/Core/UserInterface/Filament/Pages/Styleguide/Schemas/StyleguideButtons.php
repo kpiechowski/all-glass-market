@@ -8,6 +8,8 @@ use App\Core\UserInterface\Filament\Pages\Styleguide\Actions\DemoNotification;
 use Filament\Actions\Action;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Flex;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Text;
 use Filament\Support\Enums\Size;
 use Filament\Support\Icons\Heroicon;
@@ -44,16 +46,31 @@ final class StyleguideButtons
         return Actions::make($actions);
     }
 
-    /** States are coloured, categories are neutral (admin-ui-design, colour = state). */
-    public static function badges(): Flex
+    /**
+     * Categories against states, side by side (D-21): a category is grey or a soft primary tint
+     * with no dot; a state is success, warning, danger or info and carries the state dot.
+     */
+    public static function badges(): Grid
     {
-        return Flex::make([
-            Text::make('Aktywny')->badge()->color('success')->grow(false),
-            Text::make('Wymaga działania')->badge()->color('warning')->grow(false),
-            Text::make('Zablokowany')->badge()->color('danger')->grow(false),
-            Text::make('Zaproszony')->badge()->color('info')->grow(false),
-            Text::make('Firma')->badge()->color('gray')->grow(false),
-            Text::make('Klient')->badge()->color('gray')->grow(false),
+        return Grid::make(['default' => 1, 'md' => 2])->schema([
+            Group::make([
+                Text::make('Kategorie (rodzaj konta, rola)'),
+                Flex::make([
+                    Text::make('Firma')->badge()->color('gray')->grow(false),
+                    Text::make('Osoba prywatna')->badge()->color('gray')->grow(false),
+                    Text::make('Klient')->badge()->color('gray')->grow(false),
+                    Text::make('Administrator')->badge()->color('primary')->grow(false),
+                ]),
+            ]),
+            Group::make([
+                Text::make('Stany (operacyjne)'),
+                Flex::make([
+                    Text::make('Aktywny')->badge()->color('success')->grow(false),
+                    Text::make('Wymaga działania')->badge()->color('warning')->grow(false),
+                    Text::make('Zablokowany')->badge()->color('danger')->grow(false),
+                    Text::make('Zaproszony')->badge()->color('info')->grow(false),
+                ]),
+            ]),
         ]);
     }
 

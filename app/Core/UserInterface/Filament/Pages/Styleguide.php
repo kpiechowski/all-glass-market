@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Core\UserInterface\Filament\Pages;
 
-use App\Core\UserInterface\Filament\Pages\Styleguide\Actions\DeactivateUserDemoAction;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Actions\DemoNotification;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Actions\EditPricingDemoAction;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Actions\InviteUserDemoAction;
@@ -13,14 +12,13 @@ use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideFieldStat
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideForm;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideInfolist;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideLayoutForm;
+use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideOverlays;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideSettingsForm;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideTabs;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Tables\DemoUsers;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Tables\StyleguideUsersTable;
 use BackedEnum;
 use Filament\Actions\Action;
-use Filament\Actions\ActionGroup;
-use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Component;
@@ -260,17 +258,7 @@ class Styleguide extends Page implements HasTable
                 ->icon(Heroicon::OutlinedArrowDownTray)
                 ->color('gray')
                 ->action(fn () => DemoNotification::success('Wyeksportowano listę')),
-            ActionGroup::make([
-                Action::make('duplicate')
-                    ->label('Duplikuj')
-                    ->icon(Heroicon::OutlinedDocumentDuplicate)
-                    ->action(fn () => DemoNotification::success('Zduplikowano')),
-                Action::make('archive')
-                    ->label('Archiwizuj')
-                    ->icon(Heroicon::OutlinedArchiveBox)
-                    ->action(fn () => DemoNotification::success('Zarchiwizowano')),
-                DeactivateUserDemoAction::make(),
-            ]),
+            StyleguideOverlays::menu(),
         ];
     }
 
@@ -353,29 +341,16 @@ class Styleguide extends Page implements HasTable
             ...self::blockHeading('Przyciski', 'Główny, szary, link, ikona; czerwony wypełniony tylko jako przycisk potwierdzenia.'),
             StyleguideButtons::kinds(),
             StyleguideButtons::sizes(),
-            ...self::blockHeading('Modale i powiadomienia', 'Szablon E: modal, panel boczny, niebezpieczne potwierdzenie, powiadomienia.'),
-            Actions::make([
-                InviteUserDemoAction::make('demoModal')->color('gray'),
-                EditPricingDemoAction::make('demoSlideOver'),
-                Action::make('demoNotification')
-                    ->label('Pokaż powiadomienie')
-                    ->icon(Heroicon::OutlinedBell)
-                    ->color('gray')
-                    ->action(fn () => DemoNotification::success('Zapisano zmiany')),
-                Action::make('demoErrorNotification')
-                    ->label('Pokaż błąd')
-                    ->color('gray')
-                    ->action(fn () => Notification::make()
-                        ->danger()
-                        ->title('Nie udało się wysłać zaproszenia')
-                        ->body('Sprawdź adres e-mail i spróbuj ponownie.')
-                        ->send()),
-                ActionGroup::make([
-                    DeactivateUserDemoAction::make('demoDanger'),
-                ]),
-            ]),
-            ...self::blockHeading('Odznaki', 'Kolor oznacza stan; kategorie są neutralne.'),
+            ...self::blockHeading('Menu „⋮”', 'Nagłówek strony u góry: 1 główna, 2 szare i „⋮”. Poniżej „⋮” jak w wierszu tabeli. Akcje niebezpieczne w osobnej grupie, czerwonym tekstem; pełna czerwień dopiero na przycisku potwierdzenia.'),
+            StyleguideOverlays::rowMenu(),
+            ...self::blockHeading('Modale', 'Szablon E: modal do krótkiego zadania, panel boczny do dłuższego formularza nad listą. Niebezpieczne potwierdzenia („Dezaktywuj”, „Usuń”) otwierają się z menu „⋮” powyżej.'),
+            StyleguideOverlays::modals(),
+            ...self::blockHeading('Powiadomienia', 'Krótko, w czasie przeszłym; błąd mówi, co zrobić dalej.'),
+            StyleguideOverlays::notifications(),
+            ...self::blockHeading('Odznaki', 'Kolor oznacza stan; kategorie są neutralne lub w delikatnym odcieniu.'),
             StyleguideButtons::badges(),
+            ...self::blockHeading('Widżety', 'Podstawowa karta statystyki (szablon F to tylko szkic).'),
+            StyleguideOverlays::stats(),
         ];
     }
 

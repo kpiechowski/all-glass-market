@@ -57,6 +57,12 @@
 @import "./filament/actions/button.css";
 @import "./filament/actions/icon-button.css";
 @import "./filament/actions/link.css";
+@import "./filament/actions/dropdown.css";
+@import "./filament/actions/modal.css";
+@import "./filament/actions/form-actions.css";
+@import "./filament/misc/badge.css";
+@import "./filament/misc/notification.css";
+@import "./filament/misc/widget.css";
 
 /* Our own Blade components. */
 @import "./components/brand-logo.css";

@@ -78,6 +78,7 @@ class AdminPanelProvider extends PanelProvider
                 ? Blade::render('@livewire("users-impersonation-banner")')
                 : '')
             ->renderHook(PanelsRenderHook::TOPBAR_START, fn (): View => view('core::filament.topbar.ornament'))
+            ->renderHook(PanelsRenderHook::SIMPLE_LAYOUT_START, fn (): View => view('core::filament.auth.geode'))
             ->userMenuItems([
                 'profile' => fn (Action $action): Action => $action
                     ->label(__('users::profile.user_menu_label'))

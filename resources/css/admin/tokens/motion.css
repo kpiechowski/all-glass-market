@@ -5,6 +5,7 @@
 :root {
     --ag-duration-fast: 150ms;   /* colour and background changes */
     --ag-duration-base: 200ms;   /* small movements: a label sliding, a chevron turning */
+    --ag-duration-slow: 260ms;   /* surfaces that travel: slide-over, notification toast */
     --ag-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -12,5 +13,6 @@
     :root {
         --ag-duration-fast: 0ms;
         --ag-duration-base: 0ms;
+        --ag-duration-slow: 0ms;
     }
 }

@@ -1,0 +1,69 @@
+/*
+ * Widgets, basic look (template F is a sketch only). Chart and table widgets are sections and take
+ * section.css; the stat card is its own surface and is brought in line here.
+ *
+ *   stat      white, the section edge (1 px gray-200 ring + xs), container radius, 20 px padding
+ *   label     13 px medium gray-600, like an infolist label
+ *   value     28 px bold navy, tabular figures, tight tracking
+ *   desc      13 px; a coloured description (trend) takes the 700 shade, never a bright 500
+ *   link      a stat with a URL lifts its edge to gray-300 on hover (fast token)
+ */
+.fi-wi {
+    gap: var(--ag-space-6);
+}
+
+.fi-wi-stats-overview-stat {
+    padding: var(--ag-space-5);
+    border-radius: var(--ag-radius-container);
+    box-shadow: var(--ag-surface-edge);
+    transition: box-shadow var(--ag-duration-fast) var(--ag-ease-out);
+
+    &:is(a):hover {
+        box-shadow:
+            0 0 0 var(--ag-border-width) var(--ag-border-strong),
+            var(--shadow-sm);
+    }
+
+    &:focus-visible {
+        outline: var(--ag-focus-ring-width) solid var(--ag-focus-ring);
+        outline-offset: var(--ag-focus-ring-offset);
+    }
+
+    & .fi-icon {
+        color: var(--ag-icon);
+    }
+
+    & .fi-wi-stats-overview-stat-content {
+        row-gap: var(--ag-space-1-5);
+    }
+
+    & .fi-wi-stats-overview-stat-label {
+        font-size: var(--ag-text-sm);
+        line-height: var(--ag-leading-sm);
+        font-weight: var(--ag-weight-medium);
+        color: var(--ag-text-secondary);
+    }
+
+    & .fi-wi-stats-overview-stat-value {
+        font-size: 1.75rem;
+        line-height: 2.25rem;
+        font-weight: var(--ag-weight-bold);
+        letter-spacing: var(--ag-tracking-tight);
+        color: var(--ag-heading);
+    }
+
+    & .fi-wi-stats-overview-stat-description {
+        font-size: var(--ag-text-sm);
+        line-height: var(--ag-leading-sm);
+        font-weight: var(--ag-weight-medium);
+        color: var(--ag-text-muted);
+
+        &.fi-color {
+            color: var(--color-700);
+
+            & .fi-icon {
+                color: var(--color-600);
+            }
+        }
+    }
+}

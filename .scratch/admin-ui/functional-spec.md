@@ -202,7 +202,7 @@ resources/css/admin/
   - `#0070C0` (logo stars): light accent.
 
   The site uses dark navy blocks, royal-blue buttons and simple geometry (chamfered corners). The admin uses the navy as a stronger accent than the first theme did. The logo sits in the panel (`->brandLogo()`).
-- **D-41 (open: ask the user)** Accenting the sidebar (navy and/or decorative accents), and whether the site's chamfered-corner geometry carries into buttons or containers. The user will bring this up. Ask before closing issue 09.
+- **D-41 (settled 2026-11-07, see §12)** Accenting the sidebar (navy and/or decorative accents), and whether the site's chamfered-corner geometry carries into buttons or containers.
 
 ## 10. Styleguide
 
@@ -242,7 +242,9 @@ resources/css/admin/
 
 ## 12. Amendments (2026-11-06)
 
-- **D-41 (partly settled)** The sidebar is **navy, full height**, with the white logo at the top. It is being refined for readability: more spacing, lighter text, smooth hover motion. Chamfered geometry is still open.
+- **D-41 (settled 2026-11-07, issue 09)** The sidebar is **navy, full height**, with the white logo at the top, refined for readability: more spacing, lighter text, smooth hover motion.
+  - **No chamfered geometry in the panel.** A `button--chamfer` trial (primary, top-right corner cut 10 px at 45°) was shown on the Styleguide and rejected: it suits the client's front end, but in the panel it stands out, and adopting it would mean dropping the rounded corners of most components. The panel keeps rounded corners (6 px controls, 10 px containers).
+  - **No further decorative accents** (sidebar or elsewhere) for now. The decorative pieces are the topbar ornament (D-44) and the login geodes (D-46), nothing more.
 - **D-25a** The sidebar has three blocks:
   - a **top group** holding only the dashboard, separated by a border;
   - the **main group** with the remaining items, aligned to the top;
@@ -265,3 +267,12 @@ resources/css/admin/
   - Lessons: an ornament in the chrome must not mark the topbar's bottom edge next to the page, and it uses only colours the panel already uses.
   - The geode moves to the login screen as one pair in opposite corners (issue 09).
 - **D-45** (2026-11-06) Panel-wide Filament configuration (`Table::configureUsing()` and other component defaults) is registered in `AdminPanelProvider::boot()`, never in `CoreServiceProvider` or a module service provider. Core is not the place for Filament-only wiring; a shared Filament helper class may live in `app/Core/UserInterface/Filament/` but is wired up in the panel provider. Rule in `filament-module-wiring`.
+- **D-46** (2026-11-07, issue 09) Actions, overlays, badges, notifications, accepted on the Styleguide:
+  - **"⋮" dropdown:** 1 px border + shadow, 36 px items, groups split by a hairline; dangerous items are red text only (never a red fill), in their own group at the end. The header "⋮" has the grey button frame.
+  - **Modal:** navy overlay at 36 % with a light blur, 10 px radius, navy heading; a dangerous confirmation shows its icon on a pale tint, and full red appears only on the confirm button. **Slide-over:** hairlines under the header and above the footer.
+  - **Sticky form actions:** a white bar, floating 16 px above the bottom from `md`. Resource forms switch it on in the retrofit (11).
+  - **Badges:** categories are grey or soft primary with no dot; states (success, warning, danger, info) get a pale fill, dark text and a 6 px coloured dot, so a state reads as a state without colour. Count badges have no dot.
+  - **Notifications:** one white card for every status, a 3 px status bar on the leading edge, the leading corners square (a radius bends the bar) and 4 px on the other side.
+  - **Stat widget:** section border, 28 px bold navy value.
+  - **Login geodes:** one pair in opposite corners (top-left, bottom-right turned 180°) on every simple auth page, `core::filament.auth.geode` via `SIMPLE_LAYOUT_START`; five layers with an extra royal 62 % step between royal and navy; sized `clamp(10rem, 28vw, 28rem)`.
+  - **Open:** on mobile only the primary header action should stay outside "⋮" (D-09/D-16). CSS cannot move actions into the menu, so this needs PHP and is deferred.

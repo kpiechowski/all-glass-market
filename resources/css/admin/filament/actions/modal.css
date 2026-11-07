@@ -1,0 +1,127 @@
+/*
+ * Modals and slide-overs (D-20, template E).
+ *
+ *   window     white, container radius (10 px), 1 px gray-200 edge as a ring + shadow-xl: the one
+ *              surface that truly floats, so it keeps a real shadow
+ *   overlay    navy at 36 % with a 2 px blur instead of Filament's near-black 50 %
+ *   header     18 px bold navy heading, 14 px grey description, 24 px padding
+ *   footer     a hairline above the buttons when the modal holds a form; none on a bare confirmation
+ *   confirm    centred icon on a soft tint with a faint edge; the danger one is red only in the
+ *              icon and in the filled confirm button (button.css), never in the window
+ *   motion     centred modal: fade + grow from 98 % + 6 px rise on the base token (200 ms);
+ *              slide-over: slides in on the slow token (260 ms); both ease-out (D-42)
+ */
+:root {
+    --ag-modal-overlay: rgb(0 27 78 / 0.36);
+    --ag-modal-padding: var(--ag-space-6);
+    --ag-modal-edge: 0 0 0 var(--ag-border-width) var(--ag-border);
+}
+
+.fi-modal > .fi-modal-close-overlay {
+    background-color: var(--ag-modal-overlay);
+    backdrop-filter: blur(2px);
+}
+
+.fi-modal > .fi-modal-window-ctn > .fi-modal-window {
+    box-shadow: var(--ag-modal-edge), var(--shadow-xl);
+
+    & .fi-modal-heading {
+        font-size: var(--ag-text-lg);
+        line-height: var(--ag-leading-lg);
+        font-weight: var(--ag-weight-bold);
+        letter-spacing: var(--ag-tracking-tight);
+        color: var(--ag-heading);
+    }
+
+    & .fi-modal-eyebrow {
+        font-size: var(--ag-text-xs);
+        font-weight: var(--ag-weight-semibold);
+        color: var(--ag-text-muted);
+    }
+
+    & .fi-modal-description {
+        margin-top: var(--ag-space-1-5);
+        font-size: var(--ag-text-base);
+        line-height: var(--ag-leading-base);
+        color: var(--ag-text-secondary);
+    }
+
+    /* Confirmation icon: soft tint, faint edge in the same colour, icon a step darker. */
+    & .fi-modal-icon-bg {
+        background-color: var(--gray-100);
+        box-shadow: inset 0 0 0 var(--ag-border-width) var(--gray-200);
+
+        &.fi-color {
+            background-color: var(--color-50);
+            box-shadow: inset 0 0 0 var(--ag-border-width) var(--color-100);
+
+            & > .fi-icon {
+                color: var(--color-600);
+            }
+        }
+    }
+
+    &.fi-transition-enter,
+    &.fi-transition-leave {
+        transition-property: opacity, scale, translate;
+        transition-duration: var(--ag-duration-base);
+        transition-timing-function: var(--ag-ease-out);
+    }
+}
+
+/* A modal with a form: a hairline separates the fields from the buttons. */
+.fi-modal:not(.fi-modal-has-sticky-footer) > .fi-modal-window-ctn > .fi-modal-window.fi-modal-window-has-content > .fi-modal-footer {
+    padding-top: var(--ag-space-4);
+    padding-bottom: var(--ag-space-5);
+    border-top: var(--ag-border-width) solid var(--ag-divider);
+}
+
+.fi-modal.fi-modal-has-sticky-header > .fi-modal-window-ctn > .fi-modal-window > .fi-modal-header,
+.fi-modal.fi-modal-has-sticky-footer > .fi-modal-window-ctn > .fi-modal-window > .fi-modal-footer {
+    border-color: var(--ag-divider);
+}
+
+/* Centred modal: a quiet open, no zoom. */
+.fi-modal:not(.fi-modal-slide-over) > .fi-modal-window-ctn > .fi-modal-window {
+    &.fi-transition-enter-start,
+    &.fi-transition-leave-end {
+        scale: 0.98;
+        translate: 0 6px;
+    }
+}
+
+/* Dangerous confirmation (requiresConfirmation, centred): heading a step smaller so the
+   question and the two equal buttons read as one compact block. */
+.fi-modal-window.fi-align-center:not(.fi-modal-window-has-content) {
+    & .fi-modal-heading {
+        font-size: var(--ag-text-md);
+        line-height: var(--ag-leading-md);
+    }
+
+    & .fi-modal-icon-ctn {
+        margin-bottom: var(--ag-space-4);
+    }
+}
+
+/*
+ * Slide-over (D-20): flush to the viewport edge, square, a hairline on its open side. Hairlines
+ * set the header and the footer (pinned to the bottom by the vendor `mt-auto`) off the fields.
+ */
+.fi-modal.fi-modal-slide-over > .fi-modal-window-ctn > .fi-modal-window {
+    box-shadow: var(--ag-modal-edge), var(--shadow-xl);
+
+    &.fi-transition-enter,
+    &.fi-transition-leave {
+        transition-property: translate;
+        transition-duration: var(--ag-duration-slow);
+    }
+
+    & > .fi-modal-header {
+        padding-bottom: var(--ag-space-5);
+        border-bottom: var(--ag-border-width) solid var(--ag-divider);
+    }
+
+    & > .fi-modal-footer {
+        border-top: var(--ag-border-width) solid var(--ag-divider);
+    }
+}
