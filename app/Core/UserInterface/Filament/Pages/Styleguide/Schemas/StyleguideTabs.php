@@ -19,6 +19,7 @@ final class StyleguideTabs
     {
         return Tabs::make('Zakładki rekordu')
             ->contained(false)
+            ->extraAttributes(['class' => 'tabs--underline'])
             ->tabs([
                 Tab::make('Szczegóły')->schema([$details]),
                 Tab::make('Historia zmian')->badge('3')->schema([

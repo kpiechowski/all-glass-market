@@ -7,9 +7,15 @@
  *   default ≥ md    16 / 24 px       24 px     12 / 24 px
  *   default < md    12 / 16 px       16 px     12 / 16 px
  *   nested, compact 10 / 16 px       16 px     10 / 16 px
+ *   section--compact 8 / 12 px       12 px      8 / 12 px
+ *   section--flat     0 / 8 px, x 0  16 / 0 px  12 / 0 px
  *
  * Every measure is a `--section-*` variable set on `.fi-section`, so the mobile, nested and
- * compact cases (and the variants of issue 10) only reset variables, never padding rules.
+ * compact cases only reset variables. `section--flat` also drops the frame, so it sets its own
+ * paddings (see the variants at the end of the file).
+ *
+ * Variants go on the Section through `->extraAttributes(['class' => '…'])`. Filament puts that
+ * class on the outer `.fi-sc-section` wrapper, so every variant selector is `.section--x > .fi-section`.
  */
 .fi-section {
     --section-padding-x: var(--ag-space-6);
@@ -148,4 +154,68 @@
 .fi-section.fi-aside {
     column-gap: var(--ag-space-8);
     row-gap: var(--ag-space-3);
+}
+
+/*
+ * Variant: compact (`section--compact`), for a section nested in another one when the default
+ * nested measures still feel loose (a repeated block, several sections side by side).
+ *
+ * - One step tighter than a default nested section: 8 / 12 px header, 12 px content, 16 px gap
+ *   between fields (12 px below md), the title at body size and semibold.
+ * - The title colour follows the context: navy on the canvas, near-black inside a section.
+ * - Placed on the canvas it keeps the card surface; nested, the ring alone (as any nested section).
+ */
+.section--compact > .fi-section {
+    --section-padding-x: var(--ag-space-3);
+    --section-header-padding-y: var(--ag-space-2);
+    --section-content-padding-y: var(--ag-space-3);
+    --section-footer-padding-y: var(--ag-space-2);
+    --section-heading-size: var(--ag-text-base);
+    --section-heading-leading: var(--ag-leading-base);
+    --section-heading-weight: var(--ag-weight-semibold);
+}
+
+.section--compact > .fi-section > .fi-section-content-ctn > .fi-section-content.fi-sc-has-gap:not(.fi-sc-dense) {
+    gap: var(--ag-space-4);
+
+    @media (max-width: 47.999rem) {
+        gap: var(--ag-space-3);
+    }
+}
+
+/*
+ * Variant: flat (`section--flat`), for grouping fields inside another section: no frame, no
+ * surface, only the heading with one hairline under it.
+ *
+ * - The content aligns with the parent's content edge (no inline padding); 16 px from the line
+ *   to the first field, 8 px from the title to the line.
+ * - The title is body size, semibold, navy: one step below the parent title (16 px bold).
+ * - A footer sits 12 px under the content without a divider.
+ * - `.fi-sc-section.section--flat` outranks the surface and nested-ring rules above.
+ */
+.fi-sc-section.section--flat > .fi-section {
+    --section-padding-x: 0;
+    --section-heading-size: var(--ag-text-base);
+    --section-heading-leading: var(--ag-leading-base);
+    --section-heading-weight: var(--ag-weight-semibold);
+    --section-heading-color: var(--ag-heading);
+}
+
+.fi-sc-section.section--flat > .fi-section:not(.fi-section-not-contained):not(.fi-aside) {
+    border-radius: 0;
+    background-color: transparent;
+    box-shadow: none;
+
+    & > .fi-section-header {
+        padding: 0 0 var(--ag-space-2);
+    }
+
+    &:not(.fi-divided) > .fi-section-content-ctn > .fi-section-content {
+        padding: var(--ag-space-4) 0 0;
+    }
+
+    & > .fi-section-content-ctn > .fi-section-footer {
+        padding: var(--ag-space-3) 0 0;
+        border-top-width: 0;
+    }
 }

@@ -1,7 +1,13 @@
 /*
  * Tabs (D-11): the base look is the underlined one. One long baseline under the whole bar,
  * the active tab marked by a 2 px navy bar sitting on it, no pills and no item backgrounds.
- * Variants (`tabs--pills`) come in issue 10.
+ *
+ * Variants, on schema Tabs through `->extraAttributes(['class' => '…'])` (the class lands on the
+ * outer `.fi-sc-tabs`, so selectors read `.tabs--x > .fi-tabs`):
+ *   - `tabs--underline`: the page-tab look (see the last-but-one block). Page and record tabs
+ *     get it without the class; the class names the intent and forces the look where the
+ *     automatic selector does not reach (inside a section or a contained card);
+ *   - `tabs--pills`: a segmented switcher inside a section (last block).
  *
  * Three places share it:
  *   - page tabs: list tabs (`x-filament::tabs`, resource `HasTabs`) and record tabs, uncontained
@@ -171,9 +177,10 @@
 }
 
 /*
- * Page-level tabs only: Styleguide areas, record tabs, list tabs. The selector keeps uncontained
- * horizontal bars that are not inside a section or a contained Tabs card, so tabs in a form or
- * card keep the plain underline.
+ * Page-level tabs (`tabs--underline`): Styleguide areas, record tabs, list tabs. The automatic
+ * selector keeps uncontained horizontal bars that are not inside a section or a contained Tabs
+ * card and are not pills, so tabs in a form or card keep the plain underline. `tabs--underline`
+ * applies the look anywhere it is set.
  *
  *   active   a glow rising from the indicator (transparent -> primary-100), a 3 px navy indicator
  *            inset 8 px with rounded top ends, navy label, royal icon
@@ -184,7 +191,10 @@
  * A sliding indicator between tabs is not built: Filament's tabs expose no indicator position,
  * so it would need new Alpine or a vendor view.
  */
-.fi-tabs:not(.fi-contained):not(.fi-vertical):not(.fi-section .fi-tabs):not(.fi-sc-tabs.fi-contained .fi-tabs) {
+:is(
+    .fi-tabs:not(.fi-contained):not(.fi-vertical):not(.fi-section .fi-tabs):not(.fi-sc-tabs.fi-contained .fi-tabs):not(.tabs--pills > .fi-tabs),
+    .tabs--underline:not(.fi-vertical) > .fi-tabs
+) {
     /* primary-50 is almost the canvas tint (#f3f6fb), so the glow ends one step darker. */
     --tabs-glow-active: linear-gradient(to top, var(--primary-100), color-mix(in srgb, var(--primary-100) 0%, transparent));
     --tabs-glow-hover: linear-gradient(to top, color-mix(in srgb, var(--primary-100) 55%, transparent), transparent);
@@ -236,4 +246,63 @@
             }
         }
     }
+}
+
+/*
+ * Variant: pills (`tabs--pills` on uncontained Tabs), a switcher of views inside a section
+ * ("Dziś / 7 dni / 30 dni", "Lista / Mapa"). Not for page or record tabs.
+ *
+ *   track    gray-100 fill, a gray-200 hairline, 3 px inner padding, radius 6 + 3 px so the
+ *            pills sit concentric; as wide as its pills, scrolling sideways when too narrow
+ *   pill     32 px high, 6 / 12 px padding, 6 px radius (the control radius), labels 500 grey
+ *   hover    the label darkens and a half-white fill rises
+ *   active   a white pill with the surface edge and a faint lift, navy label, royal icon; the
+ *            label looks bolder through a hairline text-shadow, so pill widths never change
+ *   panel    16 px under the track
+ *
+ * Fill, shadow and colour move together on the fast motion token.
+ */
+.tabs--pills:not(.fi-vertical) > .fi-tabs {
+    --tabs-pill-track: var(--gray-100);
+    --tabs-pill-hover: color-mix(in srgb, var(--ag-surface) 55%, transparent);
+    --tabs-pill-active-edge: 0 0 0 var(--ag-border-width) var(--ag-border), 0 1px 2px rgb(0 27 78 / 0.08);
+
+    width: fit-content;
+    max-width: 100%;
+    column-gap: var(--ag-space-0-5);
+    margin: 0;
+    padding: 3px;
+    border: var(--ag-border-width) solid var(--ag-border);
+    border-radius: calc(var(--ag-radius-control) + 3px);
+    background-color: var(--tabs-pill-track);
+    box-shadow: none;
+
+    & .fi-tabs-item {
+        min-height: 2rem;
+        padding: var(--ag-space-1-5) var(--ag-space-3);
+        border-radius: var(--ag-radius-control);
+        font-weight: var(--ag-weight-medium);
+
+        &:hover:not(.fi-active) {
+            background-color: var(--tabs-pill-hover);
+            box-shadow: none;
+        }
+
+        &.fi-active {
+            background-color: var(--ag-surface);
+            box-shadow: var(--tabs-pill-active-edge);
+
+            & .fi-tabs-item-label {
+                text-shadow: 0.35px 0 0 currentColor;
+            }
+
+            & > .fi-icon {
+                color: var(--brand-royal);
+            }
+        }
+    }
+}
+
+.fi-sc-tabs.tabs--pills:not(.fi-contained):not(.fi-vertical) .fi-sc-tabs-tab.fi-active {
+    margin-top: var(--ag-space-4);
 }

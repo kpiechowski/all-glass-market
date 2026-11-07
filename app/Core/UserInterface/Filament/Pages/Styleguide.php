@@ -13,8 +13,10 @@ use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideForm;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideInfolist;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideLayoutForm;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideOverlays;
+use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideSectionVariants;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideSettingsForm;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideTabs;
+use App\Core\UserInterface\Filament\Pages\Styleguide\Schemas\StyleguideTabVariants;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Tables\DemoUsers;
 use App\Core\UserInterface\Filament\Pages\Styleguide\Tables\StyleguideUsersTable;
 use BackedEnum;
@@ -52,6 +54,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
  * @property-read Schema $form
  * @property-read Schema $settingsForm
  * @property-read Schema $layoutForm
+ * @property-read Schema $sectionVariantsForm
  * @property-read Schema $fieldStatesForm
  * @property-read Schema $infolist
  */
@@ -75,6 +78,9 @@ class Styleguide extends Page implements HasTable
 
     /** @var array<string, mixed>|null */
     public ?array $layoutDemo = [];
+
+    /** @var array<string, mixed>|null */
+    public ?array $sectionVariants = [];
 
     /** @var array<string, mixed>|null */
     public ?array $fieldStates = [];
@@ -107,6 +113,7 @@ class Styleguide extends Page implements HasTable
         $this->form->fill(StyleguideForm::demoState());
         $this->settingsForm->fill(StyleguideSettingsForm::demoState());
         $this->layoutForm->fill(StyleguideLayoutForm::demoState());
+        $this->sectionVariantsForm->fill(StyleguideSectionVariants::demoState());
         $this->fieldStatesForm->fill(StyleguideFieldStates::demoState());
 
         $this->showDemoErrors();
@@ -125,6 +132,11 @@ class Styleguide extends Page implements HasTable
     public function layoutForm(Schema $schema): Schema
     {
         return StyleguideLayoutForm::configure($schema);
+    }
+
+    public function sectionVariantsForm(Schema $schema): Schema
+    {
+        return StyleguideSectionVariants::configure($schema);
     }
 
     public function fieldStatesForm(Schema $schema): Schema
@@ -147,6 +159,7 @@ class Styleguide extends Page implements HasTable
         return $schema->components([
             Tabs::make('Obszary komponentów')
                 ->contained(false)
+                ->extraAttributes(['class' => 'tabs--underline'])
                 ->persistTabInQueryString('obszar')
                 ->tabs([
                     Tab::make('Formularze')->key('formularze')->schema($this->formsTab()),
@@ -303,6 +316,10 @@ class Styleguide extends Page implements HasTable
         return [
             ...self::blockHeading('Sekcje', 'Sekcja z akcją w nagłówku, sekcja zagnieżdżona z grupą pól i akcją w stopce, sekcja zwinięta.'),
             EmbeddedSchema::make('layoutForm'),
+            ...self::blockHeading('Warianty sekcji', 'Obok domyślnej: section--compact (ciaśniejsza, do zagnieżdżeń) i section--flat (bez ramki, sam tytuł z linią, do grupowania w innej sekcji).'),
+            EmbeddedSchema::make('sectionVariantsForm'),
+            ...self::blockHeading('Warianty zakładek', 'Zakładki strony i rekordu są podkreślone (tabs--underline, bez klasy tak samo). W sekcji: domyślne podkreślenie, tabs--underline albo przełącznik tabs--pills.'),
+            StyleguideTabVariants::make(),
             ...self::blockHeading('Zakładki w formularzu', 'Tylko dla 4+ niezależnych grup, bez pól wymaganych poza pierwszą zakładką.'),
             Form::make([EmbeddedSchema::make('settingsForm')])
                 ->id('settingsForm')

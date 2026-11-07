@@ -123,7 +123,7 @@ class CustomerInfolist
 ## Rules
 
 - Tab 1 is the infolist. Audit history and relations are the following tabs, never sections stacked under the infolist.
-- Page tabs are underlined — see variants (pending).
+- Page tabs are underlined: `tabs--underline`, see [variants](../variants.md).
 - An identity header opens the record: avatar, name and main contact in one `infolist--identity` section, never a separate "Zdjęcie profilowe" entry.
 - The infolist is a horizontal sheet (`infolist--sheet`): grey fixed-width label left, value right, a hairline between rows; on mobile the label moves above. The theme does this; never set `inlineLabel()`.
 - A sheet section with short values runs two sheet columns from xl: `->columns(['default' => 1, 'xl' => 2])`, neighbours paired by meaning (name + NIP, e-mail + phone). Long values (address, notes, lists, images, repeatable, key-value) take `->columnSpanFull()`. A section of only long values stays one column.

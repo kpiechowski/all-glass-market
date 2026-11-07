@@ -58,7 +58,7 @@ class StyleguideTest extends TestCase
         $this->get('/admin/styleguide')
             ->assertOk()
             ->assertSeeInOrder(['Formularze', 'Sekcje i układ', 'Karta rekordu', 'Tabele i filtry', 'Akcje i modale'])
-            ->assertSeeInOrder(['Punkty odbioru', 'Ustawienia sklepu', 'Historia zmian', 'Zaproszeni', 'Przyciski', 'Odznaki'])
+            ->assertSeeInOrder(['Punkty odbioru', 'Warianty sekcji', 'Dane firmy', 'Adres do faktur', 'Warianty zakładek', '30 dni', 'Ustawienia sklepu', 'Historia zmian', 'Zaproszeni', 'Przyciski', 'Odznaki'])
             ->assertSee('Wpisz 10 cyfr NIP bez kresek i spacji.')
             ->assertSeeInOrder(['Stany pól', 'Prefiksy i sufiksy', 'Pola wyboru', 'Tylko do odczytu i wyłączone', 'Błędy walidacji'])
             ->assertSee('Wybierz magazyn, z którego wyślemy towar.')

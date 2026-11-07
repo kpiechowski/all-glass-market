@@ -79,7 +79,7 @@ Every grid declares its breakpoints: `->columns(['default' => 1, 'md' => 2])`, `
 Climb this ladder and stop at the first rung that works:
 
 1. CSS on native `fi-*` classes in `resources/css/admin/filament/<area>/<component>.css`.
-2. A variant class through `->extraAttributes(['class' => '…'])` — see variants (pending).
+2. A variant class through `->extraAttributes(['class' => '…'])` — the catalogue is [variants.md](variants.md).
 3. Own Blade component, `ViewColumn` or `ViewEntry`, with its CSS in `resources/css/admin/components/`.
 4. Overriding a published vendor view: only on the user's explicit order, and listed in docs.
 
@@ -105,5 +105,6 @@ The panel builds the sidebar explicitly in `AdminPanelProvider` (`->navigation(f
 - Every list date omits seconds; every empty value shows "—".
 - Every label, button and notification follows the copy rules.
 - No Tailwind utility sits on a schema component; no vendor view is overridden.
+- Every `extraAttributes` class is a variant from [variants.md](variants.md), on the component it names.
 - A new resource or page has its sidebar item in `AdminPanelProvider`.
 - Every "Before you finish" item of the template file holds.
