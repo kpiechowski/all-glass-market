@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Modules\Users;
 
 use App\Core\Contracts\Authorizer;
+use App\Core\Domain\QuickAccess\QuickAccessGroup;
+use App\Core\Domain\QuickAccess\QuickAccessItems;
 use App\Core\Providers\ModuleServiceProvider;
+use App\Core\UserInterface\Filament\QuickAccess\FilamentQuickAccessItem;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecords;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecordType;
 use App\Modules\Audit\Application\ModuleApi\TrackedRelation;
@@ -29,9 +32,13 @@ use App\Modules\Users\Infrastructure\Persistence\EloquentUserRepository;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Console\GrantSuperAdminConsoleCommand;
 use App\Modules\Users\UserInterface\Console\RevokeSuperAdminConsoleCommand;
+use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\EditProfile;
+use App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\JournalEntryResource;
 use App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\Support\FilamentJournalEntryUrls;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Support\FilamentUserUrls;
+use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
 use App\Modules\Users\UserInterface\Livewire\ImpersonationBanner;
+use Filament\Support\Icons\Heroicon;
 use Livewire\Livewire;
 
 class UsersModuleServiceProvider extends ModuleServiceProvider
@@ -86,6 +93,7 @@ class UsersModuleServiceProvider extends ModuleServiceProvider
         $this->app->make(JournalSubjects::class)->register('users', $this->app->make(UserJournalSubject::class));
 
         $this->registerAuditableRecords($this->app->make(AuditableRecords::class));
+        $this->registerQuickAccessItems($this->app->make(QuickAccessItems::class));
 
         Livewire::component('users-impersonation-banner', ImpersonationBanner::class);
 
@@ -129,6 +137,15 @@ class UsersModuleServiceProvider extends ModuleServiceProvider
                 'extra_permissions' => new TrackedRelation('users::audit.relations.extra_permissions', ValuePresenter::translated('users::permissions.')),
             ],
         ));
+    }
+
+    /** Issue 13: the places a user can pin as dashboard tiles. Keys are stored: never rename them. */
+    private function registerQuickAccessItems(QuickAccessItems $items): void
+    {
+        $items->registerGroup(new QuickAccessGroup('users', 'users::quick_access.group', Heroicon::OutlinedUsers));
+        $items->register(FilamentQuickAccessItem::for('users.list', UserResource::class, 'users'));
+        $items->register(FilamentQuickAccessItem::for('users.journal', JournalEntryResource::class, 'users'));
+        $items->register(FilamentQuickAccessItem::for('users.profile', EditProfile::class, 'users'));
     }
 
     /** @return array<string, string> */

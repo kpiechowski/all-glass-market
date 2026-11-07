@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\Audit;
 
+use App\Core\Domain\QuickAccess\QuickAccessGroup;
+use App\Core\Domain\QuickAccess\QuickAccessItems;
 use App\Core\Providers\ModuleServiceProvider;
+use App\Core\UserInterface\Filament\QuickAccess\FilamentQuickAccessItem;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecords;
 use App\Modules\Audit\Application\Providers\AuditEventServiceProvider;
 use App\Modules\Audit\Domain\Contracts\FailedJobs;
@@ -19,8 +22,11 @@ use App\Modules\Audit\Infrastructure\Persistence\EloquentReferenceNames;
 use App\Modules\Audit\Infrastructure\Queue\LaravelFailedJobs;
 use App\Modules\Audit\Infrastructure\Settings\ConfigRetentionPeriod;
 use App\Modules\Audit\UserInterface\Console\CleanUpExpiredChangesConsoleCommand;
+use App\Modules\Audit\UserInterface\Filament\Pages\AuditLog\AuditLog;
+use App\Modules\Audit\UserInterface\Filament\Pages\TechnicalLog\TechnicalLog;
 use App\Modules\Users\Application\ModuleApi\RoleRegistry;
 use App\Modules\Users\Domain\Enums\UserRole;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Console\Scheduling\Schedule;
 
 class AuditModuleServiceProvider extends ModuleServiceProvider
@@ -53,6 +59,7 @@ class AuditModuleServiceProvider extends ModuleServiceProvider
         parent::boot();
 
         $this->declarePermissions($this->app->make(RoleRegistry::class));
+        $this->registerQuickAccessItems($this->app->make(QuickAccessItems::class));
 
         if ($this->app->runningInConsole()) {
             $this->commands([CleanUpExpiredChangesConsoleCommand::class]);
@@ -68,5 +75,13 @@ class AuditModuleServiceProvider extends ModuleServiceProvider
         $registry->declarePermissions(AuditPermission::class);
         // The other three are granted to no Role: Super Admin holds them by wildcard, others as Extra Permissions (D-41).
         $registry->grant(UserRole::Admin, AuditPermission::RecordHistory);
+    }
+
+    /** Issue 13: the places a user can pin as dashboard tiles. Keys are stored: never rename them. */
+    private function registerQuickAccessItems(QuickAccessItems $items): void
+    {
+        $items->registerGroup(new QuickAccessGroup('audit', 'audit::quick_access.group', Heroicon::OutlinedClock));
+        $items->register(FilamentQuickAccessItem::for('audit.log', AuditLog::class, 'audit'));
+        $items->register(FilamentQuickAccessItem::for('audit.technical_log', TechnicalLog::class, 'audit'));
     }
 }

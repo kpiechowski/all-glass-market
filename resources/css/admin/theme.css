@@ -70,6 +70,7 @@
 @import "./components/list-card.css";
 @import "./components/person-cell.css";
 @import "./components/record-flag.css";
+@import "./components/quick-access.css";
 
 /* Page-specific CSS. */
 @import "./pages/login.css";
