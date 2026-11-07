@@ -151,7 +151,7 @@ What is out of scope:
 - **D-25** The sidebar has a **top** and a **bottom** part:
   - the panel provider builds navigation explicitly with `->navigation(fn (NavigationBuilder $builder) => ...)`, using its own groups and items;
   - the two main blocks stretch over the full sidebar height, and the bottom block (profile, later settings) is aligned to the bottom;
-  - for now it is a plain array in `AdminPanelProvider`. The user will extract it to a class later.
+  - it lives in `app/Filament/Navigation/PanelNavigation.php` (extracted on 2026-11-07, D-48).
 
   Consequence: a new module resource or page does not appear in the sidebar until it is added there. The skill states this.
 
@@ -206,7 +206,7 @@ resources/css/admin/
 
 ## 10. Styleguide
 
-- **D-33** Page `app/Core/UserInterface/Filament/Pages/Styleguide.php`:
+- **D-33** Page `app/Filament/Pages/Styleguide.php` (moved from Core on 2026-11-07, D-48):
   - registered explicitly in `AdminPanelProvider` when `app()->isLocal()`, and nowhere else;
   - static data only: the table uses `->records(fn () => [...])`, the form keeps page state and saves nothing;
   - its demo copy is hard-coded Polish, the one exception to "every string from translations";
@@ -260,7 +260,7 @@ resources/css/admin/
   - **Variation (informative, not required):** layout (b) does not have to span the whole page. It may hold only the top sections next to the side column, while the last sections below it (e.g. long lists, repeatables, key-value tables) run full width under both columns. The Styleguide uses the full-page (b) for now, and it is accepted.
 - **D-07a** (clarifies D-07) "One field per row" applies to form fields. Infolists follow D-10a.
 - **D-43** The Styleguide is organised in underlined page tabs by component area, so the user can compare without scrolling the whole page. Nested tabs (underlined or pills) are allowed inside.
-- **D-44** The topbar ornament, accepted by the user on 2026-11-06, is one upright glass pane of light at the topbar's left edge, next to the navy sidebar: primary-200 fading to 70 %, 16 px wide, ending in one straight cut. A second, softer glow pane next to it was dropped as the last step ("one straight cut looks best"). It is desktop only. The component is `app/Core/UserInterface/resources/views/filament/topbar/ornament.blade.php`, registered with the `TOPBAR_START` render hook in `AdminPanelProvider`.
+- **D-44** The topbar ornament, accepted by the user on 2026-11-06, is one upright glass pane of light at the topbar's left edge, next to the navy sidebar: primary-200 fading to 70 %, 16 px wide, ending in one straight cut. A second, softer glow pane next to it was dropped as the last step ("one straight cut looks best"). It is desktop only. The component is `panel::topbar.ornament` (`app/Filament/resources/views/topbar/ornament.blade.php`), registered with the `TOPBAR_START` render hook in `PanelRenderHooks`.
   - Tried and dropped:
     - a faceted "geode": cramped in 56 px, it read as busy;
     - slanted navy cuts at 60–80°: a navy notch at the page edge, a skewed gradient, and colours the panel never uses.
@@ -274,6 +274,20 @@ resources/css/admin/
   - **Badges:** categories are grey or soft primary with no dot; states (success, warning, danger, info) get a pale fill, dark text and a 6 px coloured dot, so a state reads as a state without colour. Count badges have no dot.
   - **Notifications:** one white card for every status, a 3 px status bar on the leading edge, the leading corners square (a radius bends the bar) and 4 px on the other side.
   - **Stat widget:** section border, 28 px bold navy value.
-  - **Login geodes:** one pair in opposite corners (top-left, bottom-right turned 180°) on every simple auth page, `core::filament.auth.geode` via `SIMPLE_LAYOUT_START`; five layers with an extra royal 62 % step between royal and navy; sized `clamp(10rem, 28vw, 28rem)`.
+  - **Login geodes:** one pair in opposite corners (top-left, bottom-right turned 180°) on every simple auth page, `panel::auth.geode` via `SIMPLE_LAYOUT_START`; five layers with an extra royal 62 % step between royal and navy; sized `clamp(10rem, 28vw, 28rem)`.
   - **Open:** on mobile only the primary header action should stay outside "⋮" (D-09/D-16). CSS cannot move actions into the menu, so this needs PHP and is deferred.
 - **D-47** (2026-11-07, issue 10) Variants accepted as built and documented in `admin-ui-design/variants.md`: `section--compact` (one step tighter than a nested section), `section--flat` (no frame, navy title over a hairline, aligned with the parent content), `tabs--underline` (the page-tab look as a named class; page and record tabs get it without the class), `tabs--pills` (white active pill on a grey track, uncontained horizontal tabs only), `infolist--sheet` and `infolist--identity` (D-10a). The user found the section variants plain and may specify richer ones later.
+- **D-48** (2026-11-07) Panel configuration lives in `app/Filament/`, not in Core:
+  - `app/Filament/` holds:
+    - `AdminPanelProvider` (moved from `app/Providers/Filament`), which only wires the panel together;
+    - `Navigation/PanelNavigation`;
+    - `RenderHooks/PanelRenderHooks`;
+    - `Configuration/ComponentDefaults`, which runs every `configureUsing`, plus a `{Component}Defaults` class per component (`Tables/TableDefaults`);
+    - `Branding/BrandLogo`;
+    - panel-only pages (`Pages/Styleguide`);
+    - views under the `panel::` namespace (`resources/views`).
+  - `AppServiceProvider` moved to `app/AppServiceProvider.php`.
+  - `app/Core/UserInterface/Filament/` keeps only the building blocks that modules use (columns, `TableEmptyState`, `core::tables.*` views and translations).
+  - Deptrac's `Panel` layer covers `app/Filament` and `app/*.php`. It may depend on anything, and nothing may depend on it.
+  - The provider no longer auto-discovers `app/Filament/{Resources,Pages,Widgets}`, so panel pages are registered explicitly. This keeps the Styleguide local-only.
+  - This supersedes the "wired in `AdminPanelProvider::boot()`" wording of D-45. Rule in `filament-module-wiring`.

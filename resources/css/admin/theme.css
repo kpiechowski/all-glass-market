@@ -1,6 +1,7 @@
 @import "../../../vendor/filament/filament/resources/css/theme.css";
 
 @source '../../../app/Core/UserInterface/resources/views/**/*';
+@source '../../../app/Filament/resources/views/**/*';
 @source '../../../app/Modules/*/UserInterface/resources/views/**/*';
 
 /* Tokens: our variables and the Filament / Tailwind variables they override. */

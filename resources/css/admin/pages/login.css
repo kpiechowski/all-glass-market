@@ -48,7 +48,7 @@
 }
 
 /*
- * Geodes (issue 09, D-44): `core::filament.auth.geode`, one pair in opposite corners behind the
+ * Geodes (issue 09, D-44): `panel::auth.geode`, one pair in opposite corners behind the
  * card. Colours are only those the panel already uses (sky-light, royal, navy). Size follows the
  * viewport: 160 px on a phone, 28 vw in between, 448 px from a wide screen up (1.75x the first round). The card sits above
  * them, so on a phone they peek out at the corners instead of crowding the form.

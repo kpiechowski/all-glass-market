@@ -89,7 +89,7 @@ Schema components (`extraAttributes`, `extraInputAttributes`…) receive only ou
 
 ## Navigation
 
-The panel builds the sidebar explicitly in `AdminPanelProvider` (`->navigation(fn (NavigationBuilder $builder) => …)`). A new resource or page appears in the sidebar only after you add its item there.
+The panel builds the sidebar explicitly in `app/Filament/Navigation/PanelNavigation.php` (wired with `->navigation(PanelNavigation::build(...))`). A new resource or page appears in the sidebar only after you add its item there.
 
 ## Before you finish
 
@@ -106,5 +106,5 @@ The panel builds the sidebar explicitly in `AdminPanelProvider` (`->navigation(f
 - Every label, button and notification follows the copy rules.
 - No Tailwind utility sits on a schema component; no vendor view is overridden.
 - Every `extraAttributes` class is a variant from [variants.md](variants.md), on the component it names.
-- A new resource or page has its sidebar item in `AdminPanelProvider`.
+- A new resource or page has its sidebar item in `PanelNavigation`.
 - Every "Before you finish" item of the template file holds.

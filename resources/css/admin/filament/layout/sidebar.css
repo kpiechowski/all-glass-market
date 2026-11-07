@@ -1,7 +1,7 @@
 /*
  * Sidebar (D-25, D-31, D-41 trial). Every colour is a `--ag-sidebar-*` variable from
  * tokens/sidebar.css, which holds the light sidebar and the navy trial; this file never names a
- * colour. The navigation is two blocks built in AdminPanelProvider; the second one
+ * colour. The navigation is two blocks built in PanelNavigation; the second one
  * (`sidebar-group--bottom`) sits at the foot. Items are quiet; only the active one is marked.
  *
  * This file is the light sidebar under the white topbar. The navy trial (D-41), its full-height

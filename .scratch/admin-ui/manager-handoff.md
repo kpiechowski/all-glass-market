@@ -10,12 +10,12 @@ You are the **manager** of the admin UI restyle of AllGlass Market (Laravel + Fi
 - **Skill for screens:** `.claude/skills/admin-ui-design/` (`SKILL.md`, `templates/A–F`; `variants.md` comes in issue 10).
 - **Skill for Filament mechanics:** `.claude/skills/filament-module-wiring/`.
 - **ADR:** `docs/adr/0005-admin-ui-templates-and-theme-variants.md`. Also 0003 (enums with `HasColor`).
-- **Styleguide:** `/admin/styleguide`, local only. `app/Core/UserInterface/Filament/Pages/Styleguide*`, organised in tabs (`?obszar=`): Formularze / Sekcje i układ / Karta rekordu / Tabele i filtry / Akcje i modale. It is the place where the user judges the look.
+- **Styleguide:** `/admin/styleguide`, local only. `app/Filament/Pages/Styleguide*` (views `panel::pages.styleguide*` in `app/Filament/resources/views`), organised in tabs (`?obszar=`): Formularze / Sekcje i układ / Karta rekordu / Tabele i filtry / Akcje i modale. It is the place where the user judges the look.
 - **Theme:** `resources/css/admin/`, split as tokens/, base/, filament/<area>/, components/, pages/. `theme.css` holds only imports and @source.
   - Tokens: `--gray-*`, `--primary-*` (600 = #003eb2, 950 = navy), `--brand-navy` #001B4E, `--brand-royal` #003eb2, `--brand-sky` #0070C0, `--brand-sky-light`, `--ag-*`.
   - Motion: `tokens/motion.css`, reused for every transition and zeroed under reduced motion.
   - The navy sidebar lives in `filament/layout/sidebar-navy.css`.
-- **Navigation:** built explicitly in `AdminPanelProvider::navigation()`. Top group: Pulpit. Main group. Bottom group: profile.
+- **Navigation:** built explicitly in `app/Filament/Navigation/PanelNavigation.php`. All panel configuration lives in `app/Filament/` (D-48). Top group: Pulpit. Main group. Bottom group: profile.
 
 ## Status (2026-11-06)
 

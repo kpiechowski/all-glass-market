@@ -17,7 +17,7 @@ These are the user's ideas from 2026-11-06, noted for later. Nothing has been de
   - Each tile has an icon and links to one of the most important places in the panel. The tiles are grouped, like the DirectAdmin dashboard.
   - It can be a full page (a Filament page) or a large dropdown or panel from the topbar. Decide when designing.
   - Open questions:
-    - Where does the tile list come from? It could be the same explicit list as `AdminPanelProvider::navigation()`, a separate list of "most important" items, or something per role.
+    - Where does the tile list come from? It could be the same explicit list as `PanelNavigation`, a separate list of "most important" items, or something per role.
     - Visibility: only what the user can open (`canAccess`).
     - Does it overlap the sidebar's job? The hub is for orientation, the sidebar for everyday moves.
 

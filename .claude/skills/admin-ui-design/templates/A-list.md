@@ -122,7 +122,7 @@ class OffersTable
 - The main split (Aktywne / Nieaktywne / Zaproszone) is list tabs, never a filter.
 - Up to 3 simple, frequent filters: `FiltersLayout::AboveContent`. More than 3: the default funnel layout, with the frequent ones first.
 - Inline filters are selects, dates, toggles or checkboxes; no `->columnSpan()` and no `->filtersFormColumns()` on them.
-- Keep the defaults of `TableDefaults` (`app/Core/UserInterface/Filament/Tables`, registered in `AdminPanelProvider::boot()`): inline filters apply on change, the panel has "Zastosuj filtry" and is 24 rem wide, the count badge shows only above 0, "Zresetuj filtry" shows only while a filter is active. Do not set `deferFilters()`, `filtersFormWidth()` or `filtersTriggerAction()` without the user's approval.
+- Keep the defaults of `TableDefaults` (`app/Filament/Tables`, registered through `ComponentDefaults` in `AdminPanelProvider::boot()`): inline filters apply on change, the panel has "Zastosuj filtry" and is 24 rem wide, the count badge shows only above 0, "Zresetuj filtry" shows only while a filter is active. Do not set `deferFilters()`, `filtersFormWidth()` or `filtersTriggerAction()` without the user's approval.
 - A filter without a fixed option list gets `->indicateUsing()`, so its chip under the toolbar names the value.
 
 ## Actions
