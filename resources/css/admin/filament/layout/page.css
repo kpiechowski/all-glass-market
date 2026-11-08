@@ -1,0 +1,16 @@
+/* Main column: gutters and the gap between page blocks. Max width is Filament's default (7xl). */
+.fi-main {
+    padding-inline: var(--ag-page-gutter);
+
+    @media (min-width: 48rem) {
+        padding-inline: var(--ag-page-gutter-md);
+    }
+
+    @media (min-width: 64rem) {
+        padding-inline: var(--ag-page-gutter-lg);
+    }
+}
+
+.fi-page-content {
+    row-gap: var(--ag-space-6);
+}

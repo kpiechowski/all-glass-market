@@ -1,0 +1,98 @@
+/*
+ * Radio (`input[type=radio].fi-radio-input`), the same states as the checkbox: white with a
+ * gray-400 edge; checked fills royal (navy on hover) with a white dot; keyboard focus adds the
+ * royal edge and halo of the input frame; invalid edges in danger; disabled is gray-100, and a
+ * checked disabled radio is gray-400 with the white dot. Like the tick, the dot is restated
+ * with its size and position, so no `background` shorthand can wipe it.
+ */
+input[type='radio'].fi-radio-input {
+    --radio-dot: url("data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 16 16' fill='%23fff' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='8' cy='8' r='3'/%3E%3C/svg%3E");
+    --radio-edge: var(--ag-control-border);
+    --radio-fill: var(--ag-field-bg);
+
+    width: var(--ag-control-size);
+    height: var(--ag-control-size);
+    border: 0;
+    border-radius: var(--ag-radius-pill);
+    background-color: var(--radio-fill);
+    background-image: none;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    box-shadow: 0 0 0 var(--ag-border-width) var(--radio-edge);
+    outline: none;
+    cursor: pointer;
+    transition: var(--ag-field-transition);
+
+    &:hover {
+        --radio-edge: var(--ag-control-border-hover);
+    }
+
+    &:checked {
+        --radio-fill: var(--ag-control-checked);
+        --radio-edge: var(--ag-control-checked);
+        background-image: var(--radio-dot);
+
+        &:hover {
+            --radio-fill: var(--ag-control-checked-hover);
+            --radio-edge: var(--ag-control-checked-hover);
+        }
+    }
+
+    &.fi-invalid {
+        --radio-edge: var(--ag-field-border-invalid);
+
+        &:checked {
+            --radio-fill: var(--danger-600);
+            --radio-edge: var(--danger-600);
+        }
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 var(--ag-border-width) var(--radio-edge);
+    }
+
+    &:focus-visible {
+        box-shadow: 0 0 0 var(--ag-border-width) var(--ag-field-border-focus), 0 0 0 4px var(--ag-field-focus-halo);
+
+        &.fi-invalid {
+            box-shadow: 0 0 0 var(--ag-border-width) var(--ag-field-border-invalid), 0 0 0 4px var(--ag-field-invalid-halo);
+        }
+    }
+
+    &:disabled {
+        --radio-fill: var(--ag-field-disabled-bg);
+        --radio-edge: var(--ag-field-disabled-border);
+        cursor: not-allowed;
+
+        &:checked {
+            --radio-fill: var(--gray-400);
+            --radio-edge: var(--gray-400);
+        }
+    }
+}
+
+/* Option labels are values: regular weight, the description muted below. */
+.fi-fo-radio > .fi-fo-radio-label {
+    & > .fi-fo-radio-label-text {
+        font-size: var(--ag-text-base);
+        font-weight: var(--ag-weight-regular);
+        color: var(--ag-field-text);
+    }
+
+    & .fi-fo-radio-label-description {
+        font-size: var(--ag-text-sm);
+        line-height: var(--ag-leading-sm);
+        color: var(--ag-field-helper);
+    }
+
+    &:has(.fi-radio-input:disabled) {
+        & > .fi-fo-radio-label-text {
+            color: var(--ag-field-disabled-text);
+        }
+
+        & .fi-fo-radio-label-description {
+            color: var(--ag-text-muted);
+        }
+    }
+}

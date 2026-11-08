@@ -1,0 +1,56 @@
+/*
+ * List card (D-12): the one cell a list table shows below `md`.
+ * Markup: core::filament.tables.record-card (RecordCardColumn). The row around it becomes a
+ * white card in filament/tables/mobile.css; this file lays out its content.
+ *
+ *   title       14 px semibold near-black, state badge on the right
+ *   subtitle    13 px muted (e-mail, vehicle, number)
+ *   foot        flags, neutral badges and short meta facts in one wrapping line, 6 px apart
+ */
+.list-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ag-space-0-5);
+    padding: var(--ag-table-card-padding);
+}
+
+.list-card__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--ag-space-2);
+}
+
+.list-card__title {
+    min-width: 0;
+    font-size: var(--ag-text-base);
+    line-height: var(--ag-leading-base);
+    font-weight: var(--ag-weight-semibold);
+    color: var(--ag-text);
+    overflow-wrap: anywhere;
+}
+
+.list-card__status {
+    flex: none;
+}
+
+.list-card__subtitle {
+    font-size: var(--ag-text-sm);
+    line-height: var(--ag-leading-sm);
+    color: var(--ag-text-muted);
+    overflow-wrap: anywhere;
+}
+
+.list-card__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ag-space-1-5);
+    margin-top: var(--ag-space-2);
+}
+
+.list-card__meta {
+    font-size: var(--ag-text-xs);
+    line-height: var(--ag-leading-xs);
+    color: var(--ag-text-muted);
+}

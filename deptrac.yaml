@@ -51,6 +51,11 @@ deptrac:
         - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/Application/Providers/.*' }
         - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/[^/]+ServiceProvider\.php' }
 
+    - name: Panel
+      collectors:
+        - { type: directory, value: 'app/Filament/.*' }
+        - { type: directory, value: 'app/[^/]+\.php' }
+
     - name: CoreDomain
       collectors:
         - { type: directory, value: 'app/Core/(Domain|Contracts|Exceptions)/.*' }
@@ -100,6 +105,7 @@ deptrac:
     InfrastructureRead: *infrastructure
     UserInterface: [UserInterface, ApplicationEntry, DomainPolicy, DomainEnum, InfrastructureRead, CoreDomain, CoreUserInterface, Filament, FilamentEnumContract, Http]
     Wiring: [Wiring, Domain, DomainPolicy, DomainEnum, Application, ApplicationEntry, Infrastructure, InfrastructureRead, UserInterface, CoreDomain, CoreInfrastructure, CoreUserInterface, CoreSupport, Filament, FilamentEnumContract, Http, HttpClient, RawQuery]
+    Panel: [Panel, Wiring, Domain, DomainPolicy, DomainEnum, Application, ApplicationEntry, Infrastructure, InfrastructureRead, UserInterface, CoreDomain, CoreInfrastructure, CoreUserInterface, CoreSupport, Filament, FilamentEnumContract, Http, HttpClient, RawQuery]
     CoreDomain: [CoreDomain]
     CoreInfrastructure: [CoreInfrastructure, CoreDomain, RawQuery, HttpClient]
     CoreUserInterface: [CoreUserInterface, CoreDomain, Filament, FilamentEnumContract, Http]

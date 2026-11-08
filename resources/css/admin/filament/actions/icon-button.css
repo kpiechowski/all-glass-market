@@ -1,0 +1,48 @@
+/*
+ * Icon buttons: row actions, the "⋮" action-group trigger, topbar icons. Quiet grey icon,
+ * a soft square on hover, the same navy focus outline as buttons. Vendor sizes (28/32/36/40/44 px)
+ * already match the button heights, so only colour, radius and focus change here.
+ */
+.fi-icon-btn {
+    border-radius: var(--ag-radius-control);
+    transition:
+        background-color 120ms ease,
+        color 120ms ease;
+
+    &:not(.fi-disabled):not([disabled]):hover {
+        background-color: var(--ag-surface-hover);
+    }
+
+    &:focus-visible {
+        outline: var(--ag-focus-ring-width) solid var(--ag-focus-ring);
+        outline-offset: 0;
+        box-shadow: none;
+    }
+
+    &.fi-color-gray {
+        color: var(--ag-text-muted);
+
+        &:not(.fi-disabled):not([disabled]):hover {
+            color: var(--ag-text);
+        }
+    }
+
+    &.fi-color-primary {
+        color: var(--brand-royal);
+
+        &:not(.fi-disabled):not([disabled]):hover {
+            background-color: var(--ag-accent-soft);
+            color: var(--brand-navy);
+        }
+    }
+
+    &.fi-color-danger:not(.fi-disabled):not([disabled]):hover {
+        background-color: var(--danger-50);
+    }
+
+    &.fi-disabled:not(.fi-force-enabled),
+    &[disabled]:not(.fi-force-enabled) {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}

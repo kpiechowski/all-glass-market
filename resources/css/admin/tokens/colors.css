@@ -1,0 +1,126 @@
+/*
+ * Colour tokens (D-31): neutral greys carry the interface, the client blue is an accent only
+ * (primary action, active navigation, focus), and the semantic colours mark states.
+ *
+ * Filament reads every palette from `--{name}-{shade}` on :root. Its own values are printed by
+ * @filamentStyles before this theme is linked, so the scales below replace them everywhere:
+ * buttons, badges, rings and the Tailwind `*-gray-*` / `*-primary-*` utilities alike.
+ */
+:root {
+    /* Brand (D-40), from the logo and the client's site. */
+    --brand-navy: #001b4e;   /* logo text, the site's dark blocks: the heavier accent */
+    --brand-royal: #003eb2;  /* the site's buttons: primary */
+    --brand-sky: #0070c0;    /* logo stars: light accent */
+    --brand-sky-light: #5aa9e6; /* the sky lifted to read on navy (sidebar trial, D-41) */
+
+    /* Neutral grey with a faint cool cast: not the blue of slate, not the warmth of stone. */
+    --gray-50: #f7f8fa;
+    --gray-100: #f0f1f4;
+    --gray-200: #e3e5e9;
+    --gray-300: #cdd0d6;
+    --gray-400: #9da2ab;
+    --gray-500: #6e737d;
+    --gray-600: #50555e;
+    --gray-700: #3c4048;
+    --gray-800: #26292f;
+    --gray-900: #17191d;
+    --gray-950: #0d0e11;
+
+    /* AllGlass blue: 600 is royal #003eb2; 800..950 bend toward the navy and 950 is the navy itself. */
+    --primary-50: #eef3ff;
+    --primary-100: #dce6fe;
+    --primary-200: #bccffc;
+    --primary-300: #8eacf7;
+    --primary-400: #5a82ec;
+    --primary-500: #2b5bd6;
+    --primary-600: #003eb2;
+    --primary-700: #00318f;
+    --primary-800: #00286f;
+    --primary-900: #00205c;
+    --primary-950: #001b4e;
+
+    /* States. Muted a step below Tailwind's defaults so a list of badges stays calm. */
+    --success-50: #ecf8f1;
+    --success-100: #d3efdf;
+    --success-200: #a8dec0;
+    --success-300: #73c69b;
+    --success-400: #3fa874;
+    --success-500: #218a58;
+    --success-600: #177047;
+    --success-700: #13593a;
+    --success-800: #10472f;
+    --success-900: #0c3624;
+    --success-950: #061f14;
+
+    --warning-50: #fdf6e7;
+    --warning-100: #fbeac4;
+    --warning-200: #f6d488;
+    --warning-300: #efb94d;
+    --warning-400: #e39f26;
+    --warning-500: #c98312;
+    --warning-600: #a7680c;
+    --warning-700: #85500d;
+    --warning-800: #6a3f10;
+    --warning-900: #563410;
+    --warning-950: #321c05;
+
+    --danger-50: #fdf0ef;
+    --danger-100: #fbdcda;
+    --danger-200: #f6b8b4;
+    --danger-300: #ee8a84;
+    --danger-400: #e25c55;
+    --danger-500: #cf3b34;
+    --danger-600: #b42a24;
+    --danger-700: #93211d;
+    --danger-800: #761d1a;
+    --danger-900: #5f1a18;
+    --danger-950: #370a09;
+
+    /* Info is a teal-leaning blue so it never reads as the primary accent. */
+    --info-50: #edf6fb;
+    --info-100: #d5ebf6;
+    --info-200: #acd6ec;
+    --info-300: #78bbdf;
+    --info-400: #449ccd;
+    --info-500: #2581b5;
+    --info-600: #186795;
+    --info-700: #155378;
+    --info-800: #144562;
+    --info-900: #133a52;
+    --info-950: #0b2435;
+
+    /* Roles. Our CSS uses these, never a raw shade, where a role exists. */
+    /* Canvas: a very light cool blue in the navy's hue, so white surfaces stand off it without grey. */
+    --ag-canvas: #f3f6fb;
+    --ag-surface: #fff;
+    --ag-surface-hover: var(--gray-100);
+    --ag-text: var(--gray-900);
+    --ag-text-secondary: var(--gray-600);
+    --ag-text-muted: var(--gray-500);
+    --ag-icon: var(--gray-400);
+    --ag-heading: var(--brand-navy);
+    --ag-accent: var(--brand-royal);
+    --ag-accent-hover: var(--brand-navy);
+    --ag-accent-soft: var(--primary-50);
+    --ag-accent-text: var(--brand-navy);
+
+    /* Soft tints for badges and quiet state marks: tinted background, dark text, faint edge. */
+    --ag-soft-gray-bg: var(--gray-100);
+    --ag-soft-gray-text: var(--gray-700);
+    --ag-soft-gray-border: var(--gray-200);
+    --ag-soft-primary-bg: var(--primary-50);
+    --ag-soft-primary-text: var(--primary-700);
+    --ag-soft-primary-border: var(--primary-100);
+    --ag-soft-success-bg: var(--success-50);
+    --ag-soft-success-text: var(--success-700);
+    --ag-soft-success-border: var(--success-100);
+    --ag-soft-warning-bg: var(--warning-50);
+    --ag-soft-warning-text: var(--warning-700);
+    --ag-soft-warning-border: var(--warning-100);
+    --ag-soft-danger-bg: var(--danger-50);
+    --ag-soft-danger-text: var(--danger-700);
+    --ag-soft-danger-border: var(--danger-100);
+    --ag-soft-info-bg: var(--info-50);
+    --ag-soft-info-text: var(--info-700);
+    --ag-soft-info-border: var(--info-100);
+}

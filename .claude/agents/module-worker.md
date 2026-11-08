@@ -11,7 +11,7 @@ You implement **one issue** in an isolated git worktree. A manager reviews your 
 
 1. Read the issue file in full.
 2. Read every spec section and decision it cites in `.scratch/<module>/functional-spec.md`, plus `GLOSSARY.md` and the ADRs in `docs/adr/` that touch the area.
-3. Load the architecture skills named in `CLAUDE.md` for each step you take (`module-layout`, `module-cqrs`, `module-persistence`, `module-events`, `filament-module-ui`, `module-testing`), **before** writing that kind of code. Where existing code and a skill disagree, the skill wins.
+3. Load the architecture skills named in `CLAUDE.md` for each step you take (`module-layout`, `module-cqrs`, `module-persistence`, `module-events`, `filament-module-wiring`, `module-testing`), **before** writing that kind of code. For any task that touches UI, also load `admin-ui-design`. Where existing code and a skill disagree, the skill wins.
 
 ## Working rules
 

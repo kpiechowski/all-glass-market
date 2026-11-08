@@ -1,0 +1,25 @@
+/* Breadcrumbs: small muted trail, the current page one step darker. */
+.fi-breadcrumbs ol {
+    column-gap: var(--ag-space-1-5);
+
+    & li {
+        column-gap: var(--ag-space-1-5);
+        font-size: var(--ag-text-sm);
+        line-height: var(--ag-leading-sm);
+        font-weight: var(--ag-weight-regular);
+        color: var(--ag-text-muted);
+
+        & a:hover {
+            color: var(--ag-text);
+        }
+
+        & .fi-icon {
+            color: var(--gray-300);
+        }
+
+        &:last-child {
+            color: var(--gray-700);
+            font-weight: var(--ag-weight-medium);
+        }
+    }
+}

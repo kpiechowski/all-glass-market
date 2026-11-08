@@ -1,0 +1,163 @@
+/*
+ * Table filters (D-14). Values: tokens/tables.css; panel width and behaviour: TableDefaults.
+ *
+ * Inline (`FiltersLayout::AboveContent`, up to 3 filters)
+ *   Filament lays them out on a viewport grid (2 / 3 / 4 / 5 columns by breakpoint), so the same
+ *   three filters fill one row, leave a quarter empty or wrap to half widths depending on the
+ *   screen. Here they are one wrapping row instead: every select or date is 13 rem (208 px),
+ *   a toggle or checkbox takes its own width and sits on the 36 px field line, and
+ *   "Zresetuj filtry" (only while a filter is active) follows the last filter. Below sm each
+ *   filter takes the full width. The "Filtry" heading stays for screen readers only.
+ *   Inline filters apply on change, so there is no "Zastosuj" button; if a table defers them,
+ *   the button sits in the same row.
+ *
+ * Panel (funnel, more than 3 filters)
+ *   24 rem wide. A header strip (heading + reset) over a hairline, 20 px padding, 16 px between
+ *   fields, and "Zastosuj filtry" in a footer strip on the right.
+ *
+ * Trigger badge: the count shows only above 0 (`data-active-filters` from TableDefaults).
+ * Active filters: one quiet line under the toolbar, a muted label and soft primary chips.
+ */
+
+/* Inline. */
+.fi-ta-filters-above-content-ctn > .fi-ta-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--ag-filter-inline-gap-y) var(--ag-filter-inline-gap-x);
+
+    & > .fi-ta-filters-header {
+        order: 3;
+        min-height: var(--ag-field-height);
+
+        & .fi-ta-filters-heading {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip-path: inset(50%);
+            white-space: nowrap;
+        }
+    }
+
+    & > .fi-sc {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: var(--ag-filter-inline-gap-y) var(--ag-filter-inline-gap-x);
+        order: 1;
+        max-width: 100%;
+
+        & > .fi-grid-col {
+            flex: 0 0 var(--ag-filter-inline-width);
+            min-width: 0;
+        }
+
+        & > .fi-grid-col:has(.fi-toggle, .fi-checkbox-input) {
+            display: flex;
+            flex-basis: auto;
+            align-items: center;
+            min-height: var(--ag-field-height);
+        }
+    }
+
+    & > .fi-ta-filters-actions-ctn {
+        order: 2;
+    }
+
+    @media (max-width: 39.999rem) {
+        & > .fi-sc {
+            width: 100%;
+
+            & > .fi-grid-col {
+                flex-basis: 100%;
+            }
+        }
+    }
+}
+
+/* Header of both layouts: reset is a quiet grey link, not a red one. */
+.fi-ta-filters-header {
+    & .fi-link {
+        color: var(--ag-text-secondary);
+        font-weight: var(--ag-weight-medium);
+        transition: color var(--ag-duration-fast) var(--ag-ease-out);
+
+        & > .fi-icon {
+            color: currentColor;
+        }
+
+        &:hover {
+            color: var(--ag-accent);
+        }
+    }
+}
+
+/* Panel. */
+.fi-ta-filters-dropdown .fi-ta-filters {
+    gap: var(--ag-filter-panel-gap);
+    border-radius: inherit;
+    padding: var(--ag-filter-panel-padding);
+
+    & > .fi-ta-filters-header {
+        margin: calc(-1 * var(--ag-filter-panel-padding)) calc(-1 * var(--ag-filter-panel-padding)) 0;
+        padding: var(--ag-space-3) var(--ag-filter-panel-padding);
+        border-bottom: var(--ag-border-width) solid var(--ag-border);
+        min-height: calc(var(--ag-field-height) + 2 * var(--ag-space-1-5));
+    }
+
+    & .fi-ta-filters-heading {
+        font-size: var(--ag-text-base);
+        line-height: var(--ag-leading-base);
+        font-weight: var(--ag-weight-semibold);
+        color: var(--ag-text);
+    }
+
+    & > .fi-sc {
+        gap: var(--ag-filter-panel-gap);
+    }
+
+    & > .fi-ta-filters-actions-ctn {
+        justify-content: flex-end;
+        margin: 0 calc(-1 * var(--ag-filter-panel-padding)) calc(-1 * var(--ag-filter-panel-padding));
+        padding: var(--ag-space-3) var(--ag-filter-panel-padding);
+        border-top: var(--ag-border-width) solid var(--ag-border);
+        border-end-start-radius: inherit;
+        border-end-end-radius: inherit;
+        background-color: var(--gray-50);
+    }
+}
+
+/* Trigger: no "0" badge. */
+.fi-icon-btn[data-active-filters='0'] > .fi-icon-btn-badge-ctn {
+    display: none;
+}
+
+/* Active filters. */
+.fi-ta-ctn .fi-ta-filter-indicators {
+    align-items: center;
+    padding: 0 var(--ag-table-edge-padding-x) var(--ag-table-zone-padding-y);
+    border-bottom-width: 0;
+    background-color: transparent;
+
+    & > :nth-child(1) {
+        align-items: center;
+        column-gap: var(--ag-space-2);
+
+        & .fi-ta-filter-indicators-label {
+            font-size: var(--ag-text-sm);
+            line-height: var(--ag-leading-sm);
+            font-weight: var(--ag-weight-medium);
+            color: var(--ag-filter-chip-label);
+        }
+    }
+
+    & > :nth-child(2).fi-icon-btn {
+        margin-top: 0;
+        color: var(--ag-text-muted);
+    }
+
+    @media (max-width: 39.999rem) {
+        padding-inline: var(--ag-space-4);
+    }
+}

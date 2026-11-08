@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\{{TestArea}}\{{ModuleName}}\Infrastructure\Persistence\Observers;
 
+use App\Core\Domain\Actor;
+use App\Core\Domain\Events\ChangeKind;
 use App\Core\Domain\Events\RecordChanged;
+use App\Core\Exceptions\NoCurrentActorException;
+use App\Core\Infrastructure\Bus\ActorStack;
 use App\Core\Infrastructure\Persistence\ReadOnlyModel;
 use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Factories\{{SingularName}}ModelFactory;
 use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence\Models\{{SingularName}}Model;
@@ -16,30 +20,56 @@ class {{SingularName}}ObserverTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_creating_a_record_emits_record_changed_with_the_new_values(): void
+    private function asActor(Actor $actor, callable $callback): mixed
+    {
+        return app(ActorStack::class)->run($actor, fn () => ReadOnlyModel::writing($callback));
+    }
+
+    public function test_creating_a_record_emits_record_changed_with_kind_new_values_and_actor(): void
     {
         Event::fake([RecordChanged::class]);
+        $actor = Actor::user(1);
 
-        $id = {{SingularName}}ModelFactory::new()->create(['name' => 'gear'])->id;
+        $id = $this->asActor($actor, fn () => {{SingularName}}ModelFactory::new()->create(['name' => 'gear']))->id;
 
         Event::assertDispatched(
             RecordChanged::class,
             fn (RecordChanged $event) => $event->modelClass === {{SingularName}}Model::class
                 && $event->id === $id
-                && $event->changes['name'] === ['old' => null, 'new' => 'gear'],
+                && $event->kind === ChangeKind::Created
+                && $event->changes['name'] === ['old' => null, 'new' => 'gear']
+                && $event->actor === $actor,
         );
     }
 
     public function test_updating_a_record_emits_the_old_and_new_value(): void
     {
-        $model = {{SingularName}}ModelFactory::new()->create(['name' => 'gear']);
+        $model = $this->asActor(Actor::user(1), fn () => {{SingularName}}ModelFactory::new()->create(['name' => 'gear']));
         Event::fake([RecordChanged::class]);
 
-        ReadOnlyModel::writing(fn () => $model->update(['name' => 'cog']));
+        $this->asActor(Actor::user(1), fn () => $model->update(['name' => 'cog']));
 
         Event::assertDispatched(
             RecordChanged::class,
-            fn (RecordChanged $event) => $event->changes['name'] === ['old' => 'gear', 'new' => 'cog'],
+            fn (RecordChanged $event) => $event->kind === ChangeKind::Changed
+                && $event->changes['name'] === ['old' => 'gear', 'new' => 'cog'],
         );
+    }
+
+    public function test_deleting_a_record_emits_a_deleted_change(): void
+    {
+        $model = $this->asActor(Actor::user(1), fn () => {{SingularName}}ModelFactory::new()->create());
+        Event::fake([RecordChanged::class]);
+
+        $this->asActor(Actor::user(1), fn () => $model->delete());
+
+        Event::assertDispatched(RecordChanged::class, fn (RecordChanged $event) => $event->kind === ChangeKind::Deleted);
+    }
+
+    public function test_a_write_outside_a_command_fails(): void
+    {
+        $this->expectException(NoCurrentActorException::class);
+
+        ReadOnlyModel::writing(fn () => {{SingularName}}Model::create({{SingularName}}ModelFactory::new()->raw()));
     }
 }

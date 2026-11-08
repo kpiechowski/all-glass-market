@@ -10,6 +10,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Database\Eloquent\Builder;
 
+/** Three inline filters; active/inactive is a list tab, not a filter (template A). */
 class UsersTableFilters
 {
     /** @return array<mixed> */
@@ -23,17 +24,6 @@ class UsersTableFilters
             SelectFilter::make('account_type')
                 ->label(__('users::resources.user.filters.account_type'))
                 ->options(AccountType::class),
-
-            TernaryFilter::make('is_active')
-                ->label(__('users::resources.user.filters.status'))
-                ->placeholder(__('users::resources.user.filters.status_all'))
-                ->trueLabel(__('users::resources.user.filters.status_active'))
-                ->falseLabel(__('users::resources.user.filters.status_inactive'))
-                ->queries(
-                    true: fn ($query) => $query->whereNull('deactivated_at'),
-                    false: fn ($query) => $query->whereNotNull('deactivated_at'),
-                    blank: fn ($query) => $query,
-                ),
 
             TernaryFilter::make('password_change_required')
                 ->label(__('users::resources.user.filters.password_change_required'))

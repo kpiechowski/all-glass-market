@@ -13,7 +13,7 @@ use App\Modules\Users\UserInterface\Filament\Resources\Users\Support\RoleDisplay
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
-/** WF-05: deactivation asks for confirmation; the handler enforces RULE-08 again. */
+/** Template E, dangerous confirmation. WF-05: lives in the page's "⋮"; the handler enforces RULE-08 again. */
 final class DeactivateUserAction
 {
     public static function make(): Action
@@ -24,6 +24,7 @@ final class DeactivateUserAction
             ->requiresConfirmation()
             ->modalHeading(__('users::resources.user.actions.deactivate.heading'))
             ->modalDescription(__('users::resources.user.actions.deactivate.description'))
+            ->modalSubmitActionLabel(__('users::resources.user.actions.deactivate.label'))
             ->visible(fn (UserModel $record): bool => $record->isActive()
                 && CurrentActor::can(UsersPermission::ManageUsers)
                 && RoleDisplay::canDeactivate($record))

@@ -1,0 +1,17 @@
+/* Base text: 14 px in the one panel family (tokens/typography.css). */
+.fi-body {
+    font-family: var(--ag-font);
+    font-size: var(--ag-text-base);
+    line-height: var(--ag-leading-base);
+    text-rendering: optimizeLegibility;
+}
+
+/* Tabular figures wherever numbers line up: table cells, infolist values, stats, badges. */
+.fi-ta-cell,
+.fi-ta-text-item,
+.fi-in-text-item,
+.fi-wi-stats-overview-stat-value,
+.fi-badge,
+.fi-pagination {
+    font-variant-numeric: tabular-nums;
+}

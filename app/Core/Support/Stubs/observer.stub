@@ -4,19 +4,40 @@ declare(strict_types=1);
 
 namespace {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence\Observers;
 
-use App\Core\Domain\Events\RecordChanged;
+use App\Core\Domain\Events\ChangeKind;
+use App\Core\Infrastructure\Persistence\ChangeRecorder;
 use {{RootNamespace}}\{{ModuleName}}\Infrastructure\Persistence\Models\{{SingularName}}Model;
 
+/**
+ * Thin: hands each change to ChangeRecorder and nothing else. The recorder
+ * buffers per command and emits one RecordChanged per record when the command
+ * finishes (kind, field changes, relation changes, Actor).
+ * Relation changes are not seen here; the repository adapter reports them
+ * through EloquentRepository::syncRelation().
+ * Emission is synchronous, before the command's transaction commits.
+ */
 final class {{SingularName}}Observer
 {
-    public function saved({{SingularName}}Model $model): void
+    public function __construct(private readonly ChangeRecorder $recorder) {}
+
+    public function created({{SingularName}}Model $model): void
     {
-        $changes = [];
+        $this->recorder->record($model, ChangeKind::Created);
+    }
 
-        foreach ($model->getDirty() as $field => $new) {
-            $changes[$field] = ['old' => $model->getOriginal($field), 'new' => $new];
-        }
+    public function updated({{SingularName}}Model $model): void
+    {
+        $this->recorder->record($model, ChangeKind::Changed);
+    }
 
-        event(new RecordChanged($model::class, $model->id, $changes));
+    public function deleted({{SingularName}}Model $model): void
+    {
+        $this->recorder->record($model, ChangeKind::Deleted);
+    }
+
+    /** Only for models that use SoftDeletes. */
+    public function restored({{SingularName}}Model $model): void
+    {
+        $this->recorder->record($model, ChangeKind::Restored);
     }
 }

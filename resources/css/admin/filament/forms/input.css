@@ -1,0 +1,119 @@
+/*
+ * Input frame (`.fi-input-wrp`) and text input (`input.fi-input`). The frame is shared by text,
+ * select, date, textarea, rich editor and the file-upload editor, so every field gets:
+ *
+ *   state      edge                                  fill
+ *   rest       1 px #c2c6cd + hairline shadow        white
+ *   hover      1 px gray-400                         white
+ *   focus      1 px royal + 4 px royal halo (16 %)   white
+ *   invalid    1 px danger-500 (halo on focus)       white
+ *   readonly   rest edge                             gray-50
+ *   disabled   1 px gray-200, no shadow              gray-100, text gray-600
+ *
+ * The edge is a shadow, so the field is exactly 36 px tall, like the md button.
+ * Prefix and suffix: a text affix ("zł", "https://") is a gray-50 add-on cell behind a divider;
+ * an inline affix or an icon sits in the field with no cell.
+ */
+.fi-input-wrp {
+    background-color: var(--ag-field-bg);
+    border-radius: var(--ag-radius-control);
+    box-shadow: var(--ag-field-ring);
+    transition: var(--ag-field-transition);
+
+    &:not(.fi-disabled):not(.fi-invalid):hover {
+        box-shadow: var(--ag-field-ring-hover);
+    }
+
+    &:not(.fi-disabled):not(:has(.fi-ac-action:focus)):focus-within {
+        box-shadow: var(--ag-field-ring-focus);
+
+        &.fi-invalid {
+            box-shadow: var(--ag-field-ring-invalid-focus);
+        }
+    }
+
+    &.fi-invalid {
+        box-shadow: var(--ag-field-ring-invalid);
+    }
+
+    &:not(.fi-disabled):has(input[readonly], textarea[readonly]) {
+        background-color: var(--ag-field-readonly-bg);
+    }
+
+    &.fi-disabled {
+        background-color: var(--ag-field-disabled-bg);
+
+        &:not(.fi-invalid) {
+            box-shadow: var(--ag-field-ring-disabled);
+        }
+    }
+
+    /* Affixes. */
+    & .fi-input-wrp-prefix:not(.fi-inline),
+    & .fi-input-wrp-suffix:not(.fi-inline) {
+        background-color: var(--ag-field-affix-bg);
+        border-color: var(--ag-field-border);
+    }
+
+    & .fi-input-wrp-prefix:not(.fi-inline) {
+        border-start-start-radius: inherit;
+        border-end-start-radius: inherit;
+    }
+
+    & .fi-input-wrp-suffix:not(.fi-inline) {
+        border-start-end-radius: inherit;
+        border-end-end-radius: inherit;
+    }
+
+    &.fi-disabled .fi-input-wrp-prefix:not(.fi-inline),
+    &.fi-disabled .fi-input-wrp-suffix:not(.fi-inline) {
+        background-color: transparent;
+        border-color: var(--ag-field-disabled-border);
+    }
+
+    & .fi-input-wrp-label {
+        font-size: var(--ag-text-base);
+        color: var(--ag-field-affix-text);
+    }
+
+    & .fi-input-wrp-prefix,
+    & .fi-input-wrp-suffix {
+        & > .fi-icon:not(.fi-color) {
+            color: var(--ag-field-icon);
+        }
+    }
+
+    /* The icon brightens with the field on focus. */
+    &:not(.fi-disabled):focus-within .fi-input-wrp-prefix > .fi-icon:not(.fi-color) {
+        color: var(--ag-text-muted);
+    }
+}
+
+input.fi-input {
+    min-height: var(--ag-field-height);
+    padding-inline: var(--ag-field-padding-x);
+    font-size: var(--ag-text-base);
+    color: var(--ag-field-text);
+
+    &::placeholder {
+        color: var(--ag-field-placeholder);
+    }
+
+    &.fi-input-has-inline-prefix {
+        padding-inline-start: 0;
+    }
+
+    &.fi-input-has-inline-suffix {
+        padding-inline-end: 0;
+    }
+
+    &:disabled {
+        color: var(--ag-field-disabled-text);
+        -webkit-text-fill-color: var(--ag-field-disabled-text);
+    }
+
+    /* https://defensivecss.dev/tip/input-zoom-safari: iOS keeps its 16 px. */
+    @supports (-webkit-touch-callout: none) {
+        font-size: var(--ag-text-md);
+    }
+}

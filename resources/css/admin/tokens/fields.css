@@ -1,0 +1,63 @@
+/*
+ * Form fields (issue 06). One frame for every field: text, select, date, textarea, rich editor,
+ * file upload. The frame is a 1 px ring drawn as a shadow, so it adds no size and the field
+ * stays exactly as tall as the md button (36 px).
+ *
+ * The border sits between gray-300 and gray-400: clearly a field on a white section, still calm.
+ * Focus is the royal edge plus a soft royal halo; errors swap both for danger.
+ */
+:root {
+    --ag-field-height: 2.25rem;              /* 36 px, the md button */
+    --ag-field-padding-x: var(--ag-space-3); /* 12 px */
+    --ag-field-gap: var(--ag-space-1-5);     /* label, field, helper and error stack 6 px apart */
+
+    --ag-field-bg: var(--ag-surface);
+    --ag-field-text: var(--ag-text);
+    --ag-field-placeholder: var(--gray-400);
+    --ag-field-icon: var(--gray-400);
+    --ag-field-label: var(--gray-800);
+    --ag-field-required-mark: var(--ag-text-muted);
+    --ag-field-helper: var(--ag-text-muted);
+
+    --ag-field-border: #c2c6cd;
+    --ag-field-border-hover: var(--gray-400);
+    --ag-field-border-focus: var(--brand-royal);
+    --ag-field-focus-halo: color-mix(in srgb, var(--brand-royal) 16%, transparent);
+
+    --ag-field-border-invalid: var(--danger-500);
+    --ag-field-invalid-halo: color-mix(in srgb, var(--danger-500) 14%, transparent);
+    --ag-field-error-text: var(--danger-700);
+
+    --ag-field-disabled-bg: var(--gray-100);
+    --ag-field-disabled-border: var(--gray-200);
+    --ag-field-disabled-text: var(--gray-600);
+    --ag-field-readonly-bg: var(--gray-50);
+    --ag-field-affix-bg: var(--gray-50);
+    --ag-field-affix-text: var(--gray-600);
+
+    /* Composite edges. */
+    --ag-field-ring: 0 0 0 var(--ag-border-width) var(--ag-field-border), var(--shadow-xs);
+    --ag-field-ring-hover: 0 0 0 var(--ag-border-width) var(--ag-field-border-hover), var(--shadow-xs);
+    --ag-field-ring-focus: 0 0 0 var(--ag-border-width) var(--ag-field-border-focus), 0 0 0 4px var(--ag-field-focus-halo);
+    --ag-field-ring-invalid: 0 0 0 var(--ag-border-width) var(--ag-field-border-invalid);
+    --ag-field-ring-invalid-focus: 0 0 0 var(--ag-border-width) var(--ag-field-border-invalid), 0 0 0 4px var(--ag-field-invalid-halo);
+    --ag-field-ring-disabled: 0 0 0 var(--ag-border-width) var(--ag-field-disabled-border);
+
+    /* Small controls: checkbox, radio, toggle. They need a darker edge to read at 16 px. */
+    --ag-control-size: 1rem;
+    --ag-control-radius: 0.25rem;
+    --ag-control-border: var(--gray-400);
+    --ag-control-border-hover: var(--gray-500);
+    --ag-control-checked: var(--brand-royal);
+    --ag-control-checked-hover: var(--brand-navy);
+    --ag-control-off: var(--gray-300);
+    --ag-control-off-hover: var(--gray-400);
+    --ag-control-mark: #fff;
+
+    /* Every field animates the same three properties on the motion tokens (D-42). */
+    --ag-field-transition:
+        box-shadow var(--ag-duration-fast) var(--ag-ease-out),
+        background-color var(--ag-duration-fast) var(--ag-ease-out),
+        border-color var(--ag-duration-fast) var(--ag-ease-out),
+        color var(--ag-duration-fast) var(--ag-ease-out);
+}

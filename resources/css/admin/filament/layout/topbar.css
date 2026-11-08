@@ -1,0 +1,35 @@
+/* Topbar: a white strip with a hairline under it, no shadow. */
+.fi-body {
+    --topbar-height: var(--ag-topbar-height);
+}
+
+.fi-topbar {
+    background-color: var(--ag-surface);
+    border-bottom: var(--ag-border-width) solid var(--ag-border);
+    box-shadow: none;
+    padding-inline: var(--ag-space-4);
+}
+
+/* On desktop the brand sits in a column as wide as the sidebar below it. */
+.fi-topbar-start {
+    @media (min-width: 64rem) {
+        width: calc(var(--sidebar-width) - var(--ag-space-4));
+        margin-inline-end: 0;
+    }
+
+    & .fi-logo {
+        margin-inline-start: var(--ag-space-2);
+    }
+}
+
+.fi-logo {
+    font-size: var(--ag-text-md);
+    line-height: var(--ag-leading-md);
+    font-weight: var(--ag-weight-semibold);
+    letter-spacing: var(--ag-tracking-tight);
+    color: var(--ag-text);
+}
+
+.fi-topbar-end {
+    column-gap: var(--ag-space-3);
+}

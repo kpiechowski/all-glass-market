@@ -1,0 +1,20 @@
+/* Links (`->link()` actions): medium weight, royal for primary, navy on hover. */
+.fi-link {
+    font-weight: var(--ag-weight-semibold);
+
+    &.fi-color-primary {
+        color: var(--brand-royal);
+
+        & > .fi-icon {
+            color: var(--brand-royal);
+        }
+
+        &:not(.fi-disabled):not([disabled]):hover {
+            color: var(--brand-navy);
+        }
+    }
+
+    &:focus-visible {
+        outline-color: var(--ag-focus-ring);
+    }
+}

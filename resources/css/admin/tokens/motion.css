@@ -1,0 +1,18 @@
+/*
+ * Motion (D-42): short, ease-out, never bouncy. Every hover and active transition uses these, so
+ * `prefers-reduced-motion` turns all of them off in one place.
+ */
+:root {
+    --ag-duration-fast: 150ms;   /* colour and background changes */
+    --ag-duration-base: 200ms;   /* small movements: a label sliding, a chevron turning */
+    --ag-duration-slow: 260ms;   /* surfaces that travel: slide-over, notification toast */
+    --ag-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --ag-duration-fast: 0ms;
+        --ag-duration-base: 0ms;
+        --ag-duration-slow: 0ms;
+    }
+}

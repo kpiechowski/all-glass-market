@@ -8,7 +8,11 @@ use App\Core\Console\CreateDevUserCommand;
 use App\Core\Console\DeleteModuleCommand;
 use App\Core\Console\MakeIntegrationCommand;
 use App\Core\Console\MakeModuleCommand;
+use App\Core\Contracts\CommandContext;
 use App\Core\Contracts\PanelNotifier;
+use App\Core\Domain\Preferences\PreferenceDefinitions;
+use App\Core\Domain\QuickAccess\QuickAccessItems;
+use App\Core\Infrastructure\Bus\ActorStack;
 use App\Core\UserInterface\FilamentPanelNotifier;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
@@ -17,7 +21,11 @@ class CoreServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->singleton(ActorStack::class);
+        $this->app->bind(CommandContext::class, ActorStack::class);
         $this->app->bind(PanelNotifier::class, FilamentPanelNotifier::class);
+        $this->app->singleton(PreferenceDefinitions::class);
+        $this->app->singleton(QuickAccessItems::class);
 
         $this->discoverModuleProviders();
     }
@@ -26,6 +34,7 @@ class CoreServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__.'/Infrastructure/migrations');
         $this->loadTranslationsFrom(__DIR__.'/UserInterface/resources/lang', 'core');
+        $this->loadViewsFrom(__DIR__.'/UserInterface/resources/views', 'core');
 
         if ($this->app->runningInConsole()) {
             $this->commands([

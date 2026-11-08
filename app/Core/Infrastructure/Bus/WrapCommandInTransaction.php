@@ -15,7 +15,10 @@ use Illuminate\Support\Facades\DB;
  */
 final class WrapCommandInTransaction
 {
-    #[Around(pointcut: CommandBus::class)]
+    /** Outermost command interceptor: a lower precedence runs first. */
+    public const PRECEDENCE = 10;
+
+    #[Around(precedence: self::PRECEDENCE, pointcut: CommandBus::class)]
     public function transactional(MethodInvocation $invocation): mixed
     {
         return DB::transaction(fn () => $invocation->proceed());

@@ -1,0 +1,185 @@
+/*
+ * Table surface, head, rows and cells (`.fi-ta-ctn`, `.fi-ta-table`). Values: tokens/tables.css.
+ *
+ * - One white surface with the section edge; no extra ring or shadow inside it.
+ * - Head: white, 13 px medium gray-600 labels (the entry label of issue 07), one gray-200
+ *   hairline below. Sortable labels carry a faint chevron, gray-500 on hover, royal when sorted.
+ * - Rows: 50 px for one line, 60 px for a name with an e-mail; gray-100 hairlines between them.
+ *   A clickable row (`recordUrl`) tints on hover and its title cell turns royal, both on the
+ *   fast motion token. A selected row is primary-50 with Filament's 2 px royal bar.
+ * - Cells: 14 px medium near-black; descriptions 13 px muted, 2 px below.
+ * - Row actions: every icon button 32 px, muted grey, royal on a primary-50 square on hover,
+ *   so a lone action and the "⋮" trigger are the same size.
+ */
+.fi-ta-ctn {
+    border-radius: var(--ag-radius-container);
+    background-color: var(--ag-surface);
+    box-shadow: var(--ag-surface-edge);
+}
+
+.fi-ta-ctn-with-header .fi-ta-content-ctn {
+    border-top: var(--ag-border-width) solid var(--ag-table-zone-rule);
+}
+
+/* Head. */
+.fi-ta-table > thead {
+    border-color: var(--ag-table-zone-rule);
+
+    & > tr {
+        background-color: var(--ag-table-head-bg);
+    }
+}
+
+.fi-ta-header-cell {
+    padding-block: var(--ag-table-head-padding-y);
+    font-size: var(--ag-table-head-size);
+    line-height: var(--ag-leading-sm);
+    font-weight: var(--ag-table-head-weight);
+    color: var(--ag-table-head-text);
+
+    & .fi-ta-header-cell-sort-btn {
+        gap: var(--ag-space-1);
+        border-radius: var(--ag-space-1);
+        transition: color var(--ag-duration-fast) var(--ag-ease-out);
+
+        &:hover {
+            color: var(--ag-table-head-sorted);
+        }
+
+        &:focus-visible {
+            box-shadow: none;
+            outline: var(--ag-focus-ring-width) solid var(--ag-focus-ring);
+            outline-offset: var(--ag-focus-ring-offset);
+        }
+    }
+
+    & .fi-icon {
+        width: 0.875rem;
+        height: 0.875rem;
+        transition: color var(--ag-duration-fast) var(--ag-ease-out);
+    }
+
+    &:not(.fi-ta-header-cell-sorted) .fi-icon {
+        color: var(--ag-table-sort-icon);
+    }
+
+    &:not(.fi-ta-header-cell-sorted) .fi-ta-header-cell-sort-btn:is(:hover, :focus-visible) .fi-icon {
+        color: var(--ag-table-sort-icon-hover);
+    }
+
+    &.fi-ta-header-cell-sorted {
+        color: var(--ag-table-head-sorted);
+
+        & .fi-icon {
+            color: var(--ag-table-sort-icon-active);
+        }
+    }
+}
+
+/* The select-all checkbox cell in the head lines up with the head labels. */
+.fi-ta-table > thead .fi-ta-selection-cell {
+    padding-block: var(--ag-table-head-padding-y);
+}
+
+/* Rows. */
+.fi-ta-table > tbody > tr {
+    border-color: var(--ag-table-row-rule);
+}
+
+.fi-ta-row {
+    transition: var(--ag-table-row-transition);
+
+    &.fi-clickable:hover {
+        background-color: var(--ag-table-row-hover);
+    }
+
+    &.fi-clickable:hover :is(.person-cell__name, .fi-ta-text-has-descriptions > .fi-ta-text-item) {
+        color: var(--ag-accent);
+    }
+
+    &.fi-selected:not(.fi-striped) {
+        background-color: var(--ag-table-row-selected);
+    }
+
+    /* The whole row is a set of links: a keyboard focus ring inside the focused cell. */
+    & .fi-ta-col:focus-visible {
+        outline: var(--ag-focus-ring-width) solid var(--ag-focus-ring);
+        outline-offset: calc(-1 * var(--ag-focus-ring-width));
+        border-radius: var(--ag-space-1);
+    }
+}
+
+/* Cells. */
+.fi-ta-text:not(.fi-inline) {
+    padding-block: var(--ag-table-cell-padding-y);
+}
+
+.fi-ta-text.fi-ta-text-has-descriptions:not(.fi-inline) {
+    padding-block: var(--ag-table-cell-padding-y-stacked);
+    row-gap: var(--ag-space-0-5);
+}
+
+.fi-ta-text-item {
+    color: var(--ag-table-cell-text);
+    transition: color var(--ag-duration-fast) var(--ag-ease-out);
+
+    &.fi-size-sm {
+        font-size: var(--ag-table-cell-size);
+        line-height: var(--ag-table-cell-leading);
+    }
+
+    &:not(.fi-font-thin, .fi-font-extralight, .fi-font-light, .fi-font-normal, .fi-font-semibold, .fi-font-bold, .fi-font-extrabold, .fi-font-black) {
+        font-weight: var(--ag-table-cell-weight);
+    }
+
+    &.fi-color-gray {
+        color: var(--ag-text-muted);
+    }
+
+    /* An indicator icon after the text (`->icon()->iconPosition(After)`) sits on the text line. */
+    & > .fi-icon {
+        width: 1rem;
+        height: 1rem;
+        vertical-align: -0.1875rem;
+    }
+}
+
+.fi-ta-text > .fi-ta-text-description {
+    font-size: var(--ag-table-description-size);
+    line-height: var(--ag-table-description-leading);
+    color: var(--ag-table-description);
+}
+
+.fi-ta-cell .fi-ta-placeholder {
+    color: var(--ag-entry-placeholder);
+}
+
+/* Selection checkbox cells: the 06 checkbox, centred on the row. */
+.fi-ta-table > tbody .fi-ta-selection-cell {
+    padding-block: 0;
+    vertical-align: middle;
+}
+
+/* Row actions. */
+.fi-ta-row > .fi-ta-cell:has(> .fi-ta-actions) {
+    padding-block: calc((var(--ag-table-cell-leading) + 2 * var(--ag-table-cell-padding-y) - var(--ag-table-action-size)) / 2);
+}
+
+.fi-ta-row .fi-ta-actions {
+    gap: var(--ag-space-1);
+
+    & .fi-icon-btn {
+        width: var(--ag-table-action-size);
+        height: var(--ag-table-action-size);
+        margin: 0;
+    }
+
+    & .fi-icon-btn:is(.fi-color-primary, :not(.fi-color)) {
+        color: var(--ag-table-action-icon);
+
+        &:not(.fi-disabled):not([disabled]):hover {
+            background-color: var(--ag-accent-soft);
+            color: var(--ag-table-action-icon-hover);
+        }
+    }
+}

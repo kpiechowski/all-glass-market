@@ -1,12 +1,77 @@
 @import "../../../vendor/filament/filament/resources/css/theme.css";
 
-@source '../../../app/Filament/**/*';
-@source '../../../resources/views/filament/**/*';
+@source '../../../app/Core/UserInterface/resources/views/**/*';
+@source '../../../app/Filament/resources/views/**/*';
 @source '../../../app/Modules/*/UserInterface/resources/views/**/*';
 
-@import "./_config.css";
-@import "./globals.css";
+/* Tokens: our variables and the Filament / Tailwind variables they override. */
+@import "./tokens/colors.css";
+@import "./tokens/typography.css";
+@import "./tokens/spacing.css";
+@import "./tokens/radii.css";
+@import "./tokens/borders.css";
+@import "./tokens/shadows.css";
+@import "./tokens/motion.css";
+@import "./tokens/fields.css";
+@import "./tokens/entries.css";
+@import "./tokens/tables.css";
+@import "./tokens/sidebar.css";
 
-@import "./layout/index.css";
-@import "./components/index.css";
+/* Base: page canvas and text defaults. */
+@import "./base/globals.css";
+@import "./base/typography.css";
+
+/* Overrides of native fi-* components, one file per component. */
+@import "./filament/layout/page.css";
+@import "./filament/layout/topbar.css";
+@import "./filament/layout/sidebar.css";
+@import "./filament/layout/page-header.css";
+@import "./filament/layout/breadcrumbs.css";
+/* D-41 trial: navy sidebar. Delete this one line to revert (see the file header). */
+@import "./filament/layout/sidebar-navy.css";
+@import "./filament/schema/section.css";
+@import "./filament/schema/tabs.css";
+@import "./filament/schema/fieldset.css";
+@import "./filament/schema/grid.css";
+@import "./filament/forms/field-wrapper.css";
+@import "./filament/forms/input.css";
+@import "./filament/forms/select.css";
+@import "./filament/forms/textarea.css";
+@import "./filament/forms/date-time-picker.css";
+@import "./filament/forms/checkbox.css";
+@import "./filament/forms/radio.css";
+@import "./filament/forms/toggle.css";
+@import "./filament/forms/rich-editor.css";
+@import "./filament/forms/file-upload.css";
+@import "./filament/infolists/entry.css";
+@import "./filament/infolists/text-entry.css";
+@import "./filament/infolists/icon-entry.css";
+@import "./filament/infolists/image-entry.css";
+@import "./filament/infolists/key-value-entry.css";
+@import "./filament/infolists/repeatable-entry.css";
+@import "./filament/tables/table.css";
+@import "./filament/tables/toolbar.css";
+@import "./filament/tables/filters.css";
+@import "./filament/tables/pagination.css";
+@import "./filament/tables/empty-state.css";
+@import "./filament/tables/mobile.css";
+@import "./filament/actions/button.css";
+@import "./filament/actions/icon-button.css";
+@import "./filament/actions/link.css";
+@import "./filament/actions/dropdown.css";
+@import "./filament/actions/modal.css";
+@import "./filament/actions/form-actions.css";
+@import "./filament/misc/badge.css";
+@import "./filament/misc/notification.css";
+@import "./filament/misc/widget.css";
+
+/* Our own Blade components. */
+@import "./components/brand-logo.css";
+@import "./components/list-card.css";
+@import "./components/person-cell.css";
+@import "./components/record-flag.css";
+@import "./components/quick-access.css";
+
+/* Page-specific CSS. */
 @import "./pages/login.css";
+@import "./pages/styleguide.css";

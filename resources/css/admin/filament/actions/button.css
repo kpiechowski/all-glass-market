@@ -1,0 +1,148 @@
+/*
+ * Buttons (pulled forward from issue 09, D-38). Heights match the 36 px input at md.
+ *
+ *   size  height  padding-x  gap
+ *   xs    28 px   8 px       4 px
+ *   sm    32 px   10 px      6 px
+ *   md    36 px   14 px      6 px
+ *   lg    40 px   16 px      8 px
+ *   xl    44 px   18 px      8 px
+ *
+ * One 1 px border on every button (transparent on filled ones) keeps outlined and filled
+ * buttons the same height. Vendor rings are replaced by that border and a navy focus outline.
+ * Filament gives `color('gray')` buttons no `fi-color` class, so `:not(.fi-color)` is the grey one.
+ */
+.fi-btn {
+    --btn-height: 2.25rem;
+    --btn-padding-x: 0.875rem;
+    --btn-gap: var(--ag-space-1-5);
+
+    min-height: var(--btn-height);
+    padding-block: 0;
+    padding-inline: var(--btn-padding-x);
+    column-gap: var(--btn-gap);
+    border: var(--ag-border-width) solid transparent;
+    border-radius: var(--ag-radius-control);
+    box-shadow: none;
+    font-size: var(--ag-text-base);
+    line-height: var(--ag-leading-base);
+    font-weight: var(--ag-weight-semibold);
+    transition:
+        background-color 120ms ease,
+        border-color 120ms ease,
+        color 120ms ease;
+
+    &.fi-size-xs {
+        --btn-height: 1.75rem;
+        --btn-padding-x: 0.5rem;
+        --btn-gap: var(--ag-space-1);
+        font-size: var(--ag-text-xs);
+        line-height: var(--ag-leading-xs);
+    }
+
+    &.fi-size-sm {
+        --btn-height: 2rem;
+        --btn-padding-x: 0.625rem;
+        font-size: var(--ag-text-sm);
+        line-height: var(--ag-leading-sm);
+    }
+
+    &.fi-size-lg {
+        --btn-height: 2.5rem;
+        --btn-padding-x: 1rem;
+        --btn-gap: var(--ag-space-2);
+    }
+
+    &.fi-size-xl {
+        --btn-height: 2.75rem;
+        --btn-padding-x: 1.125rem;
+        --btn-gap: var(--ag-space-2);
+    }
+
+    &:focus-visible {
+        outline: var(--ag-focus-ring-width) solid var(--ag-focus-ring);
+        outline-offset: var(--ag-focus-ring-offset);
+        box-shadow: none;
+    }
+
+    &.fi-disabled:not(.fi-force-enabled),
+    &[disabled]:not(.fi-force-enabled) {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+/* Grey / secondary: white, hairline border, dark text, faint grey hover. */
+.fi-btn:not(.fi-color):not(.fi-outlined):not(label):not([aria-pressed]) {
+    background-color: var(--ag-surface);
+    border-color: var(--ag-border-strong);
+    color: var(--ag-text);
+
+    & > .fi-icon {
+        color: var(--ag-text-muted);
+    }
+
+    &:not(.fi-disabled):not([disabled]):hover {
+        background-color: var(--gray-50);
+        border-color: var(--gray-400);
+    }
+
+    &:not(.fi-disabled):not([disabled]):active {
+        background-color: var(--gray-100);
+    }
+}
+
+/* Primary: filled royal, white text, navy on hover and press. */
+.fi-btn.fi-color-primary:not(.fi-outlined):not(label):not([aria-pressed]) {
+    background-color: var(--brand-royal);
+    color: #fff;
+
+    & > .fi-icon {
+        color: #fff;
+    }
+
+    &:not(.fi-disabled):not([disabled]):hover,
+    &:not(.fi-disabled):not([disabled]):active {
+        background-color: var(--brand-navy);
+        color: #fff;
+    }
+}
+
+/* Danger appears filled only as a confirmation button (admin-ui-design, action hierarchy). */
+.fi-btn.fi-color-danger:not(.fi-outlined):not(label):not([aria-pressed]) {
+    background-color: var(--danger-600);
+    color: #fff;
+
+    & > .fi-icon {
+        color: #fff;
+    }
+
+    &:not(.fi-disabled):not([disabled]):hover,
+    &:not(.fi-disabled):not([disabled]):active {
+        background-color: var(--danger-700);
+        color: #fff;
+    }
+}
+
+/* Toggle buttons (form field, issue 06) keep Filament's checked fill; the border replaces their ring. */
+.fi-btn:is(label, [aria-pressed]) {
+    border-color: var(--ag-border-strong);
+}
+
+/* Outlined buttons: the same border instead of a ring. */
+.fi-btn.fi-outlined {
+    border-color: var(--ag-border-strong);
+
+    &.fi-color {
+        border-color: var(--color-600);
+    }
+}
+
+/* Button groups draw one shared frame; the buttons inside keep only the dividers. */
+.fi-btn-group {
+    border-radius: var(--ag-radius-control);
+
+    & > .fi-btn {
+        border-color: transparent;
+    }
+}

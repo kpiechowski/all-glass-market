@@ -1,0 +1,1 @@
+{{ $value?->text }}@if ($value?->removed) <span class="text-gray-500">({{ __('audit::presentation.removed') }})</span>@endif

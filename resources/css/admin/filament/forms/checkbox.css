@@ -1,0 +1,130 @@
+/*
+ * Checkbox (`input[type=checkbox].fi-checkbox-input`): single Checkbox, CheckboxList, and the
+ * table's row and bulk selection.
+ *
+ *   state              box                         mark
+ *   unchecked          white, 1 px gray-400 edge   -
+ *   hover              1 px gray-500 edge          -
+ *   checked            royal fill, no edge         white tick
+ *   checked hover      navy fill                   white tick
+ *   indeterminate      royal fill                  white bar
+ *   focus (keyboard)   + 1 px royal + 4 px halo, the same focus as the input frame
+ *   invalid            1 px danger-500 edge; checked fills danger-600
+ *   disabled           gray-100 fill, gray-200 edge; checked fills gray-400 with a white mark
+ *
+ * Why the tick was lost: the vendor box draws its edge and focus with Tailwind ring utilities
+ * and its tick as a `background-image` on `:checked`, all inside `@layer components`. Any
+ * unlayered theme rule wins over a layered one whatever its specificity, so one theme rule
+ * that sets the `background` shorthand on the box (as the first theme's surface rules did)
+ * resets `background-image` and the white tick disappears into the blue fill. The vendor tick
+ * is not derived from `currentColor` (it is a white SVG), so the colour is not the cause.
+ *
+ * The fix: this file owns the whole box, unlayered. It sets the fill with `background-color`
+ * only, and restates the tick and the bar together with their size, position and repeat, so
+ * no later shorthand on the fill can remove them silently.
+ */
+input[type='checkbox'].fi-checkbox-input {
+    --checkbox-tick: url("data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 16 16' fill='%23fff' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.207 4.793a1 1 0 0 1 0 1.414l-5 5a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L6.5 9.086l4.293-4.293a1 1 0 0 1 1.414 0z'/%3E%3C/svg%3E");
+    --checkbox-bar: url("data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 16 16' fill='%23fff' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.5 6.75a1.25 1.25 0 0 0 0 2.5h7a1.25 1.25 0 0 0 0-2.5h-7z'/%3E%3C/svg%3E");
+    --checkbox-edge: var(--ag-control-border);
+    --checkbox-fill: var(--ag-field-bg);
+
+    width: var(--ag-control-size);
+    height: var(--ag-control-size);
+    border: 0;
+    border-radius: var(--ag-control-radius);
+    background-color: var(--checkbox-fill);
+    background-image: none;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    box-shadow: 0 0 0 var(--ag-border-width) var(--checkbox-edge);
+    outline: none;
+    cursor: pointer;
+    transition: var(--ag-field-transition);
+
+    &:hover {
+        --checkbox-edge: var(--ag-control-border-hover);
+    }
+
+    &:checked,
+    &:indeterminate {
+        --checkbox-fill: var(--ag-control-checked);
+        --checkbox-edge: var(--ag-control-checked);
+
+        &:hover {
+            --checkbox-fill: var(--ag-control-checked-hover);
+            --checkbox-edge: var(--ag-control-checked-hover);
+        }
+    }
+
+    &:checked {
+        background-image: var(--checkbox-tick);
+    }
+
+    &:indeterminate {
+        background-image: var(--checkbox-bar);
+    }
+
+    &.fi-invalid {
+        --checkbox-edge: var(--ag-field-border-invalid);
+
+        &:checked,
+        &:indeterminate {
+            --checkbox-fill: var(--danger-600);
+            --checkbox-edge: var(--danger-600);
+        }
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 var(--ag-border-width) var(--checkbox-edge);
+    }
+
+    &:focus-visible {
+        box-shadow: 0 0 0 var(--ag-border-width) var(--ag-field-border-focus), 0 0 0 4px var(--ag-field-focus-halo);
+
+        &.fi-invalid {
+            box-shadow: 0 0 0 var(--ag-border-width) var(--ag-field-border-invalid), 0 0 0 4px var(--ag-field-invalid-halo);
+        }
+    }
+
+    &:disabled {
+        --checkbox-fill: var(--ag-field-disabled-bg);
+        --checkbox-edge: var(--ag-field-disabled-border);
+        cursor: not-allowed;
+
+        &:checked,
+        &:indeterminate {
+            --checkbox-fill: var(--gray-400);
+            --checkbox-edge: var(--gray-400);
+        }
+    }
+}
+
+/* Single checkbox and checkbox list: option labels are values, so regular weight. */
+.fi-fo-checkbox-list .fi-fo-checkbox-list-option {
+    & .fi-fo-checkbox-list-option-text {
+        font-size: var(--ag-text-base);
+    }
+
+    & .fi-fo-checkbox-list-option-label {
+        font-weight: var(--ag-weight-regular);
+        color: var(--ag-field-text);
+    }
+
+    & .fi-fo-checkbox-list-option-description {
+        font-size: var(--ag-text-sm);
+        line-height: var(--ag-leading-sm);
+        color: var(--ag-field-helper);
+    }
+
+    &:has(.fi-checkbox-input:disabled) {
+        & .fi-fo-checkbox-list-option-label {
+            color: var(--ag-field-disabled-text);
+        }
+
+        & .fi-fo-checkbox-list-option-description {
+            color: var(--ag-text-muted);
+        }
+    }
+}

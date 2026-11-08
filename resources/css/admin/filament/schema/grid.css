@@ -1,0 +1,17 @@
+/*
+ * Grid gaps: the gap between schema components equals the section padding around them, so a
+ * section's fields sit on one rhythm with its edges and stacked sections sit that far apart.
+ *
+ *   ≥ md   24 px (section padding 24 px)
+ *   < md   16 px (section padding 16 px)
+ *
+ * `.fi-sc-has-gap` is every schema with a gap (form, infolist, section content, grid);
+ * dense schemas (`->dense()`) keep Filament's 12 px.
+ */
+.fi-sc.fi-sc-has-gap:not(.fi-sc-dense) {
+    gap: var(--ag-space-6);
+
+    @media (max-width: 47.999rem) {
+        gap: var(--ag-space-4);
+    }
+}

@@ -40,6 +40,7 @@ class ModuleBoundaryScannerTest extends TestCase
             'use App\Modules\Users\Domain\Contracts\Loggable;',
             'use App\Modules\Users\Domain\Enums\RoleEnum;',
             'use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;',
+            'use App\Modules\Audit\UserInterface\Filament\RelationManagers\RecordHistoryRelationManager;',
         ]));
 
         $this->assertSame([], $this->violations());

@@ -1,0 +1,530 @@
+/*
+ * "Szybki dostęp" (issue 13). Markup: preferences::widgets.quick-access (QuickAccessWidget).
+ * The widget is a native section; this file lays out the tile grid and the palette inside it.
+ *
+ *   grid       container query on the section body: 2 columns, 3 from 26 rem, 4 from 38 rem,
+ *              5 from 50 rem (so 10 tiles fill two rows on a desktop), 12 px gaps
+ *   tile       white, 1 px gray-200 edge, container radius, 16/12 px padding, min 6.5 rem tall;
+ *              icon 20 px royal in a 40 px primary-50 circle, label 13 px medium near-black,
+ *              centred, two lines at most
+ *   hover      edge primary-200, background primary-50, circle primary-100 (fast token)
+ *   editing    tiles wiggle: ±0.6° on a 0.3 s alternate loop, five phases (5n) and three
+ *              durations (0.28 / 0.30 / 0.32 s, 3n) by position, so no two neighbours move together;
+ *              the tile under the pointer, with focus inside, chosen or dragged stands still;
+ *              a 24 px grey remove button top right, red on hover; the ghost fades to 40 %.
+ *              Reduced motion: no wiggle, a steady dashed primary-300 edge instead
+ *   enter      a new tile scales up from 92 % and fades in (slow token); a removed tile shrinks
+ *              and fades out (fast token) while the request runs
+ *   palette    "Dostępne": a canvas-tinted tray (container radius, 16 px padding) under the
+ *              grid, unfolding on entry (grid rows 0fr → 1fr + fade, slow token). Groups sit in
+ *              columns of at least 17 rem, stacking on a phone. Group header: 16 px royal icon,
+ *              13 px semibold label, a small gray count pill. Mini tile: white, 1 px edge,
+ *              control radius, 8/10 px padding, 28 px primary-50 icon circle, 13 px medium label,
+ *              a 16 px primary-100 "+" disc in the top-right corner; hover edge primary-300,
+ *              disc royal with white "+". At the limit the groups fade to 45 % and a soft
+ *              warning line says why; nothing left is one muted line
+ *   empty      D-15 look, as the empty table: 48 px primary-50 circle, 16 px semibold heading,
+ *              one muted sentence, the primary "Dodaj" 20 px below
+ */
+.quick-access {
+    container-type: inline-size;
+}
+
+.quick-access__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--ag-space-3);
+}
+
+@container (min-width: 26rem) {
+    .quick-access__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@container (min-width: 38rem) {
+    .quick-access__grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@container (min-width: 50rem) {
+    .quick-access__grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+}
+
+.quick-access__slot {
+    display: flex;
+}
+
+.quick-access__tile {
+    position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ag-space-2);
+    min-height: 6.5rem;
+    padding: var(--ag-space-4) var(--ag-space-3);
+    border: var(--ag-border-width) solid var(--ag-border);
+    border-radius: var(--ag-radius-container);
+    background-color: var(--ag-surface);
+    color: var(--ag-text);
+    text-align: center;
+    transition:
+        border-color var(--ag-duration-fast) var(--ag-ease-out),
+        background-color var(--ag-duration-fast) var(--ag-ease-out);
+
+    &:is(a):hover {
+        border-color: var(--primary-200);
+        background-color: var(--ag-accent-soft);
+
+        & .quick-access__icon {
+            background-color: var(--primary-100);
+        }
+    }
+
+    &:focus-visible {
+        outline: var(--ag-focus-ring-width) solid var(--ag-focus-ring);
+        outline-offset: var(--ag-focus-ring-offset);
+    }
+}
+
+.quick-access__icon {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--ag-radius-pill);
+    background-color: var(--ag-accent-soft);
+    color: var(--ag-accent);
+    transition: background-color var(--ag-duration-fast) var(--ag-ease-out);
+
+    & .fi-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+}
+
+.quick-access__label {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    font-size: var(--ag-text-sm);
+    line-height: var(--ag-leading-sm);
+    font-weight: var(--ag-weight-medium);
+    overflow-wrap: anywhere;
+}
+
+/* Edit mode. */
+.quick-access__edit-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--ag-space-1) var(--ag-space-4);
+    margin-bottom: var(--ag-space-3);
+    font-size: var(--ag-text-sm);
+    line-height: var(--ag-leading-sm);
+    color: var(--ag-text-muted);
+}
+
+.quick-access__count {
+    font-variant-numeric: tabular-nums;
+}
+
+.quick-access__grid-empty {
+    padding: var(--ag-space-6) var(--ag-space-4);
+    border: var(--ag-border-width) dashed var(--ag-border-strong);
+    border-radius: var(--ag-radius-container);
+    font-size: var(--ag-text-sm);
+    line-height: var(--ag-leading-sm);
+    color: var(--ag-text-muted);
+    text-align: center;
+}
+
+.quick-access__tile--editing {
+    cursor: grab;
+    user-select: none;
+    animation: quick-access-wiggle var(--quick-access-wiggle-duration, 0.3s) ease-in-out var(--quick-access-wiggle-phase, 0s) infinite alternate;
+    transform-origin: 50% 60%;
+
+    &:active {
+        cursor: grabbing;
+    }
+
+    &:hover,
+    &:focus-within {
+        animation: none;
+    }
+}
+
+/* Five phases and three durations by position, so neighbours never rock in step. */
+.quick-access__grid--editing > :nth-child(5n + 2) {
+    --quick-access-wiggle-phase: -0.17s;
+}
+
+.quick-access__grid--editing > :nth-child(5n + 3) {
+    --quick-access-wiggle-phase: -0.07s;
+}
+
+.quick-access__grid--editing > :nth-child(5n + 4) {
+    --quick-access-wiggle-phase: -0.24s;
+}
+
+.quick-access__grid--editing > :nth-child(5n + 5) {
+    --quick-access-wiggle-phase: -0.12s;
+}
+
+.quick-access__grid--editing > :nth-child(3n + 2) {
+    --quick-access-wiggle-duration: 0.32s;
+}
+
+.quick-access__grid--editing > :nth-child(3n + 3) {
+    --quick-access-wiggle-duration: 0.28s;
+}
+
+/* The tile being dragged, its placeholder and SortableJS's chosen item stand still. */
+.quick-access__grid--editing :is(.fi-sortable-ghost, .sortable-chosen, .sortable-drag) .quick-access__tile--editing {
+    animation: none;
+}
+
+.quick-access__grid--editing .fi-sortable-ghost {
+    opacity: 0.4;
+}
+
+@keyframes quick-access-wiggle {
+    from {
+        transform: rotate(-0.6deg);
+    }
+
+    to {
+        transform: rotate(0.6deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .quick-access__tile--editing {
+        animation: none;
+        border-style: dashed;
+        border-color: var(--primary-300);
+    }
+}
+
+.quick-access__remove {
+    position: absolute;
+    top: var(--ag-space-1-5);
+    right: var(--ag-space-1-5);
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: var(--ag-radius-pill);
+    color: var(--ag-icon);
+    cursor: pointer;
+    transition:
+        color var(--ag-duration-fast) var(--ag-ease-out),
+        background-color var(--ag-duration-fast) var(--ag-ease-out);
+
+    & .fi-icon {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    &:hover {
+        background-color: var(--ag-soft-danger-bg);
+        color: var(--danger-600);
+    }
+
+    &:focus-visible {
+        outline: var(--ag-focus-ring-width) solid var(--ag-focus-ring);
+        outline-offset: 0;
+    }
+}
+
+/* Add and remove: the new tile grows in; the removed one shrinks away while the request runs. */
+.quick-access__slot--entering,
+.quick-access__mini-slot--entering {
+    animation: quick-access-enter var(--ag-duration-slow) var(--ag-ease-out) both;
+}
+
+.quick-access__slot--leaving,
+.quick-access__mini-slot--leaving {
+    opacity: 0;
+    transform: scale(0.92);
+    pointer-events: none;
+    transition:
+        opacity var(--ag-duration-fast) var(--ag-ease-out),
+        transform var(--ag-duration-fast) var(--ag-ease-out);
+}
+
+@keyframes quick-access-enter {
+    from {
+        opacity: 0;
+        transform: scale(0.92) translateY(0.25rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* Palette "Dostępne". */
+.quick-access__palette {
+    display: grid;
+    grid-template-rows: 1fr;
+    margin-top: var(--ag-space-5);
+    animation: quick-access-unfold var(--ag-duration-slow) var(--ag-ease-out) both;
+}
+
+.quick-access__palette-inner {
+    min-height: 0;
+    overflow: hidden;
+    padding: var(--ag-space-4);
+    border-radius: var(--ag-radius-container);
+    background-color: var(--ag-canvas);
+}
+
+@keyframes quick-access-unfold {
+    from {
+        grid-template-rows: 0fr;
+        opacity: 0;
+    }
+
+    to {
+        grid-template-rows: 1fr;
+        opacity: 1;
+    }
+}
+
+.quick-access__palette-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--ag-space-1) var(--ag-space-3);
+    margin-bottom: var(--ag-space-3);
+}
+
+.quick-access__palette-heading {
+    font-size: var(--ag-text-base);
+    line-height: var(--ag-leading-base);
+    font-weight: var(--ag-weight-semibold);
+    color: var(--ag-heading);
+}
+
+.quick-access__palette-hint,
+.quick-access__palette-empty {
+    font-size: var(--ag-text-sm);
+    line-height: var(--ag-leading-sm);
+    color: var(--ag-text-muted);
+}
+
+.quick-access__palette-limit {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--ag-space-2);
+    margin-bottom: var(--ag-space-3);
+    padding: var(--ag-space-2) var(--ag-space-3);
+    border: var(--ag-border-width) solid var(--ag-soft-warning-border);
+    border-radius: var(--ag-radius-control);
+    background-color: var(--ag-soft-warning-bg);
+    font-size: var(--ag-text-sm);
+    line-height: var(--ag-leading-sm);
+    color: var(--ag-soft-warning-text);
+
+    & .fi-icon {
+        flex-shrink: 0;
+        width: 1.125rem;
+        height: 1.125rem;
+    }
+}
+
+.quick-access__groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    gap: var(--ag-space-4) var(--ag-space-6);
+    transition: opacity var(--ag-duration-base) var(--ag-ease-out);
+}
+
+.quick-access__palette--full .quick-access__groups {
+    opacity: 0.45;
+}
+
+.quick-access__group-header {
+    display: flex;
+    align-items: center;
+    gap: var(--ag-space-2);
+    margin-bottom: var(--ag-space-2);
+}
+
+.quick-access__group-icon {
+    width: 1rem;
+    height: 1rem;
+    color: var(--ag-accent);
+}
+
+.quick-access__group-label {
+    font-size: var(--ag-text-sm);
+    line-height: var(--ag-leading-sm);
+    font-weight: var(--ag-weight-semibold);
+    color: var(--ag-text-secondary);
+}
+
+.quick-access__group-count {
+    min-width: 1.25rem;
+    padding: 0 var(--ag-space-1-5);
+    border-radius: var(--ag-radius-pill);
+    background-color: var(--ag-surface);
+    font-size: var(--ag-text-xs);
+    line-height: 1.25rem;
+    font-weight: var(--ag-weight-medium);
+    font-variant-numeric: tabular-nums;
+    color: var(--ag-text-muted);
+    text-align: center;
+}
+
+.quick-access__minis {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.5rem), 1fr));
+    gap: var(--ag-space-2);
+}
+
+.quick-access__mini-slot {
+    display: flex;
+}
+
+.quick-access__mini {
+    position: relative;
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: var(--ag-space-2);
+    min-width: 0;
+    padding: var(--ag-space-2) var(--ag-space-6) var(--ag-space-2) var(--ag-space-2-5);
+    border: var(--ag-border-width) solid var(--ag-border);
+    border-radius: var(--ag-radius-control);
+    background-color: var(--ag-surface);
+    color: var(--ag-text);
+    text-align: start;
+    cursor: pointer;
+    transition:
+        border-color var(--ag-duration-fast) var(--ag-ease-out),
+        box-shadow var(--ag-duration-fast) var(--ag-ease-out);
+
+    &:hover:not(:disabled) {
+        border-color: var(--primary-300);
+
+        & .quick-access__mini-icon {
+            background-color: var(--primary-100);
+        }
+
+        & .quick-access__mini-plus {
+            background-color: var(--ag-accent);
+            color: var(--ag-surface);
+        }
+    }
+
+    &:focus-visible {
+        outline: var(--ag-focus-ring-width) solid var(--ag-focus-ring);
+        outline-offset: var(--ag-focus-ring-offset);
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+    }
+}
+
+.quick-access__mini-icon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: var(--ag-radius-pill);
+    background-color: var(--ag-accent-soft);
+    color: var(--ag-accent);
+    transition: background-color var(--ag-duration-fast) var(--ag-ease-out);
+
+    & .fi-icon {
+        width: 1rem;
+        height: 1rem;
+    }
+}
+
+.quick-access__mini-label {
+    overflow: hidden;
+    font-size: var(--ag-text-sm);
+    line-height: var(--ag-leading-sm);
+    font-weight: var(--ag-weight-medium);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.quick-access__mini-plus {
+    position: absolute;
+    top: var(--ag-space-1);
+    right: var(--ag-space-1);
+    display: grid;
+    place-items: center;
+    width: 1rem;
+    height: 1rem;
+    border-radius: var(--ag-radius-pill);
+    background-color: var(--primary-100);
+    color: var(--ag-accent);
+    transition:
+        background-color var(--ag-duration-fast) var(--ag-ease-out),
+        color var(--ag-duration-fast) var(--ag-ease-out);
+
+    & .fi-icon {
+        width: 0.75rem;
+        height: 0.75rem;
+    }
+}
+
+/* Empty state (D-15 look). */
+.quick-access__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--ag-space-8) var(--ag-space-4);
+    text-align: center;
+}
+
+.quick-access__empty-icon {
+    display: grid;
+    place-items: center;
+    width: var(--ag-empty-icon-box);
+    height: var(--ag-empty-icon-box);
+    margin-bottom: var(--ag-space-4);
+    border-radius: var(--ag-radius-pill);
+    background-color: var(--ag-empty-icon-bg);
+    color: var(--ag-empty-icon);
+
+    & .fi-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+}
+
+.quick-access__empty-heading {
+    font-size: var(--ag-text-md);
+    line-height: var(--ag-leading-md);
+    font-weight: var(--ag-weight-semibold);
+    color: var(--ag-text);
+}
+
+.quick-access__empty-description {
+    max-width: var(--ag-empty-max-width);
+    margin-top: var(--ag-space-1);
+    font-size: var(--ag-text-base);
+    line-height: var(--ag-leading-base);
+    color: var(--ag-text-muted);
+}
+
+.quick-access__empty-action {
+    margin-top: var(--ag-space-5);
+}

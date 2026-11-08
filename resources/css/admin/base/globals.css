@@ -1,0 +1,14 @@
+/* The page canvas: light grey under white surfaces, light theme only (D-28). */
+html.fi {
+    color-scheme: light;
+}
+
+.fi-body {
+    background-color: var(--ag-canvas);
+    color: var(--ag-text);
+}
+
+::selection {
+    background-color: var(--primary-100);
+    color: var(--primary-900);
+}

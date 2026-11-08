@@ -108,8 +108,8 @@ class PasswordChangeEndsOtherSessionsTest extends TestCase
         $this->actingAs($user);
 
         Livewire::test(EditProfile::class)
-            ->set('passwordData', ['password' => 'brand-new-pass', 'password_confirmation' => 'brand-new-pass'])
-            ->call('changePassword');
+            ->callAction('changePassword', data: ['password' => 'brand-new-pass', 'password_confirmation' => 'brand-new-pass'])
+            ->assertHasNoActionErrors();
 
         $this->assertSame(
             $this->sessionHashOf($user->fresh()),
@@ -124,9 +124,8 @@ class PasswordChangeEndsOtherSessionsTest extends TestCase
         $this->actingAs($admin);
 
         Livewire::test(EditUser::class, ['record' => $admin->getKey()])
-            ->fillForm(['password' => 'brand-new-pass', 'password_confirmation' => 'brand-new-pass'])
-            ->call('save')
-            ->assertHasNoFormErrors();
+            ->callAction('set_password', data: ['password' => 'brand-new-pass', 'password_confirmation' => 'brand-new-pass'])
+            ->assertHasNoActionErrors();
 
         $this->assertSame($this->sessionHashOf($admin->fresh()), session('password_hash_web'));
     }

@@ -60,7 +60,14 @@ abstract class ReadOnlyModel extends Model
         return parent::push();
     }
 
-    public function forceDelete(): ?bool
+    /**
+     * Untyped on purpose: the SoftDeletes trait declares forceDelete() without
+     * a return type, and a typed parent here would make every soft-deleting
+     * model a fatal error. The trait still ends in delete(), which is guarded.
+     *
+     * @return bool|null
+     */
+    public function forceDelete()
     {
         self::assertWritable(static::class, 'forceDelete');
 

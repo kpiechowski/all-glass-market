@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Users\UserInterface\Filament\Resources\Users;
 
 use App\Core\UserInterface\CurrentActor;
+use App\Modules\Audit\UserInterface\Filament\RelationManagers\RecordHistoryRelationManager;
 use App\Modules\Users\Domain\Enums\UsersPermission;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\Infrastructure\Persistence\Queries\UserQueries;
@@ -92,11 +93,13 @@ class UserResource extends Resource
     }
 
     /**
-     * Seam: the audit history (Audit) and the "Powiązane oferty" tab (Offers, D-05) attach here.
+     * The audit history tab (Audit, FR-11). Seam: the "Powiązane oferty" tab (Offers, D-05) attaches here.
      */
     public static function getRelations(): array
     {
-        return [];
+        return [
+            RecordHistoryRelationManager::make(['recordType' => 'users.user']),
+        ];
     }
 
     public static function getPages(): array

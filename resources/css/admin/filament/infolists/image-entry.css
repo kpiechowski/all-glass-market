@@ -1,0 +1,36 @@
+/*
+ * Image entry (`.fi-in-image`). Values: tokens/entries.css.
+ *
+ * - Square images get the control radius (6 px) and a 1 px gray-200 edge, so a light image
+ *   does not melt into the white section. Circular images keep the circle and get the edge too.
+ * - `->ring()` (Filament's white ring for stacked images) replaces our edge.
+ * - The "+N" counter of a limited list: a gray-100 chip with muted medium text.
+ */
+.fi-in-image {
+    gap: var(--ag-space-2);
+
+    &:not(.fi-circular) img {
+        border-radius: var(--ag-radius-control);
+    }
+
+    &:not(.fi-in-image-ring) img {
+        box-shadow: var(--ag-entry-box-edge);
+    }
+
+    & .fi-in-image-limited-remaining-text {
+        border-radius: var(--ag-radius-control);
+        background-color: var(--gray-100);
+        font-weight: var(--ag-weight-medium);
+        color: var(--ag-text-secondary);
+    }
+
+    &.fi-circular .fi-in-image-limited-remaining-text,
+    &.fi-stacked .fi-in-image-limited-remaining-text {
+        border-radius: var(--ag-radius-pill);
+    }
+}
+
+/* Overlapping (stacked) images need no gap. */
+.fi-in-image[class*="fi-in-image-overlap-"] {
+    gap: 0;
+}

@@ -1,0 +1,59 @@
+/*
+ * Person cell (D-13): initials, name with text flags, e-mail below.
+ * Markup: core::filament.tables.person-cell (PersonColumn). A two-line cell, so it uses the
+ * stacked row padding: the row is 60 px, like a TextColumn with `->description()`.
+ *
+ *   initials    32 px circle, primary-50 fill, primary-700 12 px semibold (white table surface)
+ *   name        14 px semibold near-black; royal while its clickable row is hovered (table.css)
+ *   flags       record-flag chips after the name
+ *   e-mail      13 px muted
+ */
+.person-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--ag-space-3);
+    width: 100%;
+    padding: var(--ag-table-cell-padding-y-stacked) var(--ag-table-cell-padding-x);
+}
+
+.person-cell__initials {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--ag-radius-pill);
+    background-color: var(--ag-soft-primary-bg);
+    font-size: var(--ag-text-xs);
+    line-height: 1;
+    font-weight: var(--ag-weight-semibold);
+    letter-spacing: 0.02em;
+    color: var(--ag-soft-primary-text);
+}
+
+.person-cell__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ag-space-0-5);
+    min-width: 0;
+}
+
+.person-cell__name-line {
+    display: flex;
+    align-items: center;
+    gap: var(--ag-space-2);
+}
+
+.person-cell__name {
+    font-size: var(--ag-text-base);
+    line-height: var(--ag-leading-base);
+    font-weight: var(--ag-weight-semibold);
+    color: var(--ag-text);
+    transition: color var(--ag-duration-fast) var(--ag-ease-out);
+}
+
+.person-cell__email {
+    font-size: var(--ag-text-sm);
+    line-height: var(--ag-leading-sm);
+    color: var(--ag-text-muted);
+}

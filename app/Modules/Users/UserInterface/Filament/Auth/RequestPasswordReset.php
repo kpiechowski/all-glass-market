@@ -33,7 +33,7 @@ class RequestPasswordReset extends BaseRequestPasswordReset
         $data = $this->form->getState();
 
         CommandSender::send(new RequestPasswordResetCommand(
-            Actor::system('guest password reset request'),
+            Actor::system('users::actors.password_reset_requested'),
             (string) $data['email'],
         ));
 

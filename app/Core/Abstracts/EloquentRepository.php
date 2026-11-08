@@ -6,6 +6,7 @@ namespace App\Core\Abstracts;
 
 use App\Core\Contracts\Mapper;
 use App\Core\Contracts\Repository;
+use App\Core\Infrastructure\Persistence\ChangeRecorder;
 use App\Core\Infrastructure\Persistence\ReadOnlyModel;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -40,6 +41,29 @@ abstract class EloquentRepository implements Repository
         private readonly string $modelClass,
         private readonly Mapper $mapper,
     ) {}
+
+    /**
+     * The one way to sync a many-to-many relation of an audited record.
+     * Observers cannot see pivot changes, so this reports the diff (raw ids
+     * added and removed) as a RecordChanged, inside the command's transaction.
+     * Nothing is emitted when the relation did not change.
+     *
+     * @param  list<int|string>  $ids
+     */
+    protected function syncRelation(int $id, string $relation, array $ids): void
+    {
+        $model = $this->query()->findOrFail($id);
+
+        $result = ReadOnlyModel::writing(fn () => $model->{$relation}()->sync($ids));
+
+        if ($result['attached'] === [] && $result['detached'] === []) {
+            return;
+        }
+
+        app(ChangeRecorder::class)->recordRelations($model, [
+            $relation => ['added' => $result['attached'], 'removed' => $result['detached']],
+        ]);
+    }
 
     /**
      * Query entry point for adapter methods. Protected on purpose: the port

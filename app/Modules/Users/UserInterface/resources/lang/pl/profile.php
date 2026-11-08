@@ -6,21 +6,16 @@ return [
     'title' => 'Mój profil',
     'navigation_label' => 'Mój profil',
     'user_menu_label' => 'Edytuj profil',
-
-    'tabs' => [
-        'general' => 'Ogólne',
-        'change_password' => 'Zmiana hasła',
-    ],
+    'navigation_badge_tooltip' => 'Konto prywatne: do cen ofert doliczamy VAT. Sprzedajesz jako firma? Zmień rodzaj konta.',
 
     'sections' => [
         'personal_details' => 'Dane osobowe',
-        'personal_details_description' => 'Twoje podstawowe informacje o koncie',
-        'company_account' => 'Konto firmowe',
-        'company_account_description' => 'Dane firmy i adres do wysyłki',
+        'company' => 'Dane firmy',
+        'company_description' => 'Konto firmowe wymaga NIP i adresu firmy.',
+        'shipment_address' => 'Adres do wysyłki',
+        'shipment_address_description' => 'Jeżeli inny niż adres firmy.',
         'account_type' => 'Rodzaj konta',
-        'account_type_description' => 'Konto firmowe wymaga NIP, adresu firmy i oświadczenia sprzedawcy',
-        'change_password' => 'Zmiana hasła',
-        'change_password_description' => 'Wybierz silne hasło zawierające co najmniej 8 znaków',
+        'account_type_description' => 'Konto firmowe wymaga NIP, adresu firmy i oświadczenia sprzedawcy.',
     ],
 
     'fields' => [
@@ -31,7 +26,7 @@ return [
         'company_name' => 'Nazwa firmy',
         'company_nip' => 'NIP',
         'company_address' => 'Adres firmy',
-        'shipment_address' => 'Adres do wysyłki',
+        'street' => 'Ulica i numer',
         'city' => 'Miasto',
         'city_code' => 'Kod pocztowy',
         'password' => 'Nowe hasło',
@@ -48,6 +43,10 @@ return [
         'confirm' => 'Rozumiem',
     ],
 
+    'helpers' => [
+        'password' => 'Co najmniej 8 znaków.',
+    ],
+
     'actions' => [
         'save' => 'Zapisz',
         'change_password' => 'Zmień hasło',
@@ -56,8 +55,8 @@ return [
 
     'notifications' => [
         'saved' => 'Zapisano dane profilu',
-        'save_failed' => 'Nie udało się zapisać profilu',
-        'password_changed' => 'Hasło zostało zmienione',
-        'password_change_failed' => 'Nie udało się zmienić hasła',
+        'save_failed' => 'Nie udało się zapisać profilu. Spróbuj ponownie za chwilę.',
+        'password_changed' => 'Zmieniono hasło',
+        'password_change_failed' => 'Nie udało się zmienić hasła. Spróbuj ponownie za chwilę.',
     ],
 ];

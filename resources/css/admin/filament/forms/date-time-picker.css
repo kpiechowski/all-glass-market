@@ -1,0 +1,83 @@
+/*
+ * Date and time pickers (`.fi-fo-date-time-picker`). The native inputs are `input.fi-input`
+ * (see `input.css`); the JS picker (`native(false)`) shows a read-only text input in the same
+ * 36 px frame and opens a calendar panel.
+ *
+ * Calendar panel: white, container radius, the `lg` float shadow and a gray-200 edge.
+ * - Weekday header 12 px muted; days 14 px, control radius.
+ * - Hover gray-100; today royal semibold; the chosen day filled royal with white text
+ *   (navy on hover), the only filled mark in the panel.
+ * - Keyboard focus: a 2 px royal outline.
+ */
+.fi-fo-date-time-picker {
+    & .fi-fo-date-time-picker-display-text-input {
+        min-height: var(--ag-field-height);
+        padding-inline: var(--ag-field-padding-x);
+        font-size: var(--ag-text-base);
+        color: var(--ag-field-text);
+
+        &::placeholder {
+            color: var(--ag-field-placeholder);
+        }
+
+        &:disabled {
+            color: var(--ag-field-disabled-text);
+            -webkit-text-fill-color: var(--ag-field-disabled-text);
+        }
+    }
+
+    /* The native calendar icon in muted grey. */
+    & input::-webkit-calendar-picker-indicator {
+        opacity: 0.55;
+        cursor: pointer;
+    }
+
+    & .fi-fo-date-time-picker-panel {
+        border-radius: var(--ag-radius-container);
+        box-shadow: 0 0 0 var(--ag-border-width) var(--ag-border), var(--shadow-lg);
+    }
+
+    & .fi-fo-date-time-picker-month-select {
+        font-weight: var(--ag-weight-semibold);
+        color: var(--ag-heading);
+    }
+
+    & .fi-fo-date-time-picker-month-select,
+    & .fi-fo-date-time-picker-year-input,
+    & .fi-fo-date-time-picker-calendar-day,
+    & .fi-fo-date-time-picker-time-inputs input {
+        border-radius: var(--ag-radius-control);
+
+        &:focus-visible {
+            outline: var(--ag-focus-ring-width) solid var(--ag-field-border-focus);
+        }
+    }
+
+    & .fi-fo-date-time-picker-calendar-header-day {
+        font-size: var(--ag-text-xs);
+        color: var(--ag-text-muted);
+    }
+
+    & .fi-fo-date-time-picker-calendar .fi-fo-date-time-picker-calendar-day {
+        transition: var(--ag-field-transition);
+
+        &:not(.fi-disabled):is(:hover, :focus-visible) {
+            background-color: var(--gray-100);
+        }
+
+        &.fi-fo-date-time-picker-calendar-day-today:not(.fi-selected):not(.fi-disabled) {
+            font-weight: var(--ag-weight-semibold);
+            color: var(--ag-accent);
+        }
+
+        &.fi-selected {
+            background-color: var(--ag-control-checked);
+            font-weight: var(--ag-weight-semibold);
+            color: var(--ag-control-mark);
+
+            &:not(.fi-disabled):is(:hover, :focus-visible) {
+                background-color: var(--ag-control-checked-hover);
+            }
+        }
+    }
+}

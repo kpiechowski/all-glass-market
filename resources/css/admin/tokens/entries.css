@@ -1,0 +1,70 @@
+/*
+ * Infolist entries (issue 07). A read-only label sits a step below the value: smaller, grey,
+ * medium weight. The value is the content: body size, near-black, medium weight (Manrope 400
+ * reads thin on white). Empty values show a quiet "—" (D-10).
+ *
+ * The sheet variant (`infolist--sheet`, D-10a) rearranges these into label | value rows and adds
+ * only its own measures below. The identity header (`infolist--identity`) opens a record.
+ */
+:root {
+    --ag-entry-label-size: var(--ag-text-sm);          /* 13 px */
+    --ag-entry-label-leading: var(--ag-leading-sm);
+    --ag-entry-label-weight: var(--ag-weight-medium);
+    --ag-entry-label: var(--ag-text-secondary);        /* gray-600, 7.4:1 on white */
+    --ag-entry-gap: var(--ag-space-1);                 /* label, value and helper 4 px apart */
+
+    --ag-entry-value-size: var(--ag-text-base);        /* 14 px */
+    --ag-entry-value-leading: var(--ag-leading-base);
+    --ag-entry-value-weight: var(--ag-weight-medium);
+    --ag-entry-value: var(--ag-text);                  /* gray-900 */
+    --ag-entry-helper: var(--ag-text-muted);           /* gray-500, 13 px like form helpers */
+    --ag-entry-placeholder: var(--gray-400);           /* the "—" of an empty value */
+    --ag-entry-marker: var(--gray-400);                /* list bullets */
+
+    /* Links (URL, e-mail): royal like `->link()` actions, navy with an underline on hover. */
+    --ag-entry-link: var(--brand-royal);
+    --ag-entry-link-hover: var(--brand-navy);
+    --ag-entry-link-underline: color-mix(in srgb, var(--brand-royal) 30%, transparent);
+
+    /* Copyable: a small copy icon after the value, muted, darker on hover. */
+    --ag-entry-copy-icon: var(--gray-400);
+    --ag-entry-copy-icon-hover: var(--brand-royal);
+    --ag-entry-copy-icon-size: 0.875rem;
+
+    /* Tooltip hint (dates with `dateTooltip()`): a dotted underline. */
+    --ag-entry-tooltip-underline: var(--gray-300);
+
+    /* Boolean and other icon entries sit in one value line. */
+    --ag-entry-icon-size: 1.25rem;
+
+    /* Boxes inside an entry: key-value table, repeatable items, images. */
+    --ag-entry-box-edge: 0 0 0 var(--ag-border-width) var(--ag-border);
+    --ag-entry-box-head-bg: var(--gray-50);
+    --ag-entry-box-head-text: var(--gray-600);
+    --ag-entry-box-key: var(--ag-text-secondary);
+    --ag-entry-box-padding-y: var(--ag-space-2);
+    --ag-entry-box-padding-x: var(--ag-space-3);
+    --ag-entry-item-padding: var(--ag-space-4);
+    --ag-entry-item-gap: var(--ag-space-3);
+
+    /* Sheet (D-10a A, B): label column, rows, two sheet columns from xl. */
+    --ag-sheet-label-width: clamp(7rem, 36%, 11.25rem); /* 180 px, narrower in a narrow column */
+    --ag-sheet-label-gap: var(--ag-space-4);            /* label to value, 16 px */
+    --ag-sheet-row-padding-y: var(--ag-space-3);        /* 12 px above and below each row */
+    --ag-sheet-rule: var(--ag-border);                  /* hairline between rows; must equal the section divider it overlaps */
+    --ag-sheet-column-gap: var(--ag-space-8);           /* between the two sheet columns, 32 px */
+
+    /* Identity header (D-10a D): avatar, name, main contact. */
+    --ag-identity-padding-y: var(--ag-space-5);
+    --ag-identity-gap: var(--ag-space-4);
+    --ag-identity-name-size: var(--ag-text-lg);         /* 18 px */
+    --ag-identity-name-leading: var(--ag-leading-lg);
+    --ag-identity-name: var(--ag-heading);              /* navy */
+    --ag-identity-contact: var(--ag-text-secondary);
+
+    --ag-entry-transition:
+        color var(--ag-duration-fast) var(--ag-ease-out),
+        text-decoration-color var(--ag-duration-fast) var(--ag-ease-out),
+        background-color var(--ag-duration-fast) var(--ag-ease-out),
+        opacity var(--ag-duration-fast) var(--ag-ease-out);
+}

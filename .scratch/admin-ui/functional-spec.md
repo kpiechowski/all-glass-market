@@ -1,0 +1,294 @@
+# Admin UI — design rules, theme and styleguide
+
+<!-- The authoritative reference for how admin panel screens are laid out and how the theme is built.
+     Agreed in a grilling session; every rule carries a decision id (D-xx) so issues and the skill can trace back. -->
+
+- **Agreed:** 2026-11-05 · **Branch at agreement:** `feat/audit`
+- **Trigger:** the first module built by agents (Users) came out with broken layouts. The edit form split into a grid of boxes, fields were paired at random, the table had too many and half-empty columns, the badges were loud and the header actions competed. The existing theme CSS mixes overrides without structure.
+
+## 1. Goal
+
+Agents should build admin screens that are about 90% right on the first try. Two things get us there:
+
+1. **A design skill, `admin-ui-design`.** It holds screen templates, layout rules, action hierarchy and table rules, written so an agent applies them every time. (D-01, D-02)
+2. **A rebuilt theme with a small set of named variants.** We work the theme out on a local Styleguide page with the user reviewing by hand, then document the variants in the skill. (D-30..D-36)
+
+What is out of scope:
+- dark mode (D-28);
+- a technical-table layout (logs) for mobile, which comes later (D-12);
+- the dashboard template beyond a sketch (D-05).
+
+## 2. Skills
+
+- **D-01** `filament-module-ui` is renamed to **`filament-module-wiring`**. It keeps only the mechanics: commands from the UI, visibility, reading through `{X}Queries`, class split, namespaces and translations. Rules about how a screen looks move to the new skill, for example "2+ row actions → `ActionGroup`". The old skill points to the new one. References in `CLAUDE.md`, `.claude/agents/module-worker.md` and `.claude/skills/module-cqrs/SKILL.md` are updated.
+- **D-02** The new skill is **`admin-ui-design`**:
+  - `SKILL.md` is short. It holds the rules that apply to every screen, the template table with links, and a "Before you finish" checklist.
+  - `templates/<X>-<name>.md` holds one file per screen template: a code skeleton, detailed rules and "not like this" examples drawn from the Users screens.
+  - `variants.md` holds the variant catalogue and is written last (D-36).
+  - The skill holds rules, not reasons. Reasons go to `docs/adr/` (ADR 0005).
+  - It is written with the `writing-for-agents` skill.
+- **D-03** Enforcement:
+  - a row in the `CLAUDE.md` skill table;
+  - `module-worker` loads `admin-ui-design` for every task that touches UI;
+  - `filament-module-wiring`'s "Before you finish" points to the `admin-ui-design` checklist.
+
+## 3. Screen templates
+
+- **D-04** Every screen starts from one named template. Before laying anything out, the agent names the template it is building.
+
+| | Template | Is |
+|---|---|---|
+| A | List | table, tabs for the main split, filters, bulk actions |
+| B | Form | create / edit a record |
+| C | Record view | infolist first, then tabs for audit and relations |
+| D | Settings / single object | a page editing one object that is not a list record |
+| E | Action modal | short form or confirmation |
+| F | Dashboard | widgets; **sketch only** until the first real dashboard (D-05) |
+
+- **D-05** Template F stays a sketch until a real dashboard exists. New templates are added only when a real module needs one.
+
+## 4. Layout rules
+
+### Page layout (D-06)
+
+- **(a) One column of sections, stacked.** This is the default for forms and record views.
+- **(b) Main column (~2/3) plus side column (~1/3).** This is an exception and needs a reason: the record has a status or metadata worth keeping in view, such as active, role, dates or who created it. The side column never holds ordinary input fields. On mobile it drops **above** the main content.
+- **(c) Free grid of boxes.** Allowed only on analytical pages (statistics, logs, dashboards), usually with a custom layout. It is never used on a form or a record view.
+- An agent that opens a form with two columns of sections without a reason has made a mistake.
+
+### Fields (D-07)
+
+- A field shares a row with another only when both are short and semantically paired, like City + Postcode or First + Last name. The default is one field per row.
+- Field width follows the expected length of the data. Postcode, NIP and phone do not stretch across the section; use a 12-column grid and span to fit.
+- The label always sits above the field. A placeholder only shows a format example ("00-000") and never replaces a label.
+- `helperText` is at most one sentence. Longer explanations go into the section description.
+- Fields that depend on another value appear and disappear reactively. They are not left empty and disabled.
+- Fields are grouped by meaning. Two different addresses never interleave.
+
+### Sections (D-08)
+
+- No icon in a section heading by default. A section description is allowed.
+- A section with one field named like the section hides that field's label (`hiddenLabel()`).
+- A section collapses only for rarely used settings, never for required data.
+- One capability appears in one place. "Password" is either an action or a section, not both.
+
+### Mobile (D-09)
+
+- Every grid is declared responsively: `->columns(['default' => 1, 'md' => 2])`. A bare `->columns(2)` is never used.
+- Sections, forms and infolists must read cleanly on a phone.
+- Page header actions collapse into "⋮" on mobile, except the primary one.
+
+### Record view (D-10)
+
+- Tab 1 is the infolist. Later tabs hold the audit history and relation data, loaded lazily so the page carries fewer live Livewire components. The native mechanism is `hasCombinedRelationManagerTabsWithContent()` with lazy relation managers.
+- The infolist is laid out as label–value pairs in a **horizontal sheet**: a grey fixed-width label on the left, the value on the right. On mobile the label moves above the value. It is a variant, `infolist--sheet` (D-35).
+- Empty values show "—" and are not hidden. If a whole group does not apply to the record (company data on a private account), the whole section is hidden.
+
+### Tabs (D-11)
+
+- **Page tabs** (list tabs, record view tabs) are underlined: one long line with the active tab marked.
+- **Tabs inside a form** are used only for 4+ independent groups where no tab after the first holds a required field.
+- Otherwise use stacked sections.
+
+## 5. Tables (template A)
+
+- **D-12** On mobile, a list table shows as **cards**:
+  - regular columns are `->visibleFrom('md')`;
+  - one `ViewColumn` "card" is `->hiddenFrom('md')` and renders the card;
+  - theme CSS hides the table header and row lines on mobile;
+  - no vendor template override.
+
+  Native `Split`/`Stack` may be compared on the Styleguide as an alternative only. Technical tables such as logs are an exception, decided later.
+- **D-13** Columns:
+  - At most 5–6 columns are visible by default. The rest are `toggleable(isToggledHiddenByDefault: true)`.
+  - Data that belongs together shares one cell: name + email through `->description()`, or a custom composite column when that is not enough.
+  - A column that is mostly empty is not allowed. Its information becomes an indicator (icon or small badge) in the main cell, for example "must change password" next to the name.
+  - Dates on lists have no seconds. Show the date, or relative time with the full date in a tooltip.
+- **D-14** Filters:
+  - Up to 3 simple, frequent filters sit inline above the table (`FiltersLayout::AboveContent`).
+  - More filters go into the panel behind the funnel icon.
+  - The main split of the data (Active / Inactive / Invited) is **list tabs**, not a filter.
+  - The active-filter count badge shows only when it is above 0.
+- **D-15** Every list table has its own empty state: icon, one sentence, and the primary action when the user may perform it. An empty search or filter result has a different message ("No results for these filters").
+
+## 6. Actions
+
+- **D-16** Page header:
+  - at most **one primary** action (filled, primary colour);
+  - at most **two secondary** actions (grey or outline);
+  - the rest goes into an `ActionGroup` "⋮";
+  - **dangerous** actions (Deactivate, Delete) are always in "⋮" as red text in the menu, never a red button in the header. Full red appears only in the confirmation modal;
+  - warning and info colours never serve to highlight a button.
+- **D-17** Table rows:
+  - clicking the row opens the record (`recordUrl`);
+  - one extra action may stand alone as an icon with a tooltip;
+  - two or more go into "⋮".
+- **D-18** Form footer: Save (primary) and Cancel (grey) are sticky at the bottom of the viewport.
+- **D-19** Section actions (`Section::headerActions()` / `footerActions()`) are allowed when the action concerns that section only, like "Reset" on a password section or "Add address" on addresses. Use them with judgement; actions are not limited to header and footer.
+- **D-20** Modals:
+  - a modal is for a short task only: up to ~5 fields, or a confirmation;
+  - longer forms go to their own page or a slide-over (`->slideOver()`), the latter when the user needs to see the list underneath;
+  - a dangerous confirmation states plainly what will happen, and its button names the act ("Dezaktywuj"), never "Tak"/"OK".
+
+## 7. Colour and copy
+
+- **D-21** Badges:
+  - categories (account type, role) are neutral or soft: light tint, dark text;
+  - semantic colours (success, warning, danger) only mark operational states: active/blocked, needs action, error;
+  - an empty badge is a bug; no value means "—" or no element.
+
+  Domain enums implementing `HasColor` (ADR 0003) follow this rule. Users' enums are corrected in the retrofit (§11).
+- **D-22** Polish copy:
+  - labels and titles use sentence case ("Data dołączenia", not "Dziennik Zmian");
+  - buttons are verbs in the infinitive, with an object when it clarifies ("Utwórz użytkownika", "Zapisz", "Dezaktywuj");
+  - notifications use the past tense and stay short ("Zapisano zmiany");
+  - error messages say what to do, not only what is wrong.
+- **D-23** (amended 2026-11-06) A sidebar badge is either a **count** or an **indicator** ("!", a warning triangle, a gear) that signals the area needs attention or action. A **count must be cheap**: Filament evaluates every navigation badge on every panel page load, so a badge never runs an unbounded or unindexed count. It uses a cached value (invalidated by the relevant event) or a small indexed query. When neither is possible, it shows an indicator instead of a number.
+- **D-24** Navigation items must not be confusable. "Dziennik" next to "Dziennik zmian" is a naming problem for the retrofit, not a CSS problem.
+
+## 8. Navigation
+
+- **D-25** The sidebar has a **top** and a **bottom** part:
+  - the panel provider builds navigation explicitly with `->navigation(fn (NavigationBuilder $builder) => ...)`, using its own groups and items;
+  - the two main blocks stretch over the full sidebar height, and the bottom block (profile, later settings) is aligned to the bottom;
+  - it lives in `app/Filament/Navigation/PanelNavigation.php` (extracted on 2026-11-07, D-48).
+
+  Consequence: a new module resource or page does not appear in the sidebar until it is added there. The skill states this.
+
+## 9. Theme CSS
+
+- **D-26** The theme is rewritten from scratch. Kept: the directory split, the primary `#003eb2` and the Vite entry `resources/css/admin/theme.css`.
+- **D-27** Files are split by origin and need:
+
+```
+resources/css/admin/
+  theme.css          imports + @source only (vendor theme, our files)
+  tokens/            our variables: colours, typography, spacing, radii, shadows
+  base/              globals, base typography
+  filament/          overrides of native fi-* components, one file per component
+    layout/          sidebar, topbar, page-header, breadcrumbs
+    schema/          section, tabs, fieldset, grid
+    forms/           input, select, checkbox-toggle, rich-editor
+    infolists/       entry
+    tables/          table, filters, pagination, empty-state
+    actions/         button, action-group dropdown, modal
+    misc/            badge, notification, widget
+  components/        CSS for our own Blade components (card column, person column…)
+  pages/             page-specific CSS (login, styleguide)
+```
+
+  A variant lives **in the same file** as its component (`filament/schema/section.css` holds `.section--compact`). There is no `variants/` directory.
+- **D-28** No dark mode: `->darkMode(false)` stays, and the client does not want one.
+- **D-29** Classes and utilities:
+  - Filament schema components (`extraAttributes`, `extraInputAttributes`…) get **only our variant classes**, never Tailwind utilities;
+  - Tailwind utilities are allowed only in our own Blade views;
+  - module CSS is **not forbidden**: styling defaults to the theme, and a module may register its own asset only for styles that truly belong to that module alone.
+- **D-30** Modification ladder, safest first:
+  1. CSS on native `fi-*` classes;
+  2. variant classes through `extraAttributes()`;
+  3. own Blade components, `ViewColumn` / `ViewEntry`;
+  4. overriding a published vendor view, **only on the user's explicit order**, and listed in docs.
+- **D-31** Visual direction: quiet and modern.
+  - It must not look like a 2010 or WordPress-era panel, and it is "not a disco".
+  - The base is neutral greys with thin borders rather than heavy shadows.
+  - The client colour is an accent: primary action, active navigation, focus.
+  - Medium density: table rows ~48–52 px, base text 14 px, one font family.
+
+  The exact look is settled on the Styleguide.
+- **D-32** Font: Poppins is replaced. **Roboto, Inter and Manrope** were compared live on the Styleguide. **Manrope won** (2026-11-05): it is precise and lighter. Numbers in tables use tabular figures.
+- **D-40** Brand colours, taken from the client's logo and website:
+  - navy `#001B4E` (logo text): the darker accent;
+  - royal `#003eb2`: primary;
+  - `#0070C0` (logo stars): light accent.
+
+  The site uses dark navy blocks, royal-blue buttons and simple geometry (chamfered corners). The admin uses the navy as a stronger accent than the first theme did. The logo sits in the panel (`->brandLogo()`).
+- **D-41 (settled 2026-11-07, see §12)** Accenting the sidebar (navy and/or decorative accents), and whether the site's chamfered-corner geometry carries into buttons or containers.
+
+## 10. Styleguide
+
+- **D-33** Page `app/Filament/Pages/Styleguide.php` (moved from Core on 2026-11-07, D-48):
+  - registered explicitly in `AdminPanelProvider` when `app()->isLocal()`, and nowhere else;
+  - static data only: the table uses `->records(fn () => [...])`, the form keeps page state and saves nothing;
+  - its demo copy is hard-coded Polish, the one exception to "every string from translations";
+  - it is permanent, as the reference and a regression check.
+- **D-34** It shows every main component on one page: page header with actions, sections, tabs, form fields of every common type, an infolist, a table with filters, row actions, bulk actions, the empty state and the mobile card, badges, a modal, a slide-over and a notification trigger. It carries a **font switcher** (Roboto / Inter / Manrope) that loads the three fonts and swaps the font variable on `<html>`. The switcher is removed once the font is chosen.
+- **D-35** The first variants, built after the base style is accepted:
+  - **Section:** default, `section--compact` (tighter, for nested sections), `section--flat` (no frame, heading line only, for grouping inside another section).
+  - **Tabs:** `tabs--underline` (page and record tabs), `tabs--pills` (switcher inside a section).
+  - **Infolist:** `infolist--sheet`.
+  - **Table:** default with a mobile card.
+
+  More variants come only when a real module needs one.
+- **D-36** After the variants are accepted, `variants.md` in the skill documents each variant: when to use it, and how to apply it.
+
+## 11. Process
+
+- **D-37** Review loop: a subagent changes CSS and reports what changed. The user reviews the Styleguide in the browser and sends screenshots or notes. No agent clicks through the panel (Livewire round-trips are slow, and the user is faster).
+- **D-38** Order (issues):
+  1. rename the skill;
+  2. write the `admin-ui-design` skill (rules and templates, no variants);
+  3. Styleguide on the default look;
+  4. tokens, base, layout and navigation, with the font chosen; buttons were pulled forward into 04 at the user's request (2026-11-05);
+  5. schema components;
+  6. forms;
+  7. infolists;
+  8. tables;
+  9. actions, modals, badges and notifications;
+  10. variants and `variants.md`;
+  11. retrofit Users and Audit from the skill alone.
+
+  Style issues run one at a time, and each ends with the user's review.
+- **D-39** The retrofit tests the skill. Every mistake the agent makes there is a gap in the skill, so the skill is fixed first and the code second.
+
+## 12. Amendments (2026-11-06)
+
+- **D-41 (settled 2026-11-07, issue 09)** The sidebar is **navy, full height**, with the white logo at the top, refined for readability: more spacing, lighter text, smooth hover motion.
+  - **No chamfered geometry in the panel.** A `button--chamfer` trial (primary, top-right corner cut 10 px at 45°) was shown on the Styleguide and rejected: it suits the client's front end, but in the panel it stands out, and adopting it would mean dropping the rounded corners of most components. The panel keeps rounded corners (6 px controls, 10 px containers).
+  - **No further decorative accents** (sidebar or elsewhere) for now. The decorative pieces are the topbar ornament (D-44) and the login geodes (D-46), nothing more.
+- **D-25a** The sidebar has three blocks:
+  - a **top group** holding only the dashboard, separated by a border;
+  - the **main group** with the remaining items, aligned to the top;
+  - the **bottom group** (profile).
+- **D-42** Motion: subtle, pleasant animations are wanted, because the client's customers use the panel. Shared motion tokens (duration, easing) are used for all hover and active transitions. `prefers-reduced-motion` turns them off.
+- **D-10a** (amends D-10, D-35; 2026-11-06, issue 07 round 2) The record-view infolist is space-aware:
+  - **(A)** The `infolist--sheet` variant is built in issue 07, not 10: grey fixed-width label (~180 px) on the left, value on the right, a hairline between rows, label and value on one baseline; on mobile the label moves above the value.
+  - **(B)** A sheet section with short values (name, e-mail, phone, NIP, dates) runs **two sheet columns from `xl`**: `->columns(['default' => 1, 'xl' => 2])`, entries paired by meaning. Long values (address, notes, repeatable, key-value, image lists) span the full width.
+  - **(C)** A record with status or metadata (status, type, role, confirmations, dates, author) uses layout (b): the main column holds the data, the side column (1/3) holds the status and metadata, and on mobile the side column drops above the main one.
+  - **(D)** An identity header opens the record: avatar, name and the main contact (e-mail) in one block at the top, instead of a separate "Zdjęcie profilowe" entry.
+  - **(E)** A boolean entry shows the icon **with the text** "Tak" / "Nie", never the icon alone.
+  - **Two sheet columns start at `xl`**, as accepted by the user on 2026-11-06. The xl-vs-2xl question was left open, and the current look is fine.
+  - **Variation (informative, not required):** layout (b) does not have to span the whole page. It may hold only the top sections next to the side column, while the last sections below it (e.g. long lists, repeatables, key-value tables) run full width under both columns. The Styleguide uses the full-page (b) for now, and it is accepted.
+- **D-07a** (clarifies D-07) "One field per row" applies to form fields. Infolists follow D-10a.
+- **D-43** The Styleguide is organised in underlined page tabs by component area, so the user can compare without scrolling the whole page. Nested tabs (underlined or pills) are allowed inside.
+- **D-44** The topbar ornament, accepted by the user on 2026-11-06, is one upright glass pane of light at the topbar's left edge, next to the navy sidebar: primary-200 fading to 70 %, 16 px wide, ending in one straight cut. A second, softer glow pane next to it was dropped as the last step ("one straight cut looks best"). It is desktop only. The component is `panel::topbar.ornament` (`app/Filament/resources/views/topbar/ornament.blade.php`), registered with the `TOPBAR_START` render hook in `PanelRenderHooks`.
+  - Tried and dropped:
+    - a faceted "geode": cramped in 56 px, it read as busy;
+    - slanted navy cuts at 60–80°: a navy notch at the page edge, a skewed gradient, and colours the panel never uses.
+  - Lessons: an ornament in the chrome must not mark the topbar's bottom edge next to the page, and it uses only colours the panel already uses.
+  - The geode moves to the login screen as one pair in opposite corners (issue 09).
+- **D-45** (2026-11-06) Panel-wide Filament configuration (`Table::configureUsing()` and other component defaults) is registered in `AdminPanelProvider::boot()`, never in `CoreServiceProvider` or a module service provider. Core is not the place for Filament-only wiring; a shared Filament helper class may live in `app/Core/UserInterface/Filament/` but is wired up in the panel provider. Rule in `filament-module-wiring`.
+- **D-46** (2026-11-07, issue 09) Actions, overlays, badges, notifications, accepted on the Styleguide:
+  - **"⋮" dropdown:** 1 px border + shadow, 36 px items, groups split by a hairline; dangerous items are red text only (never a red fill), in their own group at the end. The header "⋮" has the grey button frame.
+  - **Modal:** navy overlay at 36 % with a light blur, 10 px radius, navy heading; a dangerous confirmation shows its icon on a pale tint, and full red appears only on the confirm button. **Slide-over:** hairlines under the header and above the footer.
+  - **Sticky form actions:** a white bar, floating 16 px above the bottom from `md`. Resource forms switch it on in the retrofit (11).
+  - **Badges:** categories are grey or soft primary with no dot; states (success, warning, danger, info) get a pale fill, dark text and a 6 px coloured dot, so a state reads as a state without colour. Count badges have no dot.
+  - **Notifications:** one white card for every status, a 3 px status bar on the leading edge, the leading corners square (a radius bends the bar) and 4 px on the other side.
+  - **Stat widget:** section border, 28 px bold navy value.
+  - **Login geodes:** one pair in opposite corners (top-left, bottom-right turned 180°) on every simple auth page, `panel::auth.geode` via `SIMPLE_LAYOUT_START`; five layers with an extra royal 62 % step between royal and navy; sized `clamp(10rem, 28vw, 28rem)`.
+  - **Open:** on mobile only the primary header action should stay outside "⋮" (D-09/D-16). CSS cannot move actions into the menu, so this needs PHP and is deferred.
+- **D-47** (2026-11-07, issue 10) Variants accepted as built and documented in `admin-ui-design/variants.md`: `section--compact` (one step tighter than a nested section), `section--flat` (no frame, navy title over a hairline, aligned with the parent content), `tabs--underline` (the page-tab look as a named class; page and record tabs get it without the class), `tabs--pills` (white active pill on a grey track, uncontained horizontal tabs only), `infolist--sheet` and `infolist--identity` (D-10a). The user found the section variants plain and may specify richer ones later.
+- **D-48** (2026-11-07) Panel configuration lives in `app/Filament/`, not in Core:
+  - `app/Filament/` holds:
+    - `AdminPanelProvider` (moved from `app/Providers/Filament`), which only wires the panel together;
+    - `Navigation/PanelNavigation`;
+    - `RenderHooks/PanelRenderHooks`;
+    - `Configuration/ComponentDefaults`, which runs every `configureUsing`, plus a `{Component}Defaults` class per component (`Tables/TableDefaults`);
+    - `Branding/BrandLogo`;
+    - panel-only pages (`Pages/Styleguide`);
+    - views under the `panel::` namespace (`resources/views`).
+  - `AppServiceProvider` moved to `app/AppServiceProvider.php`.
+  - `app/Core/UserInterface/Filament/` keeps only the building blocks that modules use (columns, `TableEmptyState`, `core::tables.*` views and translations).
+  - Deptrac's `Panel` layer covers `app/Filament` and `app/*.php`. It may depend on anything, and nothing may depend on it.
+  - The provider no longer auto-discovers `app/Filament/{Resources,Pages,Widgets}`, so panel pages are registered explicitly. This keeps the Styleguide local-only.
+  - This supersedes the "wired in `AdminPanelProvider::boot()`" wording of D-45. Rule in `filament-module-wiring`.
+- **D-24a** (2026-11-08, settles D-24) The Audit module's two pages ("Dziennik audytu" and "Logi techniczne") become **one page, "Historia i logi"**, with underlined page tabs: **Historia zmian** (the former audit log, permission `AuditLog`), **Logi techniczne** (`TechnicalLogs`) and **Nieudane zadania** (`TechnicalLogs`, formerly a tab inside the technical log). A tab the user may not see is hidden; the page shows in the sidebar when the user holds either permission and opens on the first allowed tab; the active tab lives in the URL. One sidebar item and one quick-access item replace the two. The Users "Dziennik" (the user's own journal) keeps its name: without "Dziennik audytu" next to it, nothing is confusable.

@@ -1,0 +1,21 @@
+/*
+ * Brand logo (D-40): App\Filament\Branding\BrandLogo renders both versions inside Filament's
+ * `.fi-logo` box, which carries the height (2rem). The dark logo shows by default (login, auth
+ * pages, topbar); a navy surface shows the client's white logo instead (sidebar-navy.css).
+ * Both images take the box height, so the 151x44 and 151x43 files share one baseline.
+ */
+.fi-logo:has(> .brand-logo) {
+    display: flex;
+    align-items: center;
+}
+
+.brand-logo {
+    display: block;
+    height: 100%;
+    width: auto;
+    max-width: none;
+}
+
+.brand-logo--on-dark {
+    display: none;
+}

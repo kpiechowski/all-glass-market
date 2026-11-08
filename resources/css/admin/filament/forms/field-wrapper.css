@@ -1,0 +1,64 @@
+/*
+ * Field wrapper (`.fi-fo-field`): label, required mark, helper text and error message around
+ * every form field.
+ *
+ * - Label: Manrope 14 px, weight 500, dark grey; the field sits 6 px below it.
+ * - Required mark: a muted grey asterisk at regular weight. It marks, it does not shout.
+ *   Filament hides it on disabled fields.
+ * - Helper text (`helperText()` renders a schema Text below the content): 13 px muted grey.
+ * - Error: 13 px dark red, weight 500, with a small alert icon in front. The copy says what
+ *   to do next (admin-ui-design, copy rules).
+ */
+.fi-fo-field {
+    row-gap: var(--ag-field-gap);
+
+    & .fi-fo-field-label-content {
+        font-size: var(--ag-text-base);
+        line-height: var(--ag-leading-base);
+        font-weight: var(--ag-weight-medium);
+        color: var(--ag-field-label);
+
+        & .fi-fo-field-label-required-mark {
+            margin-inline-start: 0.125rem;
+            font-weight: var(--ag-weight-regular);
+            color: var(--ag-field-required-mark);
+        }
+    }
+
+    & .fi-fo-field-label-col,
+    & .fi-fo-field-content-col {
+        row-gap: var(--ag-field-gap);
+    }
+
+    /* Helper text: the Text component Filament puts below the field. */
+    & .fi-fo-field-content-col > .fi-sc .fi-sc-text:not(.fi-badge) {
+        font-size: var(--ag-text-sm);
+        line-height: var(--ag-leading-sm);
+        color: var(--ag-field-helper);
+    }
+
+    & .fi-fo-field-wrp-error-message {
+        font-size: var(--ag-text-sm);
+        line-height: var(--ag-leading-sm);
+        font-weight: var(--ag-weight-medium);
+        color: var(--ag-field-error-text);
+    }
+
+    /* A single message gets the alert icon; a list keeps its bullets. */
+    & p.fi-fo-field-wrp-error-message,
+    & div.fi-fo-field-wrp-error-message {
+        display: flex;
+        align-items: flex-start;
+        column-gap: var(--ag-space-1-5);
+
+        &::before {
+            content: "";
+            flex-shrink: 0;
+            width: 0.875rem;
+            height: 0.875rem;
+            margin-top: 0.125rem;
+            background-color: currentColor;
+            mask: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill-rule='evenodd' d='M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z' clip-rule='evenodd'/%3E%3C/svg%3E") center / contain no-repeat;
+        }
+    }
+}

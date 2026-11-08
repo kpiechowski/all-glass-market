@@ -1,0 +1,51 @@
+/*
+ * Repeatable entry (`.fi-in-repeatable`, `.fi-in-table-repeatable`). Values: tokens/entries.css.
+ *
+ * - Contained items (default): white cards with the 1 px gray-200 edge, container radius,
+ *   16 px padding, no lift (they sit on a white section); 12 px apart. The entries inside use
+ *   the normal entry look, with the schema gap of nested content.
+ * - Uncontained items: no frame, 12 px apart.
+ * - Table layout: the same edge and radius; gray-50 head in 13 px semibold gray-600; 8 / 12 px
+ *   cells with gray-200 row dividers.
+ */
+.fi-in-repeatable {
+    ul& {
+        gap: var(--ag-entry-item-gap);
+    }
+
+    &.fi-contained > .fi-in-repeatable-item {
+        padding: var(--ag-entry-item-padding);
+        border-radius: var(--ag-radius-container);
+        background-color: var(--ag-surface);
+        box-shadow: var(--ag-entry-box-edge);
+    }
+
+    /* Entries inside an item sit closer than entries in a section. */
+    & > .fi-in-repeatable-item > .fi-sc.fi-sc-has-gap:not(.fi-sc-dense) {
+        gap: var(--ag-space-4);
+    }
+}
+
+.fi-in-table-repeatable {
+    & > table {
+        overflow: hidden;
+        border-radius: var(--ag-radius-container);
+        box-shadow: var(--ag-entry-box-edge);
+        border-color: var(--ag-border);
+
+        & > thead > tr > th {
+            padding: var(--ag-entry-box-padding-y) var(--ag-entry-box-padding-x);
+            border-color: var(--ag-border);
+            background-color: var(--ag-entry-box-head-bg);
+            font-size: var(--ag-text-sm);
+            line-height: var(--ag-leading-sm);
+            font-weight: var(--ag-weight-semibold);
+            color: var(--ag-entry-box-head-text);
+        }
+
+        & > tbody,
+        & > tbody > tr {
+            border-color: var(--ag-border);
+        }
+    }
+}

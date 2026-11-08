@@ -51,7 +51,7 @@ class ResetPassword extends BaseResetPassword
 
         try {
             $userId = CommandSender::send(new SetPasswordFromLinkCommand(
-                Actor::system('password link redeemed by guest'),
+                Actor::system($this->linkKind() === PasswordLinkKind::Invitation ? 'users::actors.invitation_accepted' : 'users::actors.password_reset_redeemed'),
                 (string) $this->email,
                 (string) $this->token,
                 $this->linkKind()->value,

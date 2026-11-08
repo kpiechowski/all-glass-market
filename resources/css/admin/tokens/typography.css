@@ -1,0 +1,29 @@
+/*
+ * Type scale (D-31, D-32): base text is 14 px in Manrope, set once by `->font()` in the panel
+ * provider. Filament's `--font-family` feeds `--font-sans`, so nothing here names a typeface.
+ * Manrope is light: interface labels sit at 500, buttons and titles at 600-700.
+ */
+:root {
+    --ag-font: var(--font-sans);
+
+    --ag-text-xs: 0.75rem;      /* 12 px: captions, counters */
+    --ag-text-sm: 0.8125rem;    /* 13 px: breadcrumbs, helper text, meta */
+    --ag-text-base: 0.875rem;   /* 14 px: body, labels, table cells, navigation */
+    --ag-text-md: 1rem;         /* 16 px: section headings */
+    --ag-text-lg: 1.125rem;     /* 18 px: modal headings */
+    --ag-text-xl: 1.375rem;     /* 22 px: page title */
+
+    --ag-leading-xs: 1rem;
+    --ag-leading-sm: 1.125rem;
+    --ag-leading-base: 1.25rem;
+    --ag-leading-md: 1.5rem;
+    --ag-leading-lg: 1.625rem;
+    --ag-leading-xl: 1.75rem;
+
+    --ag-weight-regular: 400;
+    --ag-weight-medium: 500;
+    --ag-weight-semibold: 600;
+    --ag-weight-bold: 700;
+
+    --ag-tracking-tight: -0.015em;
+}

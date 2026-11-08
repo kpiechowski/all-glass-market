@@ -1,0 +1,129 @@
+/*
+ * The block above the rows: heading + header actions, inline filters, toolbar (bulk actions,
+ * search, filter trigger, column manager), then the selection and active-filter lines.
+ * Values: tokens/tables.css.
+ *
+ * Filament draws a hairline under every zone, which stacks three or four frames above the
+ * table. Here the zones share one white block with a 16 px rhythm and no rules between them;
+ * the only rule is the one above the column head (table.css).
+ *
+ *   heading       16 px bold navy, like a section heading
+ *   search        the 06 field (36 px, same frame and focus), 18 rem from sm, full width below
+ *   column menu   20 px padding, 12 px between the column checkboxes
+ */
+.fi-ta-ctn {
+    & .fi-ta-header-ctn {
+        padding-bottom: var(--ag-table-zone-padding-y);
+    }
+
+    & .fi-ta-header,
+    & .fi-ta-filters-above-content-ctn,
+    & .fi-ta-header-toolbar {
+        padding: var(--ag-table-zone-padding-y) var(--ag-table-edge-padding-x) 0;
+        border-bottom-width: 0;
+
+        @media (max-width: 39.999rem) {
+            padding-inline: var(--ag-space-4);
+        }
+    }
+
+    & .fi-ta-header {
+        gap: var(--ag-table-zone-gap);
+    }
+
+    & .fi-ta-header .fi-ta-header-heading {
+        font-size: var(--ag-text-md);
+        line-height: var(--ag-leading-md);
+        font-weight: var(--ag-weight-bold);
+        color: var(--ag-heading);
+    }
+
+    & .fi-ta-header .fi-ta-header-description {
+        margin-top: var(--ag-space-0-5);
+        font-size: var(--ag-text-sm);
+        line-height: var(--ag-leading-sm);
+        color: var(--ag-text-muted);
+    }
+
+    & .fi-ta-header-toolbar {
+        gap: var(--ag-table-zone-gap) var(--ag-space-4);
+
+        & > * {
+            column-gap: var(--ag-space-2);
+        }
+
+        @media (max-width: 39.999rem) {
+            & > :nth-child(2) {
+                flex: 1 1 100%;
+            }
+        }
+    }
+
+    /* Search: the 06 field frame comes from `.fi-input-wrp`; only the width is set here. */
+    & .fi-ta-search-field {
+        width: var(--ag-table-search-width);
+
+        @media (max-width: 39.999rem) {
+            flex: 1 1 auto;
+            width: auto;
+        }
+    }
+
+    /* Selected rows: one quiet primary line, the count and "Zaznacz wszystkie / Odznacz". */
+    & .fi-ta-selection-indicator {
+        padding: var(--ag-space-2) var(--ag-table-edge-padding-x);
+        border-top: var(--ag-border-width) solid var(--ag-soft-primary-border);
+        border-bottom-width: 0;
+        background-color: var(--ag-soft-primary-bg);
+
+        & > :nth-child(1) {
+            font-size: var(--ag-text-sm);
+            font-weight: var(--ag-weight-semibold);
+            color: var(--ag-accent-text);
+        }
+
+        @media (max-width: 39.999rem) {
+            padding-inline: var(--ag-space-4);
+        }
+    }
+}
+
+/* Column manager ("Wybierz kolumny"): same header as the filter panel, a tighter list. */
+.fi-ta-ctn .fi-ta-header-toolbar .fi-ta-col-manager-dropdown .fi-ta-col-manager {
+    gap: var(--ag-space-3);
+    padding: var(--ag-filter-panel-padding);
+}
+
+.fi-ta-col-manager {
+    & .fi-ta-col-manager-heading {
+        font-size: var(--ag-text-base);
+        line-height: var(--ag-leading-base);
+        font-weight: var(--ag-weight-semibold);
+        color: var(--ag-text);
+    }
+
+    & .fi-ta-col-manager-items {
+        margin-top: calc(-1 * var(--ag-space-3));
+    }
+
+    & .fi-ta-col-manager-item {
+        padding-top: var(--ag-space-3);
+
+        & .fi-ta-col-manager-label {
+            font-weight: var(--ag-weight-regular);
+            color: var(--ag-text);
+        }
+    }
+
+    & .fi-ta-col-manager-header .fi-link {
+        color: var(--ag-text-secondary);
+
+        & > .fi-icon {
+            color: currentColor;
+        }
+
+        &:hover {
+            color: var(--ag-accent);
+        }
+    }
+}

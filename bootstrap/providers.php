@@ -1,8 +1,8 @@
 <?php
 
+use App\AppServiceProvider;
 use App\Core\CoreServiceProvider;
-use App\Providers\AppServiceProvider;
-use App\Providers\Filament\AdminPanelProvider;
+use App\Filament\AdminPanelProvider;
 
 return [
     CoreServiceProvider::class,

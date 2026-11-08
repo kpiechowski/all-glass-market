@@ -1,0 +1,169 @@
+/*
+ * Sidebar (D-25, D-31, D-41 trial). Every colour is a `--ag-sidebar-*` variable from
+ * tokens/sidebar.css, which holds the light sidebar and the navy trial; this file never names a
+ * colour. The navigation is two blocks built in PanelNavigation; the second one
+ * (`sidebar-group--bottom`) sits at the foot. Items are quiet; only the active one is marked.
+ *
+ * This file is the light sidebar under the white topbar. The navy trial (D-41), its full-height
+ * layout and the white logo live in sidebar-navy.css.
+ */
+.fi-sidebar {
+    background-color: var(--ag-sidebar-bg);
+
+    @media (min-width: 64rem) {
+        border-inline-end: var(--ag-border-width) solid var(--ag-sidebar-edge);
+    }
+}
+
+.fi-sidebar-close-overlay {
+    background-color: var(--ag-sidebar-overlay);
+}
+
+/* Mobile drawer header (logo): white like the topbar, a hairline instead of the ring. */
+.fi-body-has-topbar .fi-sidebar-header {
+    padding-inline: var(--ag-space-4);
+    background-color: var(--ag-surface);
+    box-shadow: none;
+    border-bottom: var(--ag-border-width) solid var(--ag-border);
+}
+
+.fi-sidebar-nav {
+    padding: var(--ag-space-4) var(--ag-space-3);
+    row-gap: var(--ag-space-4);
+    scrollbar-color: var(--ag-sidebar-scrollbar) transparent;
+}
+
+/* The groups list fills the nav, so the bottom block can drop to its end. */
+.fi-sidebar-nav-groups {
+    flex-grow: 1;
+    margin-inline: 0;
+    row-gap: var(--ag-space-6);
+}
+
+/* D-25a: the top block (dashboard only) is closed by a divider; the main block follows right under it. */
+.fi-sidebar-group.sidebar-group--top {
+    padding-bottom: var(--ag-space-3);
+    border-bottom: var(--ag-border-width) solid var(--ag-sidebar-divider);
+}
+
+.fi-sidebar-group.sidebar-group--bottom {
+    margin-top: auto;
+    padding-top: var(--ag-space-3);
+    border-top: var(--ag-border-width) solid var(--ag-sidebar-divider);
+}
+
+.fi-sidebar-group-btn .fi-icon,
+.fi-sidebar-group-dropdown-trigger-btn .fi-icon {
+    color: var(--ag-sidebar-icon);
+}
+
+.fi-sidebar-group-label {
+    font-size: var(--ag-text-xs);
+    font-weight: var(--ag-weight-medium);
+    color: var(--ag-sidebar-group-label);
+}
+
+/* Icon buttons inside the sidebar (group collapse chevron, desktop collapse). */
+.fi-sidebar-nav .fi-icon-btn.fi-color-gray,
+.fi-sidebar-nav .fi-icon-btn:not(.fi-color) {
+    color: var(--ag-sidebar-icon);
+
+    &:not(.fi-disabled):not([disabled]):hover {
+        background-color: var(--ag-sidebar-hover-bg);
+        color: var(--ag-sidebar-icon-hover);
+    }
+
+    &:focus-visible {
+        outline-color: var(--ag-sidebar-focus);
+    }
+}
+
+.fi-sidebar-group-items {
+    row-gap: var(--ag-space-0-5);
+}
+
+.fi-sidebar-item-btn,
+.fi-sidebar-database-notifications-btn {
+    column-gap: var(--ag-space-2-5);
+    padding: var(--ag-space-1-5) var(--ag-space-2-5);
+    border-radius: var(--ag-radius-control);
+
+    & > .fi-icon {
+        color: var(--ag-sidebar-icon);
+    }
+}
+
+.fi-sidebar-item-label,
+.fi-sidebar-database-notifications-btn-label {
+    font-size: var(--ag-text-base);
+    line-height: var(--ag-leading-base);
+    font-weight: var(--ag-weight-medium);
+    color: var(--ag-sidebar-text);
+}
+
+/* Sub-items: the grouped-border dots and lines follow the icon colour. */
+.fi-sidebar-item-grouped-border-part,
+.fi-sidebar-item-grouped-border-part-not-first,
+.fi-sidebar-item-grouped-border-part-not-last {
+    background-color: var(--ag-sidebar-divider);
+}
+
+.fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn,
+.fi-sidebar-database-notifications-btn {
+    &:hover,
+    &:focus-visible {
+        background-color: var(--ag-sidebar-hover-bg);
+
+        & > .fi-icon {
+            color: var(--ag-sidebar-icon-hover);
+        }
+
+        & > .fi-sidebar-item-label,
+        & > .fi-sidebar-database-notifications-btn-label {
+            color: var(--ag-sidebar-text-hover);
+        }
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--ag-sidebar-focus);
+        outline-offset: -2px;
+    }
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    &,
+    &:hover {
+        background-color: var(--ag-sidebar-active-bg);
+    }
+
+    /* Indicator: a short bar on the leading edge of the active item. */
+    &::before {
+        content: "";
+        position: absolute;
+        inset-block: var(--ag-space-1-5);
+        inset-inline-start: 0;
+        width: 3px;
+        border-radius: var(--ag-radius-pill);
+        background-color: var(--ag-sidebar-indicator);
+    }
+
+    & > .fi-icon,
+    &:hover > .fi-icon {
+        color: var(--ag-sidebar-active-icon);
+    }
+
+    & > .fi-sidebar-item-label,
+    &:hover > .fi-sidebar-item-label {
+        color: var(--ag-sidebar-active-text);
+        font-weight: var(--ag-weight-semibold);
+    }
+
+    & > .fi-sidebar-item-grouped-border > .fi-sidebar-item-grouped-border-part {
+        background-color: var(--ag-sidebar-indicator);
+    }
+}
+
+.fi-sidebar-footer {
+    margin-inline: var(--ag-space-3);
+    border-top-color: var(--ag-sidebar-divider);
+}

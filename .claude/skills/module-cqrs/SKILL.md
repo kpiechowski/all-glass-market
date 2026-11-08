@@ -98,14 +98,14 @@ public function activate(): void
 }
 ```
 
-Filament calls the same method with the model's fields (`filament-module-ui`). One rule, one source.
+Filament calls the same method with the model's fields (`filament-module-wiring`). One rule, one source.
 
 ## Authorization
 
 `Core\Contracts\Authorizer` answers "may this actor do this", implemented by the Users module. Modules check **permissions** from their own `{Name}Permission` enum, never roles.
 
 - Handlers call `ensure()`, which throws.
-- Filament calls `actorCan()` from the Core trait to show or hide (`filament-module-ui`).
+- Filament calls `actorCan()` from the Core trait to show or hide (`filament-module-wiring`).
 - `Actor::user($id)` represents a person. A job a person started carries that person's actor.
 - `Actor::system('<reason>')` is for the scheduler, integration webhooks and listeners only. The authorizer lets it through and the reason reaches the audit log. UserInterface builds `Actor::user()` from the Core trait, always.
 
@@ -114,6 +114,16 @@ Laravel Policies and Gates are not used (ADR 0004).
 ## Errors
 
 Domain exceptions extend `Core\Exceptions\DomainException` and carry a translation key from `{module}::exceptions`. Throw them; the Core Filament trait turns them into a danger notification and keeps the form open. Anything else surfaces as an error.
+
+### Logging
+
+Handlers and jobs write to the Technical log; the channels and their label translation keys are in `config/logging.php` (`labels`).
+
+- Log a failure with `Log::error()` and context: what failed, which record id, the external system's response. Never `info` for an error.
+- Do not swallow an exception. Catch it only to log it and then rethrow, fail the job, or return a failed result.
+- A job logs to `kolejka`, an integration to its own channel, a security event to `bezpieczenstwo`; everything else goes to the default `aplikacja`.
+- Tell a user "szczegóły w logu" only when the failure went to a channel with a label.
+- A new channel is a daily entry in `config/logging.php` (14 days) plus a label translation key from your module's lang files.
 
 ## Return values
 

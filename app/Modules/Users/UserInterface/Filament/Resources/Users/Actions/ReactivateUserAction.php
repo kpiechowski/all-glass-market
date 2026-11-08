@@ -13,14 +13,14 @@ use App\Modules\Users\UserInterface\Filament\Resources\Users\Support\RoleDisplay
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
-/** WF-05: reactivation needs no confirmation. */
+/** WF-05: reactivation needs no confirmation; a grey secondary header action on an inactive record. */
 final class ReactivateUserAction
 {
     public static function make(): Action
     {
         return Action::make('reactivate')
             ->label(__('users::resources.user.actions.reactivate.label'))
-            ->color('success')
+            ->color('gray')
             ->visible(fn (UserModel $record): bool => ! $record->isActive()
                 && CurrentActor::can(UsersPermission::ManageUsers)
                 && RoleDisplay::canManage($record))

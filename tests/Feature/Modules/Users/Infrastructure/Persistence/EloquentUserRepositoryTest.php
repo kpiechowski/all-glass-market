@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Modules\Users\Infrastructure\Persistence;
 
+use App\Core\Domain\Actor;
+use App\Core\Infrastructure\Bus\ActorStack;
 use App\Modules\Users\Domain\Entities\User;
 use App\Modules\Users\Domain\Repositories\UserRepository;
 use App\Modules\Users\Domain\ValueObjects\Email;
@@ -19,10 +21,15 @@ class EloquentUserRepositoryTest extends TestCase
     {
         $users = app(UserRepository::class);
 
-        $id = $users->add(User::create('Jan', Email::from('jan@example.com'), 'user', 'hash'));
-        $user = $users->get($id);
-        $user->assignRole('admin');
-        $users->save($user);
+        // The adapter is audited: its writes need a current Actor, as inside a command.
+        $id = app(ActorStack::class)->run(Actor::system('test'), function () use ($users): int {
+            $id = $users->add(User::create('Jan', Email::from('jan@example.com'), 'user', 'hash'));
+            $user = $users->get($id);
+            $user->assignRole('admin');
+            $users->save($user);
+
+            return $id;
+        });
 
         $this->assertSame('admin', $users->get($id)->roleKey());
         $this->assertSame('admin', UserModel::findOrFail($id)->role);

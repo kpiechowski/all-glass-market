@@ -11,6 +11,7 @@ use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Facades\Filament;
 use Filament\Schemas\Components\Component;
 use Filament\Support\Components\Attributes\Exposed;
+use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\SessionGuard;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\RateLimiter;
@@ -60,15 +61,20 @@ class Login extends BaseLogin
 
         if (! $user instanceof UserModel || ! $provider->validateCredentials($user, $credentials)) {
             RateLimiter::hit($rateLimitKey, self::WINDOW_SECONDS);
+            $this->reportFailedAttempt($user, (string) $data['email']);
 
             throw ValidationException::withMessages(['data.email' => __('users::login.failed')]);
         }
 
         if (! $user->isActive()) {
+            $this->reportFailedAttempt($user, (string) $data['email']);
+
             throw ValidationException::withMessages(['data.email' => __('users::login.deactivated')]);
         }
 
         if (! app(RoleRegistry::class)->isRegistered((string) $user->role)) {
+            $this->reportFailedAttempt($user, (string) $data['email']);
+
             throw ValidationException::withMessages(['data.email' => __('users::login.no_valid_role')]);
         }
 
@@ -78,5 +84,15 @@ class Login extends BaseLogin
         session()->regenerate();
 
         return app(LoginResponse::class);
+    }
+
+    /**
+     * The panel does not use the guard's attempt(), which would fire Failed, so
+     * it is fired here for the security log (FR-17 of Audit). Only the e-mail
+     * goes in the credentials: the password never leaves this method.
+     */
+    private function reportFailedAttempt(mixed $user, string $email): void
+    {
+        event(new Failed(Filament::getAuthGuard(), $user instanceof UserModel ? $user : null, ['email' => $email]));
     }
 }

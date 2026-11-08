@@ -10,6 +10,7 @@ use App\Modules\Users\Domain\Contracts\PasswordLinks;
 use App\Modules\Users\Domain\Enums\PasswordChangeReason;
 use App\Modules\Users\Domain\Enums\PasswordLinkKind;
 use App\Modules\Users\Domain\Events\PasswordChanged;
+use App\Modules\Users\Domain\Events\PasswordResetCompleted;
 use App\Modules\Users\Domain\Exceptions\UserRefused;
 use App\Modules\Users\Domain\Repositories\UserRepository;
 use App\Modules\Users\Domain\ValueObjects\PlainPassword;
@@ -53,6 +54,10 @@ final class SetPasswordFromLinkCommandHandler
         $this->users->save($user);
 
         event(new PasswordChanged($userId, ($kind === PasswordLinkKind::Invitation ? PasswordChangeReason::Invitation : PasswordChangeReason::Reset)->value));
+
+        if ($kind === PasswordLinkKind::Reset) {
+            event(new PasswordResetCompleted($userId));
+        }
 
         return $userId;
     }

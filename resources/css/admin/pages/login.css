@@ -1,31 +1,105 @@
-.fi-simple-layout {
-    .fi-simple-main {
-        @apply border-0 ring-0 bg-transparent py-8 my-0;
+/*
+ * Login and the other simple pages (password reset, invitation): one white card with a hairline
+ * edge on the grey canvas, no shadow, header aligned with the form.
+ */
+.fi-simple-main {
+    max-width: 26rem;
+    margin-block: var(--ag-space-12);
+    padding: var(--ag-space-8) var(--ag-space-6);
+    background-color: var(--ag-surface);
+    border-block: var(--ag-border-width) solid var(--ag-border);
+    box-shadow: none;
 
-        .fi-simple-page-content {
-            @apply gap-y-10;
-        }
-
-        .fi-simple-header {
-            @apply items-start gap-0;
-
-            img.fi-logo {
-                @apply !h-16 mb-10;
-            }
-        }
-
-        .fi-sc-form {
-            @apply gap-10;
-        }
-
-        .fi-icon-btn .fi-icon {
-            @apply !text-primary;
-        }
-
-        .fi-sc-has-gap.fi-grid {
-            label[for="form.remember"] {
-                @apply pt-[14px];
-            }
-        }
+    @media (min-width: 40rem) {
+        padding: var(--ag-space-10) var(--ag-space-8);
+        border: var(--ag-border-width) solid var(--ag-border);
+        border-radius: var(--ag-radius-container);
     }
 }
+
+.fi-simple-page-content {
+    row-gap: var(--ag-space-6);
+}
+
+.fi-simple-header {
+    align-items: flex-start;
+
+    & .fi-logo {
+        margin-bottom: var(--ag-space-8);
+        text-align: start;
+    }
+}
+
+.fi-simple-header-heading {
+    text-align: start;
+    font-size: var(--ag-text-xl);
+    line-height: var(--ag-leading-xl);
+    font-weight: var(--ag-weight-bold);
+    letter-spacing: var(--ag-tracking-tight);
+    color: var(--ag-heading);
+}
+
+.fi-simple-header-subheading {
+    margin-top: var(--ag-space-1-5);
+    text-align: start;
+    font-size: var(--ag-text-base);
+    line-height: var(--ag-leading-base);
+    color: var(--ag-text-muted);
+}
+
+/*
+ * Geodes (issue 09, D-44): `panel::auth.geode`, one pair in opposite corners behind the
+ * card. Colours are only those the panel already uses (sky-light, royal, navy). Size follows the
+ * viewport: 160 px on a phone, 28 vw in between, 448 px from a wide screen up (1.75x the first round). The card sits above
+ * them, so on a phone they peek out at the corners instead of crowding the form.
+ */
+.fi-simple-layout:has(> .login-geode) {
+    position: relative;
+    isolation: isolate;
+
+    & > .fi-simple-main-ctn {
+        position: relative;
+        z-index: 1;
+    }
+}
+
+.login-geode-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.login-geode {
+    position: absolute;
+    z-index: 0;
+    width: clamp(10rem, 28vw, 28rem);
+    height: clamp(10rem, 28vw, 28rem);
+    pointer-events: none;
+
+    &.login-geode--top-start {
+        inset-block-start: 0;
+        inset-inline-start: 0;
+    }
+
+    &.login-geode--bottom-end {
+        inset-block-end: 0;
+        inset-inline-end: 0;
+        rotate: 180deg;
+    }
+}
+
+.login-geode__fade-stop {
+    stop-color: var(--brand-sky-light);
+    stop-opacity: 0.16;
+
+    &.login-geode__fade-stop--end {
+        stop-opacity: 0;
+    }
+}
+
+.login-geode__fade { fill: url(#login-geode-fade); }
+.login-geode__sky { fill: var(--brand-sky-light); fill-opacity: 0.22; }
+.login-geode__royal { fill: var(--brand-royal); fill-opacity: 0.38; }
+.login-geode__royal-deep { fill: var(--brand-royal); fill-opacity: 0.62; }
+.login-geode__navy { fill: var(--brand-navy); }

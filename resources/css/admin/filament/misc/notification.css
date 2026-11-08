@@ -1,0 +1,101 @@
+/*
+ * Toast notifications (D-22: short, past tense). One white card for every status; the status
+ * shows in the icon and a 3 px bar on the leading edge, not in a tinted card.
+ *
+ *   card     white, 1 px gray-200 edge + shadow-lg (it floats), square on the bar side, 4 px on the other side, 16 px padding
+ *   bar      3 px inset on the left in the status 500 shade (success, warning, danger, info)
+ *   text     title 14 px semibold near-black, body 13 px gray-600
+ *   motion   slides 16 px in from the side and fades on the slow token; leaves with a fade (D-42)
+ *
+ * Inline notifications (the database-notifications list) keep their own layout.
+ */
+.fi-no-notification:not(.fi-inline) {
+    --ag-notification-bar: transparent;
+
+    gap: var(--ag-space-3);
+    padding: var(--ag-space-4);
+    border-radius: 0.25rem;
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+    background-color: var(--ag-surface);
+    box-shadow:
+        inset 3px 0 0 var(--ag-notification-bar),
+        0 0 0 var(--ag-border-width) var(--ag-border),
+        var(--shadow-lg);
+    transition-property: opacity, translate, scale;
+    transition-duration: var(--ag-duration-slow);
+    transition-timing-function: var(--ag-ease-out);
+
+    &.fi-color {
+        background-color: var(--ag-surface);
+        box-shadow:
+            inset 3px 0 0 var(--ag-notification-bar),
+            0 0 0 var(--ag-border-width) var(--ag-border),
+            var(--shadow-lg);
+    }
+
+    &.fi-transition-leave-end {
+        scale: 0.98;
+    }
+}
+
+.fi-no-notification {
+    &.fi-status-success {
+        --ag-notification-bar: var(--success-500);
+    }
+
+    &.fi-status-warning {
+        --ag-notification-bar: var(--warning-500);
+    }
+
+    &.fi-status-danger {
+        --ag-notification-bar: var(--danger-500);
+    }
+
+    &.fi-status-info {
+        --ag-notification-bar: var(--info-500);
+    }
+
+    & .fi-no-notification-icon.fi-color {
+        color: var(--color-600);
+    }
+
+    & .fi-no-notification-main {
+        margin-top: 0.125rem;
+        gap: var(--ag-space-3);
+    }
+
+    & .fi-no-notification-text {
+        gap: var(--ag-space-0-5);
+    }
+
+    & .fi-no-notification-title {
+        font-size: var(--ag-text-base);
+        line-height: var(--ag-leading-base);
+        font-weight: var(--ag-weight-semibold);
+        color: var(--ag-text);
+    }
+
+    & .fi-no-notification-body,
+    &.fi-color .fi-no-notification-body {
+        font-size: var(--ag-text-sm);
+        line-height: var(--ag-leading-sm);
+        color: var(--ag-text-secondary);
+    }
+
+    & .fi-no-notification-date {
+        font-size: var(--ag-text-xs);
+        color: var(--ag-text-muted);
+    }
+}
+
+/* Enter from the side the stack sits on: 16 px instead of Filament's 48 px. */
+.fi-no.fi-align-end .fi-no-notification.fi-transition-enter-start,
+.fi-no.fi-align-right .fi-no-notification.fi-transition-enter-start {
+    translate: 1rem 0;
+}
+
+.fi-no.fi-align-start .fi-no-notification.fi-transition-enter-start,
+.fi-no.fi-align-left .fi-no-notification.fi-transition-enter-start {
+    translate: -1rem 0;
+}

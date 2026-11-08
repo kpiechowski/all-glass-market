@@ -45,7 +45,13 @@ Choose the channel by what the caller needs:
 
 ## Observers and audit
 
-The repository adapter saves through Eloquent inside the write scope, so model observers fire. An observer is **thin**: it emits the generic Core event `RecordChanged` (model class, id, changed fields with old and new values) and does nothing else. The Audit module listens to `RecordChanged` to build the change log, without knowing which modules exist.
+The repository adapter saves through Eloquent inside the write scope, so model observers fire. An observer is **thin**: it calls Core's `ChangeRecorder` from `created`, `updated`, `deleted` and (for soft-deleting models) `restored`, and does nothing else. `ChangeRecorder` emits the generic Core event `RecordChanged`: model class, id, **kind** (`ChangeKind`: Created, Changed, Deleted, Restored), field changes (raw old and new values), relation changes (raw ids added and removed per relation) and the **Actor** of the command being handled. The Audit module listens to `RecordChanged` to build the change log, without knowing which modules exist.
+
+**The Actor** comes from the command bus, which holds the current command's `Actor` (`public Actor $actor` on the command) for the length of the command. A nested command applies its own Actor and the outer one returns after it. A change recorded with no command being handled throws `NoCurrentActorException`; there is no fallback System actor. In tests, wrap writes in `app(ActorStack::class)->run($actor, ...)`. Impersonation needs nothing special: the Actor is recorded as the command carries it.
+
+**Recording is buffered per command and synchronous.** `ChangeRecorder` does not dispatch at once: it buffers in the current command's frame on the `ActorStack`. When the command finishes successfully the frame coalesces its changes to **one `RecordChanged` per record** (a Changed folds into an earlier Created or Changed of the same record: first `old`, last `new`, relation diffs united, a net-empty Changed dropped; Deleted and Restored are never folded) and dispatches them with that command's Actor, **before the transaction commits** (`HoldCommandActor` runs inside `WrapCommandInTransaction`). A command that throws dispatches nothing. A nested command flushes its own frame with its own Actor. Never defer recording with `ShouldDispatchAfterCommit` or a queued listener: if the entry cannot be stored the command rolls back.
+
+**Relations:** observers cannot see pivot syncs. An adapter syncs an audited many-to-many relation only through `EloquentRepository::syncRelation($id, $relation, $ids)`, which buffers the diff as a Changed carrying only relation changes; the frame folds it into the record's other changes, so a listener sees one event with fields and relations together (nothing is buffered when the relation did not change).
 
 Observers live in `Infrastructure/Persistence/Observers/` and are registered in the event provider's `$observers`. Business events are named by the handler; an observer never reads dirty fields to decide which business event happened.
 
@@ -54,5 +60,5 @@ Observers live in `Infrastructure/Persistence/Observers/` and are registered in 
 - Every business event is emitted by a command handler after `add()` or `save()`.
 - Every event payload holds ids and values only.
 - Every listener does one thing, and external side effects run after commit.
-- Every observer emits only `RecordChanged`.
+- Every observer only calls `ChangeRecorder`, and no audited relation is synced outside `syncRelation()`.
 - Every listener has a test: dispatch the event, assert the reaction (`module-testing`).

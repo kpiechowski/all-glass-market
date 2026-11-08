@@ -1,0 +1,76 @@
+/*
+ * Select: the native `select.fi-select-input` and Filament's JS select (`.fi-select-input`
+ * with a trigger button, used by default and for multiple choice). Both sit in the shared
+ * input frame (`input.css`) and are 36 px tall, like the md button.
+ *
+ * - Value 14 px dark, placeholder gray-400, chevron muted grey.
+ * - Disabled: no extra fade; the frame's grey fill already says it, and the value stays readable.
+ * - Options: hover and keyboard highlight gray-100; the chosen option is royal and semibold.
+ *   The rest of the dropdown panel (radius, shadow) is issue 09.
+ */
+select.fi-select-input {
+    min-height: var(--ag-field-height);
+    padding-inline-start: var(--ag-field-padding-x);
+    font-size: var(--ag-text-base);
+    color: var(--ag-field-text);
+
+    &:disabled {
+        color: var(--ag-field-disabled-text);
+        -webkit-text-fill-color: var(--ag-field-disabled-text);
+    }
+
+    &.fi-select-input-has-inline-prefix {
+        padding-inline-start: 0;
+    }
+
+    @supports (-webkit-touch-callout: none) {
+        font-size: var(--ag-text-md);
+    }
+}
+
+.fi-select-input {
+    & .fi-select-input-btn {
+        min-height: var(--ag-field-height);
+        padding-inline-start: var(--ag-field-padding-x);
+        font-size: var(--ag-text-base);
+        color: var(--ag-field-text);
+    }
+
+    & .fi-select-input-ctn-multiple .fi-select-input-value-ctn {
+        min-height: var(--ag-field-height);
+        padding-inline-start: var(--ag-field-padding-x);
+    }
+
+    & .fi-select-input-placeholder,
+    & .fi-disabled .fi-select-input-placeholder {
+        color: var(--ag-field-placeholder);
+    }
+
+    & .fi-disabled {
+        opacity: 1;
+        color: var(--ag-field-disabled-text);
+    }
+
+    & .fi-select-input-value-remove-btn {
+        color: var(--ag-field-icon);
+
+        &:hover,
+        &:focus-visible {
+            color: var(--ag-text-secondary);
+        }
+    }
+
+    & .fi-select-input-option {
+        transition: var(--ag-field-transition);
+
+        &:not(.fi-disabled):hover,
+        &.fi-selected:not(.fi-disabled) {
+            background-color: var(--gray-100);
+        }
+
+        &[aria-selected='true'] > span {
+            font-weight: var(--ag-weight-semibold);
+            color: var(--ag-accent);
+        }
+    }
+}

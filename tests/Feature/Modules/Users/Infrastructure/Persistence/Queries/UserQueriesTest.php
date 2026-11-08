@@ -20,4 +20,24 @@ class UserQueriesTest extends TestCase
 
         $this->assertSame([$new->id, $old->id], app(UserQueries::class)->listing()->pluck('id')->all());
     }
+
+    public function test_only_active_keeps_active_users_and_excludes_deactivated_ones(): void
+    {
+        $active = UserModel::factory()->create();
+        UserModel::factory()->deactivated()->create();
+
+        $queries = app(UserQueries::class);
+
+        $this->assertSame([$active->id], $queries->onlyActive($queries->listing())->pluck('id')->all());
+    }
+
+    public function test_only_inactive_keeps_deactivated_users_and_excludes_active_ones(): void
+    {
+        UserModel::factory()->create();
+        $inactive = UserModel::factory()->deactivated()->create();
+
+        $queries = app(UserQueries::class);
+
+        $this->assertSame([$inactive->id], $queries->onlyInactive($queries->listing())->pluck('id')->all());
+    }
 }

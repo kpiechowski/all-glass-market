@@ -11,7 +11,6 @@ use Carbon\CarbonImmutable;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
@@ -19,79 +18,95 @@ use Filament\Schemas\Schema;
 
 class ProfileForm
 {
+    /** Template D, layout (a): one column of sections, one form, one sticky Zapisz. */
     public static function configure(Schema $schema): Schema
     {
         return $schema
             ->statePath('data')
+            ->columns(1)
             ->components([
-                Section::make(__('users::profile.sections.personal_details'))
-                    ->aside()
-                    ->description(__('users::profile.sections.personal_details_description'))
-                    ->schema([
-                        Grid::make(2)->schema([
-                            TextInput::make('name')
-                                ->label(__('users::profile.fields.name'))
-                                ->required()
-                                ->maxLength(255)
-                                ->columnSpan(1),
-
-                            TextInput::make('email')
-                                ->label(__('users::profile.fields.email'))
-                                ->email()
-                                ->required()
-                                ->unique('users', 'email', ignorable: fn () => auth()->user())
-                                ->maxLength(255)
-                                ->columnSpan(1),
-
-                            TextInput::make('phone')
-                                ->label(__('users::profile.fields.phone'))
-                                ->tel()
-                                ->required()
-                                ->maxLength(50)
-                                ->columnSpan(1),
-                        ]),
-                    ]),
-
-                Section::make(__('users::profile.sections.company_account'))
-                    ->aside()
-                    ->description(__('users::profile.sections.company_account_description'))
-                    ->schema([
-                        Grid::make(2)
-                            ->schema([
-                                TextInput::make('company_name')
-                                    ->label(__('users::profile.fields.company_name'))
-                                    ->maxLength(255)
-                                    ->columnSpan(1),
-
-                                TextInput::make('company_nip')
-                                    ->label(__('users::profile.fields.company_nip'))
-                                    ->maxLength(255)
-                                    ->columnSpan(1),
-
-                                TextInput::make('company_address')
-                                    ->label(__('users::profile.fields.company_address'))
-                                    ->maxLength(255)
-                                    ->columnSpan(1),
-
-                                TextInput::make('shipment_address')
-                                    ->label(__('users::profile.fields.shipment_address'))
-                                    ->maxLength(255)
-                                    ->columnSpan(1),
-
-                                TextInput::make('city')
-                                    ->label(__('users::profile.fields.city'))
-                                    ->maxLength(255)
-                                    ->columnSpan(1),
-
-                                TextInput::make('city_code')
-                                    ->label(__('users::profile.fields.city_code'))
-                                    ->maxLength(10)
-                                    ->columnSpan(1),
-                            ]),
-
-                    ]),
-
+                self::personalSection(),
+                self::companySection(),
+                self::shipmentAddressSection(),
                 self::accountTypeSection(),
+            ]);
+    }
+
+    private static function personalSection(): Section
+    {
+        return Section::make(__('users::profile.sections.personal_details'))
+            ->columns(['default' => 1, 'md' => 12])
+            ->schema([
+                TextInput::make('name')
+                    ->label(__('users::profile.fields.name'))
+                    ->required()
+                    ->maxLength(255)
+                    ->columnSpan(['default' => 'full', 'md' => 8])
+                    ->columnStart(['default' => 1]),
+
+                TextInput::make('email')
+                    ->label(__('users::profile.fields.email'))
+                    ->email()
+                    ->required()
+                    ->unique('users', 'email', ignorable: fn () => auth()->user())
+                    ->maxLength(255)
+                    ->columnSpan(['default' => 'full', 'md' => 8])
+                    ->columnStart(['default' => 1]),
+
+                TextInput::make('phone')
+                    ->label(__('users::profile.fields.phone'))
+                    ->tel()
+                    ->required()
+                    ->maxLength(50)
+                    ->columnSpan(['default' => 'full', 'md' => 4]),
+            ]);
+    }
+
+    private static function companySection(): Section
+    {
+        return Section::make(__('users::profile.sections.company'))
+            ->description(__('users::profile.sections.company_description'))
+            ->columns(['default' => 1, 'md' => 12])
+            ->schema([
+                TextInput::make('company_name')
+                    ->label(__('users::profile.fields.company_name'))
+                    ->maxLength(255)
+                    ->columnSpanFull(),
+
+                TextInput::make('company_nip')
+                    ->label(__('users::profile.fields.company_nip'))
+                    ->maxLength(255)
+                    ->columnSpan(['default' => 'full', 'md' => 4]),
+
+                TextInput::make('company_address')
+                    ->label(__('users::profile.fields.company_address'))
+                    ->maxLength(255)
+                    ->columnSpanFull(),
+            ]);
+    }
+
+    /** One address, one section: street, then postcode + city (FR-14: "Jeżeli inny niż adres firmy"). */
+    private static function shipmentAddressSection(): Section
+    {
+        return Section::make(__('users::profile.sections.shipment_address'))
+            ->description(__('users::profile.sections.shipment_address_description'))
+            ->columns(['default' => 1, 'md' => 12])
+            ->schema([
+                TextInput::make('shipment_address')
+                    ->label(__('users::profile.fields.street'))
+                    ->maxLength(255)
+                    ->columnSpanFull(),
+
+                TextInput::make('city_code')
+                    ->label(__('users::profile.fields.city_code'))
+                    ->placeholder('00-000')
+                    ->maxLength(10)
+                    ->columnSpan(['default' => 'full', 'md' => 3]),
+
+                TextInput::make('city')
+                    ->label(__('users::profile.fields.city'))
+                    ->maxLength(255)
+                    ->columnSpan(['default' => 'full', 'md' => 9]),
             ]);
     }
 
@@ -99,11 +114,12 @@ class ProfileForm
     private static function accountTypeSection(): Section
     {
         return Section::make(__('users::profile.sections.account_type'))
-            ->aside()
             ->description(__('users::profile.sections.account_type_description'))
             ->schema([
+                // The section's only input is named like the section, so its label is hidden.
                 Radio::make('account_type')
                     ->label(__('users::profile.fields.account_type'))
+                    ->hiddenLabel()
                     ->options(AccountType::class)
                     ->required()
                     ->live()
