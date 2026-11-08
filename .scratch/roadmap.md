@@ -19,12 +19,12 @@
 | 1 | Users | done (ports & adapters, retrofitted to admin-ui) | — |
 | 2 | Audit | done (incl. "Historia i logi", D-24a) | — |
 | 3 | Preferences | done (issue admin-ui 13, ADR 0006) | grows with real needs |
-| 4 | **Settings** | V1 scan only (`docs/archive/v1-port/modules/settings/scan.md`). In V1 it was a failure. | **Grill first: is a Settings module needed at all, and in what form?** The result is a spec or a written "no module" decision that says where each V1 setting goes. |
+| 4 | Settings | decided 2026-11-08: **no module for now** (ADR 0007; map in `.scratch/settings/decision.md`) | — (revisit when the ADR 0007 signals appear) |
 | 5 | **Vehicles** (working name) | scope list only (`docs/archive/v1-port/modules/vehicles/scan.md`): Car, CarBrand, Eurocode, the Eurocode–Offer pivot | Discovery and grilling, **including the module name** ("Vehicles" vs a catalogue or reference-data name). It exists independently of offers and unblocks Offers. |
 | 6 | Offers | scope list only, the largest module. Reservations, Sales and OfferInquiry live here. | discovery after Vehicles |
 | 7 | Submissions | V1 scan (`docs/archive/v1-port/modules/submissions/scan.md`) | **After Offers:** in V1 every submission belongs to an offer (`offer_id`, cascade). Grill whether it stays a module or becomes part of Offers (OfferInquiry). |
 | 8 | WooCommerce | integration (`app/Integrations/`), scope list only | after Offers |
-| 9 | Otomoto | integration (`app/Integrations/`), scope list only | after Offers |
+| 9 | ~~Otomoto~~ → new integration (TBD) | Otomoto dropped from V2 (2026-11-08); a new integration replaces it | at the very end |
 | — | Data migration | tickets parked in `.scratch/data-migration/` (users, audit) | scheduled by the user |
 
 ## Decisions carried over (still valid)
