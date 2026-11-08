@@ -4,55 +4,76 @@ declare(strict_types=1);
 
 namespace App\Modules\Audit\UserInterface\Filament\Tables;
 
+use App\Core\UserInterface\Filament\Tables\Columns\RecordCardColumn;
+use App\Core\UserInterface\Filament\Tables\TableEmptyState;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecords;
 use App\Modules\Audit\Infrastructure\Persistence\Models\ChangeModel;
-use App\Modules\Audit\UserInterface\Filament\Actions\RestoreChangeAction;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
 
 /**
- * Every entry of every module, newest first (FR-12). Reuses the record history's
- * columns and details modal, adds the record type and a link to the record.
- * No export, no create, edit or delete.
+ * The "Historia zmian" tab of "Historia i logi" (template A, FR-12): every Change of every
+ * module, newest first. The record history's columns and details modal, plus the record (a link
+ * while it exists) with its type under it. Five filters, so the funnel. No export, no create,
+ * edit or delete.
  */
 class AuditLogTable
 {
     public static function configure(Table $table): Table
     {
-        return $table
-            ->columns([
-                ...RecordHistoryTable::columns(),
-                ...self::recordColumns(),
-            ])
-            ->filters(AuditLogTableFilters::make(), layout: FiltersLayout::AboveContentCollapsible)
+        $table = $table
+            ->columns(self::columns())
+            ->filters(AuditLogTableFilters::make())
             ->defaultSort('occurred_at', 'desc')
-            ->recordActions([RecordHistoryTable::detailsAction(), RestoreChangeAction::make()])
             ->recordAction('details')
+            ->recordActions([RecordHistoryTable::restoreAction()])
             ->headerActions([])
             ->toolbarActions([]);
+
+        return TableEmptyState::configure(
+            $table,
+            icon: Heroicon::OutlinedClock,
+            heading: __('audit::pages.history_and_logs.history.empty.heading'),
+            description: __('audit::pages.history_and_logs.history.empty.description'),
+        );
     }
 
-    /** @return list<TextColumn> */
-    private static function recordColumns(): array
+    /** @return list<Column> */
+    private static function columns(): array
     {
         return [
-            TextColumn::make('record_type')
-                ->label(__('audit::resources.audit_log.fields.record_type'))
-                ->state(fn (ChangeModel $record): string => app(AuditableRecords::class)->findByKey($record->record_type)?->typeName() ?? $record->record_type),
+            RecordCardColumn::make()
+                ->title(fn (ChangeModel $record): string => self::recordTitle($record))
+                ->subtitle(fn (ChangeModel $record): string => self::typeName($record))
+                ->badges(fn (ChangeModel $record): array => [RecordHistoryTable::kindLabel($record)])
+                ->meta(fn (ChangeModel $record): array => [$record->occurred_at->format('d.m.Y H:i'), RecordHistoryTable::actorName($record)]),
+            RecordHistoryTable::occurredAtColumn(),
             TextColumn::make('record')
-                ->label(__('audit::resources.audit_log.fields.record'))
+                ->label(__('audit::pages.history_and_logs.history.fields.record'))
                 ->state(fn (ChangeModel $record): string => self::recordTitle($record))
-                ->url(fn (ChangeModel $record): ?string => self::recordUrl($record)),
+                ->description(fn (ChangeModel $record): string => self::typeName($record))
+                ->url(fn (ChangeModel $record): ?string => self::recordUrl($record))
+                ->visibleFrom('md'),
+            RecordHistoryTable::kindColumn(),
+            RecordHistoryTable::actorColumn(),
         ];
     }
 
-    /** The live record when it still exists (soft-deleted or gone: none). */
+    private static function typeName(ChangeModel $entry): string
+    {
+        return app(AuditableRecords::class)->findByKey($entry->record_type)?->typeName() ?? $entry->record_type;
+    }
+
+    /** The live record when it still exists (soft-deleted or gone: none); read once per entry for card, cell and link. */
     private static function liveRecord(ChangeModel $entry): ?object
     {
-        $type = app(AuditableRecords::class)->findByKey($entry->record_type);
+        return once(function () use ($entry): ?object {
+            $type = app(AuditableRecords::class)->findByKey($entry->record_type);
 
-        return $type === null ? null : $type->modelClass::query()->find($entry->record_id);
+            return $type === null ? null : $type->modelClass::query()->find($entry->record_id);
+        });
     }
 
     public static function recordTitle(ChangeModel $entry): string

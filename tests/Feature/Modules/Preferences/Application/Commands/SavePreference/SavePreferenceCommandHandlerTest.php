@@ -26,10 +26,10 @@ class SavePreferenceCommandHandlerTest extends TestCase
     {
         $user = UserModel::factory()->create();
 
-        $this->send(Actor::user($user->id), 'quick_access', ['audit.log', 'users.list']);
+        $this->send(Actor::user($user->id), 'quick_access', ['audit.history_and_logs', 'users.list']);
 
         $row = UserPreferenceModel::query()->where('user_id', $user->id)->where('key', 'quick_access')->sole();
-        $this->assertSame(['audit.log', 'users.list'], $row->value);
+        $this->assertSame(['audit.history_and_logs', 'users.list'], $row->value);
     }
 
     public function test_saving_again_replaces_the_value_in_the_same_row(): void

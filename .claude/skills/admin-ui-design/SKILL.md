@@ -57,6 +57,7 @@ Every grid declares its breakpoints: `->columns(['default' => 1, 'md' => 2])`, `
 - **Dangerous actions** (Dezaktywuj, Usuń) live in "⋮" as red menu items. Full red appears only on the confirmation button.
 - Related items inside "⋮" form one block: a nested `ActionGroup::make([…])->dropdown(false)`, which the menu separates with a divider.
 - Action colours: `primary` for the one primary action, `gray` for the rest, `danger` only for a dangerous menu item and its confirmation button. `success`, `warning` and `info` never colour an action.
+- An action that overwrites values and deletes nothing (Przywróć) is `gray` and may stand in the row as an icon; only its confirmation button is `danger` (`->modalSubmitAction(fn (Action $action): Action => $action->color('danger'))`).
 - Every confirmation sets `modalSubmitActionLabel()`; Filament's default reads "Potwierdź".
 - **Table row:** the row click opens the record (`recordUrl`). One more action may stand alone as an icon with a tooltip; two or more go into "⋮".
 - **Form footer:** Zapisz (primary) and Anuluj (grey), sticky at the bottom.
@@ -65,7 +66,7 @@ Every grid declares its breakpoints: `->columns(['default' => 1, 'md' => 2])`, `
 ## Colour = state
 
 - Categories (account type, role) are `gray` or a soft tint with dark text.
-- `success`, `warning`, `danger` mark operational states only: active/blocked, needs action, error.
+- `success`, `warning`, `danger` mark operational states only: active/blocked, needs action, error. A state that needs no attention (log level info, notice) is `gray`; `info` and `primary` colour no badge.
 - No value means "—" or no element; a badge is never empty.
 - A domain enum's `getColor()` (ADR 0003) follows the same rule.
 - A sidebar badge is a count or an attention indicator ("!", warning, gear). Filament evaluates every navigation badge on every page load, so a count is cached or comes from a small indexed query, never a heavy count. If it cannot be cheap, show an indicator instead.

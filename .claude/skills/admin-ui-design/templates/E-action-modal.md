@@ -51,6 +51,19 @@ Action::make('editPricing')
 
 Use a slide-over when the user needs the list underneath while filling it. Without that need, a long form gets its own page (B-form).
 
+## Skeleton — read-only details
+
+```php
+Action::make('details')
+    ->label(__('audit::resources.record_history.details'))
+    ->modalHeading(__('audit::resources.record_history.details_heading'))
+    ->modalSubmitAction(false)
+    ->modalCancelActionLabel(__('audit::resources.record_history.close'))   // "Zamknij"
+    ->modalContent(fn (ChangeModel $record): View => view('audit::change-details', [...]));
+```
+
+A details modal shows one row that has no page of its own (a change, a log line). Its body is the module's own Blade view; it opens by row click (A, Actions).
+
 ## Rules
 
 - Up to ~5 fields or a confirmation. More fields: own page, or a slide-over.

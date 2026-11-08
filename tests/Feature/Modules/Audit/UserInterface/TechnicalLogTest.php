@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Modules\Audit\UserInterface;
 
-use App\Modules\Audit\UserInterface\Filament\Pages\TechnicalLog\TechnicalLog;
+use App\Modules\Audit\UserInterface\Filament\Pages\HistoryAndLogs\HistoryAndLogs;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,6 +14,7 @@ use Livewire\Livewire;
 use PHPUnit\Framework\Assert;
 use Tests\TestCase;
 
+/** The Logi techniczne tab of "Historia i logi" (FR-16, D-24a). */
 class TechnicalLogTest extends TestCase
 {
     use RefreshDatabase;
@@ -59,7 +60,7 @@ class TechnicalLogTest extends TestCase
     {
         $this->actingAs(UserModel::factory()->superAdmin()->create());
 
-        return Livewire::test(TechnicalLog::class);
+        return Livewire::withQueryParams(['zakladka' => 'logi'])->test(HistoryAndLogs::class);
     }
 
     private function sampleDay(): void
@@ -76,8 +77,8 @@ class TechnicalLogTest extends TestCase
         $this->sampleDay();
 
         $this->page()
-            ->assertSet('data.channel', 'aplikacja')
-            ->assertSet('data.day', now()->format('Y-m-d'))
+            ->assertSet('tableFilters.channel.channel', 'aplikacja')
+            ->assertSet('tableFilters.day.day', now()->format('Y-m-d'))
             ->assertTableTotal(3)
             ->assertSee('Sync failed');
     }
@@ -97,9 +98,9 @@ class TechnicalLogTest extends TestCase
         $this->write('bezpieczenstwo', '2026-01-02', "[2026-01-02 08:00:00] local.INFO: Zalogowano\n");
 
         $this->page()
-            ->set('data.channel', 'bezpieczenstwo')
+            ->filterTable('channel', ['channel' => 'bezpieczenstwo'])
             ->assertTableTotal(0)
-            ->set('data.day', '2026-01-02')
+            ->filterTable('day', ['day' => '2026-01-02'])
             ->assertTableTotal(1)
             ->assertSee('Zalogowano');
     }
@@ -180,7 +181,7 @@ class TechnicalLogTest extends TestCase
         file_put_contents("{$this->directory}/passwd", "[2026-11-05 09:00:00] local.INFO: leaked\n");
 
         $page = $this->page()
-            ->set('data.channel', '../passwd')
+            ->filterTable('channel', ['channel' => '../passwd'])
             ->assertTableTotal(0)
             ->assertDontSee('leaked')
             ->assertActionHidden('download');
@@ -202,14 +203,14 @@ class TechnicalLogTest extends TestCase
     {
         $this->actingAs(UserModel::factory()->admin()->create());
 
-        $this->assertFalse(TechnicalLog::canAccess());
-        Livewire::test(TechnicalLog::class)->assertForbidden();
+        $this->assertFalse(HistoryAndLogs::canAccess());
+        Livewire::withQueryParams(['zakladka' => 'logi'])->test(HistoryAndLogs::class)->assertForbidden();
     }
 
     public function test_an_extra_permission_grants_access(): void
     {
         $this->actingAs(UserModel::factory()->admin()->create(['extra_permissions' => ['audit.technical_logs']]));
 
-        $this->assertTrue(TechnicalLog::canAccess());
+        $this->assertTrue(HistoryAndLogs::canAccess());
     }
 }

@@ -7,7 +7,7 @@ namespace Tests\Feature\Modules\Audit\UserInterface;
 use App\Core\Domain\Actor;
 use App\Core\Domain\Events\ChangeKind;
 use App\Modules\Audit\Infrastructure\Persistence\Models\ChangeModel;
-use App\Modules\Audit\UserInterface\Filament\Pages\AuditLog\AuditLog;
+use App\Modules\Audit\UserInterface\Filament\Pages\HistoryAndLogs\HistoryAndLogs;
 use App\Modules\Audit\UserInterface\Filament\RelationManagers\RecordHistoryRelationManager;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\Pages\ViewUser;
@@ -66,7 +66,7 @@ class RestoreActionTest extends TestCase
     {
         $this->actingAs(UserModel::factory()->superAdmin()->create());
 
-        Livewire::test(AuditLog::class)->assertTableActionVisible('restore', $this->changed);
+        Livewire::test(HistoryAndLogs::class)->assertTableActionVisible('restore', $this->changed);
     }
 
     public function test_it_is_hidden_on_created_deleted_and_relation_only_entries_and_unrestorable_fields(): void
@@ -96,7 +96,7 @@ class RestoreActionTest extends TestCase
 
         $this->actingAs(UserModel::factory()->superAdmin()->create());
 
-        Livewire::test(AuditLog::class)->assertTableActionHidden('restore', $entry);
+        Livewire::test(HistoryAndLogs::class)->assertTableActionHidden('restore', $entry);
     }
 
     public function test_it_is_hidden_without_the_permission_and_shown_with_it_as_an_extra_permission(): void

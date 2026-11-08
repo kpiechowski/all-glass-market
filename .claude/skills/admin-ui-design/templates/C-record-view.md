@@ -42,7 +42,7 @@ public static function getRelations(): array
 }
 ```
 
-Relation managers load lazily by default; leave `$isLazyLoaded` alone.
+Relation managers load lazily by default; leave `$isLazyLoaded` alone. A relation manager's table is template A: card, columns, inline filters, row click, empty state.
 
 ```php
 /** Layout (b): status, type, role and dates stay in view beside the data. */

@@ -115,8 +115,8 @@ class OffersTable
 - A column that is empty for most rows does not exist. Its fact becomes an indicator in the main cell: an icon or small badge next to the name.
 - Every regular column is `->visibleFrom('md')`; the one `RecordCardColumn` hides from `md` by itself.
 - Numbers (counts, money) are `->numeric()` / `->money()` with `->alignEnd()`.
-- Dates: `->date('d.m.Y')`, or `->since()` with `->dateTooltip('d.m.Y H:i')`. Never `->dateTime()` with seconds.
-- Category columns use neutral badges; state columns use state colours (SKILL.md, Colour = state).
+- Dates: `->date('d.m.Y')`, or `->since()` with `->dateTooltip('d.m.Y H:i')`. An event list (history, log) shows `->dateTime('d.m.Y H:i')`. Never seconds outside a technical table.
+- Category columns use neutral badges; state columns use state colours (SKILL.md, Colour = state). A badge without an enum colour sets `->color('gray')`: a bare `->badge()` renders primary.
 
 ## Tabs and filters
 
@@ -127,13 +127,33 @@ class OffersTable
 - Inline filters are selects, dates, toggles or checkboxes; no `->columnSpan()` and no `->filtersFormColumns()` on them.
 - Keep the defaults of `TableDefaults` (`app/Filament/Tables`, registered through `ComponentDefaults` in `AdminPanelProvider::boot()`): inline filters apply on change, the panel has "Zastosuj filtry" and is 24 rem wide, the count badge shows only above 0, "Zresetuj filtry" shows only while a filter is active. Do not set `deferFilters()`, `filtersFormWidth()` or `filtersTriggerAction()` without the user's approval.
 - A filter without a fixed option list gets `->indicateUsing()`, so its chip under the toolbar names the value.
+- A selection the table cannot work without (log channel, day) is an inline `Filter` with a `->default()` and `->indicateUsing(fn (): array => [])`: no chip, and it never counts as narrowing, so the table keeps its own empty state. Never a form above the table.
 
 ## Actions
 
 - The row click opens the record (`recordUrl`); View is not a row action. Edit may stay in the row "⋮" beside other actions.
+- A row with no page of its own (a change, a log entry) opens its read-only details modal (E) by click: the modal action sits on the first column (`->action()`) and `->recordAction()` names it, so it never shows as a row action.
 - One extra row action stands alone as `->iconButton()` with a tooltip. Two or more go into one `ActionGroup`.
 - Header: one primary (`CreateAction`), at most two secondary, the rest in "⋮".
 - Bulk actions go in `toolbarActions()` and send commands (`filament-module-wiring`).
+
+## Page tabs on a standalone page
+
+A page holding several lists ("Historia i logi") splits them with page tabs.
+
+- One page, one table, switched by the active tab; every tab is template A on its own.
+- The bar is `<x-filament::tabs>` with `tag="a"` items linking to the page with `?zakladka=<polish-slug>`. The active tab is a `#[Locked] #[Url(as: 'zakladka')]` property, so each tab is a fresh page load and only its table is built.
+- A tab the user may not see is hidden; `canAccess()` holds when any tab is allowed; the page opens on the first allowed tab, also when the URL names a forbidden one.
+- Every server entry of a tab (query, `records()`, action) re-checks that tab's permission with `abort_unless`.
+- The page header shows only the active tab's actions (`->visible()` per tab).
+
+## Technical table
+
+A table of machine records read by technical staff (log lines, failed jobs). The D-12 exception.
+
+- No `RecordCardColumn`, and no column is `->visibleFrom('md')`: on mobile it stays Filament's scrolling table, so it keeps ≤4 short columns with the long text last (`->limit()`).
+- Time may show seconds (`->dateTime('H:i:s')`) when a filter fixes the day; otherwise `d.m.Y H:i`.
+- The other rules of this template hold: details by row click, empty state, inline filters.
 
 ## Empty state
 
@@ -152,10 +172,12 @@ The Users list, before the retrofit:
 ## Before you finish
 
 - ≤6 visible columns; no column mostly empty; related data shares a cell.
-- Every regular column `->visibleFrom('md')`; exactly one `RecordCardColumn` with title, status and the main cell's flags.
+- Every regular column `->visibleFrom('md')`; exactly one `RecordCardColumn` with title, status and the main cell's flags. A technical table has neither.
+- Every badge without an enum colour sets `->color('gray')`.
 - A list of people uses `PersonColumn`; every other two-line cell uses `->description()`.
 - No date column shows seconds.
 - The main split is tabs; ≤3 inline filters, else the funnel.
-- `recordUrl` set; ≤1 standalone row action.
+- `recordUrl` set, or the details modal as `recordAction`; ≤1 standalone row action.
+- A page with page tabs hides forbidden tabs, keeps the tab in `?zakladka=` and re-checks each tab's permission server-side.
 - Empty state through `TableEmptyState::configure()` with icon, sentence and primary action.
 - No `deferFilters()`, `filtersFormWidth()` or vendor table view override.

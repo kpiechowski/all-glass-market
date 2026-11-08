@@ -6,7 +6,7 @@ namespace Tests\Feature\Modules\Audit\UserInterface;
 
 use App\Core\Domain\Events\ChangeKind;
 use App\Modules\Audit\Infrastructure\Persistence\Models\ChangeModel;
-use App\Modules\Audit\UserInterface\Filament\Pages\AuditLog\AuditLog;
+use App\Modules\Audit\UserInterface\Filament\Pages\HistoryAndLogs\HistoryAndLogs;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,6 +14,7 @@ use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Tests\TestCase;
 
+/** The Historia zmian tab of "Historia i logi" (FR-12, D-24a). */
 class AuditLogTest extends TestCase
 {
     use RefreshDatabase;
@@ -29,7 +30,7 @@ class AuditLogTest extends TestCase
     {
         $this->actingAs(UserModel::factory()->superAdmin()->create());
 
-        return Livewire::test(AuditLog::class);
+        return Livewire::withQueryParams(['zakladka' => 'historia'])->test(HistoryAndLogs::class);
     }
 
     private function recordUrl(Testable $page, ChangeModel $entry): ?string
@@ -172,17 +173,17 @@ class AuditLogTest extends TestCase
     {
         $this->actingAs(UserModel::factory()->admin()->create());
 
-        $this->assertFalse(AuditLog::canAccess());
-        $this->assertNotContains('Dziennik audytu', $this->navigationLabels());
-        Livewire::test(AuditLog::class)->assertForbidden();
+        $this->assertFalse(HistoryAndLogs::canAccess());
+        $this->assertNotContains('Historia i logi', $this->navigationLabels());
+        Livewire::test(HistoryAndLogs::class)->assertForbidden();
     }
 
     public function test_an_extra_permission_grants_access(): void
     {
         $this->actingAs(UserModel::factory()->admin()->create(['extra_permissions' => ['audit.audit_log']]));
 
-        $this->assertTrue(AuditLog::canAccess());
-        $this->assertContains('Dziennik audytu', $this->navigationLabels());
+        $this->assertTrue(HistoryAndLogs::canAccess());
+        $this->assertContains('Historia i logi', $this->navigationLabels());
     }
 
     public function test_the_super_admin_can_open_the_page(): void

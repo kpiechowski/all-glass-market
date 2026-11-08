@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Filament;
 
 use App\Filament\Pages\Styleguide;
-use App\Modules\Audit\UserInterface\Filament\Pages\AuditLog\AuditLog;
-use App\Modules\Audit\UserInterface\Filament\Pages\TechnicalLog\TechnicalLog;
+use App\Modules\Audit\UserInterface\Filament\Pages\HistoryAndLogs\HistoryAndLogs;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\EditProfile;
 use App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\JournalEntryResource;
@@ -41,8 +40,7 @@ class AdminPanelProviderTest extends TestCase
         $this->assertSame([
             UserResource::getNavigationLabel(),
             JournalEntryResource::getNavigationLabel(),
-            AuditLog::getNavigationLabel(),
-            TechnicalLog::getNavigationLabel(),
+            HistoryAndLogs::getNavigationLabel(),
         ], $this->labels($main));
         $this->assertSame([EditProfile::getNavigationLabel()], $this->labels($bottom));
         $this->assertStringContainsString('sidebar-group--bottom', $bottom->getExtraSidebarAttributeBag()->get('class'));
@@ -86,7 +84,7 @@ class AdminPanelProviderTest extends TestCase
             ->assertOk()
             ->assertSee('sidebar-group--top')
             ->assertSee('sidebar-group--bottom')
-            ->assertSeeInOrder([Dashboard::getNavigationLabel(), AuditLog::getNavigationLabel(), EditProfile::getNavigationLabel()]);
+            ->assertSeeInOrder([Dashboard::getNavigationLabel(), HistoryAndLogs::getNavigationLabel(), EditProfile::getNavigationLabel()]);
     }
 
     /**

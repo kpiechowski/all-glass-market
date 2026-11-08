@@ -7,7 +7,7 @@ namespace Tests\Feature\Modules\Preferences\UserInterface\Filament\Widgets;
 use App\Core\Domain\QuickAccess\QuickAccessGroup;
 use App\Core\Domain\QuickAccess\QuickAccessItem;
 use App\Core\Domain\QuickAccess\QuickAccessItems;
-use App\Modules\Audit\UserInterface\Filament\Pages\AuditLog\AuditLog;
+use App\Modules\Audit\UserInterface\Filament\Pages\HistoryAndLogs\HistoryAndLogs;
 use App\Modules\Preferences\Infrastructure\Persistence\Models\UserPreferenceModel;
 use App\Modules\Preferences\UserInterface\Filament\Widgets\QuickAccessWidget;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
@@ -115,13 +115,13 @@ class QuickAccessWidgetTest extends TestCase
     public function test_unknown_and_inaccessible_tiles_are_skipped(): void
     {
         $user = UserModel::factory()->create();
-        $this->pin($user, ['gone.page', 'users.list', 'audit.log', 'users.profile']);
+        $this->pin($user, ['gone.page', 'users.list', 'audit.history_and_logs', 'users.profile']);
         $this->actingAs($user);
 
         Livewire::test(QuickAccessWidget::class)
             ->assertSee(EditProfile::getUrl(), false)
             ->assertDontSee(UserResource::getUrl(), false)
-            ->assertDontSee(AuditLog::getUrl(), false);
+            ->assertDontSee(HistoryAndLogs::getUrl(), false);
     }
 
     public function test_the_edit_action_switches_edit_mode_on_and_off(): void

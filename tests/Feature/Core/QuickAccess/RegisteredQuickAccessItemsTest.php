@@ -23,7 +23,7 @@ class RegisteredQuickAccessItemsTest extends TestCase
     {
         $keys = array_map(fn (QuickAccessItem $item): string => $item->key, app(QuickAccessItems::class)->all());
 
-        $this->assertEqualsCanonicalizing(['users.list', 'users.journal', 'users.profile', 'audit.log', 'audit.technical_log'], $keys);
+        $this->assertEqualsCanonicalizing(['users.list', 'users.journal', 'users.profile', 'audit.history_and_logs'], $keys);
     }
 
     public function test_an_item_shows_what_the_sidebar_shows_and_follows_can_access(): void

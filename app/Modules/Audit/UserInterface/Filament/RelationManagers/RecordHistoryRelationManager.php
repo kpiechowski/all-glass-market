@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Livewire\Attributes\Locked;
 
 /**
- * The "Historia zmian" tab (FR-09, FR-10). A hosting resource lists it in
+ * The "Historia zmian" tab of a record view (template C, tab 2, lazy by default; FR-09, FR-10). A hosting resource lists it in
  * `getRelations()` with its registered type key:
  *
  *     RecordHistoryRelationManager::make(['recordType' => 'users.user'])

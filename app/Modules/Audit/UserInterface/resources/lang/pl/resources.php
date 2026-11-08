@@ -10,6 +10,10 @@ return [
         'close' => 'Zamknij',
         'system' => 'System: :reason',
         'system_option' => 'System',
+        'empty' => [
+            'heading' => 'Brak zapisanych zmian',
+            'description' => 'Zmiany tego rekordu pojawią się tutaj.',
+        ],
         'fields' => [
             'occurred_at' => 'Kiedy',
             'actor' => 'Autor zmiany',
@@ -18,21 +22,10 @@ return [
     ],
     'restore' => [
         'label' => 'Przywróć',
-        'heading' => 'Przywrócić wartości z wpisu?',
-        'description' => 'Przywrócić: :values?',
-        'submit' => 'Przywróć',
-        'done' => 'Przywrócono wartości z wpisu.',
+        'heading' => 'Przywrócić wartości sprzed zmiany?',
+        'description' => 'Przywrócić: :values? Przywrócenie zapisze się w historii jako nowa zmiana.',
+        'submit' => 'Przywróć wartości',
+        'done' => 'Przywrócono wartości',
         'marker' => 'przywrócono z wpisu z :date',
-    ],
-    'audit_log' => [
-        'navigation_label' => 'Dziennik audytu',
-        'title' => 'Dziennik audytu',
-        'fields' => [
-            'record_type' => 'Rodzaj rekordu',
-            'record' => 'Rekord',
-            'record_id' => 'Identyfikator rekordu',
-            'from' => 'Od',
-            'until' => 'Do',
-        ],
     ],
 ];

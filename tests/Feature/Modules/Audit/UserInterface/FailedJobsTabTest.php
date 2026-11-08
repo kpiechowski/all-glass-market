@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\Audit\UserInterface;
 
 use App\Modules\Audit\Infrastructure\Persistence\Models\ChangeModel;
-use App\Modules\Audit\UserInterface\Filament\Pages\TechnicalLog\TechnicalLog;
+use App\Modules\Audit\UserInterface\Filament\Pages\HistoryAndLogs\HistoryAndLogs;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -17,6 +17,7 @@ use PHPUnit\Framework\Assert;
 use RuntimeException;
 use Tests\TestCase;
 
+/** The Nieudane zadania tab of "Historia i logi" (FR-18, D-24a). */
 class FailedJobsTabTest extends TestCase
 {
     use RefreshDatabase;
@@ -46,7 +47,7 @@ class FailedJobsTabTest extends TestCase
     {
         $this->actingAs($user ?? UserModel::factory()->superAdmin()->create());
 
-        return Livewire::withQueryParams(['activeTab' => 'failed'])->test(TechnicalLog::class);
+        return Livewire::withQueryParams(['zakladka' => 'zadania'])->test(HistoryAndLogs::class);
     }
 
     public function test_it_lists_failed_jobs_with_name_time_and_error(): void
@@ -94,11 +95,11 @@ class FailedJobsTabTest extends TestCase
 
         $this->tab()
             ->mountTableAction('remove', $id)
-            ->assertMountedActionModalSee('Usunąć nieudane zadanie?');
+            ->assertMountedActionModalSee(['Usunąć nieudane zadanie?', 'Usuń zadanie']);
 
         $this->assertSame(1, DB::table('failed_jobs')->count());
 
-        Livewire::withQueryParams(['activeTab' => 'failed'])->test(TechnicalLog::class)
+        Livewire::withQueryParams(['zakladka' => 'zadania'])->test(HistoryAndLogs::class)
             ->callTableAction('remove', $id);
 
         $this->assertSame(0, DB::table('failed_jobs')->count());
@@ -110,6 +111,6 @@ class FailedJobsTabTest extends TestCase
         $this->failJob();
         $this->actingAs(UserModel::factory()->create());
 
-        Livewire::withQueryParams(['activeTab' => 'failed'])->test(TechnicalLog::class)->assertForbidden();
+        Livewire::withQueryParams(['zakladka' => 'zadania'])->test(HistoryAndLogs::class)->assertForbidden();
     }
 }

@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Navigation;
 
 use App\Filament\Pages\Styleguide;
-use App\Modules\Audit\UserInterface\Filament\Pages\AuditLog\AuditLog;
-use App\Modules\Audit\UserInterface\Filament\Pages\TechnicalLog\TechnicalLog;
+use App\Modules\Audit\UserInterface\Filament\Pages\HistoryAndLogs\HistoryAndLogs;
 use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\EditProfile;
 use App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\JournalEntryResource;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
@@ -30,8 +29,7 @@ final class PanelNavigation
         $main = [
             UserResource::class,
             JournalEntryResource::class,
-            AuditLog::class,
-            TechnicalLog::class,
+            HistoryAndLogs::class,
         ];
 
         /* D-33: the Styleguide route exists only locally, so its item may not be built elsewhere. */

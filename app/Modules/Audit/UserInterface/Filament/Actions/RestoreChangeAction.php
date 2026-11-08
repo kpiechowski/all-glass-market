@@ -14,12 +14,14 @@ use App\Modules\Audit\Domain\Enums\AuditPermission;
 use App\Modules\Audit\Infrastructure\Persistence\Models\ChangeModel;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
+use Filament\Support\Icons\Heroicon;
 
 /**
  * FR-13, FR-14: "Przywróć" on a zmieniono entry. Shown only for a holder of the
  * Permission, on a type that offers Restore, when the entry holds a restorable
  * field and the record still exists; the handler checks the Permission again.
  * The dialog lists the values to be written and compares nothing (D-36).
+ * It overwrites and deletes nothing: grey, with only the confirmation button red (SKILL, Action hierarchy).
  */
 final class RestoreChangeAction
 {
@@ -27,9 +29,10 @@ final class RestoreChangeAction
     {
         return Action::make('restore')
             ->label(__('audit::resources.restore.label'))
-            ->icon('heroicon-o-arrow-uturn-left')
-            ->color('warning')
+            ->icon(Heroicon::OutlinedArrowUturnLeft)
+            ->color('gray')
             ->requiresConfirmation()
+            ->modalSubmitAction(fn (Action $action): Action => $action->color('danger'))
             ->modalHeading(__('audit::resources.restore.heading'))
             ->modalDescription(fn (ChangeModel $record): string => __('audit::resources.restore.description', ['values' => self::valuesText($record)]))
             ->modalSubmitActionLabel(__('audit::resources.restore.submit'))
