@@ -3,7 +3,7 @@
 <!-- Moved out of docs/archive/README.md and docs/archive/v1-port/refactor-plan.md on 2026-11-08 and revised with the user.
      This is the live order of work. Each module runs: module-discovery → agreed functional-spec.md → issues → delivery → admin-ui check. -->
 
-- **Updated:** 2026-11-08
+- **Updated:** 2026-11-09
 - **How a module is built:**
   1. `module-discovery` (V1 mapping, grilling with the user);
   2. `.scratch/<module>/functional-spec.md` agreed;
@@ -20,9 +20,10 @@
 | 2 | Audit | done (incl. "Historia i logi", D-24a) | — |
 | 3 | Preferences | done (issue admin-ui 13, ADR 0006) | grows with real needs |
 | 4 | Settings | decided 2026-11-08: **no module for now** (ADR 0007; map in `.scratch/settings/decision.md`) | — (revisit when the ADR 0007 signals appear) |
-| 5 | **Vehicles** (working name) | scope list only (`docs/archive/v1-port/modules/vehicles/scan.md`): Car, CarBrand, Eurocode, the Eurocode–Offer pivot | Discovery and grilling, **including the module name** ("Vehicles" vs a catalogue or reference-data name). It exists independently of offers and unblocks Offers. |
-| 6 | Offers | scope list only, the largest module. Reservations, Sales and OfferInquiry live here. | discovery after Vehicles |
-| 7 | Submissions | V1 scan (`docs/archive/v1-port/modules/submissions/scan.md`) | **After Offers:** in V1 every submission belongs to an offer (`offer_id`, cascade). Grill whether it stays a module or becomes part of Offers (OfferInquiry). |
+| 5 | **Vehicles** (working name) | discovery done, `ready-for-grilling` (`.scratch/vehicles/discovery/`); grilling paused | Grilled **after** the domain grilling. The module name and its boundary (own module or part of a Glass catalogue) are decided there. |
+| 6 | Offers | discovery in progress (2026-11-09), incl. Submissions as a way an offer is created. Reservations, Sales and OfferInquiry live here. | Discovery to `ready-for-grilling`; links to Vehicles findings instead of re-investigating them. |
+| 6a | **Domain grilling: Glass vs Offer vs catalogue** | prompt ready (`.scratch/vehicles/domain-grilling-prompt.md`) | One session on both discovery documents (Vehicles + Offers). Output: `.scratch/domain/glass-offer-model.md`, GLOSSARY, ADRs, and a revised plan of modules. Then module grilling for Vehicles and Offers. |
+| 7 | Submissions | V1 scan (`docs/archive/v1-port/modules/submissions/scan.md`); its V1 behaviour is mapped inside Offers discovery | Whether it stays a module or becomes part of Offers is decided in the domain grilling or Offers grilling. |
 | 8 | WooCommerce | integration (`app/Integrations/`), scope list only | after Offers |
 | 9 | ~~Otomoto~~ → new integration (TBD) | Otomoto dropped from V2 (2026-11-08); a new integration replaces it | at the very end |
 | — | Data migration | tickets parked in `.scratch/data-migration/` (users, audit) | scheduled by the user |
