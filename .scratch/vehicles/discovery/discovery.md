@@ -7,7 +7,7 @@
 ## A. Metadata
 
 - **Status:** ready-for-grilling
-- **Next actions:** paused at `ready-for-grilling` (2026-11-09, user decision). No separate grilling of this module yet: Offers discovery runs first, then one domain grilling on both documents (prompt: `.scratch/vehicles/domain-grilling-prompt.md`, to be updated with Offers), then module grilling per `grilling.md`. G-09: the V1 production dump is now loaded locally (MySQL container, database `allglass_v1_prod`); a data-shape mission for this module is still to run before grilling.
+- **Next actions:** paused at `ready-for-grilling` (user decision 2026-11-09). G-09 resolved by Offers r06. Next: one domain grilling on both documents (prompt `.scratch/vehicles/domain-grilling-prompt.md`), then module grilling per `grilling.md`.
 - **Started:** 2026-11-08 · **Last updated:** 2026-11-08
 - **V1:** `/home/kp/laravel/projekty/AllGlass/` @ `511ce3b` (dirty: `docker-compose.yml` modified, `SECURITY_INCIDENT_2026-10.md` untracked; neither touches this module)
 - **V2 state:** module absent. Folder name `vehicles` is provisional; the module name is a grilling decision.
@@ -258,7 +258,7 @@
 | G-06 | Which roles hold the dictionary permissions (`offer::taxonomies::*`) | needs-business | merged into G-01 | G-01 |
 | G-07 | Which page/form sellers actually use ("MyOffers"?) | — | r03: `OfferCreateForm` is referenced only by `OfferResource`; "MyOffers" is a list page with its own filters | resolved (`inferred` from references) |
 | G-08 | Why dictionary and car names may not contain `_` | needs-business | no reason in code | open |
-| G-09 | Row counts and real data shape (how many eurocodes, cars, values; how many offers without eurocode or links) | needs-runtime | production dump supplied by the user 2026-11-09, loaded as `allglass_v1_prod` (last offer 2026-10-01; offers 2046, eurocodes 1817, cars 1188, eurocode_offer 2195, car_eurocode 2827, car_offer 1531) | partly resolved — data-shape queries still to run |
+| G-09 | Row counts and real data shape (how many eurocodes, cars, values; how many offers without eurocode or links) | needs-runtime | production dump `allglass_v1_prod` (2026-11-09) | resolved — `.scratch/offers/discovery/reports/r06-data-shape.md`: 1817 eurocodes, no duplicates after normalisation (4 odd codes incl. `test123456`), 45 without offers; all dictionary rows Aktywna (approval workflow unused); `car_offer` covers 790 offers, identical to eurocode fitment for 722, never disjoint; 37 offers without links, only 1 flagged; within a eurocode type 99.6%, colour 97.5%, equipment 93.3% constant, producer 46.2% |
 
 ## I. Potential improvements
 

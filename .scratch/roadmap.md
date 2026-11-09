@@ -21,7 +21,7 @@
 | 3 | Preferences | done (issue admin-ui 13, ADR 0006) | grows with real needs |
 | 4 | Settings | decided 2026-11-08: **no module for now** (ADR 0007; map in `.scratch/settings/decision.md`) | — (revisit when the ADR 0007 signals appear) |
 | 5 | **Vehicles** (working name) | discovery done, `ready-for-grilling` (`.scratch/vehicles/discovery/`); grilling paused | Grilled **after** the domain grilling. The module name and its boundary (own module or part of a Glass catalogue) are decided there. |
-| 6 | Offers | discovery in progress (2026-11-09), incl. Submissions as a way an offer is created. Reservations, Sales and OfferInquiry live here. | Discovery to `ready-for-grilling`; links to Vehicles findings instead of re-investigating them. |
+| 6 | Offers | discovery done 2026-11-09, `ready-for-grilling` (`.scratch/offers/discovery/`, r01–r06), incl. Submissions as a way an offer is created. Reservations, Sales and OfferInquiry live here. | Grilled **after** the domain grilling (6a). |
 | 6a | **Domain grilling: Glass vs Offer vs catalogue** | prompt ready (`.scratch/vehicles/domain-grilling-prompt.md`) | One session on both discovery documents (Vehicles + Offers). Output: `.scratch/domain/glass-offer-model.md`, GLOSSARY, ADRs, and a revised plan of modules. Then module grilling for Vehicles and Offers. |
 | 7 | Submissions | V1 scan (`docs/archive/v1-port/modules/submissions/scan.md`); its V1 behaviour is mapped inside Offers discovery | Whether it stays a module or becomes part of Offers is decided in the domain grilling or Offers grilling. |
 | 8 | WooCommerce | integration (`app/Integrations/`), scope list only | after Offers |
