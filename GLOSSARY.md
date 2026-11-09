@@ -65,3 +65,53 @@ _Avoid_: rollback, revert, przywróć poprzednie (in code and docs)
 **Technical log**:
 The application's own record of errors, warnings and integration runs, kept in daily files and readable in the panel. It is about the system, not about business records.
 _Avoid_: change history, logi (for the change history)
+
+## Glass catalogue
+
+**Glass model** (Model szyby):
+One kind of replacement glass in the catalogue, with the parameters every piece of it shares and the vehicles it fits. It is known by one or more Eurocodes. Glazing accessories sold under a Eurocode, such as seals and mouldings, are Glass models too.
+_Avoid_: preset, product, glass definition, catalogue glass
+
+**Eurocode** (Eurokod):
+A catalogue code of a glass, belonging to exactly one Glass model. Several Eurocodes name the same Glass model when that glass is sold under different codes, for example in twin vehicle models.
+_Avoid_: alternative eurocode, eurokod alternatywny, glass code
+
+**Main eurocode** (Eurokod główny):
+The Eurocode that names its Glass model wherever the model is shown. Every Glass model has exactly one.
+_Avoid_: primary eurocode, priority 0
+
+## Sales channels
+
+**Advert** (Ogłoszenie):
+The copy of an offer on one external sales channel, such as the shop or a marketplace. The panel publishes it and keeps it in step; nothing flows back from the channel.
+_Avoid_: listing, publication, product (for the channel copy)
+
+## Offers
+
+**Offer** (Oferta):
+One physical Glass put up for sale in the panel by a seller, with its price and status. It is the panel's single source of truth for that piece; its Adverts follow it.
+_Avoid_: listing, ogłoszenie (for the offer), product, stock item
+
+**Glass** (Szyba):
+The physical piece of glass an Offer describes. It exists only inside its Offer.
+_Avoid_: piece of glass model, glass model (for the piece), item
+
+**Identification hint** (Wskazówka identyfikacyjna):
+What a seller knows about a Glass whose Glass model is not yet known, such as any code, an OEM number or a description of the vehicle. It helps an admin find the Glass model and is not a parameter of the Glass.
+_Avoid_: eurocode (for the seller's text), without-eurocode data, informacje o pojeździe
+
+**Approval** (Zatwierdzenie):
+An admin's acceptance of a seller's Offer before it may be sold or published. An Offer is approved only once it has a Glass model.
+_Avoid_: submission, zgłoszenie, ticket, verification
+
+**Reservation** (Rezerwacja):
+A hold on an Offer for a buyer, so that nobody else may buy it until it is released or turned into a Sale.
+_Avoid_: booking, partial reservation
+
+**Sale** (Sprzedaż):
+The fact that an Offer was sold, at a price, on a date, through a channel. A return ends it and puts the Offer up for sale again.
+_Avoid_: order, transaction
+
+**Inquiry** (Zapytanie):
+A request to a seller to reserve their Offer for a buyer. Accepting it makes a Reservation.
+_Avoid_: zapytanie ofertowe, message, question

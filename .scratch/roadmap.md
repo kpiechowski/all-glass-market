@@ -20,18 +20,18 @@
 | 2 | Audit | done (incl. "Historia i logi", D-24a) | — |
 | 3 | Preferences | done (issue admin-ui 13, ADR 0006) | grows with real needs |
 | 4 | Settings | decided 2026-11-08: **no module for now** (ADR 0007; map in `.scratch/settings/decision.md`) | — (revisit when the ADR 0007 signals appear) |
-| 5 | **Vehicles** (working name) | discovery done, `ready-for-grilling` (`.scratch/vehicles/discovery/`); grilling paused | Grilled **after** the domain grilling. The module name and its boundary (own module or part of a Glass catalogue) are decided there. |
-| 6 | Offers | discovery done 2026-11-09, `ready-for-grilling` (`.scratch/offers/discovery/`, r01–r06), incl. Submissions as a way an offer is created. Reservations, Sales and OfferInquiry live here. | Grilled **after** the domain grilling (6a). |
-| 6a | **Domain grilling: Glass vs Offer vs catalogue** | prompt ready (`.scratch/vehicles/domain-grilling-prompt.md`) | One session on both discovery documents (Vehicles + Offers). Output: `.scratch/domain/glass-offer-model.md`, GLOSSARY, ADRs, and a revised plan of modules. Then module grilling for Vehicles and Offers. |
-| 7 | Submissions | V1 scan (`docs/archive/v1-port/modules/submissions/scan.md`); its V1 behaviour is mapped inside Offers discovery | Whether it stays a module or becomes part of Offers is decided in the domain grilling or Offers grilling. |
-| 8 | WooCommerce | integration (`app/Integrations/`), scope list only | after Offers |
-| 9 | ~~Otomoto~~ → new integration (TBD) | Otomoto dropped from V2 (2026-11-08); a new integration replaces it | at the very end |
-| — | Data migration | tickets parked in `.scratch/data-migration/` (users, audit) | scheduled by the user |
+| 5 | **Catalogue** (was "Vehicles"; D-23) | V1 has no catalogue: inputs are the Vehicles discovery (`.scratch/vehicles/discovery/`, to be renamed `catalogue`), the Offers discovery and the domain model (`.scratch/domain/glass-offer-model.md`, D-01–D-27). Holds Glass models, Eurocodes, OEM codes, vehicles, glass dictionaries. | **Module grilling** (no new discovery) → `functional-spec.md`. Delivered **first**, after the Offers spec. See `.scratch/domain/handoff-catalogue-offers.md`. |
+| 6 | Offers | discovery done 2026-11-09 (`.scratch/offers/discovery/`, r01–r06). Holds Offer, Approval, Reservation, Sale, Inquiry (D-19–D-22); refers to Catalogue through its `ModuleApi` (D-24). | Module grilling **after the Catalogue spec** → `functional-spec.md`; delivered after Catalogue. |
+| 6a | Domain grilling: Glass model vs Offer vs catalogue | **done 2026-11-09** — `.scratch/domain/glass-offer-model.md`, GLOSSARY, ADR 0008–0010 | — |
+| 7 | ~~Submissions~~ | **dropped** (D-20): the approval queue is the Offers waiting for approval; what a seller changed comes from the Change history | — |
+| 8 | WooCommerce | integration (`app/Integrations/`), scope list only. Publishes only, never imports (ADR 0010); channel mappings live in the integration (D-26). | after Offers |
+| 9 | ~~Otomoto~~ → **OLX** | Otomoto dropped from V2 (2026-11-08); OLX Adverts replace it | at the very end |
+| — | Data migration | tickets parked in `.scratch/data-migration/` (users, audit). From the domain grilling: an admin review list before migration (parameter conflicts within a eurocode, D-09; suffix-different eurocode pairs, D-13), alternative eurocodes joined into Glass models (D-13), the 16 offers with quantity > 1 split (D-02), `car_offer` folded into Glass model fitment (D-15). | scheduled by the user |
 
 ## Decisions carried over (still valid)
 
-- Otomoto and WooCommerce are `app/Integrations/`, not modules; removing an integration never touches the domain.
-- Vehicles (Car, Eurocode) is its own module, because cars exist independently of offers.
+- Otomoto (now OLX) and WooCommerce are `app/Integrations/`, not modules; removing an integration never touches the domain.
+- ~~Vehicles (Car, Eurocode) is its own module~~ — replaced 2026-11-09 by D-23: one Catalogue module (Glass models, Eurocodes, vehicles, dictionaries); vehicles split out only when they get a life of their own (VIN provider, reference vehicle tree).
 - V2 DB schemas need not match V1 1:1, but V1 data must be migratable into them.
 - Policies live in the module they concern. Packages for offers (`spatie/medialibrary`, `overtrue/laravel-versionable`, `binarycats/laravel-sku`) are decided in Offers discovery, not assumed.
 
