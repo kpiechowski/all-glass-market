@@ -7,6 +7,7 @@ namespace Tests\Feature\Filament;
 use App\Filament\Pages\Styleguide;
 use App\Modules\Audit\UserInterface\Filament\Pages\HistoryAndLogs\HistoryAndLogs;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\DictionaryValueResource;
+use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\VehicleResource;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\EditProfile;
 use App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\JournalEntryResource;
@@ -66,7 +67,7 @@ class AdminPanelProviderTest extends TestCase
         $group = collect(Filament::getNavigation())->first(fn (NavigationGroup $group): bool => $group->getLabel() === 'Katalog');
 
         $this->assertNotNull($group);
-        $this->assertSame([DictionaryValueResource::getNavigationLabel()], $this->labels($group));
+        $this->assertSame([VehicleResource::getNavigationLabel(), DictionaryValueResource::getNavigationLabel()], $this->labels($group));
 
         $this->actingAs(UserModel::factory()->create());
 

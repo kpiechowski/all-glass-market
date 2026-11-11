@@ -12,4 +12,19 @@ return [
             'withdrawn' => 'Wycofana',
         ],
     ],
+
+    'vehicle' => [
+        'type' => 'Pojazd',
+
+        'fields' => [
+            'name' => 'Nazwa',
+            'make' => 'Marka',
+            'model' => 'Model',
+            'body' => 'Nadwozie',
+            'year_from' => 'Rok produkcji od',
+            'year_to' => 'Rok produkcji do',
+            'generation' => 'Generacja',
+            'argic_code' => 'Kod pojazdu ARGIC',
+        ],
+    ],
 ];

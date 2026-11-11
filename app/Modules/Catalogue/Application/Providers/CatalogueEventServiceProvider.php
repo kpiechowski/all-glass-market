@@ -6,7 +6,9 @@ namespace App\Modules\Catalogue\Application\Providers;
 
 use App\Core\Abstracts\CoreEventServiceProvider;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\DictionaryValueModel;
+use App\Modules\Catalogue\Infrastructure\Persistence\Models\VehicleModel;
 use App\Modules\Catalogue\Infrastructure\Persistence\Observers\DictionaryValueObserver;
+use App\Modules\Catalogue\Infrastructure\Persistence\Observers\VehicleObserver;
 
 class CatalogueEventServiceProvider extends CoreEventServiceProvider
 {
@@ -14,5 +16,6 @@ class CatalogueEventServiceProvider extends CoreEventServiceProvider
 
     protected $observers = [
         DictionaryValueModel::class => DictionaryValueObserver::class,
+        VehicleModel::class => VehicleObserver::class,
     ];
 }

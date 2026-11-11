@@ -7,6 +7,7 @@ namespace App\Filament\Navigation;
 use App\Filament\Pages\Styleguide;
 use App\Modules\Audit\UserInterface\Filament\Pages\HistoryAndLogs\HistoryAndLogs;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\DictionaryValueResource;
+use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\VehicleResource;
 use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\EditProfile;
 use App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\JournalEntryResource;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
@@ -48,6 +49,7 @@ final class PanelNavigation
                 ->items(self::items($main)),
             NavigationGroup::make(__('catalogue::resources.navigation.group'))
                 ->items(self::items([
+                    VehicleResource::class,
                     DictionaryValueResource::class,
                 ])),
             NavigationGroup::make()

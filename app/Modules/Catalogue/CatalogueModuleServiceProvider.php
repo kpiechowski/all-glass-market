@@ -13,10 +13,15 @@ use App\Modules\Catalogue\Application\Providers\CatalogueEventServiceProvider;
 use App\Modules\Catalogue\Domain\Enums\CataloguePermission;
 use App\Modules\Catalogue\Domain\Enums\Dictionary;
 use App\Modules\Catalogue\Domain\Repositories\DictionaryValueRepository;
+use App\Modules\Catalogue\Domain\Repositories\VehicleRepository;
 use App\Modules\Catalogue\Infrastructure\Persistence\EloquentDictionaryValueRepository;
+use App\Modules\Catalogue\Infrastructure\Persistence\EloquentVehicleRepository;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\DictionaryValueModel;
+use App\Modules\Catalogue\Infrastructure\Persistence\Models\VehicleModel;
+use App\Modules\Catalogue\Infrastructure\Persistence\VehicleDictionaryUsage;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\DictionaryValueResource;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\Support\DictionaryValueViewSections;
+use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\VehicleResource;
 use App\Modules\Users\Application\ModuleApi\RoleRegistry;
 use App\Modules\Users\Domain\Enums\UserRole;
 
@@ -24,6 +29,8 @@ class CatalogueModuleServiceProvider extends ModuleServiceProvider
 {
     /** Stable name stored in every entry: never rename it. */
     private const string AUDIT_KEY = 'catalogue.dictionary_value';
+
+    private const string VEHICLE_AUDIT_KEY = 'catalogue.vehicle';
 
     protected bool $loadsTranslations = true;
 
@@ -35,6 +42,7 @@ class CatalogueModuleServiceProvider extends ModuleServiceProvider
     /** @var array<class-string, class-string> */
     protected array $containerBindings = [
         DictionaryValueRepository::class => EloquentDictionaryValueRepository::class,
+        VehicleRepository::class => EloquentVehicleRepository::class,
     ];
 
     public function register(): void
@@ -51,6 +59,14 @@ class CatalogueModuleServiceProvider extends ModuleServiceProvider
 
         $this->declarePermissions($this->app->make(RoleRegistry::class));
         $this->registerAuditableRecords($this->app->make(AuditableRecords::class));
+        $this->registerVehicleAuditableRecord($this->app->make(AuditableRecords::class));
+        $this->registerDictionaryUsages($this->app->make(DictionaryValueUsages::class));
+    }
+
+    /** FR-24: a make or body that a vehicle has cannot be deleted. */
+    private function registerDictionaryUsages(DictionaryValueUsages $usages): void
+    {
+        $usages->register(new VehicleDictionaryUsage);
     }
 
     /** D-42: Admin holds it; Super Admin holds every Permission by wildcard; a Seller (User) holds none. */
@@ -77,6 +93,32 @@ class CatalogueModuleServiceProvider extends ModuleServiceProvider
             valuePresenters: [
                 'dictionary' => ValuePresenter::enum(Dictionary::class),
                 'withdrawn' => ValuePresenter::boolean(),
+            ],
+        ));
+    }
+
+    private function registerVehicleAuditableRecord(AuditableRecords $records): void
+    {
+        $records->register(new AuditableRecordType(
+            key: self::VEHICLE_AUDIT_KEY,
+            modelClass: VehicleModel::class,
+            name: 'catalogue::audit.vehicle.type',
+            title: fn (VehicleModel $vehicle): string => $vehicle->name,
+            url: fn (VehicleModel $vehicle): string => VehicleResource::getUrl('view', ['record' => $vehicle]),
+            excludedFields: ['name_key'],
+            fieldLabels: [
+                'name' => 'catalogue::audit.vehicle.fields.name',
+                'make_id' => 'catalogue::audit.vehicle.fields.make',
+                'model' => 'catalogue::audit.vehicle.fields.model',
+                'body_id' => 'catalogue::audit.vehicle.fields.body',
+                'year_from' => 'catalogue::audit.vehicle.fields.year_from',
+                'year_to' => 'catalogue::audit.vehicle.fields.year_to',
+                'generation' => 'catalogue::audit.vehicle.fields.generation',
+                'argic_code' => 'catalogue::audit.vehicle.fields.argic_code',
+            ],
+            valuePresenters: [
+                'make_id' => ValuePresenter::reference(DictionaryValueModel::class, 'name'),
+                'body_id' => ValuePresenter::reference(DictionaryValueModel::class, 'name'),
             ],
         ));
     }
