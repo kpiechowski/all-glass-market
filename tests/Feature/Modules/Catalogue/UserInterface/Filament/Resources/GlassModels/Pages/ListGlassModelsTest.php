@@ -136,4 +136,18 @@ class ListGlassModelsTest extends TestCase
             ->assertCanSeeTableRecords([$wanted])
             ->assertCanNotSeeTableRecords([$other]);
     }
+
+    /** FR-18: the card carries the thumbnail, and each pictogram its value's full name. */
+    public function test_a_card_shows_the_thumbnail_with_the_pictograms_and_their_names(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $equipment = DictionaryValueModelFactory::new()->of(Dictionary::Equipment)->named('Czujnik deszczu i światła')->create();
+        $model = GlassModelModelFactory::new()->withEquipment($equipment)->create();
+
+        Livewire::test(ListGlassModels::class)
+            ->assertCanSeeTableRecords([$model])
+            ->assertSeeHtml('glass-thumbnail__shape')
+            ->assertSeeHtml('glass-thumbnail__pictogram')
+            ->assertSee('Czujnik deszczu i światła');
+    }
 }

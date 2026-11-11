@@ -46,4 +46,10 @@ return [
         'years_are_out_of_order' => 'Rok produkcji "od" nie może być późniejszy niż "do". Popraw lata.',
         'argic_code_is_invalid' => 'Kod ARGIC to dokładnie cztery cyfry. Popraw kod.',
     ],
+
+    'thumbnail' => [
+        'fill_is_not_a_colour' => 'Kolor wypełnienia ma postać #rrggbb. Wybierz kolor z palety.',
+        'opacity_is_out_of_range' => 'Krycie to liczba od 0 do 100. Popraw krycie.',
+        'wrong_dictionary' => 'To ustawienie nie pasuje do tej wartości słownika. Odśwież stronę i spróbuj ponownie.',
+    ],
 ];

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Tables;
 
 use App\Core\UserInterface\Filament\Tables\TableEmptyState;
+use App\Modules\Catalogue\Application\ModuleApi\GlassModelThumbnails;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\GlassModelModel;
 use App\Modules\Catalogue\Infrastructure\Persistence\Queries\GlassModelQueries;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Actions\DeleteGlassModelAction;
@@ -16,6 +17,7 @@ use Filament\Actions\CreateAction;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -58,7 +60,14 @@ class GlassModelsTable
     private static function columns(): array
     {
         return [
-            GlassModelCardColumn::make(),
+            GlassModelCardColumn::make()
+                ->thumbnail(fn (GlassModelModel $record): Htmlable => view('catalogue::filament.tables.glass-thumbnail', [
+                    'thumbnail' => app(GlassModelThumbnails::class)->for(
+                        $record->position_id,
+                        $record->colour_id,
+                        $record->equipment->pluck('name', 'id')->all(),
+                    ),
+                ])),
         ];
     }
 

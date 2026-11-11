@@ -30,4 +30,25 @@ return [
         'vehicle_make' => 'Marki pojazdów',
         'vehicle_body' => 'Nadwozia pojazdów',
     ],
+
+    'glass_shape' => [
+        'windscreen' => 'Przednia',
+        'rear' => 'Tylna',
+        'side_drop' => 'Boczna opuszczana',
+        'side_fixed' => 'Boczna stała',
+        'roof' => 'Dachowa',
+        'accessory' => 'Akcesorium',
+        'unknown' => 'Nieznany',
+    ],
+
+    'pictogram' => [
+        'universal' => 'Uniwersalny',
+        'heated' => 'Ogrzewana',
+        'rain_sensor' => 'Czujnik deszczu',
+        'camera' => 'Kamera',
+        'antenna' => 'Antena',
+        'acoustic' => 'Akustyczna',
+        'head_up_display' => 'Wyświetlacz HUD',
+        'sensor' => 'Czujnik',
+    ],
 ];

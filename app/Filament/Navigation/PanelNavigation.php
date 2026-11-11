@@ -6,6 +6,7 @@ namespace App\Filament\Navigation;
 
 use App\Filament\Pages\Styleguide;
 use App\Modules\Audit\UserInterface\Filament\Pages\HistoryAndLogs\HistoryAndLogs;
+use App\Modules\Catalogue\UserInterface\Filament\Pages\CatalogueSettings\CatalogueSettings;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\DictionaryValueResource;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\GlassModelResource;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\VehicleResource;
@@ -53,6 +54,7 @@ final class PanelNavigation
                     GlassModelResource::class,
                     VehicleResource::class,
                     DictionaryValueResource::class,
+                    CatalogueSettings::class,
                 ])),
             NavigationGroup::make()
                 ->extraSidebarAttributes(['class' => 'sidebar-group--bottom'])

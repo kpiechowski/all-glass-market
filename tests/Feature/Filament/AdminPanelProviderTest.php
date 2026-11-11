@@ -6,6 +6,7 @@ namespace Tests\Feature\Filament;
 
 use App\Filament\Pages\Styleguide;
 use App\Modules\Audit\UserInterface\Filament\Pages\HistoryAndLogs\HistoryAndLogs;
+use App\Modules\Catalogue\UserInterface\Filament\Pages\CatalogueSettings\CatalogueSettings;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\DictionaryValueResource;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\GlassModelResource;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\VehicleResource;
@@ -72,6 +73,7 @@ class AdminPanelProviderTest extends TestCase
             GlassModelResource::getNavigationLabel(),
             VehicleResource::getNavigationLabel(),
             DictionaryValueResource::getNavigationLabel(),
+            CatalogueSettings::getNavigationLabel(),
         ], $this->labels($group));
 
         $this->actingAs(UserModel::factory()->create());
