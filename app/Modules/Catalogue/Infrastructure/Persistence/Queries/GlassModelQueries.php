@@ -20,6 +20,22 @@ final class GlassModelQueries
     }
 
     /**
+     * WF-02 move: the models a Eurocode may go to (active or withdrawn), found by a fragment of any of their Eurocodes.
+     *
+     * @return Builder<GlassModelModel>
+     */
+    public function moveTargets(string $fragment, int $exceptId): Builder
+    {
+        $fragment = preg_replace('/[^A-Z0-9]/', '', mb_strtoupper($fragment)) ?? '';
+
+        return GlassModelModel::query()
+            ->with('mainEurocode')
+            ->whereKeyNot($exceptId)
+            ->whereHas('eurocodes', fn (Builder $eurocodes) => $eurocodes->where('code', 'like', '%'.$fragment.'%'))
+            ->orderBy('id');
+    }
+
+    /**
      * @param  Builder<GlassModelModel>  $query
      * @return Builder<GlassModelModel>
      */

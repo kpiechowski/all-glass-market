@@ -42,6 +42,11 @@ class GlassModelForm
                     ->disabled(fn (?GlassModelModel $record): bool => $record !== null)
                     ->dehydrated(fn (?GlassModelModel $record): bool => $record === null)
                     ->columnSpan(['default' => 'full', 'md' => 6]),
+                TagsInput::make('further_eurocodes')
+                    ->label(__('catalogue::resources.glass_model.fields.further_eurocodes'))
+                    ->helperText(__('catalogue::resources.glass_model.helpers.further_eurocodes'))
+                    ->visible(fn (?GlassModelModel $record): bool => $record === null)
+                    ->columnSpan(['default' => 'full', 'md' => 6]),
                 Select::make('position_id')
                     ->label(__('catalogue::resources.glass_model.fields.position'))
                     ->options(fn (?GlassModelModel $record): array => self::options(Dictionary::Position, $record === null ? [] : [$record->position_id]))

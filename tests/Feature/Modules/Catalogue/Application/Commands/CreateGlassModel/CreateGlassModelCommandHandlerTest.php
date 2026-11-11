@@ -139,4 +139,26 @@ class CreateGlassModelCommandHandlerTest extends TestCase
 
         $this->send(Actor::user(UserModel::factory()->create()->id));
     }
+
+    public function test_further_eurocodes_join_the_model_as_non_main(): void
+    {
+        $id = $this->send($this->admin(), ['furtherEurocodes' => ['8613 bgsmv', '8613AGSMV', '8613cgsmv']]);
+
+        $model = GlassModelModel::query()->with('eurocodes')->findOrFail($id);
+        $this->assertEqualsCanonicalizing(['8613AGSMV', '8613BGSMV', '8613CGSMV'], $model->eurocodes->pluck('code')->all());
+        $this->assertSame('8613AGSMV', $model->mainEurocode->code);
+    }
+
+    public function test_a_further_eurocode_held_by_another_model_refuses_the_whole_creation(): void
+    {
+        GlassModelModelFactory::new()->withMainEurocode('8613XYZ')->create();
+
+        try {
+            $this->send($this->admin(), ['furtherEurocodes' => ['8613xyz']]);
+            $this->fail('A taken Eurocode was accepted');
+        } catch (GlassModelRefused $e) {
+            $this->assertSame('8613XYZ', $e->parameters['holder']);
+            $this->assertSame(1, GlassModelModel::query()->count());
+        }
+    }
 }

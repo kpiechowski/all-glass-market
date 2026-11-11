@@ -117,6 +117,80 @@ final class GlassModel
         return $changed;
     }
 
+    /**
+     * WF-02 add: joins as a non-main Eurocode (also while withdrawn).
+     *
+     * @param  EurocodeHolder|null  $holder  another model holding the code, if any (RULE-01)
+     * @return bool whether the model changed
+     */
+    public function addEurocode(Eurocode $eurocode, ?EurocodeHolder $holder): bool
+    {
+        if ($this->holds($eurocode)) {
+            return false;
+        }
+
+        if ($holder !== null) {
+            throw GlassModelRefused::eurocodeIsTaken($eurocode->value, $holder);
+        }
+
+        $this->eurocodes[] = $eurocode;
+
+        return true;
+    }
+
+    /**
+     * WF-02 remove, and the giving side of a move: RULE-02 keeps one Eurocode, and the main one
+     * stays until another is made main.
+     */
+    public function removeEurocode(Eurocode $eurocode): void
+    {
+        if (! $this->holds($eurocode)) {
+            throw GlassModelRefused::eurocodeIsNotHeld($eurocode->value);
+        }
+
+        if (count($this->eurocodes) === 1) {
+            throw GlassModelRefused::lastEurocode($eurocode->value);
+        }
+
+        if ($eurocode->equals($this->mainEurocode)) {
+            throw GlassModelRefused::mainEurocode($eurocode->value);
+        }
+
+        $this->eurocodes = array_values(array_filter(
+            $this->eurocodes,
+            fn (Eurocode $held): bool => ! $held->equals($eurocode),
+        ));
+    }
+
+    /**
+     * WF-02 move, the receiving side: the code (just released by its holder) joins as non-main.
+     */
+    public function receiveEurocode(Eurocode $eurocode): void
+    {
+        if ($this->holds($eurocode)) {
+            throw GlassModelRefused::eurocodeAlreadyHeld($eurocode->value);
+        }
+
+        $this->eurocodes[] = $eurocode;
+    }
+
+    /**
+     * WF-02 change main.
+     *
+     * @return bool whether the model changed
+     */
+    public function changeMainEurocode(Eurocode $eurocode): bool
+    {
+        if (! $this->holds($eurocode)) {
+            throw GlassModelRefused::eurocodeIsNotHeld($eurocode->value);
+        }
+
+        $changed = ! $eurocode->equals($this->mainEurocode);
+        $this->mainEurocode = $eurocode;
+
+        return $changed;
+    }
+
     public function withdraw(): void
     {
         if ($this->withdrawn) {
@@ -188,6 +262,17 @@ final class GlassModel
     public function isWithdrawn(): bool
     {
         return $this->withdrawn;
+    }
+
+    private function holds(Eurocode $eurocode): bool
+    {
+        foreach ($this->eurocodes as $held) {
+            if ($held->equals($eurocode)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

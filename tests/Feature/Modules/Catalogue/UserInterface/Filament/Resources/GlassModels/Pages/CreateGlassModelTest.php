@@ -47,13 +47,15 @@ class CreateGlassModelTest extends TestCase
                 'colour_id' => $colour->id,
                 'equipment_ids' => [$equipment->id],
                 'oem_codes' => ['1k0-845'],
+                'further_eurocodes' => ['8613 bgsmv'],
             ])
             ->call('create')
             ->assertHasNoFormErrors()
             ->assertRedirect();
 
-        $model = GlassModelModel::query()->with(['mainEurocode', 'oemCodes', 'equipment'])->firstOrFail();
+        $model = GlassModelModel::query()->with(['mainEurocode', 'eurocodes', 'oemCodes', 'equipment'])->firstOrFail();
         $this->assertSame('8613AGSMV', $model->mainEurocode->code);
+        $this->assertEqualsCanonicalizing(['8613AGSMV', '8613BGSMV'], $model->eurocodes->pluck('code')->all());
         $this->assertSame($colour->id, $model->colour_id);
         $this->assertSame([$equipment->id], $model->equipment->modelKeys());
         $this->assertSame(['1K0-845'], $model->oemCodes->pluck('code')->all());

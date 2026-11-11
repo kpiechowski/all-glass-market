@@ -41,6 +41,11 @@ class GlassModelInfolist
                 TextEntry::make('mainEurocode.code')
                     ->label(__('catalogue::resources.glass_model.fields.main_eurocode'))
                     ->copyable(),
+                TextEntry::make('eurocodes.code')
+                    ->label(__('catalogue::resources.glass_model.fields.eurocodes'))
+                    ->badge()
+                    ->color('gray')
+                    ->copyable(),
                 TextEntry::make('position.name')
                     ->label(__('catalogue::resources.glass_model.fields.position'))
                     ->badge()

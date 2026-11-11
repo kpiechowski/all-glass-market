@@ -13,6 +13,11 @@ return [
 
         'fields' => [
             'main_eurocode' => 'Eurokod główny',
+            'eurocode' => 'Eurokod',
+            'eurocodes' => 'Eurokody',
+            'further_eurocodes' => 'Dalsze eurokody',
+            'main_marker' => 'główny',
+            'target_model' => 'Model docelowy',
             'position' => 'Rodzaj szyby',
             'colour' => 'Kolor',
             'equipment' => 'Wyposażenie',
@@ -25,6 +30,8 @@ return [
         'helpers' => [
             'main_eurocode' => 'Litery i cyfry, do 17 znaków; spacje i inne znaki zostaną usunięte.',
             'main_eurocode_locked' => 'Eurokodami zarządza się na stronie modelu.',
+            'further_eurocodes' => 'Opcjonalnie. Wpisz eurokod i zatwierdź klawiszem Enter; wszystkie eurokody znajdują model tak samo.',
+            'target_model' => 'Wpisz fragment dowolnego eurokodu modelu, także wycofanego. Eurokod dołączy do niego jako dodatkowy.',
             'oem_codes' => 'Wpisz kod i zatwierdź klawiszem Enter.',
         ],
 
@@ -65,6 +72,31 @@ return [
             'restore' => [
                 'label' => 'Przywróć',
                 'done' => 'Przywrócono model szkła',
+            ],
+            'eurocodes' => [
+                'label' => 'Eurokody',
+            ],
+            'add_eurocode' => [
+                'label' => 'Dodaj eurokod',
+                'heading' => 'Dodaj eurokod do modelu',
+                'done' => 'Dodano eurokod',
+            ],
+            'change_main_eurocode' => [
+                'label' => 'Zmień główny',
+                'heading' => 'Który eurokod ma być główny?',
+                'done' => 'Zmieniono eurokod główny',
+            ],
+            'move_eurocode' => [
+                'label' => 'Przenieś eurokod',
+                'heading' => 'Przenieś eurokod do innego modelu',
+                'description' => 'Eurokod główny i jedyny eurokod modelu nie mogą zostać przeniesione.',
+                'done' => 'Przeniesiono eurokod',
+            ],
+            'remove_eurocode' => [
+                'label' => 'Usuń eurokod',
+                'heading' => 'Usunąć eurokod?',
+                'description' => 'Eurokod zniknie z katalogu. Eurokod główny i jedyny eurokod modelu nie mogą zostać usunięte.',
+                'done' => 'Usunięto eurokod',
             ],
             'delete' => [
                 'label' => 'Usuń',

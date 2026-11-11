@@ -11,6 +11,7 @@ final readonly class CreateGlassModelCommand
     /**
      * @param  list<int>  $equipmentIds
      * @param  list<string>  $oemCodes
+     * @param  list<string>  $furtherEurocodes
      */
     public function __construct(
         public Actor $actor,
@@ -19,5 +20,6 @@ final readonly class CreateGlassModelCommand
         public ?int $colourId = null,
         public array $equipmentIds = [],
         public array $oemCodes = [],
+        public array $furtherEurocodes = [],
     ) {}
 }

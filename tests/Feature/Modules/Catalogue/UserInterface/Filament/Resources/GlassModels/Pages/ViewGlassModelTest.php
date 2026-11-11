@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Pages;
 
+use App\Modules\Catalogue\Infrastructure\Factories\GlassModelEurocodeModelFactory;
 use App\Modules\Catalogue\Infrastructure\Factories\GlassModelModelFactory;
 use App\Modules\Catalogue\Infrastructure\Factories\GlassModelOemCodeModelFactory;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\GlassModelModel;
@@ -90,5 +91,78 @@ class ViewGlassModelTest extends TestCase
         Livewire::test(ViewGlassModel::class, ['record' => $model->getKey()])
             ->assertSee('Sekcja integracji')
             ->assertSee('id-'.$model->id);
+    }
+
+    private function modelWithTwoEurocodes(): GlassModelModel
+    {
+        $model = GlassModelModelFactory::new()->withMainEurocode('8613AGS')->create();
+        GlassModelEurocodeModelFactory::new()->create(['glass_model_id' => $model->id, 'code' => '8613BGS']);
+
+        return $model;
+    }
+
+    public function test_a_eurocode_is_added_through_the_command(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $model = GlassModelModelFactory::new()->withMainEurocode('8613AGS')->create();
+
+        Livewire::test(ViewGlassModel::class, ['record' => $model->getKey()])
+            ->callAction('addEurocode', ['eurocode' => '8613 cgs'])
+            ->assertHasNoActionErrors();
+
+        $this->assertEqualsCanonicalizing(['8613AGS', '8613CGS'], $model->fresh()->eurocodes->pluck('code')->all());
+    }
+
+    public function test_adding_a_taken_eurocode_is_refused_naming_the_holder_and_nothing_changes(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $model = GlassModelModelFactory::new()->withMainEurocode('8613AGS')->create();
+        GlassModelModelFactory::new()->withMainEurocode('8613XYZ')->create();
+
+        Livewire::test(ViewGlassModel::class, ['record' => $model->getKey()])
+            ->callAction('addEurocode', ['eurocode' => '8613XYZ'])
+            ->assertNotified();
+
+        $this->assertSame(['8613AGS'], $model->fresh()->eurocodes->pluck('code')->all());
+    }
+
+    public function test_the_main_eurocode_is_changed_then_the_old_one_removed(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $model = $this->modelWithTwoEurocodes();
+
+        Livewire::test(ViewGlassModel::class, ['record' => $model->getKey()])
+            ->callAction('changeMainEurocode', ['eurocode' => '8613BGS'])
+            ->callAction('removeEurocode', ['eurocode' => '8613AGS']);
+
+        $this->assertSame(['8613BGS'], $model->fresh()->eurocodes->pluck('code')->all());
+        $this->assertSame('8613BGS', $model->fresh()->mainEurocode->code);
+    }
+
+    public function test_a_eurocode_is_moved_to_another_model(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $model = $this->modelWithTwoEurocodes();
+        $target = GlassModelModelFactory::new()->withMainEurocode('9999TGT')->withdrawn()->create();
+
+        Livewire::test(ViewGlassModel::class, ['record' => $model->getKey()])
+            ->callAction('moveEurocode', ['eurocode' => '8613BGS', 'target_id' => $target->id])
+            ->assertHasNoActionErrors();
+
+        $this->assertSame(['8613AGS'], $model->fresh()->eurocodes->pluck('code')->all());
+        $this->assertContains('8613BGS', $target->fresh()->eurocodes->pluck('code')->all());
+    }
+
+    public function test_moving_the_main_eurocode_is_refused(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $model = $this->modelWithTwoEurocodes();
+        $target = GlassModelModelFactory::new()->create();
+
+        Livewire::test(ViewGlassModel::class, ['record' => $model->getKey()])
+            ->callAction('moveEurocode', ['eurocode' => '8613AGS', 'target_id' => $target->id])
+            ->assertNotified();
+
+        $this->assertCount(2, $model->fresh()->eurocodes);
     }
 }

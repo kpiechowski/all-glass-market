@@ -29,6 +29,33 @@ final class GlassModelRefused extends DomainException
         ]);
     }
 
+    public static function eurocodeIsNotHeld(string $code): self
+    {
+        return new self('catalogue::exceptions.glass_model.eurocode_is_not_held', ['code' => $code]);
+    }
+
+    public static function eurocodeAlreadyHeld(string $code): self
+    {
+        return new self('catalogue::exceptions.glass_model.eurocode_already_held', ['code' => $code]);
+    }
+
+    /** RULE-02: a model keeps at least one Eurocode. */
+    public static function lastEurocode(string $code): self
+    {
+        return new self('catalogue::exceptions.glass_model.last_eurocode', ['code' => $code]);
+    }
+
+    /** RULE-02: the main Eurocode stays until another one is main. */
+    public static function mainEurocode(string $code): self
+    {
+        return new self('catalogue::exceptions.glass_model.main_eurocode', ['code' => $code]);
+    }
+
+    public static function cannotMoveToItself(): self
+    {
+        return new self('catalogue::exceptions.glass_model.cannot_move_to_itself');
+    }
+
     public static function oemCodeIsTooLong(int $max): self
     {
         return new self('catalogue::exceptions.glass_model.oem_code_is_too_long', ['max' => $max]);

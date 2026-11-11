@@ -29,6 +29,7 @@ class CreateGlassModel extends CreateRecord
             colourId: (['colour_id'] ?? null) === null ? null : (int) $data['colour_id'],
             equipmentIds: array_map(intval(...), $data['equipment_ids'] ?? []),
             oemCodes: array_values($data['oem_codes'] ?? []),
+            furtherEurocodes: array_values($data['further_eurocodes'] ?? []),
         ));
 
         return GlassModelModel::query()->findOrFail($id);

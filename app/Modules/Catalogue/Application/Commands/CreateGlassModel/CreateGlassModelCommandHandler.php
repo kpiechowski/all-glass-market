@@ -38,6 +38,12 @@ final class CreateGlassModelCommandHandler
             $oemCodes,
             $this->glassModels->holderOfEurocode($eurocode),
         );
+
+        foreach ($command->furtherEurocodes as $typed) {
+            $further = Eurocode::from($typed);
+            $glassModel->addEurocode($further, $this->glassModels->holderOfEurocode($further));
+        }
+
         $this->choices->ensureChoosable($command->positionId, $command->colourId, $command->equipmentIds);
 
         return $this->glassModels->add($glassModel);

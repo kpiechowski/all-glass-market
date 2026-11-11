@@ -125,4 +125,118 @@ class GlassModelTest extends TestCase
 
         $this->addToAssertionCount(1);
     }
+
+    private function modelWithTwo(): GlassModel
+    {
+        return GlassModel::reconstitute(1, [Eurocode::from('8613AGS'), Eurocode::from('8613BGS')], Eurocode::from('8613AGS'), 1, null, [], [], false);
+    }
+
+    private function codes(GlassModel $model): array
+    {
+        return array_map(fn (Eurocode $e): string => $e->value, $model->eurocodes());
+    }
+
+    public function test_a_free_eurocode_is_added_as_non_main(): void
+    {
+        $model = $this->model();
+
+        $this->assertTrue($model->addEurocode(Eurocode::from('8613 bgs'), null));
+
+        $this->assertSame(['8613AGS', '8613BGS'], $this->codes($model));
+        $this->assertSame('8613AGS', $model->mainEurocode()->value);
+    }
+
+    public function test_adding_a_eurocode_the_model_already_holds_changes_nothing(): void
+    {
+        $model = $this->model();
+
+        $this->assertFalse($model->addEurocode(Eurocode::from('8613AGS'), null));
+        $this->assertCount(1, $model->eurocodes());
+    }
+
+    public function test_adding_a_eurocode_held_by_another_model_is_refused_naming_it(): void
+    {
+        $model = $this->model();
+
+        try {
+            $model->addEurocode(Eurocode::from('8613BGS'), new EurocodeHolder(7, '8613XYZ'));
+            $this->fail('A taken Eurocode was accepted');
+        } catch (GlassModelRefused $e) {
+            $this->assertSame('8613XYZ', $e->parameters['holder']);
+            $this->assertCount(1, $model->eurocodes());
+        }
+    }
+
+    public function test_a_non_main_eurocode_is_removed(): void
+    {
+        $model = $this->modelWithTwo();
+
+        $model->removeEurocode(Eurocode::from('8613BGS'));
+
+        $this->assertSame(['8613AGS'], $this->codes($model));
+    }
+
+    public function test_the_last_eurocode_cannot_be_removed(): void
+    {
+        $this->expectException(GlassModelRefused::class);
+
+        $this->model()->removeEurocode(Eurocode::from('8613AGS'));
+    }
+
+    public function test_the_main_eurocode_cannot_be_removed_before_another_is_main(): void
+    {
+        $model = $this->modelWithTwo();
+
+        try {
+            $model->removeEurocode(Eurocode::from('8613AGS'));
+            $this->fail('The main Eurocode was removed');
+        } catch (GlassModelRefused) {
+            $this->assertCount(2, $model->eurocodes());
+        }
+
+        $model->changeMainEurocode(Eurocode::from('8613BGS'));
+        $model->removeEurocode(Eurocode::from('8613AGS'));
+
+        $this->assertSame(['8613BGS'], $this->codes($model));
+    }
+
+    public function test_a_eurocode_the_model_does_not_hold_cannot_be_removed_or_made_main(): void
+    {
+        $model = $this->modelWithTwo();
+
+        try {
+            $model->removeEurocode(Eurocode::from('NOPE1'));
+            $this->fail('Removed a code the model does not hold');
+        } catch (GlassModelRefused) {
+        }
+
+        $this->expectException(GlassModelRefused::class);
+        $model->changeMainEurocode(Eurocode::from('NOPE1'));
+    }
+
+    public function test_the_main_eurocode_changes_to_another_held_one(): void
+    {
+        $model = $this->modelWithTwo();
+
+        $this->assertTrue($model->changeMainEurocode(Eurocode::from('8613BGS')));
+        $this->assertSame('8613BGS', $model->mainEurocode()->value);
+        $this->assertFalse($model->changeMainEurocode(Eurocode::from('8613BGS')));
+    }
+
+    public function test_a_received_eurocode_joins_as_non_main(): void
+    {
+        $model = $this->model();
+
+        $model->receiveEurocode(Eurocode::from('8613BGS'));
+
+        $this->assertSame(['8613AGS', '8613BGS'], $this->codes($model));
+        $this->assertSame('8613AGS', $model->mainEurocode()->value);
+    }
+
+    public function test_a_model_cannot_receive_a_eurocode_it_holds(): void
+    {
+        $this->expectException(GlassModelRefused::class);
+
+        $this->model()->receiveEurocode(Eurocode::from('8613AGS'));
+    }
 }

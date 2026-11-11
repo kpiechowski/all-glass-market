@@ -32,4 +32,15 @@ class GlassModelQueriesTest extends TestCase
         $this->assertSame([$active->id], $queries->onlyActive($queries->listing())->pluck('id')->all());
         $this->assertSame([$withdrawn->id], $queries->onlyWithdrawn($queries->listing())->pluck('id')->all());
     }
+
+    public function test_move_targets_match_any_eurocode_and_leave_out_the_given_model_and_non_matches(): void
+    {
+        $source = GlassModelModelFactory::new()->withMainEurocode('8613AGS')->create();
+        $match = GlassModelModelFactory::new()->withMainEurocode('8613BGS')->withdrawn()->create();
+        GlassModelModelFactory::new()->withMainEurocode('9999XXX')->create();
+
+        $ids = (new GlassModelQueries)->moveTargets('8613', $source->id)->pluck('id')->all();
+
+        $this->assertSame([$match->id], $ids);
+    }
 }
