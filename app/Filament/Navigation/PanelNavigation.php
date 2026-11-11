@@ -6,6 +6,7 @@ namespace App\Filament\Navigation;
 
 use App\Filament\Pages\Styleguide;
 use App\Modules\Audit\UserInterface\Filament\Pages\HistoryAndLogs\HistoryAndLogs;
+use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\DictionaryValueResource;
 use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\EditProfile;
 use App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\JournalEntryResource;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
@@ -45,6 +46,10 @@ final class PanelNavigation
                 ])),
             NavigationGroup::make()
                 ->items(self::items($main)),
+            NavigationGroup::make(__('catalogue::resources.navigation.group'))
+                ->items(self::items([
+                    DictionaryValueResource::class,
+                ])),
             NavigationGroup::make()
                 ->extraSidebarAttributes(['class' => 'sidebar-group--bottom'])
                 ->items(self::items([

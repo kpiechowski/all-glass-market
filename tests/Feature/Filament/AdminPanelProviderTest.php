@@ -6,6 +6,7 @@ namespace Tests\Feature\Filament;
 
 use App\Filament\Pages\Styleguide;
 use App\Modules\Audit\UserInterface\Filament\Pages\HistoryAndLogs\HistoryAndLogs;
+use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\DictionaryValueResource;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\EditProfile;
 use App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\JournalEntryResource;
@@ -55,6 +56,21 @@ class AdminPanelProviderTest extends TestCase
         $this->assertSame([Dashboard::getNavigationLabel()], $this->labels($top));
         $this->assertSame([JournalEntryResource::getNavigationLabel()], $this->labels($main));
         $this->assertSame([EditProfile::getNavigationLabel()], $this->labels($bottom));
+    }
+
+    /** Catalogue, D-42: the "Katalog" group shows for an Admin and is gone for a seller. */
+    public function test_the_katalog_group_shows_dictionaries_to_an_admin_and_nothing_to_a_seller(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+
+        $group = collect(Filament::getNavigation())->first(fn (NavigationGroup $group): bool => $group->getLabel() === 'Katalog');
+
+        $this->assertNotNull($group);
+        $this->assertSame([DictionaryValueResource::getNavigationLabel()], $this->labels($group));
+
+        $this->actingAs(UserModel::factory()->create());
+
+        $this->assertNull(collect(Filament::getNavigation())->first(fn (NavigationGroup $group): bool => $group->getLabel() === 'Katalog'));
     }
 
     public function test_items_keep_their_badges(): void
@@ -107,13 +123,17 @@ class AdminPanelProviderTest extends TestCase
             ->assertSee('images/brand/allglass-logotype-white.svg');
     }
 
-    /** @return array{0: NavigationGroup, 1: NavigationGroup, 2: NavigationGroup} */
+    /**
+     * Top, main and bottom block; the labelled "Katalog" group sits between main and bottom for those who may open it.
+     *
+     * @return array{0: NavigationGroup, 1: NavigationGroup, 2: NavigationGroup}
+     */
     private function blocks(): array
     {
         $groups = array_values(Filament::getNavigation());
-        $this->assertCount(3, $groups);
+        $this->assertGreaterThanOrEqual(3, count($groups));
 
-        return [$groups[0], $groups[1], $groups[2]];
+        return [$groups[0], $groups[1], $groups[array_key_last($groups)]];
     }
 
     /** @return list<string> */
