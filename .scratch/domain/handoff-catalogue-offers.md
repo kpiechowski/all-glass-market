@@ -4,6 +4,10 @@
 - **For:** the next manager session (Opus). The user talks Polish; documents are in English.
 - **Purpose:** continue the agreed flow from this file alone.
 
+## Update 2026-11-11 (Catalogue D-66)
+
+Step 2 is done: `.scratch/catalogue/functional-spec.md`, issues `.scratch/catalogue/issues/01–09`, data migration in `.scratch/data-migration/catalogue/`. The user changed the order: **Catalogue delivery (step 4) comes before the Offers grilling (step 3)**. Catalogue issue 09 (picker, approval, offer counts, in-use guard) waits for the Offers spec. If Offers needs more from Catalogue's `ModuleApi`, add it then and record a `D-` in both discoveries.
+
 ## Where we are
 
 - Vehicles and Offers discoveries are done (`ready-for-grilling`).

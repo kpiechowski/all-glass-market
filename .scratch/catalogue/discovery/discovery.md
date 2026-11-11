@@ -7,7 +7,7 @@
 ## A. Metadata
 
 - **Status:** spec-written
-- **Next actions:** spec written and audited (`.scratch/catalogue/functional-spec.md`, r06 applied); data migration written (`.scratch/data-migration/catalogue/spec.md`, `ticket.md`, `review-list.md`). Waiting for the user's acceptance and commit. Next: cut Catalogue issues and deliver (D-66: Offers grilling postponed until after Catalogue delivery).
+- **Next actions:** spec written and audited (`.scratch/catalogue/functional-spec.md`, r06 applied); data migration written (`.scratch/data-migration/catalogue/spec.md`, `ticket.md`, `review-list.md`). Committed (d1dccf0); issues 01–09 cut in `.scratch/catalogue/issues/` (09 needs-triage, waits for Offers). Next: architecture/delivery via `/module-delivery` ("deliver catalogue"); Offers grilling after it (D-66).
 - **Started:** 2026-11-08 · **Last updated:** 2026-11-11
 - **Inputs (D-28):** V1 has no catalogue, so this module gets no discovery of its own. Its inputs are this discovery (written as "Vehicles"), the Offers discovery `.scratch/offers/discovery/discovery.md` and the domain model `.scratch/domain/glass-offer-model.md` (D-01–D-28, GLOSSARY, ADR 0008–0010).
 - **V1:** `/home/kp/laravel/projekty/AllGlass/` @ `511ce3b` (dirty: `docker-compose.yml` modified, `SECURITY_INCIDENT_2026-10.md` untracked; neither touches this module)

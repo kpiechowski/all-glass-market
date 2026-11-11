@@ -3,7 +3,7 @@
 <!-- Moved out of docs/archive/README.md and docs/archive/v1-port/refactor-plan.md on 2026-11-08 and revised with the user.
      This is the live order of work. Each module runs: module-discovery → agreed functional-spec.md → issues → delivery → admin-ui check. -->
 
-- **Updated:** 2026-11-09
+- **Updated:** 2026-11-11
 - **How a module is built:**
   1. `module-discovery` (V1 mapping, grilling with the user);
   2. `.scratch/<module>/functional-spec.md` agreed;
@@ -20,8 +20,8 @@
 | 2 | Audit | done (incl. "Historia i logi", D-24a) | — |
 | 3 | Preferences | done (issue admin-ui 13, ADR 0006) | grows with real needs |
 | 4 | Settings | decided 2026-11-08: **no module for now** (ADR 0007; map in `.scratch/settings/decision.md`) | — (revisit when the ADR 0007 signals appear) |
-| 5 | **Catalogue** (was "Vehicles"; D-23) | V1 has no catalogue: inputs are the Catalogue discovery (`.scratch/catalogue/discovery/`, renamed from `vehicles` 2026-11-11), the Offers discovery and the domain model (`.scratch/domain/glass-offer-model.md`, D-01–D-28). Holds Glass models, Eurocodes, OEM codes, vehicles, glass dictionaries. | **Module grilling** (no new discovery) → `functional-spec.md`. Delivered **first**, after the Offers spec. See `.scratch/domain/handoff-catalogue-offers.md`. |
-| 6 | Offers | discovery done 2026-11-09 (`.scratch/offers/discovery/`, r01–r06). Holds Offer, Approval, Reservation, Sale, Inquiry (D-19–D-22); refers to Catalogue through its `ModuleApi` (D-24). | Module grilling **after the Catalogue spec** → `functional-spec.md`; delivered after Catalogue. |
+| 5 | **Catalogue** (was "Vehicles"; D-23) | **spec agreed 2026-11-11** — `.scratch/catalogue/functional-spec.md` (D-29–D-66), issues 01–09 in `.scratch/catalogue/issues/` (09 waits for Offers). Data migration: `.scratch/data-migration/catalogue/`. | **Delivery** (`/module-delivery`, issues 01–08). |
+| 6 | Offers | discovery done 2026-11-09 (`.scratch/offers/discovery/`, r01–r06). Holds Offer, Approval, Reservation, Sale, Inquiry (D-19–D-22); refers to Catalogue through its `ModuleApi` (D-24). | Module grilling **after Catalogue delivery** (Catalogue D-66) → `functional-spec.md`; then Catalogue issue 09 is triaged. |
 | 6a | Domain grilling: Glass model vs Offer vs catalogue | **done 2026-11-09** — `.scratch/domain/glass-offer-model.md`, GLOSSARY, ADR 0008–0010 | — |
 | 7 | ~~Submissions~~ | **dropped** (D-20): the approval queue is the Offers waiting for approval; what a seller changed comes from the Change history | — |
 | 8 | WooCommerce | integration (`app/Integrations/`), scope list only. Publishes only, never imports (ADR 0010); channel mappings live in the integration (D-26). | after Offers |
