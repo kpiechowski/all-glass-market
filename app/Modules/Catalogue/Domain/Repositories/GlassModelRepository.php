@@ -17,6 +17,13 @@ interface GlassModelRepository extends Repository
     public function holderOfEurocode(Eurocode $eurocode, ?int $exceptId = null): ?EurocodeHolder;
 
     /**
+     * FR-11: the ids of every Glass model fitting the vehicle, to announce them as changed.
+     *
+     * @return list<int>
+     */
+    public function idsFittingVehicle(int $vehicleId): array;
+
+    /**
      * FR-14: the ids of every Glass model using a position, colour or equipment value.
      *
      * @return list<int>

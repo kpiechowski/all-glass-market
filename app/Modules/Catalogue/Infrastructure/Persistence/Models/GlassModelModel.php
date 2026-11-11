@@ -66,6 +66,16 @@ final class GlassModelModel extends ReadOnlyModel
         return $this->belongsTo(DictionaryValueModel::class, 'colour_id');
     }
 
+    /**
+     * FR-10: the vehicles the model fits.
+     *
+     * @return BelongsToMany<VehicleModel, $this>
+     */
+    public function vehicles(): BelongsToMany
+    {
+        return $this->belongsToMany(VehicleModel::class, 'catalogue_glass_model_vehicles', 'glass_model_id', 'vehicle_id');
+    }
+
     /** @return BelongsToMany<DictionaryValueModel, $this> */
     public function equipment(): BelongsToMany
     {

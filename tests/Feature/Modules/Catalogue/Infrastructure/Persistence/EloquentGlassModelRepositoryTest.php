@@ -15,6 +15,7 @@ use App\Modules\Catalogue\Domain\ValueObjects\OemCode;
 use App\Modules\Catalogue\Infrastructure\Factories\DictionaryValueModelFactory;
 use App\Modules\Catalogue\Infrastructure\Factories\GlassModelEurocodeModelFactory;
 use App\Modules\Catalogue\Infrastructure\Factories\GlassModelModelFactory;
+use App\Modules\Catalogue\Infrastructure\Factories\VehicleModelFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -40,6 +41,23 @@ class EloquentGlassModelRepositoryTest extends TestCase
         $this->assertSame('8613AGS', $entity->mainEurocode()->value);
         $this->assertSame([$equipment->id], $entity->equipmentIds());
         $this->assertSame('1K0-845', $entity->oemCodes()[0]->value);
+    }
+
+    public function test_a_saved_fitment_is_stored_and_the_ids_fitting_a_vehicle_exclude_other_models(): void
+    {
+        [$vehicle, $other] = [VehicleModelFactory::new()->create(), VehicleModelFactory::new()->create()];
+        $fitting = GlassModelModelFactory::new()->create();
+        $elsewhere = GlassModelModelFactory::new()->fitting($other)->create();
+
+        app(ActorStack::class)->run(Actor::system('test'), function () use ($fitting, $vehicle): void {
+            $entity = $this->repository()->get($fitting->id);
+            $entity->fitVehicles([$vehicle->id]);
+            $this->repository()->save($entity);
+        });
+
+        $this->assertSame([$vehicle->id], $this->repository()->get($fitting->id)->vehicleIds());
+        $this->assertSame([$fitting->id], $this->repository()->idsFittingVehicle($vehicle->id));
+        $this->assertSame([$elsewhere->id], $this->repository()->idsFittingVehicle($other->id));
     }
 
     public function test_a_saved_change_replaces_the_parts_and_touches_the_model(): void

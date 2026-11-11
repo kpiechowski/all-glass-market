@@ -88,6 +88,11 @@ class VehiclesTable
                 ->placeholder('—')
                 ->visibleFrom('md'),
 
+            TextColumn::make('glass_models_count')
+                ->label(__('catalogue::resources.vehicle.fields.glass_models_count'))
+                ->sortable()
+                ->visibleFrom('md'),
+
             TextColumn::make('argic_code')
                 ->label(__('catalogue::resources.vehicle.fields.argic_code'))
                 ->searchable()

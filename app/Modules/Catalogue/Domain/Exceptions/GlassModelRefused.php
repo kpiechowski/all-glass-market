@@ -51,6 +51,12 @@ final class GlassModelRefused extends DomainException
         return new self('catalogue::exceptions.glass_model.main_eurocode', ['code' => $code]);
     }
 
+    /** FR-10: only a vehicle the model fits can be removed from its fitment. */
+    public static function vehicleIsNotFitted(): self
+    {
+        return new self('catalogue::exceptions.glass_model.vehicle_is_not_fitted');
+    }
+
     public static function cannotMoveToItself(): self
     {
         return new self('catalogue::exceptions.glass_model.cannot_move_to_itself');

@@ -46,6 +46,25 @@ return [
             'status' => 'Stan',
         ],
 
+        'fitment' => [
+            'title' => 'Dopasowanie',
+            'empty' => [
+                'heading' => 'Brak dopasowanych pojazdów',
+                'description' => 'Dopasuj pojazdy, do których ten model szkła pasuje.',
+            ],
+            'fit' => [
+                'label' => 'Dopasuj pojazdy',
+                'heading' => 'Dopasować pojazdy do tego modelu?',
+                'done' => 'Dopasowano pojazdy',
+            ],
+            'remove' => [
+                'label' => 'Usuń dopasowanie',
+                'heading' => 'Usunąć to dopasowanie?',
+                'description' => 'Pojazd pozostanie w katalogu, model przestanie do niego pasować.',
+                'done' => 'Usunięto dopasowanie',
+            ],
+        ],
+
         'tabs' => [
             'details' => 'Szczegóły',
         ],
@@ -188,6 +207,12 @@ return [
             'year_to' => 'Rok produkcji do',
             'years' => 'Lata produkcji',
             'argic_code' => 'Kod pojazdu ARGIC',
+            'glass_models_count' => 'Pasuje do modeli szkła',
+        ],
+
+        'fitment' => [
+            'title' => 'Pasujące modele szkła',
+            'empty' => 'Żaden model szkła nie pasuje do tego pojazdu',
         ],
 
         'helpers' => [
@@ -223,6 +248,7 @@ return [
                 'label' => 'Usuń',
                 'heading' => 'Usunąć ten pojazd?',
                 'description' => 'Usunięcie jest trwałe.',
+                'description_fitted' => 'Usunięcie jest trwałe. Pojazd pasuje do modeli szkła: :count. Dopasowania zostaną usunięte, a modele pozostaną.',
                 'done' => 'Usunięto pojazd',
             ],
         ],

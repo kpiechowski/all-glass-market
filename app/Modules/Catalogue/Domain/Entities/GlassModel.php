@@ -22,6 +22,7 @@ final class GlassModel
      * @param  non-empty-list<Eurocode>  $eurocodes  every Eurocode, equal in finding the model
      * @param  list<int>  $equipmentIds
      * @param  list<OemCode>  $oemCodes  each once by RULE-04's comparison
+     * @param  list<int>  $vehicleIds  the Fitment (FR-10): the vehicles this model fits, each once
      */
     private function __construct(
         private ?int $id,
@@ -32,6 +33,7 @@ final class GlassModel
         private array $equipmentIds,
         private array $oemCodes,
         private bool $withdrawn,
+        private array $vehicleIds = [],
     ) {}
 
     /**
@@ -73,6 +75,7 @@ final class GlassModel
      * @param  non-empty-list<Eurocode>  $eurocodes
      * @param  list<int>  $equipmentIds
      * @param  list<OemCode>  $oemCodes
+     * @param  list<int>  $vehicleIds
      */
     public static function reconstitute(
         int $id,
@@ -83,8 +86,9 @@ final class GlassModel
         array $equipmentIds,
         array $oemCodes,
         bool $withdrawn,
+        array $vehicleIds = [],
     ): self {
-        return new self($id, $eurocodes, $mainEurocode, $positionId, $colourId, $equipmentIds, $oemCodes, $withdrawn);
+        return new self($id, $eurocodes, $mainEurocode, $positionId, $colourId, $equipmentIds, $oemCodes, $withdrawn, $vehicleIds);
     }
 
     /**
@@ -191,6 +195,32 @@ final class GlassModel
         return $changed;
     }
 
+    /**
+     * FR-10: the model fits these vehicles too (also while withdrawn); a vehicle already fitted
+     * stays once. The handler has checked that the vehicles exist.
+     *
+     * @param  list<int>  $vehicleIds
+     * @return bool whether the model changed
+     */
+    public function fitVehicles(array $vehicleIds): bool
+    {
+        $added = array_values(array_diff(self::distinctIds($vehicleIds), $this->vehicleIds));
+
+        $this->vehicleIds = [...$this->vehicleIds, ...$added];
+
+        return $added !== [];
+    }
+
+    /** FR-10: the model no longer fits the vehicle. */
+    public function removeFitment(int $vehicleId): void
+    {
+        if (! in_array($vehicleId, $this->vehicleIds, true)) {
+            throw GlassModelRefused::vehicleIsNotFitted();
+        }
+
+        $this->vehicleIds = array_values(array_diff($this->vehicleIds, [$vehicleId]));
+    }
+
     public function withdraw(): void
     {
         if ($this->withdrawn) {
@@ -257,6 +287,12 @@ final class GlassModel
     public function oemCodes(): array
     {
         return $this->oemCodes;
+    }
+
+    /** @return list<int> */
+    public function vehicleIds(): array
+    {
+        return $this->vehicleIds;
     }
 
     public function isWithdrawn(): bool

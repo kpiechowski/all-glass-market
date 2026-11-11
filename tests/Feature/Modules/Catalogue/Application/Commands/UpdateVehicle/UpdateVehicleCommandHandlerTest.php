@@ -8,14 +8,17 @@ use App\Core\Domain\Actor;
 use App\Core\Exceptions\AuthorizationException;
 use App\Modules\Catalogue\Application\Commands\UpdateVehicle\UpdateVehicleCommand;
 use App\Modules\Catalogue\Domain\Enums\Dictionary;
+use App\Modules\Catalogue\Domain\Events\GlassModelChanged;
 use App\Modules\Catalogue\Domain\Exceptions\VehicleRefused;
 use App\Modules\Catalogue\Infrastructure\Factories\DictionaryValueModelFactory;
+use App\Modules\Catalogue\Infrastructure\Factories\GlassModelModelFactory;
 use App\Modules\Catalogue\Infrastructure\Factories\VehicleModelFactory;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\DictionaryValueModel;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\VehicleModel;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Ecotone\Modelling\CommandBus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 /** FR-07, FR-08 (name never rewritten), RULE-09, FR-24 (withdrawn values survive a save). */
@@ -63,6 +66,24 @@ class UpdateVehicleCommandHandlerTest extends TestCase
         $this->send($this->actor(), $vehicle, 'Ręczna nazwa', null, null, 2001, 2003);
 
         $this->assertSame('Ręczna nazwa', $vehicle->fresh()->name);
+    }
+
+    public function test_changing_a_vehicle_announces_every_model_it_fits_and_a_no_op_announces_none(): void
+    {
+        Event::fake([GlassModelChanged::class]);
+        $vehicle = VehicleModelFactory::new()->named('Audi A4')->create();
+        $fitted = GlassModelModelFactory::new()->fitting($vehicle)->create();
+        GlassModelModelFactory::new()->create();
+        $command = fn (int $yearFrom) => new UpdateVehicleCommand($this->actor(), $vehicle->id, 'Audi A4', $vehicle->make_id, null, null, $yearFrom, null, null, null);
+
+        app(CommandBus::class)->send($command(2001));
+
+        Event::assertDispatchedTimes(GlassModelChanged::class, 1);
+        Event::assertDispatched(GlassModelChanged::class, fn (GlassModelChanged $e): bool => $e->glassModelId === $fitted->id);
+
+        app(CommandBus::class)->send($command(2001));
+
+        Event::assertDispatchedTimes(GlassModelChanged::class, 1);
     }
 
     public function test_a_seller_is_refused(): void

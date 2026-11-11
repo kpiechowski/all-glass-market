@@ -74,6 +74,16 @@ final class EloquentGlassModelRepository extends EloquentRepository implements G
         return $query->orderBy('id')->pluck('id')->map(fn ($id): int => (int) $id)->all();
     }
 
+    public function idsFittingVehicle(int $vehicleId): array
+    {
+        return GlassModelModel::query()
+            ->whereHas('vehicles', fn ($vehicles) => $vehicles->whereKey($vehicleId))
+            ->orderBy('id')
+            ->pluck('id')
+            ->map(fn ($id): int => (int) $id)
+            ->all();
+    }
+
     /** @return bool whether any part changed */
     private function syncParts(int $id, GlassModel $entity): bool
     {
@@ -85,7 +95,11 @@ final class EloquentGlassModelRepository extends EloquentRepository implements G
 
             $equipment = $model->equipment()->sync($entity->equipmentIds());
 
-            return $changed || $equipment['attached'] !== [] || $equipment['detached'] !== [];
+            $vehicles = $model->vehicles()->sync($entity->vehicleIds());
+
+            return $changed
+                || $vehicles['attached'] !== [] || $vehicles['detached'] !== []
+                || $equipment['attached'] !== [] || $equipment['detached'] !== [];
         });
     }
 

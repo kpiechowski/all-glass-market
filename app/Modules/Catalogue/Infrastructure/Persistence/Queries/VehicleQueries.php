@@ -14,7 +14,19 @@ final class VehicleQueries
     /** @return Builder<VehicleModel> */
     public function listing(): Builder
     {
-        return VehicleModel::query()->with(['make', 'body']);
+        return VehicleModel::query()->with(['make', 'body'])->withCount('glassModels');
+    }
+
+    /**
+     * Vehicles to pick for a fitment (FR-10): by name, any part of it.
+     *
+     * @return Builder<VehicleModel>
+     */
+    public function searchByName(string $search): Builder
+    {
+        return VehicleModel::query()
+            ->where('name', 'like', '%'.addcslashes($search, '%_\\').'%')
+            ->orderBy('name');
     }
 
     /**

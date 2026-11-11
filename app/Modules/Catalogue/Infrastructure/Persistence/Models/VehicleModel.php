@@ -8,6 +8,7 @@ use App\Core\Infrastructure\Persistence\ReadOnlyModel;
 use App\Modules\Catalogue\Infrastructure\Factories\VehicleModelFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /** Read-only model of a vehicle. */
 final class VehicleModel extends ReadOnlyModel
@@ -38,6 +39,16 @@ final class VehicleModel extends ReadOnlyModel
     public function make(): BelongsTo
     {
         return $this->belongsTo(DictionaryValueModel::class, 'make_id');
+    }
+
+    /**
+     * FR-09: the Glass models the vehicle fits.
+     *
+     * @return BelongsToMany<GlassModelModel, $this>
+     */
+    public function glassModels(): BelongsToMany
+    {
+        return $this->belongsToMany(GlassModelModel::class, 'catalogue_glass_model_vehicles', 'vehicle_id', 'glass_model_id');
     }
 
     /** @return BelongsTo<DictionaryValueModel, $this> */

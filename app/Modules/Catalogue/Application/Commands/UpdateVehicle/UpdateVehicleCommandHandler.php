@@ -6,10 +6,13 @@ namespace App\Modules\Catalogue\Application\Commands\UpdateVehicle;
 
 use App\Core\Contracts\Authorizer;
 use App\Modules\Catalogue\Domain\Enums\CataloguePermission;
+use App\Modules\Catalogue\Domain\Events\GlassModelChanged;
 use App\Modules\Catalogue\Domain\Repositories\DictionaryValueRepository;
+use App\Modules\Catalogue\Domain\Repositories\GlassModelRepository;
 use App\Modules\Catalogue\Domain\Repositories\VehicleRepository;
 use App\Modules\Catalogue\Domain\ValueObjects\VehicleDetails;
 use App\Modules\Catalogue\Domain\ValueObjects\VehicleName;
+use Carbon\CarbonImmutable;
 use Ecotone\Modelling\Attribute\CommandHandler;
 
 final class UpdateVehicleCommandHandler
@@ -18,6 +21,7 @@ final class UpdateVehicleCommandHandler
         private Authorizer $authorizer,
         private VehicleRepository $vehicles,
         private DictionaryValueRepository $values,
+        private GlassModelRepository $glassModels,
     ) {}
 
     #[CommandHandler]
@@ -29,7 +33,7 @@ final class UpdateVehicleCommandHandler
         $details = VehicleDetails::from($command->model, $command->yearFrom, $command->yearTo, $command->generation, $command->argicCode);
         $vehicle = $this->vehicles->get($command->vehicleId);
 
-        $vehicle->change(
+        $changed = $vehicle->change(
             $name,
             $details,
             $this->values->get($command->makeId),
@@ -37,5 +41,14 @@ final class UpdateVehicleCommandHandler
             $this->vehicles->nameIsTaken($name->value, $command->vehicleId),
         );
         $this->vehicles->save($vehicle);
+
+        if (! $changed) {
+            return;
+        }
+
+        /* §9: every Glass model the vehicle fits is announced as changed. */
+        foreach ($this->glassModels->idsFittingVehicle($command->vehicleId) as $glassModelId) {
+            event(new GlassModelChanged($glassModelId, CarbonImmutable::now()));
+        }
     }
 }

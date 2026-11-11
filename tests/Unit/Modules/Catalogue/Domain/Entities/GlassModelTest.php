@@ -126,6 +126,34 @@ class GlassModelTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
+    public function test_vehicles_are_fitted_once_each_and_a_repeat_changes_nothing(): void
+    {
+        $model = $this->model();
+
+        $this->assertTrue($model->fitVehicles([5, 7, 5]));
+        $this->assertSame([5, 7], $model->vehicleIds());
+        $this->assertFalse($model->fitVehicles([7]));
+        $this->assertTrue($model->fitVehicles([7, 9]));
+        $this->assertSame([5, 7, 9], $model->vehicleIds());
+    }
+
+    public function test_a_fitment_is_removed(): void
+    {
+        $model = $this->model();
+        $model->fitVehicles([5, 7]);
+
+        $model->removeFitment(5);
+
+        $this->assertSame([7], $model->vehicleIds());
+    }
+
+    public function test_removing_a_fitment_that_does_not_exist_is_refused(): void
+    {
+        $this->expectException(GlassModelRefused::class);
+
+        $this->model()->removeFitment(5);
+    }
+
     private function modelWithTwo(): GlassModel
     {
         return GlassModel::reconstitute(1, [Eurocode::from('8613AGS'), Eurocode::from('8613BGS')], Eurocode::from('8613AGS'), 1, null, [], [], false);

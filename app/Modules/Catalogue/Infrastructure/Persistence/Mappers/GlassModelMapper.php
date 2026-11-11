@@ -24,7 +24,7 @@ final class GlassModelMapper implements Mapper
     public function toEntity(Model $model): GlassModel
     {
         /** @var GlassModelModel $model */
-        $model->loadMissing(['eurocodes', 'oemCodes', 'equipment']);
+        $model->loadMissing(['eurocodes', 'oemCodes', 'equipment', 'vehicles']);
 
         $eurocodes = $model->eurocodes->sortBy('id')->values();
 
@@ -37,6 +37,7 @@ final class GlassModelMapper implements Mapper
             $model->equipment->pluck('id')->map(fn ($id): int => (int) $id)->all(),
             $model->oemCodes->sortBy('id')->map(fn (GlassModelOemCodeModel $row): OemCode => OemCode::tryFrom($row->code))->values()->all(),
             $model->withdrawn,
+            $model->vehicles->pluck('id')->map(fn ($id): int => (int) $id)->sort()->values()->all(),
         );
     }
 

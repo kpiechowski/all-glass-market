@@ -12,6 +12,7 @@ use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Pages\Cre
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Pages\EditGlassModel;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Pages\ListGlassModels;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Pages\ViewGlassModel;
+use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\RelationManagers\FittedVehiclesRelationManager;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Schemas\GlassModelForm;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Schemas\GlassModelInfolist;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Tables\GlassModelsTable;
@@ -86,6 +87,14 @@ class GlassModelResource extends Resource
     public static function table(Table $table): Table
     {
         return GlassModelsTable::configure($table);
+    }
+
+    /** FR-10: the fitment tab. */
+    public static function getRelations(): array
+    {
+        return [
+            FittedVehiclesRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

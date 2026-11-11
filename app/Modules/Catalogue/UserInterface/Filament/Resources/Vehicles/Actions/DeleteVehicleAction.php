@@ -13,7 +13,7 @@ use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\VehicleResou
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
-/** Template E, dangerous confirmation (FR-11). Ticket 05 adds the count of fitted Glass models to the warning. */
+/** Template E, dangerous confirmation (FR-11, WF-05): the warning says how many Glass models the vehicle fits. */
 final class DeleteVehicleAction
 {
     /** @param  bool  $thenGoToList  on the vehicle's own page, which no longer exists afterwards */
@@ -24,7 +24,13 @@ final class DeleteVehicleAction
             ->color('danger')
             ->requiresConfirmation()
             ->modalHeading(__('catalogue::resources.vehicle.actions.delete.heading'))
-            ->modalDescription(__('catalogue::resources.vehicle.actions.delete.description'))
+            ->modalDescription(function (VehicleModel $record): string {
+                $count = $record->glassModels()->count();
+
+                return $count === 0
+                    ? __('catalogue::resources.vehicle.actions.delete.description')
+                    : __('catalogue::resources.vehicle.actions.delete.description_fitted', ['count' => $count]);
+            })
             ->modalSubmitActionLabel(__('catalogue::resources.vehicle.actions.delete.label'))
             ->visible(fn (): bool => CurrentActor::can(CataloguePermission::Manage))
             ->action(function (VehicleModel $record, Action $action) use ($thenGoToList): void {

@@ -9,6 +9,7 @@ return [
         'eurocode_is_taken' => 'Eurokod :code należy już do innego modelu szkła: :holder. Wybierz inny eurokod albo zmień tamten model.',
         'eurocode_is_not_held' => 'Ten model szkła nie ma eurokodu :code.',
         'eurocode_already_held' => 'Ten model szkła ma już eurokod :code.',
+        'vehicle_is_not_fitted' => 'Ten model szkła nie jest dopasowany do tego pojazdu.',
         'last_eurocode' => 'Eurokod :code jest jedynym eurokodem tego modelu, więc nie można go usunąć ani przenieść. Najpierw dodaj inny eurokod.',
         'main_eurocode' => 'Eurokod :code jest eurokodem głównym. Najpierw wskaż inny eurokod jako główny.',
         'cannot_move_to_itself' => 'Wybierz inny model szkła, do którego przenieść eurokod.',

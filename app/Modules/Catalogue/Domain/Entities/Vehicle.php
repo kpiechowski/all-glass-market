@@ -51,7 +51,7 @@ final class Vehicle
         DictionaryValue $make,
         ?DictionaryValue $body,
         bool $nameIsTaken,
-    ): void {
+    ): bool {
         if ($nameIsTaken) {
             throw VehicleRefused::nameIsTaken();
         }
@@ -59,10 +59,17 @@ final class Vehicle
         $this->ensureMakeCanBePicked($make);
         $this->ensureBodyCanBePicked($body);
 
+        $changed = $this->name != $name
+            || $this->details != $details
+            || $this->makeId !== (int) $make->id()
+            || $this->bodyId !== $body?->id();
+
         $this->name = $name;
         $this->details = $details;
         $this->makeId = (int) $make->id();
         $this->bodyId = $body?->id();
+
+        return $changed;
     }
 
     private function ensureMakeCanBePicked(DictionaryValue $make): void

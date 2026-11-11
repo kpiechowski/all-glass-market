@@ -6,7 +6,9 @@ namespace Tests\Feature\Modules\Catalogue\UserInterface\Filament\Resources\Vehic
 
 use App\Modules\Catalogue\Domain\Enums\Dictionary;
 use App\Modules\Catalogue\Infrastructure\Factories\DictionaryValueModelFactory;
+use App\Modules\Catalogue\Infrastructure\Factories\GlassModelModelFactory;
 use App\Modules\Catalogue\Infrastructure\Factories\VehicleModelFactory;
+use App\Modules\Catalogue\Infrastructure\Persistence\Models\GlassModelModel;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\Pages\ListVehicles;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Filament\Actions\Testing\TestAction;
@@ -79,5 +81,34 @@ class ListVehiclesTest extends TestCase
             ->assertNotified();
 
         $this->assertNull($vehicle->fresh());
+    }
+
+    public function test_the_list_shows_how_many_glass_models_a_vehicle_fits(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $vehicle = VehicleModelFactory::new()->create();
+        GlassModelModelFactory::new()->fitting($vehicle)->create();
+        GlassModelModelFactory::new()->fitting($vehicle)->create();
+
+        Livewire::test(ListVehicles::class)
+            ->assertTableColumnStateSet('glass_models_count', 2, $vehicle);
+    }
+
+    public function test_deleting_a_fitted_vehicle_warns_with_the_count_and_removes_vehicle_and_fitments(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $vehicle = VehicleModelFactory::new()->create();
+        $model = GlassModelModelFactory::new()->fitting($vehicle)->create();
+        GlassModelModelFactory::new()->fitting($vehicle)->create();
+
+        Livewire::test(ListVehicles::class)
+            ->mountAction(TestAction::make('delete')->table($vehicle))
+            ->assertMountedActionModalSee('modeli szkła: 2')
+            ->callMountedAction()
+            ->assertNotified();
+
+        $this->assertNull($vehicle->fresh());
+        $this->assertNotNull(GlassModelModel::find($model->id));
+        $this->assertCount(0, $model->fresh()->vehicles);
     }
 }

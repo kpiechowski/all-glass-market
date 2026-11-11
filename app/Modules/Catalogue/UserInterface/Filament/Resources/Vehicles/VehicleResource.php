@@ -13,6 +13,7 @@ use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\Pages\Create
 use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\Pages\EditVehicle;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\Pages\ListVehicles;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\Pages\ViewVehicle;
+use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\RelationManagers\FittedGlassModelsRelationManager;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\Schemas\VehicleForm;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\Schemas\VehicleInfolist;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\Tables\VehiclesTable;
@@ -93,10 +94,11 @@ class VehicleResource extends Resource
         return VehiclesTable::configure($table);
     }
 
-    /** The audit history tab. Seam: ticket 05 adds the fitted Glass models here. */
+    /** The fitted Glass models (FR-09) and the audit history tabs. */
     public static function getRelations(): array
     {
         return [
+            FittedGlassModelsRelationManager::class,
             RecordHistoryRelationManager::make(['recordType' => 'catalogue.vehicle']),
         ];
     }
