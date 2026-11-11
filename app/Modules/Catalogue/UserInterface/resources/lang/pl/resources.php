@@ -7,6 +7,74 @@ return [
         'group' => 'Katalog',
     ],
 
+    'glass_model' => [
+        'label' => 'Model szkła',
+        'plural_label' => 'Modele szkła',
+
+        'fields' => [
+            'main_eurocode' => 'Eurokod główny',
+            'position' => 'Rodzaj szyby',
+            'colour' => 'Kolor',
+            'equipment' => 'Wyposażenie',
+            'oem_codes' => 'Kody OEM',
+            'state' => 'Stan',
+            'created_at' => 'Utworzono',
+            'updated_at' => 'Ostatnia zmiana',
+        ],
+
+        'helpers' => [
+            'main_eurocode' => 'Litery i cyfry, do 17 znaków; spacje i inne znaki zostaną usunięte.',
+            'main_eurocode_locked' => 'Eurokodami zarządza się na stronie modelu.',
+            'oem_codes' => 'Wpisz kod i zatwierdź klawiszem Enter.',
+        ],
+
+        'state' => [
+            'active' => 'Aktywny',
+            'withdrawn' => 'Wycofany',
+        ],
+
+        'sections' => [
+            'identity' => 'Szkło',
+            'codes' => 'Kody',
+            'status' => 'Stan',
+        ],
+
+        'tabs' => [
+            'details' => 'Szczegóły',
+        ],
+
+        'empty' => [
+            'heading' => 'Nie ma jeszcze modeli szkła',
+            'description' => 'Dodaj pierwszy model, aby oferty mogły się do niego odwoływać.',
+        ],
+
+        'actions' => [
+            'create' => [
+                'label' => 'Dodaj model szkła',
+                'done' => 'Dodano model szkła',
+            ],
+            'edit' => [
+                'done' => 'Zapisano zmiany',
+            ],
+            'withdraw' => [
+                'label' => 'Wycofaj',
+                'heading' => 'Wycofać ten model szkła?',
+                'description' => 'Model zniknie z wyboru i wyszukiwania dla nowych zastosowań, ale pozostanie widoczny tam, gdzie jest już użyty. Możesz go później przywrócić.',
+                'done' => 'Wycofano model szkła',
+            ],
+            'restore' => [
+                'label' => 'Przywróć',
+                'done' => 'Przywrócono model szkła',
+            ],
+            'delete' => [
+                'label' => 'Usuń',
+                'heading' => 'Usunąć ten model szkła?',
+                'description' => 'Usunięcie jest trwałe. Model, który jest gdzieś używany, nie zostanie usunięty.',
+                'done' => 'Usunięto model szkła',
+            ],
+        ],
+    ],
+
     'dictionary_value' => [
         'label' => 'Wartość słownika',
         'plural_label' => 'Słowniki',

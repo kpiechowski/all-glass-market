@@ -34,4 +34,18 @@ class DictionaryValueQueriesTest extends TestCase
         $this->assertSame([$withdrawn->id], $queries->onlyWithdrawn($queries->listing())->pluck('id')->all());
         $this->assertSame([$active->id], $queries->onlyActive($queries->listing())->pluck('id')->all());
     }
+
+    public function test_choosable_offers_active_values_and_the_withdrawn_ones_already_held_only(): void
+    {
+        $active = DictionaryValueModelFactory::new()->of(Dictionary::Colour)->create();
+        $held = DictionaryValueModelFactory::new()->of(Dictionary::Colour)->withdrawn()->create();
+        $withdrawn = DictionaryValueModelFactory::new()->of(Dictionary::Colour)->withdrawn()->create();
+        $otherDictionary = DictionaryValueModelFactory::new()->of(Dictionary::Position)->create();
+
+        $ids = app(DictionaryValueQueries::class)->choosable(Dictionary::Colour, [$held->id])->pluck('id')->all();
+
+        $this->assertEqualsCanonicalizing([$active->id, $held->id], $ids);
+        $this->assertNotContains($withdrawn->id, $ids);
+        $this->assertNotContains($otherDictionary->id, $ids);
+    }
 }

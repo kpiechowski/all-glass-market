@@ -9,18 +9,23 @@ use App\Modules\Audit\Application\ModuleApi\AuditableRecords;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecordType;
 use App\Modules\Audit\Application\ModuleApi\ValuePresenter;
 use App\Modules\Catalogue\Application\ModuleApi\DictionaryValueUsages;
+use App\Modules\Catalogue\Application\ModuleApi\GlassModelUsages;
 use App\Modules\Catalogue\Application\Providers\CatalogueEventServiceProvider;
 use App\Modules\Catalogue\Domain\Enums\CataloguePermission;
 use App\Modules\Catalogue\Domain\Enums\Dictionary;
 use App\Modules\Catalogue\Domain\Repositories\DictionaryValueRepository;
+use App\Modules\Catalogue\Domain\Repositories\GlassModelRepository;
 use App\Modules\Catalogue\Domain\Repositories\VehicleRepository;
 use App\Modules\Catalogue\Infrastructure\Persistence\EloquentDictionaryValueRepository;
+use App\Modules\Catalogue\Infrastructure\Persistence\EloquentGlassModelRepository;
 use App\Modules\Catalogue\Infrastructure\Persistence\EloquentVehicleRepository;
+use App\Modules\Catalogue\Infrastructure\Persistence\GlassModelDictionaryValueUsage;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\DictionaryValueModel;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\VehicleModel;
 use App\Modules\Catalogue\Infrastructure\Persistence\VehicleDictionaryUsage;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\DictionaryValueResource;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\Support\DictionaryValueViewSections;
+use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Support\GlassModelViewSections;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\VehicleResource;
 use App\Modules\Users\Application\ModuleApi\RoleRegistry;
 use App\Modules\Users\Domain\Enums\UserRole;
@@ -43,6 +48,7 @@ class CatalogueModuleServiceProvider extends ModuleServiceProvider
     protected array $containerBindings = [
         DictionaryValueRepository::class => EloquentDictionaryValueRepository::class,
         VehicleRepository::class => EloquentVehicleRepository::class,
+        GlassModelRepository::class => EloquentGlassModelRepository::class,
     ];
 
     public function register(): void
@@ -51,6 +57,8 @@ class CatalogueModuleServiceProvider extends ModuleServiceProvider
 
         $this->app->singleton(DictionaryValueUsages::class);
         $this->app->singleton(DictionaryValueViewSections::class);
+        $this->app->singleton(GlassModelUsages::class);
+        $this->app->singleton(GlassModelViewSections::class);
     }
 
     public function boot(): void
@@ -63,10 +71,11 @@ class CatalogueModuleServiceProvider extends ModuleServiceProvider
         $this->registerDictionaryUsages($this->app->make(DictionaryValueUsages::class));
     }
 
-    /** FR-24: a make or body that a vehicle has cannot be deleted. */
+    /** FR-24: a make or body a vehicle has, or a position, colour or equipment a Glass model has, cannot be deleted. */
     private function registerDictionaryUsages(DictionaryValueUsages $usages): void
     {
         $usages->register(new VehicleDictionaryUsage);
+        $usages->register(new GlassModelDictionaryValueUsage);
     }
 
     /** D-42: Admin holds it; Super Admin holds every Permission by wildcard; a Seller (User) holds none. */

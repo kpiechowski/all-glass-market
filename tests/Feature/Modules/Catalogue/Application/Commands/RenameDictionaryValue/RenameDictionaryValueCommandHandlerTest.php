@@ -8,9 +8,11 @@ use App\Core\Domain\Actor;
 use App\Core\Exceptions\AuthorizationException;
 use App\Modules\Catalogue\Application\Commands\RenameDictionaryValue\RenameDictionaryValueCommand;
 use App\Modules\Catalogue\Domain\Enums\Dictionary;
+use App\Modules\Catalogue\Domain\Events\GlassModelChanged;
 use App\Modules\Catalogue\Domain\Events\ProducerChanged;
 use App\Modules\Catalogue\Domain\Exceptions\DictionaryValueRefused;
 use App\Modules\Catalogue\Infrastructure\Factories\DictionaryValueModelFactory;
+use App\Modules\Catalogue\Infrastructure\Factories\GlassModelModelFactory;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\DictionaryValueModel;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Ecotone\Modelling\CommandBus;
@@ -96,5 +98,39 @@ class RenameDictionaryValueCommandHandlerTest extends TestCase
         $this->expectException(AuthorizationException::class);
 
         $this->send(Actor::user($seller->id), $value, 'X');
+    }
+
+    /** FR-14: a renamed position, colour or equipment value announces every Glass model using it. */
+    public function test_renaming_a_value_announces_every_glass_model_using_it(): void
+    {
+        Event::fake([GlassModelChanged::class]);
+        $admin = UserModel::factory()->admin()->create();
+        $colour = DictionaryValueModelFactory::new()->of(Dictionary::Colour)->named('Zielony')->create();
+        $equipment = DictionaryValueModelFactory::new()->of(Dictionary::Equipment)->named('Czujnik')->create();
+        $green = GlassModelModelFactory::new()->withColour($colour)->create();
+        $sensor = GlassModelModelFactory::new()->withEquipment($equipment)->create();
+        $other = GlassModelModelFactory::new()->create();
+
+        $this->send(Actor::user($admin->id), $colour, 'Butelkowy');
+        $this->send(Actor::user($admin->id), $equipment, 'Czujnik deszczu');
+
+        Event::assertDispatchedTimes(GlassModelChanged::class, 2);
+        Event::assertDispatched(GlassModelChanged::class, fn (GlassModelChanged $e): bool => $e->glassModelId === $green->id);
+        Event::assertDispatched(GlassModelChanged::class, fn (GlassModelChanged $e): bool => $e->glassModelId === $sensor->id);
+        Event::assertNotDispatched(GlassModelChanged::class, fn (GlassModelChanged $e): bool => $e->glassModelId === $other->id);
+    }
+
+    public function test_renaming_a_position_announces_its_models_but_a_rename_to_the_same_name_does_not(): void
+    {
+        Event::fake([GlassModelChanged::class]);
+        $admin = UserModel::factory()->admin()->create();
+        $position = DictionaryValueModelFactory::new()->of(Dictionary::Position)->named('Przednia')->create();
+        GlassModelModelFactory::new()->withPosition($position)->create();
+
+        $this->send(Actor::user($admin->id), $position, 'Przednia');
+        Event::assertNotDispatched(GlassModelChanged::class);
+
+        $this->send(Actor::user($admin->id), $position, 'Szyba przednia');
+        Event::assertDispatchedTimes(GlassModelChanged::class, 1);
     }
 }

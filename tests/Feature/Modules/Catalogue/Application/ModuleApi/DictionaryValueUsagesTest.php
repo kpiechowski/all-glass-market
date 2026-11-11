@@ -8,10 +8,13 @@ use App\Modules\Catalogue\Application\ModuleApi\DictionaryValueUsages;
 use App\Modules\Catalogue\Domain\Contracts\DictionaryUse;
 use App\Modules\Catalogue\Domain\Contracts\DictionaryValueUsage;
 use App\Modules\Catalogue\Domain\Enums\Dictionary;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class DictionaryValueUsagesTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_nothing_registered_means_nothing_uses_the_value(): void
     {
         $this->assertSame([], app(DictionaryValueUsages::class)->of(Dictionary::Colour, 1));

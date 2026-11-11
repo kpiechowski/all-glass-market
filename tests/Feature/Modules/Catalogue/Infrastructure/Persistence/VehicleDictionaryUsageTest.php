@@ -57,7 +57,7 @@ class VehicleDictionaryUsageTest extends TestCase
             $this->fail('A make in use was deleted');
         } catch (DictionaryValueRefused $refusal) {
             $this->assertSame('catalogue::exceptions.dictionary_value.in_use', $refusal->translationKey);
-            $this->assertStringContainsString('Pojazdy (1)', $refusal->parameters['places']);
+            $this->assertStringContainsString('pojazdy (1)', $refusal->parameters['places']);
         }
 
         app(CommandBus::class)->send(new DeleteDictionaryValueCommand($admin, $free->id));

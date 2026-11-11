@@ -42,4 +42,18 @@ final class DictionaryValueQueries
     {
         return $query->where('withdrawn', false);
     }
+
+    /**
+     * What a form offers for picking (FR-24): the dictionary's active values, and the withdrawn ones
+     * the record being edited already holds.
+     *
+     * @param  list<int>  $alsoIds
+     * @return Builder<DictionaryValueModel>
+     */
+    public function choosable(Dictionary $dictionary, array $alsoIds = []): Builder
+    {
+        return $this->ofDictionary($dictionary)
+            ->where(fn (Builder $query): Builder => $query->where('withdrawn', false)->orWhereIn('id', $alsoIds))
+            ->orderBy('name');
+    }
 }
