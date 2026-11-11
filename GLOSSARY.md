@@ -77,8 +77,16 @@ A catalogue code of a glass, belonging to exactly one Glass model. Several Euroc
 _Avoid_: alternative eurocode, eurokod alternatywny, glass code
 
 **Main eurocode** (Eurokod główny):
-The Eurocode that names its Glass model wherever the model is shown. Every Glass model has exactly one.
+The Eurocode that names its Glass model wherever the model is shown. Every Glass model has exactly one. It is only a label: all Eurocodes of a Glass model are equal, and any of them finds it.
 _Avoid_: primary eurocode, priority 0
+
+**Vehicle** (Pojazd):
+A make, model, body and production span that Glass models are fitted to, known by its own name that people search by. A vehicle reaches an offer only through the offer's Glass model.
+_Avoid_: car (for the catalogue entry), donor car
+
+**Fitment** (Dopasowanie):
+The statement that a Glass model fits a Vehicle.
+_Avoid_: compatible vehicles, car link
 
 ## Sales channels
 
