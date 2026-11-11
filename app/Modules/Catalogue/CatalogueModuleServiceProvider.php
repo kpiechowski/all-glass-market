@@ -11,11 +11,13 @@ use App\Modules\Audit\Application\ModuleApi\ValuePresenter;
 use App\Modules\Catalogue\Application\ModuleApi\DictionaryValueUsages;
 use App\Modules\Catalogue\Application\ModuleApi\GlassModelUsages;
 use App\Modules\Catalogue\Application\Providers\CatalogueEventServiceProvider;
+use App\Modules\Catalogue\Domain\Contracts\CandidateSearch;
 use App\Modules\Catalogue\Domain\Enums\CataloguePermission;
 use App\Modules\Catalogue\Domain\Enums\Dictionary;
 use App\Modules\Catalogue\Domain\Repositories\DictionaryValueRepository;
 use App\Modules\Catalogue\Domain\Repositories\GlassModelRepository;
 use App\Modules\Catalogue\Domain\Repositories\VehicleRepository;
+use App\Modules\Catalogue\Infrastructure\Persistence\EloquentCandidateSearch;
 use App\Modules\Catalogue\Infrastructure\Persistence\EloquentDictionaryValueRepository;
 use App\Modules\Catalogue\Infrastructure\Persistence\EloquentGlassModelRepository;
 use App\Modules\Catalogue\Infrastructure\Persistence\EloquentVehicleRepository;
@@ -49,6 +51,7 @@ class CatalogueModuleServiceProvider extends ModuleServiceProvider
         DictionaryValueRepository::class => EloquentDictionaryValueRepository::class,
         VehicleRepository::class => EloquentVehicleRepository::class,
         GlassModelRepository::class => EloquentGlassModelRepository::class,
+        CandidateSearch::class => EloquentCandidateSearch::class,
     ];
 
     public function register(): void

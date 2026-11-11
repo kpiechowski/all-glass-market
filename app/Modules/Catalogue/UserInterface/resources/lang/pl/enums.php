@@ -16,6 +16,12 @@ return [
         'vehicle_body' => 'Nadwozie pojazdu',
     ],
 
+    'match_route' => [
+        'eurocode' => 'Eurokod',
+        'oem' => 'Kod OEM',
+        'vehicle' => 'Pojazd',
+    ],
+
     'dictionary_plural' => [
         'position' => 'Rodzaje szyb',
         'colour' => 'Kolory',

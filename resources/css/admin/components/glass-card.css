@@ -1,0 +1,92 @@
+/*
+ * Glass model card (FR-04, D-53): the one cell of the Glass model list, full width at every size.
+ * Markup: catalogue::filament.tables.glass-model-card (GlassModelCardColumn).
+ *
+ *   thumbnail   slot, left, drawn only when ticket 07 fills it
+ *   head        main Eurocode (bold), state badge, what the search matched
+ *   facts       further Eurocodes, OEM codes, parameters, vehicle count: side by side from md
+ *   offers      slot, right, drawn only when ticket 09 fills it
+ */
+.glass-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--ag-space-2);
+    padding: var(--ag-table-card-padding);
+}
+
+@media (min-width: 48rem) {
+    /* From md the table cell has its own padding. */
+    .glass-card {
+        padding: 0;
+    }
+
+    .glass-card:has(.glass-card__thumbnail) {
+        grid-template-columns: auto minmax(0, 1fr);
+        column-gap: var(--ag-space-4);
+    }
+
+    .glass-card__thumbnail {
+        grid-row: span 2;
+    }
+
+    .glass-card:has(.glass-card__offers) .glass-card__facts {
+        padding-inline-end: var(--ag-space-4);
+    }
+}
+
+.glass-card__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ag-space-2);
+}
+
+.glass-card__main {
+    font-size: var(--ag-text-base);
+    line-height: var(--ag-leading-base);
+    font-weight: var(--ag-weight-semibold);
+    color: var(--ag-text);
+    overflow-wrap: anywhere;
+}
+
+.glass-card__facts {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--ag-space-2) var(--ag-space-4);
+    margin: 0;
+}
+
+@media (min-width: 48rem) {
+    .glass-card__facts {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+.glass-card__fact dt {
+    font-size: var(--ag-text-xs);
+    line-height: var(--ag-leading-xs);
+    color: var(--ag-text-muted);
+}
+
+.glass-card__fact dd {
+    margin: 0;
+    font-size: var(--ag-text-sm);
+    line-height: var(--ag-leading-sm);
+    color: var(--ag-text);
+    overflow-wrap: anywhere;
+}
+
+.glass-card__code {
+    display: inline-block;
+    margin-inline-end: var(--ag-space-2);
+    font-variant-numeric: tabular-nums;
+}
+
+.glass-card__equipment {
+    display: block;
+    color: var(--ag-text-muted);
+}
+
+.glass-card__offers {
+    font-size: var(--ag-text-sm);
+}

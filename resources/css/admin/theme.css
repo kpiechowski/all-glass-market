@@ -67,6 +67,7 @@
 
 /* Our own Blade components. */
 @import "./components/brand-logo.css";
+@import "./components/glass-card.css";
 @import "./components/list-card.css";
 @import "./components/person-cell.css";
 @import "./components/record-flag.css";

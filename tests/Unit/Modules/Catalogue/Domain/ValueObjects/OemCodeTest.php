@@ -21,6 +21,11 @@ class OemCodeTest extends TestCase
         $this->assertSame(OemCode::tryFrom('1K0 845-011.A')->key(), OemCode::tryFrom('1k0845011a')->key());
     }
 
+    public function test_a_typed_fragment_has_a_key_too(): void
+    {
+        $this->assertSame('1K0845', OemCode::keyOf(' 1k0-845 '));
+    }
+
     public function test_an_empty_entry_is_no_code(): void
     {
         $this->assertNull(OemCode::tryFrom('   '));

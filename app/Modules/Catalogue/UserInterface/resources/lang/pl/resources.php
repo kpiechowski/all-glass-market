@@ -65,6 +65,22 @@ return [
             ],
         ],
 
+        'card' => [
+            'parameters' => 'Rodzaj i kolor',
+            'vehicles' => 'Pasuje do pojazdów',
+        ],
+
+        'search' => [
+            'placeholder' => 'Eurokod, kod OEM lub pojazd (min. 3 znaki)',
+        ],
+
+        'filters' => [
+            'position' => 'Rodzaj szyby',
+            'colour' => 'Kolor',
+            'make' => 'Marka pojazdu',
+            'with_withdrawn' => 'Pokaż także wycofane',
+        ],
+
         'tabs' => [
             'details' => 'Szczegóły',
         ],

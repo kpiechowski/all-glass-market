@@ -32,6 +32,12 @@ final readonly class OemCode
     /** The form two codes are compared by: spaces, dashes and dots ignored. */
     public function key(): string
     {
-        return str_replace([' ', '-', '.'], '', $this->value);
+        return self::keyOf($this->value);
+    }
+
+    /** The compared form of any typed text, also of a search fragment. */
+    public static function keyOf(string $typed): string
+    {
+        return str_replace([' ', '-', '.'], '', mb_strtoupper(trim($typed)));
     }
 }
