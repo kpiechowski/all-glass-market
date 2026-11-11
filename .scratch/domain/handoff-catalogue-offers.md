@@ -89,7 +89,7 @@ You are now the discovery manager, the only writer of the discovery documents.
 - Git:
   - Never `git add -A`, `stash`, `checkout` or `reset`.
   - Commit explicit paths, and only after the user accepts.
-  - Branch `feat/vehicles` holds this work. Ask the user before renaming it or branching.
+  - Branch `catalog` holds this work (renamed from `feat/vehicles` on 2026-11-11, after `feat/vehicles` was merged into `main`). Ask the user before renaming it or branching.
 - Commands in the container run as `laradock` (uid 1000).
 - Safe points to `/clear` and resume: after each step, and after each grilling round (the discovery's "Next actions" stays current).
 

@@ -6,12 +6,13 @@
 
 ## A. Metadata
 
-- **Status:** ready-for-grilling
-- **Next actions:** ready-for-grilling (2026-11-09). Not grilled alone: next is the domain grilling on Vehicles + Offers (prompt `.scratch/vehicles/domain-grilling-prompt.md`), then module grilling per `grilling.md`.
-- **Started:** 2026-11-09 · **Last updated:** 2026-11-09
+- **Status:** grilling
+- **Next actions:** domain decisions D-01–D-28 carried into section M and the resolutions (2026-11-11). Next: wait for the Catalogue spec, then the Offers module grilling, Phases 6–9 of `grilling.md` (`.scratch/domain/handoff-catalogue-offers.md`, step 3). The Catalogue spec's section 9 is the contract.
+- **Started:** 2026-11-09 · **Last updated:** 2026-11-11
+- **Inputs to the grilling:** this discovery, the domain model `.scratch/domain/glass-offer-model.md` (D-01–D-28, GLOSSARY, ADR 0008–0010) and the Catalogue spec `.scratch/catalogue/functional-spec.md` once written.
 - **V1:** `/home/kp/laravel/projekty/AllGlass/` @ `511ce3b` (dirty: `docker-compose.yml` modified, `SECURITY_INCIDENT_2026-10.md` untracked; neither touches offer behaviour)
 - **V2 state:** module absent.
-- **Prior material:** `docs/archive/v1-port/modules/offers/scan.md` (scope list only), `docs/archive/v1-port/modules/submissions/scan.md` (unverified, "inferred"/"likely" claims), `docs/archive/v1-port/refactor-plan.md` boundary table. Neighbour: `.scratch/vehicles/discovery/discovery.md` (ready-for-grilling) — link to it, never re-specify.
+- **Prior material:** `docs/archive/v1-port/modules/offers/scan.md` (scope list only), `docs/archive/v1-port/modules/submissions/scan.md` (unverified, "inferred"/"likely" claims), `docs/archive/v1-port/refactor-plan.md` boundary table. Neighbour: `.scratch/catalogue/discovery/discovery.md` (Catalogue, written as "Vehicles"; grilling) — link to it, never re-specify.
 - **Data:** V1 production dump loaded locally (MySQL container `laradock8_5-mysql-1`, database `allglass_v1_prod`, last offer 2026-10-01). Read-only aggregate queries only; no personal data in reports.
 
 ### Scope
@@ -25,7 +26,7 @@
   - Notifications: `app/Services/NotificationService/**`.
   - Migrations: offers, soft deletes, tmp session, media, reservations, sales, inquiries (+ soft deletes), submissions (+ read status), user_journals, notifications, user_notifications.
 - **Vocabulary:** `Offer`, `offers`, `offer_id`, `OfferStatus` (Szkic, Oczekuje zatwierdzenia, Aktywna, Odrzucona, Wygasła, Zarezerowana, Archiwalna, Sprzedana, Usunięta), `OfferUsageStatus`/`usage_status`, `quantity`, `price`, `rating`, `sku`, `tmp_session`, `OfferReservation`/`offer_reservations`, `OfferSale`/`offer_sales`, `OfferInquiry`/`offer_inquiries`/`InquiryStatusEnum`, `Submission`/`submissions`/`is_read`/`original_data`, `UserJournal`/`user_journals`/`JournalType`, `UserNotification`, `OfferUpdatedEvent`, `OfferSoldEvent`, `OfferArchivedEvent`, `OfferDeletedEvent`, `OfferStatusAggregate`, `OfferPriceService`, `OfferUpdateService`, `OfferUpdateOffersChunk`, `Versionable`/`versions`, media collections, Polish labels (Oferty, Moje oferty, Zgłoszenia, Zapytania, Rezerwacje, Dziennik).
-- **Boundary assumptions:** Reservations, Sales and OfferInquiry live in Offers (archive boundary table: no existence outside an offer). Submissions is investigated here as a way an offer is created or changed (user decision 2026-11-09); whether it stays a module is decided in grilling. Glass attributes, eurocodes and cars are Vehicles: their behaviour is in `.scratch/vehicles/discovery/discovery.md` (W-01–W-03, F-01–F-21) and is only linked here.
+- **Boundary assumptions:** Reservations, Sales and OfferInquiry live in Offers (archive boundary table: no existence outside an offer). Submissions is investigated here as a way an offer is created or changed (user decision 2026-11-09); whether it stays a module is decided in grilling. Glass attributes, eurocodes and cars are Catalogue (D-23; written as "Vehicles"): their behaviour is in `.scratch/catalogue/discovery/discovery.md` (W-01–W-03, F-01–F-21) and is only linked here.
 - **Out of scope:** the attribute dictionaries, eurocodes and cars (Vehicles discovery); WooCommerce/WordPress sync internals (WooCommerce discovery; here only "what triggers a sync"); Otomoto (dropped from V2, noted only where it changes offer behaviour); Audit/ChangesLog internals (done in V2); users and roles (Users, done).
 - **Limitations:** static reading of V1 plus read-only queries on a production dump; no running V1.
 
@@ -264,49 +265,49 @@ _Partial; completed as wave 1 returns._
 
 - **Evidence:** r04 `ViewSubmission.php:192-209`: a) the form's unique rule rejects an existing code, so the action can only create, never assign an existing eurocode; b) `sync` drops the offer's other (alternative) eurocodes; c) "assigned to offer" is shown even when the offer is gone.
 - **Question for the user:** in V2, should assigning a catalogue entry to an offer be its own action, separate from creating the catalogue entry?
-- **Resolution:** open.
+- **Resolution:** D-18, D-19, D-20 — the ticket action goes; the admin finds or creates the GlassModel from the hint while approving, and only admins maintain the catalogue. The screen flow → Catalogue and Offers grillings.
 
 ### Q-03 Approval is used, the ticket queue is not — `decide`
 
 - **Evidence:** prod 1182 of 1213 tickets unread, yet 1721 "Oferta została zaakceptowana!" journal entries and 0 offers waiting: sellers' offers do go to Oczekuje (BR-20) and admins accept them quickly, from the offer screen or in bulk (r01, r03, r04).
 - **Interpretations:** a) the ticket is redundant: the approval list (status Oczekuje) is the real queue; b) the ticket's value is the snapshot of what the seller typed and how the eurocode matched.
 - **Question for the user:** does V2 keep pre-publication approval of every seller save, and is the "ticket" just the approval queue plus the change history (Audit)?
-- **Resolution:** open.
+- **Resolution:** D-19, D-20 — approval of a seller's Offer stays; there is no ticket: the queue is the Offers waiting for approval, and what changed comes from the Change history. Which edits need re-approval stays open (Q-13).
 
 ### Q-04 Two doors to approval, tickets left behind — `defect?`
 
 - **Evidence:** r04: approving on the offer view or by bulk action leaves the ticket unread and unresolved.
-- **Resolution:** open; depends on Q-03.
+- **Resolution:** D-20 — one door: no tickets to leave behind.
 
 ### Q-06 Offer status derived from stock is inconsistent — `defect?`
 
 - **Evidence:** r03, spot-check: the full-reservation test ignores sales and the full-sale test ignores reservations (BR-13); partial actions force Aktywna even when nothing is left; the reserved lists show only status Zarezerowana, so a partly reserved offer never appears there.
 - **Interpretations:** a) bugs in a stock model that was meant for many pieces; b) irrelevant in practice: prod never had a partial reservation or sale.
 - **Question for the user:** is an Offer one physical piece (status follows its single reservation/sale), or a stock of identical pieces (status derived from available quantity)? Ties to the domain grilling (quantity).
-- **Resolution:** open.
+- **Resolution:** partly D-02, D-21 — an Offer is one physical piece with no quantity; Reservation and Sale are parts of the Offer. The status model and transitions → Offers grilling (deferred).
 
 ### Q-07 What an inquiry stands for — `decide`
 
 - **Evidence:** r03: admin → owner, no sender, no customer data; 20 rows in prod; accepting reserves everything.
 - **Interpretations:** a) the admin relays a buyer's request to the seller to hold the glass; b) an internal "is it still available?" check.
 - **Question for the user:** what is the real process, and does V2 keep it as a separate thing or as a reservation request?
-- **Resolution:** open.
+- **Resolution:** partly D-22 — an Inquiry is a request to the seller to reserve their Offer for a buyer; accepting it makes the Reservation. Requester and channel → Offers grilling (deferred).
 
 ### Q-08 Undo actions force Aktywna and leave no trace — `defect?`
 
 - **Evidence:** r03, spot-check `StockSaleTab.php:111-122, 150-175`: releasing a reservation or returning a sale sets Aktywna whatever the previous status or remaining rows; no journal entry; a return keeps the sold date.
-- **Resolution:** open.
+- **Resolution:** partly D-21 — a return ends the Sale (kept in history) and the Offer is for sale again; releasing ends the Reservation. Transitions → Offers grilling (deferred).
 
 ### Q-09 Reservations are private to their author — `defect?`
 
 - **Evidence:** r03: only the author can release or sell a reservation; the owner's "Moje rezerwacje" shows only their own, so an admin's reservation on their offer is invisible to them yet reduces stock; an admin cannot release another person's reservation.
-- **Resolution:** open.
+- **Resolution:** open — deferred to the Offers grilling (D-21: who may release or sell whose reservation).
 
 ### Q-10 Two unread channels for the same event — `decide`
 
 - **Evidence:** r03: each event writes both a journal entry and a bell notification to the owner; prod journal 22 of 3571 read, bell 4932 of 6888 unread; journal policy is fully commented out (anyone with panel access sees only their own entries via the query filter).
 - **Question for the user:** does V2 need a per-offer history for the seller, a notification, both, or does the offer's own history (Audit) cover it?
-- **Resolution:** open.
+- **Resolution:** open — deferred to the Offers grilling (journal and notifications).
 
 ### Q-11 Dead and debug code — `defect?`
 
@@ -317,43 +318,43 @@ _Partial; completed as wave 1 returns._
 
 - **Evidence:** BR-30: the status, the column and a form field exist; no mechanism since July 2025; prod has no data.
 - **Question for the user:** drop expiry, or define a rule (for example: unsold after N days → withdrawn, with notice)?
-- **Resolution:** open.
+- **Resolution:** open — deferred to the Offers grilling (expiry).
 
 ### Q-13 Re-moderation of every seller edit hides the change from live listings — `decide`
 
 - **Evidence:** r01: a seller's save sets Oczekuje, and Oczekuje skips the WooCommerce push and the Otomoto refresh, so the listing shows the old data until an admin accepts; an Aktywna offer of a seller disappears from "Aktywne" while waiting.
 - **Question for the user:** must every seller change be re-approved, or only changes to some fields (price, eurocode, photos)?
-- **Resolution:** open.
+- **Resolution:** open — deferred to the Offers grilling (D-19: which seller edits need re-approval).
 
 ### Q-14 Status vocabulary carries V1 mistakes — `ambiguous`
 
 - **Evidence:** r01: the stored value "Zarezerowana" is misspelled (5 rows), displayed as "Zarezerwowana"; "Archiwalna" is displayed as "Wycofana"; Szkic, Oczekuje and Wygasła exist but have no rows.
 - **Question for the user:** settled with the status model in grilling; the data migration maps the stored values.
-- **Resolution:** open.
+- **Resolution:** open — deferred to the Offers grilling (status model); the migration maps the stored values.
 
 ### Q-15 Price history and VAT follow the current state — `defect?`
 
 - **Evidence:** r05 `User.php:110-130`: sales value = sold quantity × the offer's **current** price, not the price at sale (the sale row stores no price); r01/r05: VAT depends on the owner's current account type, so a change re-prices every offer retroactively, including in WooCommerce.
 - **Question for the user:** should a sale record its price, and does a price follow the seller's VAT status at listing time or always the current one?
-- **Resolution:** open.
+- **Resolution:** partly D-21 — a Sale records the price at sale, the date and the channel. VAT at listing time vs current → Offers grilling (deferred).
 
 ### Q-16 Three audit trails on offers — `decide`
 
 - **Evidence:** r01, r05: package versions (2923 rows, admin revisions page), the changes log (5996) and the activity log. V2 has Audit.
 - **Question for the user:** is the V2 Audit history enough, or does the offer need a "revisions" view of its own (for example to compare what the seller changed before approval, Q-03)?
-- **Resolution:** open.
+- **Resolution:** partly D-20 — what a seller changed is shown from the Change history. Whether the Offer needs its own history view → Offers grilling (deferred).
 
 ### Q-17 Seller bulk price change skips re-approval — `defect?`
 
 - **Evidence:** BR-35, spot-checked.
 - **Question for the user:** is a price change something that needs approval? Decide together with Q-13.
-- **Resolution:** open.
+- **Resolution:** open — deferred with Q-13.
 
 ### Q-18 Is the seller's view of the catalogue intentionally blind? — `decide`
 
 - **Evidence:** BR-33, BR-34: a seller cannot see other offers or the eurocode catalogue except as typing suggestions, and cannot pick type/colour unless they have no eurocode.
 - **Question for the user:** in V2, does a seller pick a Glass from the catalogue (and only describe the piece), or keep typing a code? Belongs to the domain grilling.
-- **Resolution:** open.
+- **Resolution:** D-17, D-04 — the seller picks a GlassModel from the catalogue (eurocode, OEM or vehicle) and describes only the piece; nothing found → identification hint. The form shape → Offers grilling.
 
 ### Q-19 Admin status on edit — contradiction between r01 and r02, settled
 
@@ -365,13 +366,13 @@ _Partial; completed as wave 1 returns._
 - **Evidence:** r06: 6 colour conflicts (SOLAR / POWŁOKA GRZEWCZA / ZIELONA) and 16 equipment conflicts in 238 groups.
 - **Interpretations:** a) entry noise (a fixed glass definition would remove it); b) real variants of one eurocode (the code's suffix should differ, or a piece-level override is needed).
 - **Question for the user:** may an offer override a parameter of its Glass? Belongs to the domain grilling.
-- **Resolution:** open.
+- **Resolution:** D-09, D-13 — no override of a GlassModel parameter; another tint or feature is another GlassModel. The V1 conflicts go to the admin's review list before migration.
 
 ### Q-05 Eurocode matching runs for admins too — `ambiguous`
 
 - **Evidence:** r04: matching and attribute copying on create run before the admin guard, while the ticket is seller-only; on edit matching is seller-only.
 - **Interpretations:** a) intended: matching is useful for anyone; b) accidental ordering.
-- **Resolution:** open; folds into the Vehicles W-01/W-02 decisions.
+- **Resolution:** D-17 — no matching after save for anyone; the seller or the admin picks the GlassModel.
 
 ## H. Missing information and gaps
 
@@ -385,13 +386,13 @@ _Partial; completed as wave 1 returns._
 
 <!-- Changes to existing behaviour. Not requirements until a D- decision approves them. -->
 
-- **IMP-01** One approval queue — tickets (F-01–F-07) duplicate the list of offers waiting for approval and are ignored → the waiting list is the queue, and the admin sees what the seller changed (from Audit) instead of a snapshot; value: one door instead of three, nothing left unresolved; decision: open (Q-03, Q-04, Q-16).
-- **IMP-02** Guarded status transitions — every action sets any status (BR-31, Q-01, Q-06, Q-08) → each transition is allowed only from defined statuses, and reserve/sell/release/return derive the status from what is left; value: no forced or wrong statuses; decision: open.
-- **IMP-03** A sale records its price — sales value uses today's price (Q-15) → the sale stores the net and gross price at sale time; value: correct sales history and reports; decision: open.
-- **IMP-04** Stock changes leave a trace — release and return write nothing and "sell reserved" is not atomic (BR-14, BR-15, W-06) → every stock change is one atomic step with history and a notice to the owner; decision: open.
-- **IMP-05** One re-approval rule — single edit re-approves, bulk price and duplicate do not (BR-20, BR-35, BR-37) → the same rule for every way a seller changes an offer, possibly limited to chosen fields (Q-13, Q-17); decision: open.
-- **IMP-06** Publishing to external shops does not block or break the panel action — every save pushes synchronously to WooCommerce, failures are only logged (473 failed jobs) (BR-28) → publishing follows the offer's events, retries visibly, and a failure is shown on the offer; decision: open, with WooCommerce discovery.
-- **IMP-07** One channel for the seller — journal and bell duplicate each other and are unread (Q-10) → one notification stream plus the offer's history; decision: open.
+- **IMP-01** One approval queue — tickets (F-01–F-07) duplicate the list of offers waiting for approval and are ignored → the waiting list is the queue, and the admin sees what the seller changed (from Audit) instead of a snapshot; value: one door instead of three, nothing left unresolved; decision: D-20 — accepted.
+- **IMP-02** Guarded status transitions — every action sets any status (BR-31, Q-01, Q-06, Q-08) → each transition is allowed only from defined statuses, and reserve/sell/release/return derive the status from what is left; value: no forced or wrong statuses; decision: open — status model deferred to the Offers grilling (D-21 settles the parts).
+- **IMP-03** A sale records its price — sales value uses today's price (Q-15) → the sale stores the net and gross price at sale time; value: correct sales history and reports; decision: D-21 — accepted for the price, date and channel; VAT open (Q-15).
+- **IMP-04** Stock changes leave a trace — release and return write nothing and "sell reserved" is not atomic (BR-14, BR-15, W-06) → every stock change is one atomic step with history and a notice to the owner; decision: partly D-21 (a return is kept in history); details → Offers grilling.
+- **IMP-05** One re-approval rule — single edit re-approves, bulk price and duplicate do not (BR-20, BR-35, BR-37) → the same rule for every way a seller changes an offer, possibly limited to chosen fields (Q-13, Q-17); decision: open — deferred to the Offers grilling (Q-13, Q-17).
+- **IMP-06** Publishing to external shops does not block or break the panel action — every save pushes synchronously to WooCommerce, failures are only logged (473 failed jobs) (BR-28) → publishing follows the offer's events, retries visibly, and a failure is shown on the offer; decision: partly D-05, D-24, D-26 (the panel only publishes; integrations react to domain events; mappings live in the integration). Retries and failure display → WooCommerce.
+- **IMP-07** One channel for the seller — journal and bell duplicate each other and are unread (Q-10) → one notification stream plus the offer's history; decision: open — deferred to the Offers grilling.
 
 ## J. Additional functionality to implement
 
@@ -400,19 +401,19 @@ _Partial; completed as wave 1 returns._
 - **Description:** the seller chooses a glass from the catalogue by eurocode (or VIN later); type, colour and equipment come from the glass; the seller enters only producer, year, usage state, rating, price, photos.
 - **Value:** r06 shows the parameters are already constant per eurocode; removes copying from sibling offers (Vehicles W-02) and the blind free-text entry (Q-18).
 - **Kind:** extends F-31 · **Dependencies:** domain grilling (Glass as an entity), Vehicles ADD-01.
-- **Source:** manager (r06) · **Discussed:** no · **Decision:** open.
+- **Source:** manager (r06) · **Discussed:** yes (domain grilling) · **Decision:** D-17 — accepted: the seller picks a GlassModel and describes only the piece (producer, year, condition, rating, price, photos; D-08). VIN search is later (D-16).
 
 ### ADD-02 Offer expiry rule
 
 - **Description:** an unsold offer is withdrawn or flagged after a period, with notice to the seller.
 - **Value:** the status and column exist and the business once wanted it (BR-30).
-- **Kind:** entirely new (V1 feature removed) · **Source:** discovery (r01, r05) · **Discussed:** no · **Decision:** open (Q-12).
+- **Kind:** entirely new (V1 feature removed) · **Source:** discovery (r01, r05) · **Discussed:** no · **Decision:** open — deferred to the Offers grilling (Q-12).
 
 ### ADD-03 Inquiries record who asks
 
 - **Description:** an inquiry stores the requester (buyer or channel) and links to the reservation it causes.
 - **Value:** today the admin relays a request with no record of the buyer (Q-07).
-- **Kind:** extends F-16, F-17 · **Source:** manager · **Discussed:** no · **Decision:** open.
+- **Kind:** extends F-16, F-17 · **Source:** manager · **Discussed:** partly (D-22) · **Decision:** open — deferred to the Offers grilling (requester and channel).
 
 ## K. Investigation log
 
@@ -443,3 +444,33 @@ _Partial; completed as wave 1 returns._
 - **Ready because:** every V1 way an offer is created, changed, approved, reserved, sold, withdrawn and deleted is traced, and the data shows how the features are really used.
 
 ## M. Decision log
+
+<!-- Class: preserve | correct | new | exclude | pending -->
+
+D-01–D-28 are the **domain decisions** of `.scratch/domain/glass-offer-model.md` (2026-11-09), carried in on 2026-11-11 with the same ids; only those touching this module are listed. Reasons are in the domain model. They are settled ground for the module grilling, which continues at **D-29**. A change to the Catalogue contract made in this grilling is recorded as a `D-` in both documents.
+
+- **D-01** (domain, 2026-11-09) re ADD-01, BR-38, Q-20 — An Offer refers to a **GlassModel** in Catalogue and reads glass parameters from it; nothing is copied onto the Offer. Class: correct.
+- **D-02** (domain, 2026-11-09) re Q-06, BR-11, BR-12, BR-13, BR-25, F-08, F-22 — An Offer is exactly one physical piece; there is no quantity and no derived stock. Identical pieces are separate Offers (duplicate). The migration splits the 16 V1 offers with quantity > 1. Class: correct.
+- **D-03** (domain, 2026-11-09) re BR-10 — V1 alternative eurocodes become Eurocodes of one GlassModel; an Offer holds no eurocode links of its own. Class: correct.
+- **D-04** (domain, 2026-11-09) re Q-18 — A GlassModel always has a main Eurocode; an Offer may still exist without a GlassModel. Class: new.
+- **D-05** (domain, 2026-11-09) re BR-19, BR-28, X-05, IMP-06 — A channel copy is an **Advert**; the panel publishes and updates Adverts and pulls nothing back. A sale elsewhere is marked by an admin in the panel and every Advert follows. Adverts belong to integrations. The WooCommerce import of offers, sales and reservations does not carry over. Class: correct.
+- **D-06** (domain, 2026-11-09) re Q-14, BR-20, F-34 — One record, the Offer, describes one physical Glass with price, seller and status; "have it but not selling yet" is a draft. A seller's stock of unlisted pieces is a known later direction. Class: preserve.
+- **D-07** (domain, 2026-11-09) re BR-38 — Position, colour, equipment, fitment and OEM codes are on the GlassModel, not on the Offer. Class: correct.
+- **D-08** (domain, 2026-11-09) re BR-26, BR-34, BR-38 — The Offer holds producer, production year, condition, rating, photos, descriptions, price, seller and status. Shipping is out of the model for now. Class: correct.
+- **D-09** (domain, 2026-11-09) re Q-20, BR-38 — An Offer never overrides a GlassModel parameter; piece-specific defects go to condition, rating and description. Class: correct.
+- **D-10** (domain, 2026-11-09) re BR-10, BR-34 — An Offer without a GlassModel has no glass parameters, only the seller's identification hint. Class: correct.
+- **D-13** (domain, 2026-11-09) re BR-38, Q-20 — The migration joins eurocodes that stood on one V1 offer into one GlassModel; conflicts go to the admin's review list. Class: correct.
+- **D-15** (domain, 2026-11-09) re F-29 — Vehicles reach an Offer only through its GlassModel; `car_offer` is dropped. Class: correct.
+- **D-16** (domain, 2026-11-09) re Q-18 — VIN is never stored; `offers.vim` is dropped. It may be part of an identification hint (donor car). Class: exclude.
+- **D-17** (domain, 2026-11-09) re ADD-01, Q-05, Q-18, BR-10, BR-33, BR-34, F-31 — A seller picks a GlassModel from the catalogue (eurocode, OEM or vehicle) and describes only the piece; if nothing fits, they leave a hint. No silent matching after save. Sellers see the catalogue, never other sellers' offers. The form shape → Offers grilling. Class: correct.
+- **D-18** (domain, 2026-11-09) re F-32, Q-02 — Only admins maintain the catalogue; a seller never adds a producer or any other catalogue value. Class: exclude (F-32).
+- **D-19** (domain, 2026-11-09) re BR-20, BR-36, Q-02, Q-03, Q-13, Q-17, F-06, F-30 — Approval stays as a step of the Offer's life (seller saves → waiting → admin accepts or rejects → active, publishable). An Offer cannot be approved without a GlassModel; the admin finds or creates it from the hint while approving. Which edits need re-approval → Offers grilling. Class: correct.
+- **D-20** (domain, 2026-11-09) re F-01–F-07, Q-03, Q-04, Q-16, IMP-01, BR-01–BR-09 — There is no Submission concept: the approval queue is the list of Offers waiting for approval, and what a seller changed is shown from the Change history. Submissions is not a module. Class: exclude.
+- **D-21** (domain, 2026-11-09) re Q-06, Q-08, Q-09, Q-15, IMP-02, IMP-03, IMP-04, BR-13–BR-15, F-09–F-13 — Reservation and Sale are parts of the Offer. A Sale records the price at sale, the date and the channel; a return ends the Sale (kept in history) and the Offer is for sale again; releasing ends the Reservation. Details → Offers grilling. Class: correct.
+- **D-22** (domain, 2026-11-09) re Q-07, ADD-03, BR-17, F-16, F-17 — An Inquiry is a request to the seller to reserve their Offer for a buyer; accepting it makes the Reservation. It lives in Offers. Requester and channel → Offers grilling. Class: preserve.
+- **D-23** (domain, 2026-11-09) re X-01, boundary — Glass models, Eurocodes, OEM codes, fitment, vehicles and the glass dictionaries belong to one module, Catalogue. Class: correct.
+- **D-24** (domain, 2026-11-09) re X-01, BR-28, IMP-06 — An Offer stores only the GlassModel id; Offers reads the model summary and searches candidates through Catalogue's `ModuleApi`; Catalogue knows nothing of Offers. Class: new.
+- **D-25** (domain, 2026-11-09) re F-32, BR-34 — The producer is an Offer attribute but its list belongs to Catalogue and is admin-edited; the seller's hard-coded four positions go. Class: correct.
+- **D-26** (domain, 2026-11-09) re BR-28, BR-29, X-02 — Channel keys and mappings live in the integration; publishing rules for a channel are the integration's. Class: correct.
+- **D-27** (domain, 2026-11-09) re 70 V1 accessory offers — An Offer of a seal, moulding or frame is an ordinary Offer of a GlassModel with an accessory position. Class: preserve.
+- **D-28** (domain, 2026-11-09) re process — Offers is grilled after the Catalogue spec and delivered after Catalogue. Class: n/a (process).

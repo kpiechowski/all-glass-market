@@ -1,4 +1,4 @@
-# Vehicles (working name) — discovery
+# Catalogue — discovery
 
 <!-- Working document for the module-discovery skill. Only the manager writes it.
      Item ids are stable and never reused. Every finding cites a report (rNN) and its V1 evidence.
@@ -6,11 +6,12 @@
 
 ## A. Metadata
 
-- **Status:** ready-for-grilling
-- **Next actions:** paused at `ready-for-grilling` (user decision 2026-11-09). G-09 resolved by Offers r06. Next: one domain grilling on both documents (prompt `.scratch/vehicles/domain-grilling-prompt.md`), then module grilling per `grilling.md`.
-- **Started:** 2026-11-08 · **Last updated:** 2026-11-08
+- **Status:** grilling
+- **Next actions:** domain decisions D-01–D-28 carried into section M and the resolutions (2026-11-11). Next: Catalogue module grilling, Phases 6–9 of `grilling.md`, with the adjusted design tree in `.scratch/domain/handoff-catalogue-offers.md` (step 2).
+- **Started:** 2026-11-08 · **Last updated:** 2026-11-11
+- **Inputs (D-28):** V1 has no catalogue, so this module gets no discovery of its own. Its inputs are this discovery (written as "Vehicles"), the Offers discovery `.scratch/offers/discovery/discovery.md` and the domain model `.scratch/domain/glass-offer-model.md` (D-01–D-28, GLOSSARY, ADR 0008–0010).
 - **V1:** `/home/kp/laravel/projekty/AllGlass/` @ `511ce3b` (dirty: `docker-compose.yml` modified, `SECURITY_INCIDENT_2026-10.md` untracked; neither touches this module)
-- **V2 state:** module absent. Folder name `vehicles` is provisional; the module name is a grilling decision.
+- **V2 state:** module absent. The module is **Catalogue** (domain D-23); the folder was renamed from `vehicles` on 2026-11-11.
 - **Prior material (leads, `inferred`):** `docs/archive/v1-port/modules/vehicles/scan.md` (scope list only), `docs/archive/v1-port/modules/offers/scan.md` (scope list), `docs/archive/v1-port/refactor-plan.md` boundary table, `.scratch/roadmap.md` row 5, `.scratch/settings/decision.md` (WooCommerce items carried forward).
 
 ### Scope
@@ -155,27 +156,27 @@
 - **Evidence:** r01; admin form saves as typed (`EurocodeResource.php:30-34`), lookups uppercase and strip spaces (`OfferEurocodeRelationService.php:76-79`).
 - **Interpretations:** a) oversight; b) admin entries were always typed clean.
 - **Question for the user:** in V2, is a eurocode always stored normalised (uppercase, no spaces), and are OEM codes too?
-- **Resolution:** open
+- **Resolution:** partly D-03: codes are unique across the catalogue and stored normalised (uppercase, no spaces, ≤ 17 characters). The details for Eurocodes and OEM codes stay open → Catalogue grilling (deferred list).
 
 ### Q-02 Two answers to "which offers fit this car" — contradiction
 
 - **Evidence:** r01; list count via eurocodes (`CarResource.php:46-57`), view page via `car_offer` (`ViewCar.php:46-49`).
 - **Interpretations:** a) `car_offer` is legacy and fitment belongs on the eurocode; b) an offer may need cars of its own (e.g. glass without eurocode).
 - **Question for the user:** is vehicle fitment only a property of the glass definition (eurocode), or can an offer carry its own vehicles?
-- **Resolution:** open (also in domain grilling)
+- **Resolution:** D-11, D-15 — fitment is a property of the GlassModel only; an Offer has no vehicles of its own; `car_offer` is dropped.
 
 ### Q-03 Car changes are probably not auto-pushed to WordPress — `defect?` (inferred)
 
 - **Evidence:** r01; `Car::booted` overrides the trait's `booted` (`Car.php:56`, `IsOfferTaxonomyModel.php:14-31`).
 - **Question for the user:** none now; WooCommerce discovery. Recorded for the integration.
-- **Resolution:** open (WooCommerce)
+- **Resolution:** open (WooCommerce). D-26: the WordPress push and its keys belong to the integration.
 
 ### Q-04 Submission action drops the offer's other eurocodes — `defect?`
 
 - **Evidence:** r01, spot-checked `ViewSubmission.php:203-205` (`sync`).
 - **Interpretations:** a) intended: the submission corrects a wrong code; b) should add, not replace.
 - **Question for the user:** when a eurocode is assigned from a submission, does it replace or add to the offer's codes? (Submissions/Offers boundary)
-- **Resolution:** open
+- **Resolution:** D-20, D-03 — there is no Submission and no ticket action; V1 alternative eurocodes become Eurocodes of one GlassModel and an Offer refers to that GlassModel.
 
 ### Q-06 Is the seller wizard reachable? — contradiction (settled)
 
@@ -186,72 +187,72 @@
 
 - **Evidence:** r02, r04; `eurocode`, `alt_eurocodes`, `oem`, `vim` on `offers` are written only by the Woo import, a command or the seller's eurocode text; displays and exports derive from the links.
 - **Question for the user:** in V2, are eurocodes/OEM only reachable through the glass definition, and is VIN a thing at all (nothing in V1 uses it)?
-- **Resolution:** open (domain grilling)
+- **Resolution:** D-03, D-15, D-16 — eurocodes and OEM codes are reached only through the GlassModel; `offers.vim` is dropped and VIN is only a search input (later) or part of an identification hint.
 
 ### Q-08 Seller eurocode entry — `decide`
 
 - **Evidence:** r04; free text, silent no-match (BR-18), a new match drops alternatives.
 - **Question for the user:** should a seller pick from the register (with "not found → request"), keep free text matched later, or start from a vehicle/VIN?
-- **Resolution:** open
+- **Resolution:** D-17, D-10 — the seller picks a GlassModel from the catalogue (eurocode, OEM or vehicle); if nothing fits, they leave an identification hint. No free text matched after save.
 
 ### Q-09 Glass attributes copied between offers — `decide`
 
 - **Evidence:** r01 BR-06, r04 W-02; four copying paths, inconsistent sibling lookup, never reverted.
 - **Interpretations:** a) the copy is a workaround for a missing glass definition per eurocode; b) attributes really vary per piece and the copy is only a default.
 - **Question for the user:** which of colour, type, equipment (and producer) are fixed by the eurocode and which vary per piece? Core of the Glass vs Offer question.
-- **Resolution:** open (domain grilling)
+- **Resolution:** D-01, D-07, D-08, D-09 — position, colour and equipment are on the GlassModel; producer, year and condition are on the Offer; nothing is copied and nothing is overridden.
 
 ### Q-10 Deleting a dictionary value in use — `decide`
 
 - **Evidence:** r02; no FK, no guard; offers keep dangling ids and show an empty value.
 - **Question for the user:** block delete when used, merge into another value, or deactivate?
-- **Resolution:** open
+- **Resolution:** open — deferred to the Catalogue grilling (deleting or merging a value in use; D-24, D-25).
 
 ### Q-11 `OfferExtras` — dead (settled fact)
 
 - **Evidence:** r02; model and table only, no references.
-- **Resolution:** exclude unless the user disagrees (to confirm in grilling).
+- **Resolution:** D-25 — excluded: equipment is one list, `OfferExtras` is dropped.
 
 ### Q-12 Who owns shipping methods — `ambiguous`
 
 - **Evidence:** r02; a priced list with a free-text price; default on glass type; only Otomoto (dropped) reads it.
 - **Question for the user:** does shipping belong to the glass catalogue (by glass type), to Offers/sales, or is it dropped with Otomoto?
-- **Resolution:** open
+- **Resolution:** open — deferred. D-08 keeps shipping out of the model for now; the user asks the panel admin first.
 
 ### Q-13 Admin edit with "without eurocode" keeps old links — `defect?` (inferred)
 
 - **Evidence:** r04; seller path detaches, admin path does not (hidden field not saved).
-- **Resolution:** open (V2 rule follows from Q-08)
+- **Resolution:** D-10, D-17 — an Offer either refers to a GlassModel or carries a hint; the V1 toggle and its two diverging paths go.
 
 ### Q-14 Glass type mixes position and shop category — `ambiguous`
 
 - **Evidence:** r02, r04; seller options are positions (front, rear, side, roof) hard-coded by name; the type is a Woo product category and defaults shipping.
 - **Question for the user:** is "glass type" the glass position, a shop category, or both?
-- **Resolution:** open
+- **Resolution:** D-07, D-25, D-27 — "Rodzaj szyby" is the glass position, an admin-edited list on the GlassModel (not a code enum); a shop category is an integration mapping (D-26); accessories stay as position values for now.
 
 ### Q-15 Search promises OEM but searches only eurocodes — `defect?`
 
 - **Evidence:** r03; "MyOffers" placeholder "eurocode, nr OEM lub SKU" (`MyOffers.php:63`), only `eurocodes.code` and SKU are searchable.
 - **Question for the user:** should finding offers by OEM (and by vehicle) be a V2 requirement?
-- **Resolution:** open
+- **Resolution:** partly D-14, D-24 — the catalogue search by eurocode, OEM or vehicle returns candidate GlassModels. Searching Offer lists with it → Offers grilling.
 
 ### Q-16 Imported OEMs go nowhere visible — `defect?`
 
 - **Evidence:** r03, r01; `wordpress:sync-oems` writes `offers.oem`; everything reads `eurocodes.oem_codes`.
-- **Resolution:** open (data migration: whether `offers.oem` values are folded into eurocodes)
+- **Resolution:** D-14 — `offers.oem` values are folded into GlassModel OEM codes by the data migration (Catalogue Phase 9).
 
 ### Q-05 Offer is not touched when its eurocode links change — `defect?`
 
 - **Evidence:** r01; `EurocodeOffer::$touches` exists but `->using()` is commented out (`Offer.php:420-427`).
 - **Question for the user:** none; affects change history/sync, settle in Offers.
-- **Resolution:** open
+- **Resolution:** D-24 — an Offer stores only the GlassModel id; a GlassModel change is a domain event, so the V1 link-touch problem does not arise.
 
 ## H. Missing information and gaps
 
 | ID | What is unknown | Kind | Why | Resolution |
 |---|---|---|---|---|
-| G-01 | Who may manage cars and eurocodes (policies, Shield) | needs-business | r03: Shield permissions per resource (`CarPolicy`, duplicate taxonomy policies); role grants live in unread Shield seeders. V2 uses its own Authorizer (ADR 0004), so the question becomes who should manage the catalogue | open → grilling |
-| G-02 | Were the backfill/OEM commands run in production; is the eurocode table curated by hand since | needs-business | static reading cannot tell | open |
+| G-01 | Who may manage cars and eurocodes (policies, Shield) | needs-business | r03: Shield permissions per resource (`CarPolicy`, duplicate taxonomy policies); role grants live in unread Shield seeders. V2 uses its own Authorizer (ADR 0004), so the question becomes who should manage the catalogue | partly D-18: only admins, never sellers; which admins exactly → Catalogue grilling (deferred) |
+| G-02 | Were the backfill/OEM commands run in production; is the eurocode table curated by hand since | needs-business | static reading cannot tell | D-13 — the migration works from the production data as it stands (r06), joining eurocodes that stood on one offer; whether the commands ran no longer matters |
 | G-03 | Does `cars` have a `status` column (used by `Car::canBeSync`) | not-found | manager check: no column, no later migration; the status check never blocks | resolved (integration detail) |
 | G-04 | Otomoto sync tab writes car ids (`OtomotoSynchronizationTab.php:145-160`) — fitment? | — | r03: it picks one of the offer's eurocode cars for the advert (stored in advert meta), not a fitment | resolved: not fitment |
 | G-05 | Does the eurocode row edit work with the edit route commented out | needs-runtime | Filament modal fallback expected | open (low) |
@@ -262,12 +263,12 @@
 
 ## I. Potential improvements
 
-- **IMP-01** Normalise eurocode and OEM codes on every write — current: admin form saves as typed (Q-01) → one normalisation rule (uppercase, no spaces), codes as opaque strings up to 17 characters (r05); value: lookups and uniqueness work; decision: open
-- **IMP-02** One path from an offer to its vehicles — current: `car_offer` plus fitment through eurocodes, two counts (Q-02) → vehicles only through the glass definition's fitment; value: one answer; decision: open
-- **IMP-03** Guard deleting a dictionary value in use — current: dangling ids (Q-10) → block, merge or deactivate; decision: open
-- **IMP-04** Seller picks the glass from the register — current: free text matched after save, silent no-match (Q-08, BR-18) → pick or search by eurocode/OEM, with an explicit "not found" request to an admin; decision: open
-- **IMP-05** Find offers by OEM and by vehicle — current: placeholder promises OEM, searches only codes (Q-15) → search by eurocode, OEM, vehicle; decision: open
-- **IMP-06** Integration keys out of the catalogue — current: every dictionary knows its WordPress endpoint and meta key (r02) → mappings live in the integration (ADR 0007 pattern); decision: open
+- **IMP-01** Normalise eurocode and OEM codes on every write — current: admin form saves as typed (Q-01) → one normalisation rule (uppercase, no spaces), codes as opaque strings up to 17 characters (r05); value: lookups and uniqueness work; decision: D-03 (stored normalised); the details → Catalogue grilling
+- **IMP-02** One path from an offer to its vehicles — current: `car_offer` plus fitment through eurocodes, two counts (Q-02) → vehicles only through the glass definition's fitment; value: one answer; decision: D-15 — accepted
+- **IMP-03** Guard deleting a dictionary value in use — current: dangling ids (Q-10) → block, merge or deactivate; decision: open — deferred to the Catalogue grilling (D-25)
+- **IMP-04** Seller picks the glass from the register — current: free text matched after save, silent no-match (Q-08, BR-18) → pick or search by eurocode/OEM, with an explicit "not found" request to an admin; decision: D-17 — accepted, with an identification hint instead of a request to an admin
+- **IMP-05** Find offers by OEM and by vehicle — current: placeholder promises OEM, searches only codes (Q-15) → search by eurocode, OEM, vehicle; decision: partly D-14, D-24 (catalogue search returns candidates); Offer lists → Offers grilling
+- **IMP-06** Integration keys out of the catalogue — current: every dictionary knows its WordPress endpoint and meta key (r02) → mappings live in the integration (ADR 0007 pattern); decision: D-26 — accepted
 
 ## J. Additional functionality to implement
 
@@ -279,32 +280,32 @@
 - **Dependencies:** domain grilling (Glass vs Offer), Q-07, Q-09, Q-14
 - **Open questions:** key (eurocode vs internal id); glass without eurocode; who creates definitions.
 - **Source:** user (2026-11-08), supported by r04, r05
-- **Discussed:** no · **Decision:** open
+- **Discussed:** yes (domain grilling) · **Decision:** D-01, D-03, D-04, D-07 — accepted as the **GlassModel**: an internal entity with one or more Eurocodes (one main), OEM codes as lookup keys, fitment, position, colour, equipment; only admins create it (D-18).
 
 ### ADD-02 Interchange between glass definitions
 
 - **Description:** explicit "can replace" links between definitions (full/partial), replacing V1's alternative eurocodes on the offer.
 - **Value:** offer search across equivalent glass. **Kind:** extends F-04. **Dependencies:** ADD-01.
 - **Open questions:** symmetric groups or directed links; who maintains them (no public list, r05).
-- **Source:** discovery (r05) · **Discussed:** no · **Decision:** open
+- **Source:** discovery (r05) · **Discussed:** yes (domain grilling) · **Decision:** D-12 — not built now; one-way "can replace" is a known future relation between GlassModels, never an extra Eurocode. V1 alternatives become Eurocodes of one GlassModel (D-03).
 
 ### ADD-03 Structured vehicle catalogue
 
 - **Description:** make → model → generation/years (and body) as dictionaries instead of free text; optional later mapping to a reference tree (TecDoc KType, licensed).
 - **Value:** consistent fitment and search; V1 brand table was planned and never built (r01).
-- **Kind:** extends F-01. **Source:** discovery (r01, r05) · **Discussed:** no · **Decision:** open
+- **Kind:** extends F-01. **Source:** discovery (r01, r05) · **Discussed:** no · **Decision:** open — deferred to the Catalogue grilling (D-15, D-23).
 
 ### ADD-04 VIN lookup
 
 - **Description:** find candidate glass definitions from a VIN through a paid build-data provider; results are candidates, confirmed by hand.
 - **Value:** the user's VIN idea; V1 has a dead `vim` column only. **Kind:** entirely new.
 - **Dependencies:** ADD-01, ADD-03, a provider and its cost (r05: about £2.20 per lookup for one provider).
-- **Source:** user, r05 · **Discussed:** no · **Decision:** open (likely later)
+- **Source:** user, r05 · **Discussed:** yes (domain grilling) · **Decision:** D-16 — later: VIN is a search input through a paid provider, never a GlassModel attribute. Not in the first spec unless the grilling brings it in.
 
 ### ADD-05 Features as a closed multi-valued dictionary
 
 - **Description:** equipment/features as a fixed list (antenna, camera, heated, sensor, HUD, VIN window, encapsulation…) optionally mapped to Eurocode letters, instead of free admin-created names.
-- **Value:** consistent data; imports/exports by code. **Kind:** extends F-12. **Source:** discovery (r05) · **Discussed:** no · **Decision:** open
+- **Value:** consistent data; imports/exports by code. **Kind:** extends F-12. **Source:** discovery (r05) · **Discussed:** yes (domain grilling) · **Decision:** open — D-25 keeps equipment one admin-edited list and names a closed ARGIC-lettered list as a later option (Phase 7).
 
 ## K. Investigation log
 
@@ -334,3 +335,32 @@
 - **Ready because:** the census is closed, every operation that writes catalogue data is traced or classified, and the open items are decisions, not missing facts.
 
 ## M. Decision log
+
+<!-- Class: preserve | correct | new | exclude | pending -->
+
+D-01–D-28 are the **domain decisions** of `.scratch/domain/glass-offer-model.md` (2026-11-09), carried in on 2026-11-11 with the same ids; only those touching this module are listed. Reasons are in the domain model. They are settled ground for the module grilling, which continues at **D-29**.
+
+- **D-01** (domain, 2026-11-09) re ADD-01, Q-09, W-02, F-06, F-17, BR-06 — The catalogue entry is a **GlassModel**; an Offer refers to it and reads glass parameters from it. No copying from sibling offers. Class: correct.
+- **D-03** (domain, 2026-11-09) re BR-03, BR-05, F-04, F-19, Q-01, IMP-01, ADD-02 — A Eurocode belongs to exactly one GlassModel; a GlassModel has one or more. Codes are unique across the catalogue and stored normalised (uppercase, no spaces, ≤ 17 characters). OEM codes are lookup keys on the GlassModel. V1 per-offer alternative eurocodes become Eurocodes of the GlassModel. Class: correct.
+- **D-04** (domain, 2026-11-09) re ADD-01, BR-05, Q-08 — A GlassModel has at least one Eurocode, exactly one of them main; the main one names it in the panel. No GlassModel from OEM codes alone. Class: new.
+- **D-05** (domain, 2026-11-09) re F-21, X-03, Q-02 — The panel publishes Adverts and pulls nothing back from a channel. The runtime import from WordPress does not carry over; V1 data comes through the data migration. Class: exclude.
+- **D-07** (domain, 2026-11-09) re Q-09, Q-14, IMP-06, BR-12, F-12 — The GlassModel holds position, colour, equipment, vehicle fitment and OEM codes. "Rodzaj szyby" becomes the position; a shop category is an integration mapping. Class: correct.
+- **D-08** (domain, 2026-11-09) re BR-16, Q-12 — Producer, production year, condition, rating, photos, price, seller and status are on the Offer. Shipping is out of the model for now. Class: correct.
+- **D-09** (domain, 2026-11-09) re Q-09, W-02 — An Offer never overrides a GlassModel parameter; another tint, coating or feature is another GlassModel. The V1 conflicts go to the admin's review list before migration. Class: correct.
+- **D-10** (domain, 2026-11-09) re W-03, F-18, BR-18, Q-08, Q-13 — An Offer without a GlassModel has no glass parameters, only the seller's identification hint. Class: correct.
+- **D-11** (domain, 2026-11-09) re F-03, BR-04, Q-02 — Vehicle fitment hangs on the GlassModel (the union of its Eurocodes' V1 fitment). No reason or source on a Eurocode for now. Class: correct.
+- **D-12** (domain, 2026-11-09) re ADD-02 — One-way "can replace" between GlassModels is not built now; it is a known future relation, never an extra Eurocode. Class: exclude.
+- **D-13** (domain, 2026-11-09) re BR-05, BR-08, F-07, G-02 — Migration: Eurocodes that stood together on one V1 offer join one GlassModel, transitively. Suffix-different pairs and groups with conflicting parameters go to the admin's review list. Class: correct.
+- **D-14** (domain, 2026-11-09) re BR-03, F-05, Q-15, Q-16, IMP-05 — An OEM code is a lookup key that may belong to several GlassModels; a lookup by OEM returns candidates. Class: correct.
+- **D-15** (domain, 2026-11-09) re Q-02, IMP-02, BR-07, BR-17, ADD-03 — Vehicles reach an Offer only through its GlassModel; `car_offer` is dropped and folded in by the migration or the admin. The vehicle catalogue's structure → Catalogue grilling. Class: correct.
+- **D-16** (domain, 2026-11-09) re Q-07, ADD-04 — VIN is never a GlassModel attribute. It is a search input later (paid provider) and may be part of an identification hint. `offers.vim` is dropped. Class: exclude.
+- **D-17** (domain, 2026-11-09) re W-01, F-05, F-16, Q-08, IMP-04, BR-18 — A seller picks a GlassModel from the catalogue by eurocode, OEM or vehicle and describes only the piece; if nothing fits, they leave a hint. No silent matching after save. Sellers see the catalogue, never other sellers' offers. Class: correct.
+- **D-18** (domain, 2026-11-09) re G-01, BR-10, BR-11, F-13 — Only admins maintain the catalogue (GlassModels, Eurocodes, OEM codes, fitment). Sellers never add to it, directly or by proposals. Class: correct.
+- **D-19** (domain, 2026-11-09) re F-10 — An Offer cannot be approved without a GlassModel; the admin finds or creates it from the hint while approving. Class: correct.
+- **D-20** (domain, 2026-11-09) re F-10, X-02, Q-04 — There is no Submission concept; the ticket action "Dodaj eurokod" and the dictionary review on the ticket go. Class: exclude.
+- **D-23** (domain, 2026-11-09) re B, scope, ADD-03, ADD-04 — One module, **Catalogue**: GlassModel, Eurocode, OEM codes, fitment, vehicles and the glass dictionaries. Vehicles split out only when they get a life of their own. Class: correct.
+- **D-24** (domain, 2026-11-09) re X-01, Q-05 — Contract: an Offer stores only the GlassModel id; Offers reads the model summary and searches candidates through Catalogue's `ModuleApi`; Catalogue knows nothing of Offers. A GlassModel change is a domain event. Deleting a model in use → Catalogue grilling. Class: new.
+- **D-25** (domain, 2026-11-09) re F-12, F-13, BR-10–BR-13, Q-10, Q-11, Q-14, G-09, ADD-05 — Position, colour, equipment and producer are admin-edited lists in Catalogue: no approval workflow, no seller proposals, position not a code enum, equipment one list (`OfferExtras` dropped). Value clean-up → Catalogue grilling. Class: correct.
+- **D-26** (domain, 2026-11-09) re F-11, F-15, IMP-06, Q-03, Q-14, X-03 — Channel keys and mappings live in the integration; catalogue entries do not know channels. An entry's integration status on a tab → Catalogue grilling. Class: correct.
+- **D-27** (domain, 2026-11-09) re Q-14 — Accessories (seal, moulding, frame) stay GlassModels whose position is an accessory value, as in V1. A separate Accessory model is ADD-A01 in the domain model, waiting for the client. Class: preserve.
+- **D-28** (domain, 2026-11-09) re process — Order: Catalogue grilling → spec → Offers grilling → spec → Catalogue delivery → Offers delivery. No new discovery for Catalogue. Class: n/a (process).

@@ -1,8 +1,8 @@
 # Domain model: Glass vs Offer vs catalogue
 
 - **Started:** 2026-11-09
-- **Prompt:** `.scratch/vehicles/domain-grilling-prompt.md`
-- **Inputs:** `.scratch/vehicles/discovery/discovery.md`, `.scratch/offers/discovery/discovery.md` (both `ready-for-grilling`)
+- **Prompt:** `.scratch/domain/domain-grilling-prompt.md`
+- **Inputs:** `.scratch/catalogue/discovery/discovery.md` (then the Vehicles discovery), `.scratch/offers/discovery/discovery.md` (both `ready-for-grilling`; decisions carried into both on 2026-11-11)
 - **State:** rounds 1–4 closed, **done 2026-11-09** — D-01–D-28, ADR 0008–0010, GLOSSARY updated, roadmap revised; next: `.scratch/domain/handoff-catalogue-offers.md`, waiting for the user
 
 ## Extra facts checked in this session
