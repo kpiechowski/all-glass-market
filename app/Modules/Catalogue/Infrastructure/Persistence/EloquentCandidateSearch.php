@@ -40,6 +40,10 @@ final class EloquentCandidateSearch implements CandidateSearch
 
     public function matchingIds(CandidateQuery $query): array
     {
+        if (! $query->isSearchable() && $query->hasFilter()) {
+            return $this->candidateModels($query)->orderBy('catalogue_glass_models.id')->pluck('catalogue_glass_models.id')->map(fn ($id): int => (int) $id)->all();
+        }
+
         return array_map(fn (Candidate $candidate): int => $candidate->glassModelId, $this->search($query->withoutLimit()));
     }
 

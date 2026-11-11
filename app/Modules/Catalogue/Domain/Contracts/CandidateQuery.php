@@ -41,6 +41,12 @@ final readonly class CandidateQuery
         return mb_strlen($this->cleanText()) >= self::MIN_FRAGMENT_LENGTH;
     }
 
+    /** Whether the position, colour or make narrows the models. */
+    public function hasFilter(): bool
+    {
+        return $this->positionId !== null || $this->colourId !== null || $this->makeId !== null;
+    }
+
     /** RULE-03 form: uppercase letters and digits only. */
     public function eurocodeFragment(): ?string
     {
