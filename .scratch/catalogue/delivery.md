@@ -18,8 +18,11 @@
 | 07 thumbnail | resolved (2a18c4a) | removed | 0 | approved |
 | 08 module-api-for-offers | resolved (27c73a3) | removed | 1 | approved |
 | 10 seeding-testowy-katalogu | resolved (c4aeda2) | removed | 0 | approved |
+| 11 glass-model-list-as-catalogue-cards | resolved (af59b66) | removed | 0 | approved (technical; user checks the screen) |
 
 ## Next action
+
+Closed 2026-11-12: issue 11 resolved and merged (af59b66), `npm run build` done in the main tree. No migrations. The user checks `/admin/glass-models` at desktop/390px, light/dark; visual feedback becomes follow-up rounds. Open: Core Authorizer runs one `users` role query per row action (cache per request?).
 
 Closed 2026-11-12: issue 10 resolved and merged (c4aeda2). No migrations. To check the panel by hand: `dartisan seed-katalog` (default `m`; `s`/`l`; `--force` skips the question).
 
