@@ -17,8 +17,12 @@
 | 06 glass-model-cards-and-search | resolved (7281459) | removed | 0 | approved |
 | 07 thumbnail | resolved (2a18c4a) | removed | 0 | approved |
 | 08 module-api-for-offers | resolved (27c73a3) | removed | 1 | approved |
+| 10 seeding-testowy-katalogu | resolved (c4aeda2) | removed | 0 | approved |
 
 ## Next action
+
+Closed 2026-11-12: issue 10 resolved and merged (c4aeda2). No migrations. To check the panel by hand: `dartisan seed-katalog` (default `m`; `s`/`l`; `--force` skips the question).
+
 
 Closed 2026-11-11: issues 01–08 resolved and merged into `catalog`. Before the user checks the panel by hand: `dartisan migrate` (01 `create_catalogue_dictionary_values_table`, 02 `create_catalogue_vehicles_table`, 03 `create_catalogue_glass_models_tables`, 05 `create_catalogue_glass_model_vehicles_table`, 07 `create_catalogue_thumbnail_mappings_table`) and `npm run build` (glass-card.css). Open outside this run:
 - 09 Offers-facing pieces (waits for the Offers module).
