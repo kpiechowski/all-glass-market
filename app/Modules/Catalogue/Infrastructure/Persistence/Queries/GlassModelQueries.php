@@ -11,10 +11,13 @@ use Illuminate\Database\Eloquent\Builder;
 
 final class GlassModelQueries
 {
+    public const CARD_VEHICLES = 10;
+
     public function __construct(private CandidateSearch $search) {}
 
     /**
-     * What a card shows (FR-04): every Eurocode, OEM code, position, colour, equipment and the vehicle count.
+     * What a card shows (FR-04): every Eurocode, OEM code, position, colour, equipment, the vehicle count and
+     * the first vehicles by name (CARD_VEHICLES per model, loaded in one query, so the card can name a few and say "+N").
      *
      * @return Builder<GlassModelModel>
      */
@@ -22,6 +25,7 @@ final class GlassModelQueries
     {
         return GlassModelModel::query()
             ->with(['mainEurocode', 'eurocodes', 'oemCodes', 'position', 'colour', 'equipment'])
+            ->with(['vehicles' => fn ($vehicles) => $vehicles->select('catalogue_vehicles.id', 'catalogue_vehicles.name')->orderBy('catalogue_vehicles.name')->limit(self::CARD_VEHICLES)])
             ->withCount('vehicles');
     }
 

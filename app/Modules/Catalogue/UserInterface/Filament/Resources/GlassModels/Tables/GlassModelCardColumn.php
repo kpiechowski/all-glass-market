@@ -9,8 +9,9 @@ use Filament\Tables\Columns\ViewColumn;
 use Illuminate\Contracts\Support\Htmlable;
 
 /**
- * The full-width card of a Glass model (FR-04, D-53). The only column of the list; it shows at
- * every width and lays its parts out side by side from `md`. Styles: components/glass-card.css.
+ * The catalogue row of a Glass model (FR-04, D-53): picture, then title, facts and footer bands on
+ * fixed grid tracks so rows line up. The only column of the list; it shows at every width.
+ * Styles: components/glass-card.css.
  *
  * Two slots stay empty until their tickets fill them: `thumbnail()` (07, with the equipment
  * pictograms) and `offersLink()` (09, the "N offers" link). Each takes a closure with `$record`

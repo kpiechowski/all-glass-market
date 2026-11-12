@@ -2,13 +2,12 @@
 <div class="glass-thumbnail">
     {!! $thumbnail->svg !!}
 
-    @if ($thumbnail->pictograms !== [])
-        <ul class="glass-thumbnail__pictograms">
-            @foreach ($thumbnail->pictograms as $pictogram)
-                <li class="glass-thumbnail__pictogram-item" x-tooltip="{ content: @js($pictogram['label']) }" aria-label="{{ $pictogram['label'] }}" role="img">
-                    {!! $pictogram['svg'] !!}
-                </li>
-            @endforeach
-        </ul>
-    @endif
+    {{-- Always drawn, so a model without pictograms keeps the same picture area. --}}
+    <ul class="glass-thumbnail__pictograms">
+        @foreach ($thumbnail->pictograms as $pictogram)
+            <li class="glass-thumbnail__pictogram-item" x-tooltip="{ content: @js($pictogram['label']) }" aria-label="{{ $pictogram['label'] }}" role="img">
+                {!! $pictogram['svg'] !!}
+            </li>
+        @endforeach
+    </ul>
 </div>

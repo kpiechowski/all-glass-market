@@ -15,6 +15,7 @@ use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -71,7 +72,7 @@ class ListGlassModelsTest extends TestCase
         GlassModelOemCodeModelFactory::new()->state(['glass_model_id' => $model->id])->code('1K0-845-011')->create();
 
         Livewire::test(ListGlassModels::class)
-            ->assertSeeInOrder(['8613AGS', '9999ZZZ', '1K0-845-011', $model->position->name, 'Zielony', 'Czujnik deszczu'])
+            ->assertSeeInOrder(['8613AGS', $model->position->name, 'Zielony', '9999ZZZ', '1K0-845-011', 'Pasuje do pojazdów (2)', 'Czujnik deszczu'])
             ->assertSee('Pasuje do pojazdów');
     }
 
@@ -149,5 +150,60 @@ class ListGlassModelsTest extends TestCase
             ->assertSeeHtml('glass-thumbnail__shape')
             ->assertSeeHtml('glass-thumbnail__pictogram')
             ->assertSee('Czujnik deszczu i światła');
+    }
+
+    /** FR-04: only a withdrawn model carries a state flag. */
+    public function test_only_withdrawn_models_show_a_state_flag(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        GlassModelModelFactory::new()->create();
+
+        Livewire::test(ListGlassModels::class)->assertDontSee('Aktywny')->assertDontSee('Wycofany');
+    }
+
+    /** D-53: a list longer than two values shows two and "+N" with the rest on hover. */
+    public function test_long_lists_collapse_to_two_values_and_a_count(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $model = GlassModelModelFactory::new()->fitting(
+            VehicleModelFactory::new()->named('Audi A')->create(),
+            VehicleModelFactory::new()->named('Audi B')->create(),
+            VehicleModelFactory::new()->named('Audi C')->create(),
+        )->create();
+        foreach (['111-A', '222-B', '333-C', '444-D'] as $code) {
+            GlassModelOemCodeModelFactory::new()->state(['glass_model_id' => $model->id])->code($code)->create();
+        }
+
+        Livewire::test(ListGlassModels::class)
+            ->assertSeeInOrder(['111-A', '222-B', '+2'])
+            ->assertDontSeeHtml('>333-C<')
+            ->assertSeeInOrder(['Audi A', 'Audi B', '+1'])
+            ->assertSee('Pasuje do pojazdów (3)');
+    }
+
+    /** The Authorizer's per-check role lookup (Core, one query per row action) is not the card's and is left out. */
+    public function test_the_query_count_does_not_grow_with_the_number_of_rows(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $seed = function (int $count): void {
+            for ($i = 0; $i < $count; $i++) {
+                $model = GlassModelModelFactory::new()->fitting(VehicleModelFactory::new()->create(), VehicleModelFactory::new()->create(), VehicleModelFactory::new()->create())->create();
+                GlassModelOemCodeModelFactory::new()->state(['glass_model_id' => $model->id])->create();
+            }
+        };
+        $countQueries = function (): int {
+            DB::flushQueryLog();
+            DB::enableQueryLog();
+            Livewire::test(ListGlassModels::class);
+
+            return count(array_filter(DB::getQueryLog(), fn (array $query): bool => ! str_contains($query['query'], 'from "users"')));
+        };
+
+        $seed(1);
+        $countQueries(); // warms the thumbnail mapping cache
+        $few = $countQueries();
+        $seed(6);
+
+        $this->assertSame($few, $countQueries());
     }
 }

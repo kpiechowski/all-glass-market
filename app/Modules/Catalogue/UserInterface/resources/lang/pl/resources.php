@@ -66,8 +66,8 @@ return [
         ],
 
         'card' => [
-            'parameters' => 'Rodzaj i kolor',
             'vehicles' => 'Pasuje do pojazdów',
+            'more' => '+:count',
         ],
 
         'search' => [

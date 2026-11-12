@@ -1,94 +1,186 @@
 /*
- * Glass model card (FR-04, D-53): the one cell of the Glass model list, full width at every size.
+ * Glass model card (FR-04, D-53): one catalogue row per model, the same grid tracks in every row.
  * Markup: catalogue::filament.tables.glass-model-card (GlassModelCardColumn).
  *
- *   thumbnail   slot, left, drawn only when ticket 07 fills it
- *   head        main Eurocode (bold), state badge, what the search matched
- *   facts       further Eurocodes, OEM codes, parameters, vehicle count: side by side from md
- *   offers      slot, right, drawn only when ticket 09 fills it
+ *   picture   fixed-size framed box: the glass and the equipment pictograms (glass-thumbnail below)
+ *   title     main Eurocode, position and colour, flags (withdrawn, search match)
+ *   facts     three fixed tracks: further Eurocodes, OEM codes, vehicles (at most 2 values each, then "+N")
+ *   footer    equipment chips and the offers slot (09)
+ *
+ * Below md the picture sits beside the title and the facts stack as label/value rows.
  */
 .glass-card {
+    --glass-card-picture-width: 6rem;
+    --glass-card-picture-height: 6.5rem;
+
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--ag-space-2);
+    grid-template-columns: var(--glass-card-picture-width) minmax(0, 1fr);
+    grid-template-areas:
+        "picture title"
+        "facts facts"
+        "footer footer";
+    gap: var(--ag-space-2) var(--ag-space-3);
     padding: var(--ag-table-card-padding);
 }
 
 @media (min-width: 48rem) {
-    /* From md the table cell has its own padding. */
     .glass-card {
-        padding: 0;
-    }
+        --glass-card-picture-width: 10.5rem;
+        --glass-card-picture-height: 9rem;
 
-    .glass-card:has(.glass-card__thumbnail) {
-        grid-template-columns: auto minmax(0, 1fr);
+        grid-template-columns: var(--glass-card-picture-width) minmax(0, 1fr);
+        grid-template-areas:
+            "picture title"
+            "picture facts"
+            "picture footer";
+        grid-template-rows: auto 1fr auto;
         column-gap: var(--ag-space-4);
-    }
-
-    .glass-card__thumbnail {
-        grid-row: span 2;
-    }
-
-    .glass-card:has(.glass-card__offers) .glass-card__facts {
-        padding-inline-end: var(--ag-space-4);
+        /* From md the table cell has its own padding. */
+        padding: 0;
     }
 }
 
-.glass-card__head {
+.glass-card__picture {
+    grid-area: picture;
+    height: var(--glass-card-picture-height);
+    overflow: hidden;
+    border-radius: var(--ag-radius-container);
+    background-color: var(--ag-surface-hover);
+    color: var(--ag-text-muted);
+}
+
+.glass-card__title {
+    grid-area: title;
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: space-between;
     gap: var(--ag-space-2);
+    min-width: 0;
+}
+
+.glass-card__heading {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
 }
 
 .glass-card__main {
-    font-size: var(--ag-text-base);
-    line-height: var(--ag-leading-base);
+    font-size: var(--ag-text-lg);
+    line-height: var(--ag-leading-lg);
     font-weight: var(--ag-weight-semibold);
+    font-variant-numeric: tabular-nums;
     color: var(--ag-text);
     overflow-wrap: anywhere;
 }
 
+.glass-card__subtitle {
+    font-size: var(--ag-text-sm);
+    line-height: var(--ag-leading-sm);
+    color: var(--ag-text-secondary);
+}
+
+.glass-card__flags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ag-space-2);
+}
+
 .glass-card__facts {
+    grid-area: facts;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--ag-space-2) var(--ag-space-4);
+    gap: var(--ag-space-1) var(--ag-space-4);
     margin: 0;
+    align-content: start;
 }
 
 @media (min-width: 48rem) {
     .glass-card__facts {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        /* Identical in every row, so the columns line up down the list. */
+        grid-template-columns: 11rem 11rem minmax(0, 1fr);
+        padding-top: var(--ag-space-2);
+        border-top: var(--ag-border-width) solid var(--ag-divider);
+    }
+}
+
+.glass-card__fact {
+    display: grid;
+    grid-template-columns: 8rem minmax(0, 1fr);
+    gap: var(--ag-space-2);
+    min-width: 0;
+}
+
+@media (min-width: 48rem) {
+    .glass-card__fact {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--ag-space-0-5);
+        align-content: start;
     }
 }
 
 .glass-card__fact dt {
     font-size: var(--ag-text-xs);
     line-height: var(--ag-leading-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
     color: var(--ag-text-muted);
 }
 
 .glass-card__fact dd {
+    display: flex;
+    flex-direction: column;
     margin: 0;
     font-size: var(--ag-text-sm);
     line-height: var(--ag-leading-sm);
     color: var(--ag-text);
-    overflow-wrap: anywhere;
+    min-width: 0;
 }
 
-.glass-card__code {
-    display: inline-block;
-    margin-inline-end: var(--ag-space-2);
+.glass-card__value {
     font-variant-numeric: tabular-nums;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.glass-card__equipment {
-    display: block;
+.glass-card__more {
     color: var(--ag-text-muted);
+    cursor: default;
+}
+
+.glass-card__footer {
+    grid-area: footer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ag-space-3);
+    min-width: 0;
+}
+
+.glass-card__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ag-space-1-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.glass-card__chip {
+    padding: var(--ag-space-0-5) var(--ag-space-2);
+    border: var(--ag-border-width) solid var(--ag-soft-gray-border);
+    border-radius: var(--ag-radius-pill);
+    background-color: var(--ag-soft-gray-bg);
+    font-size: var(--ag-text-xs);
+    line-height: var(--ag-leading-xs);
+    color: var(--ag-soft-gray-text);
 }
 
 .glass-card__offers {
+    margin-inline-start: auto;
     font-size: var(--ag-text-sm);
+    white-space: nowrap;
 }
 
 /*
@@ -99,7 +191,7 @@
 .glass-thumbnail {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: var(--ag-space-2);
     color: var(--ag-text-muted);
 }
@@ -107,6 +199,27 @@
 .glass-thumbnail__shape {
     width: 6.5rem;
     height: auto;
+}
+
+/* In the card the picture box has a fixed height: the glass takes what the pictogram row leaves. */
+.glass-card__picture .glass-thumbnail {
+    height: 100%;
+    justify-content: space-between;
+    padding: var(--ag-space-2);
+    box-sizing: border-box;
+}
+
+.glass-card__picture .glass-thumbnail__shape {
+    flex: 1 1 0;
+    min-height: 0;
+    width: 100%;
+    max-width: 8.5rem;
+}
+
+.glass-card__picture .glass-thumbnail__pictograms {
+    flex-wrap: nowrap;
+    justify-content: center;
+    min-height: 1.25rem;
 }
 
 .glass-thumbnail__pictograms {

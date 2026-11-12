@@ -1,6 +1,6 @@
 # 11 - Glass model list laid out like a product catalogue
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 06, 07, 10 (resolved; 10 gives the seeded data to check the screen against)
 
 Spec: FR-04, FR-05 (search match label), FR-18 (thumbnail and pictograms). Decisions: D-53 (cards, compared side by side; "layout details at delivery"), D-57, D-37 (the "N offers" slot stays for 09). Skill: `admin-ui-design` (template A), `filament-module-wiring`.
@@ -62,3 +62,18 @@ The same card stacked: picture box smaller (about 6rem) on the left of the title
 - Existing card and search tests from 06/07 pass, updated only where the markup intentionally changed; `composer check` passes; `npm run build` done.
 
 ## Comments
+
+### Worker — 2026-11-12
+- **Built:** FR-04/FR-05/FR-18/D-53 card rebuilt as a catalogue row. One grid per card with named areas (picture, title, facts, footer). Desktop: picture column 10.5rem and a 9rem-high framed box (surface-hover tone, container radius) holding the glass and the pictogram row (the `<ul>` is always drawn so a model without pictograms keeps the same picture area); facts on fixed tracks `11rem 11rem 1fr`, identical in every row; each list shows 2 values then "+N" (tooltip with the rest; key `card.more`); vehicles label "Pasuje do pojazdów (N)" with the first 2 names. Title: main Eurocode (lg, semibold, tabular), position · colour as subtitle, "Wycofany" flag only when withdrawn (no "Aktywny"), search match badge kept. Footer: equipment chips (4 then "+N") and the empty `offersLink()` slot. Mobile: 6rem x 6.5rem picture beside the title, facts as label/value rows, chips below. Vehicles eager-loaded in `GlassModelQueries::listing()` (one window-function query, first 10 by name per model, only id+name). Card markup is data-in/HTML-out (`glass-model-card`, new partial `glass-card-values`). Tests: card order test updated, new tests for withdrawn-only flag, "+N" collapse, constant query count. `npm run build` done.
+- **Deviations:** (1) Vehicle name format = the `name` column (as the Vehicle screens show). (2) Vehicle tooltip lists at most the 10 loaded vehicles (bounds the eager load); "+N" count is the real total. (3) Query-count test ignores the `from "users"` role lookup: the Core Authorizer runs one per row action, grows with rows, and predates this ticket (candidate for a Core fix: cache the role per request). (4) Removed unused translation key `card.parameters`. (5) Screenshots not taken (instructed); see check list.
+- **Seams left:** `offersLink()` slot (09) in `.glass-card__offers`; the card view is reusable in 09's picker.
+- **Open questions:** Authorizer per-check role query (see deviation 3).
+- **Check:** composer check green (1066 tests); `npm run build` done.
+
+**For the user to check by hand (`/admin/glass-models`, `dartisan seed-katalog m`), light and dark:**
+- Desktop (>=768px): the three captions DALSZE EUROKODY / KODY OEM / POJAZDY start at the same x in every row; every picture box is the same size (frame visible against the row in both themes), glass centred, pictograms in one row at the bottom, also for models with none; rows with short lists are as high as their neighbours; Eurocode large and bold, "Wycofany" only on withdrawn (toggle "Pokaż także wycofane"), no "Aktywny"; with a search (3+ chars) the match badge shows at the top right; "+N" shows on lists over 2 and its tooltip lists the rest; the "⋮" menu and row click still work.
+- 390px: picture (6rem) left of the Eurocode and subtitle, facts below as label/value rows, chips at the bottom, no horizontal scroll, "⋮" and row click work; chips frame/text contrast readable in dark.
+
+### Review — 2026-11-12
+- **Verdict:** approved after 0 fix rounds (technical review; the user checks the screen by hand after the merge)
+- **Notes:** accepted deviations: vehicle names are the `name` column; the eager load caps at 10 vehicles per model (tooltip lists at most those, "+N" uses the real count); the query-count test leaves out the Core Authorizer's per-row `users` role lookup, which predates this ticket and is a candidate for a Core fix (cache the role per request). The manager fixed the indentation in `glass-thumbnail.blade.php`. Seams: `offersLink()` slot in the footer (09); the card view is data in, HTML out, for 09's picker.
