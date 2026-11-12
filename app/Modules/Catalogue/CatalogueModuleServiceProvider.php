@@ -13,6 +13,7 @@ use App\Modules\Catalogue\Application\ModuleApi\GlassModelThumbnails;
 use App\Modules\Catalogue\Application\ModuleApi\GlassModelUsages;
 use App\Modules\Catalogue\Application\Providers\CatalogueEventServiceProvider;
 use App\Modules\Catalogue\Domain\Contracts\CandidateSearch;
+use App\Modules\Catalogue\Domain\Contracts\CatalogueTestDataSeeding;
 use App\Modules\Catalogue\Domain\Contracts\DictionaryReader;
 use App\Modules\Catalogue\Domain\Contracts\GlassModelFactsReader;
 use App\Modules\Catalogue\Domain\Enums\CataloguePermission;
@@ -32,6 +33,8 @@ use App\Modules\Catalogue\Infrastructure\Persistence\GlassModelDictionaryValueUs
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\DictionaryValueModel;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\VehicleModel;
 use App\Modules\Catalogue\Infrastructure\Persistence\VehicleDictionaryUsage;
+use App\Modules\Catalogue\Infrastructure\Seeders\CatalogueTestDataSeeder;
+use App\Modules\Catalogue\UserInterface\Console\SeedCatalogueConsoleCommand;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\DictionaryValueResource;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\Support\DictionaryValueViewSections;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Support\GlassModelViewSections;
@@ -62,6 +65,7 @@ class CatalogueModuleServiceProvider extends ModuleServiceProvider
         ThumbnailMappingRepository::class => EloquentThumbnailMappingRepository::class,
         GlassModelFactsReader::class => EloquentGlassModelFactsReader::class,
         DictionaryReader::class => EloquentDictionaryReader::class,
+        CatalogueTestDataSeeding::class => CatalogueTestDataSeeder::class,
     ];
 
     public function register(): void
@@ -78,6 +82,10 @@ class CatalogueModuleServiceProvider extends ModuleServiceProvider
     public function boot(): void
     {
         parent::boot();
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([SeedCatalogueConsoleCommand::class]);
+        }
 
         $this->declarePermissions($this->app->make(RoleRegistry::class));
         $this->registerAuditableRecords($this->app->make(AuditableRecords::class));

@@ -6,6 +6,7 @@ namespace App\Modules\Catalogue\Infrastructure\Factories;
 
 use App\Core\Infrastructure\Factories\ModelFactory;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\GlassModelEurocodeModel;
+use App\Modules\Catalogue\Infrastructure\Persistence\Models\GlassModelModel;
 
 /** @extends ModelFactory<GlassModelEurocodeModel> */
 final class GlassModelEurocodeModelFactory extends ModelFactory
@@ -19,5 +20,20 @@ final class GlassModelEurocodeModelFactory extends ModelFactory
             'code' => strtoupper(fake()->unique()->bothify('????####')),
             'is_main' => false,
         ];
+    }
+
+    public function forGlassModel(GlassModelModel $glassModel): static
+    {
+        return $this->state(fn (): array => ['glass_model_id' => $glassModel->id]);
+    }
+
+    public function withCode(string $code): static
+    {
+        return $this->state(fn (): array => ['code' => $code]);
+    }
+
+    public function main(): static
+    {
+        return $this->state(fn (): array => ['is_main' => true]);
     }
 }
