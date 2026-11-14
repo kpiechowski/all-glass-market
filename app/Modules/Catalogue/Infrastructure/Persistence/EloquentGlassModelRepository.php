@@ -116,7 +116,7 @@ final class EloquentGlassModelRepository extends EloquentRepository implements G
         }
 
         foreach ($wanted as $code => $isMain) {
-            $row = $model->eurocodes()->firstOrNew(['code' => $code]);
+            $row = $model->eurocodes()->firstOrNew(['code' => (string) $code]);
             $row->is_main = $isMain;
 
             if ($row->isDirty()) {
@@ -128,6 +128,10 @@ final class EloquentGlassModelRepository extends EloquentRepository implements G
         return $changed;
     }
 
+    /**
+     * A digits-only key ("896028196") is an int key in `$wanted` (PHP casts numeric-string array keys)
+     * but a string from the database, so keys are matched by array lookup, never by strict comparison.
+     */
     private function syncOemCodes(GlassModelModel $model, GlassModel $entity): bool
     {
         $wanted = $this->glassModelMapper->oemCodeRows($entity);
@@ -140,11 +144,11 @@ final class EloquentGlassModelRepository extends EloquentRepository implements G
             }
         }
 
-        $kept = $model->oemCodes()->pluck('code_key')->all();
+        $kept = array_flip($model->oemCodes()->pluck('code_key')->all());
 
         foreach ($wanted as $key => $code) {
-            if (! in_array($key, $kept, true)) {
-                $model->oemCodes()->create(['code' => $code, 'code_key' => $key]);
+            if (! isset($kept[$key])) {
+                $model->oemCodes()->create(['code' => $code, 'code_key' => (string) $key]);
                 $changed = true;
             }
         }

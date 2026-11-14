@@ -15,6 +15,7 @@ use App\Modules\Catalogue\Domain\ValueObjects\OemCode;
 use App\Modules\Catalogue\Infrastructure\Factories\DictionaryValueModelFactory;
 use App\Modules\Catalogue\Infrastructure\Factories\GlassModelEurocodeModelFactory;
 use App\Modules\Catalogue\Infrastructure\Factories\GlassModelModelFactory;
+use App\Modules\Catalogue\Infrastructure\Factories\GlassModelOemCodeModelFactory;
 use App\Modules\Catalogue\Infrastructure\Factories\VehicleModelFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -76,6 +77,38 @@ class EloquentGlassModelRepositoryTest extends TestCase
         $this->assertSame([$equipment->id], $reloaded->equipmentIds());
         $this->assertSame(['A-1'], array_map(fn (OemCode $c): string => $c->value, $reloaded->oemCodes()));
         $this->assertTrue($model->fresh()->updated_at->isToday());
+    }
+
+    /** A digits-only OEM key ("896028196") becomes an int array key in PHP; a save must still keep the stored code. */
+    public function test_a_model_with_a_digits_only_oem_code_saves_another_change(): void
+    {
+        $model = GlassModelModelFactory::new()->withMainEurocode('1049AGNV')->create();
+        GlassModelEurocodeModelFactory::new()->forGlassModel($model)->withCode('1049AGNV1')->create();
+        GlassModelOemCodeModelFactory::new()->state(['glass_model_id' => $model->id])->code('896-028-196')->create();
+
+        app(ActorStack::class)->run(Actor::system('test'), function () use ($model): void {
+            $entity = $this->repository()->get($model->id);
+            $entity->changeMainEurocode(Eurocode::from('1049AGNV1'));
+            $this->repository()->save($entity);
+        });
+
+        $reloaded = $this->repository()->get($model->id);
+        $this->assertSame('1049AGNV1', $reloaded->mainEurocode()->value);
+        $this->assertSame(['896-028-196'], array_map(fn (OemCode $c): string => $c->value, $reloaded->oemCodes()));
+    }
+
+    public function test_saving_an_unchanged_model_writes_no_part_and_does_not_touch_it(): void
+    {
+        $model = GlassModelModelFactory::new()->create();
+        GlassModelOemCodeModelFactory::new()->state(['glass_model_id' => $model->id])->code('896-028-196')->create();
+        GlassModelOemCodeModelFactory::new()->state(['glass_model_id' => $model->id])->code('1K0-845-011')->create();
+        ReadOnlyModel::writing(fn () => $model->forceFill(['updated_at' => now()->subDay()])->saveQuietly());
+        $oemRowIds = $model->oemCodes()->orderBy('id')->pluck('id')->all();
+
+        app(ActorStack::class)->run(Actor::system('test'), fn () => $this->repository()->save($this->repository()->get($model->id)));
+
+        $this->assertSame($oemRowIds, $model->oemCodes()->orderBy('id')->pluck('id')->all());
+        $this->assertFalse($model->fresh()->updated_at->isToday());
     }
 
     public function test_the_holder_of_a_eurocode_is_found_withdrawn_models_included_and_the_excepted_model_left_out(): void

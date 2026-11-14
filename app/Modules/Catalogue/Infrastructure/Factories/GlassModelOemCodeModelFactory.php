@@ -14,7 +14,8 @@ final class GlassModelOemCodeModelFactory extends ModelFactory
 
     public function definition(): array
     {
-        $code = strtoupper(fake()->unique()->bothify('??#-###-###'));
+        // Real OEM codes are often digits only ("896-028-196"), whose key is a numeric string: keep both shapes in play.
+        $code = strtoupper(fake()->unique()->bothify(fake()->randomElement(['??#-###-###', '###-###-###'])));
 
         return [
             'glass_model_id' => GlassModelModelFactory::new(),
