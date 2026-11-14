@@ -92,7 +92,13 @@ Climb this ladder and stop at the first rung that works:
 
 Corners stay rounded with the theme radii: no chamfered shapes and no decorative accents beyond the topbar ornament and the login geodes.
 
-Schema components (`extraAttributes`, `extraInputAttributes`…) receive only our variant classes. Tailwind utilities belong only in our own Blade views. A module registers its own CSS asset only for styles that belong to that module alone.
+Schema components (`extraAttributes`, `extraInputAttributes`…) receive only our variant classes. Tailwind utilities belong only in our own Blade views.
+
+Inside our own Blade view, pick one styling method per component:
+
+- **Tailwind utilities** for simple layout glue (`flex items-center gap-2`, `grid grid-cols-2 gap-4`) in a view used once.
+- **A BEM component** (`.block__element--modifier`) in `resources/css/admin/components/<block>.css`, built on `--ag-*` tokens, when any of these holds: its own grid or line rhythm (named areas, a size variable other values derive from), a layout that rearranges at a breakpoint, values outside the Tailwind scale, selectors utilities cannot express (`:has()`, `display: contents`), or reuse in more than one view. The `--ag-*` tokens are not Tailwind theme values, so utilities would need `[var(--ag-…)]` arbitrary values.
+- Never mix both in one component. Payload is no argument either way: the difference in CSS and HTML size is negligible. A module registers its own CSS asset only for styles that belong to that module alone.
 
 ## Navigation
 
@@ -113,6 +119,7 @@ The panel builds the sidebar explicitly in `app/Filament/Navigation/PanelNavigat
 - Action colours are primary, gray or danger only; every confirmation names its act on the submit button.
 - Every label, button and notification follows the copy rules.
 - No Tailwind utility sits on a schema component; no vendor view is overridden.
+- Every own Blade component uses one styling method: utilities for simple glue, a BEM component for its own grid, breakpoint layout, off-scale values or reuse.
 - Every `extraAttributes` class is a variant from [variants.md](variants.md), on the component it names.
 - A new resource or page has its sidebar item in `PanelNavigation`.
 - Every "Before you finish" item of the template file holds.
