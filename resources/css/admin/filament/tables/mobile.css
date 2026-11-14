@@ -73,6 +73,11 @@
             box-shadow: var(--ag-surface-edge);
         }
 
+        /* Cards are already apart on the canvas: no stripes. */
+        & .fi-ta-row.fi-striped {
+            background-color: var(--ag-surface);
+        }
+
         & .fi-ta-row.fi-clickable:active {
             background-color: var(--ag-table-row-hover);
         }

@@ -18,12 +18,14 @@ use Filament\Tables\Table;
  * - A one-column filter panel is 24 rem wide instead of 20 rem.
  * - The filter trigger carries `data-active-filters`, so the theme hides the count badge at 0.
  * - "Zresetuj filtry" shows only while a filter is active.
+ * - Rows are striped (every second row a faint tint, `--ag-table-row-striped`), so a wide row is easy to follow.
  */
 final class TableDefaults
 {
     public static function apply(Table $table): void
     {
         $table
+            ->striped()
             ->deferFilters(fn (Table $table): bool => $table->getFiltersLayout() !== FiltersLayout::AboveContent)
             ->filtersFormWidth(fn (Table $table): ?Width => $table->getFiltersFormColumns() === 1 ? Width::Small : null)
             ->filtersTriggerAction(fn (Action $action): Action => $action->extraAttributes(

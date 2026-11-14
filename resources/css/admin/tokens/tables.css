@@ -5,7 +5,7 @@
  *
  *   row          50 px for one line: 15 px + 20 px line + 15 px; 14 px text, tabular figures
  *   head         13 px medium gray-600 (the entry label of issue 07), white, one hairline below
- *   rows         gray-100 hairlines; hover a faint royal tint on the fast motion token
+ *   rows         gray-100 hairlines; every second row striped gray-50; hover a faint royal tint on the fast motion token
  *   selected     primary-50 fill + the 2 px royal bar of Filament
  *   below md     rows become white cards on the canvas (D-12), 8 px apart
  */
@@ -34,6 +34,7 @@
 
     --ag-table-zone-rule: var(--ag-border);             /* between header zones, head and pagination: gray-200 */
     --ag-table-row-rule: var(--ag-divider);             /* between rows: gray-100 */
+    --ag-table-row-striped: color-mix(in srgb, var(--gray-50) 55%, var(--ag-surface)); /* TableDefaults stripes every table; a faint step, not a band */
     --ag-table-row-hover: color-mix(in srgb, var(--primary-50) 70%, var(--ag-surface));
     --ag-table-row-selected: var(--primary-50);
     --ag-table-row-transition: background-color var(--ag-duration-fast) var(--ag-ease-out);
