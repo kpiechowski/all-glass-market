@@ -22,6 +22,8 @@
 
 ## Next action
 
+2026-11-14: issue 11 UI polish continues inline (no workers, no tests until the user accepts): read `.scratch/catalogue/ui-polish-handoff.md`. Rounds 2–3 committed 2026-11-15 (not yet accepted; ListGlassModelsTest needs updating after acceptance). OEM key bug fixed in 9293f0d.
+
 2026-11-14: issue 11 reopened for one fix round from the user's screen review (target layout in the issue Comments). Fresh worker in `.worktrees/catalogue-11`; after technical review merge again so the user can look.
 Sheet double-hairline fix merged (607f300, `entry.css`). Both wait for the user's screen review; round 2 (if any) goes to a fresh worker in the kept worktree; issue 11 is resolved on acceptance.
 

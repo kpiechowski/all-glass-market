@@ -1,79 +1,108 @@
 /*
- * Glass model card (FR-04, D-53): one catalogue row per model, the same three column tracks in
- * every row. Markup: catalogue::filament.tables.glass-model-card (GlassModelCardColumn).
+ * Glass model card (FR-04, D-53): one catalogue row per model. Markup:
+ * catalogue::filament.tables.glass-model-card (GlassModelCardColumn).
  *
- *   picture   the glass and the equipment pictograms (glass-thumbnail below), no frame
- *   main      title line (main Eurocode badge, position and colour, flags), then three fact lines
- *             on a fixed label width: further Eurocodes, OEM codes, equipment (always all three)
- *   side      vehicles (first 2, then "+N") and the offers slot (09), a border-left divider
+ * The row is a grid of lines of one fixed height with a faint hairline between them, like the
+ * sheet infolist, so every value sits on the same line in every row:
  *
- * Vertical padding: the Filament table cell gives the column none at any width (`.fi-ta-cell`
- * is p-0, the horizontal padding comes from the cell), so the card owns it. Below md the picture
- * sits beside the title line, the fact lines stack at full width and the side column becomes one
- * more fact line without the divider.
+ *   picture | [main Eurocode]  position · colour   flags | Pasuje do pojazdów (N)   (N ofert, 09)
+ *           | Dalsze eurokody  [alt] [alt] +N            | vehicle 1
+ *           | Kody OEM         [oem] [oem] +N            | vehicle 2
+ *           | Wyposażenie      (chip) (chip) (chip) +N   | vehicle 3  +N
+ *
+ * The card fills the cell (Filament's `.fi-ta-col` is a flex row, so the card must grow, or the
+ * middle column would shrink to its content and the side column move from row to row). The row
+ * click opens the record; there is no row-actions menu. The card's own vertical padding is small:
+ * the lines carry the space, so the gap above the title equals the gap below the last line.
+ *
+ * Below md the picture sits in the label column beside the title, so the main Eurocode starts at
+ * the same x as the values; then the fact lines and the vehicles run full width as label | value.
  */
 .glass-card {
-    --glass-card-picture-width: 5rem;
-    --glass-card-picture-height: 5.5rem;
-    --glass-card-gap: var(--ag-space-2);
+    --glass-card-line: 2.75rem;
+    --glass-card-label: 7rem;
+    --glass-card-gap: var(--ag-space-3);
+    --glass-card-rule: var(--ag-border-width) solid var(--ag-divider);
 
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
     display: grid;
-    grid-template-columns: var(--glass-card-picture-width) minmax(0, 1fr);
+    grid-template-columns: var(--glass-card-label) minmax(0, 1fr);
     grid-template-areas:
         "picture title"
         "facts facts"
         "side side";
-    gap: var(--ag-space-3);
-    padding-block: var(--ag-space-4);
-    min-width: 0;
+    column-gap: var(--glass-card-gap);
+    padding: var(--ag-space-3);
+}
+
+/* Below md the body dissolves, so its title line and fact lines take their own grid areas. */
+.glass-card__body {
+    display: contents;
 }
 
 @media (min-width: 48rem) {
     .glass-card {
-        --glass-card-picture-width: 8rem;
-        --glass-card-picture-height: 7.5rem;
+        --glass-card-label: 8.5rem;
 
-        grid-template-columns: var(--glass-card-picture-width) minmax(0, 1fr) 15rem;
-        grid-template-areas:
-            "picture title side"
-            "picture facts side";
-        grid-template-rows: auto 1fr;
-        column-gap: var(--ag-space-5);
-        row-gap: var(--glass-card-gap);
-        /* The picture sits centred in the row; the cell's own end padding is zero. */
-        padding-inline-end: var(--ag-space-2);
+        grid-template-columns: 10rem minmax(0, 1fr) 17rem;
+        grid-template-areas: "picture body side";
+        column-gap: var(--ag-space-6);
+        align-items: center;
+        padding: var(--ag-space-3) 0;
+    }
+
+    .glass-card__body {
+        grid-area: body;
+        display: block;
+        min-width: 0;
     }
 }
 
+/* One line of the grid: fixed height. */
+.glass-card__line {
+    display: flex;
+    align-items: center;
+    gap: var(--ag-space-2);
+    min-width: 0;
+    min-height: var(--glass-card-line);
+    margin: 0;
+    font-size: var(--ag-text-sm);
+    line-height: var(--ag-leading-sm);
+    color: var(--ag-text);
+}
+
+/* Picture */
 .glass-card__picture {
     grid-area: picture;
-    height: var(--glass-card-picture-height);
+    height: 5rem;
     overflow: hidden;
     color: var(--ag-text-muted);
 }
 
 @media (min-width: 48rem) {
     .glass-card__picture {
-        grid-row: 1 / -1;
-        align-self: center;
+        height: calc(4 * var(--glass-card-line));
+        padding-block: var(--ag-space-2);
     }
 }
 
-.glass-card__title {
+/* Title line: main Eurocode, then position · colour and the flags. */
+.glass-card__line--title {
     grid-area: title;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--ag-space-2) var(--ag-space-3);
-    min-width: 0;
-    /* Below sm the row-actions "⋮" floats over the top right of the cell. */
-    padding-inline-end: var(--ag-space-8);
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: var(--ag-space-1);
 }
 
-@media (min-width: 40rem) {
-    .glass-card__title {
-        padding-inline-end: 0;
+@media (min-width: 48rem) {
+    .glass-card__line--title {
+        display: grid;
+        grid-template-columns: var(--glass-card-label) minmax(0, 1fr);
+        column-gap: var(--glass-card-gap);
+        height: var(--glass-card-line);
     }
 }
 
@@ -85,127 +114,93 @@
     min-width: 0;
 }
 
-/* The strongest element of the row: the main Eurocode as a solid primary badge, a step above other badges. */
-.glass-card__main {
-    display: inline-flex;
-    align-items: center;
-    padding: var(--ag-space-1) var(--ag-space-3);
-    border-radius: var(--ag-radius-control);
-    background-color: var(--ag-accent);
-    font-size: var(--ag-text-base);
-    line-height: var(--ag-leading-base);
-    font-weight: var(--ag-weight-semibold);
-    font-variant-numeric: tabular-nums;
-    color: var(--ag-control-mark); /* white on the accent fill, as a checked control */
-    overflow-wrap: anywhere;
-}
-
-.glass-card__subtitle {
-    font-size: var(--ag-text-sm);
-    line-height: var(--ag-leading-sm);
-    color: var(--ag-text-secondary);
-}
-
-.glass-card__flags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--ag-space-2);
-}
-
-.glass-card__facts {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--glass-card-gap);
-    margin: 0;
-    align-content: start;
-    min-width: 0;
-}
-
-.glass-card__facts:not(.glass-card__facts--side) {
-    grid-area: facts;
-}
-
-.glass-card__fact {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--ag-space-0-5);
-    min-width: 0;
-}
-
 @media (min-width: 48rem) {
-    /* Fixed label width, so the values start at the same x in every row. */
-    .glass-card__facts:not(.glass-card__facts--side) .glass-card__fact {
-        grid-template-columns: 8rem minmax(0, 1fr);
-        gap: var(--ag-space-3);
-        align-items: center;
-        /* One line high in every row (the badge row sets it), so rows end at the same height. */
-        min-height: 1.5rem;
+    .glass-card__heading {
+        flex-wrap: nowrap;
+        justify-content: space-between;
     }
 }
 
-.glass-card__fact dt {
-    font-size: var(--ag-text-sm);
-    line-height: var(--ag-leading-sm);
-    color: var(--ag-text-muted);
-}
-
-.glass-card__fact dd {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    gap: var(--ag-space-2);
-    margin: 0;
-    font-size: var(--ag-text-sm);
-    line-height: var(--ag-leading-sm);
-    color: var(--ag-text);
-    min-width: 0;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-.glass-card__vehicles dd {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
-}
-
-.glass-card__value {
-    max-width: 100%;
-    font-variant-numeric: tabular-nums;
+.glass-card__subtitle {
+    color: var(--ag-text-secondary);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.glass-card__more {
-    flex: none;
-    color: var(--ag-text-muted);
-    cursor: default;
-}
-
-.glass-card__eurocode {
-    flex: none;
-    font-variant-numeric: tabular-nums;
-}
-
-.glass-card__side {
-    grid-area: side;
+.glass-card__flags {
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    flex: none;
     gap: var(--ag-space-2);
-    min-width: 0;
+}
+
+/* Fact lines: label | value, a hairline above each. */
+.glass-card__facts {
+    grid-area: facts;
+    margin: var(--ag-space-3) 0 0;
 }
 
 @media (min-width: 48rem) {
-    .glass-card__side {
-        padding-inline-start: var(--ag-space-4);
-        border-inline-start: var(--ag-border-width) solid var(--ag-divider);
+    .glass-card__facts {
+        margin: 0;
     }
 }
 
+.glass-card__facts .glass-card__line {
+    display: grid;
+    grid-template-columns: var(--glass-card-label) minmax(0, 1fr);
+    column-gap: var(--glass-card-gap);
+    border-top: var(--glass-card-rule);
+}
+
+/* Labels wrap rather than run under the value (a narrow label column below md). */
+.glass-card__facts dt,
+.glass-card__side-label {
+    color: var(--ag-text-muted);
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.glass-card__facts dd {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--ag-space-1-5);
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* Side: vehicles on the same lines as the facts; the offers slot of 09 on the caption line. */
+.glass-card__side {
+    grid-area: side;
+    display: grid;
+    grid-template-columns: var(--glass-card-label) minmax(0, 1fr);
+    column-gap: var(--glass-card-gap);
+    min-width: 0;
+    border-top: var(--glass-card-rule);
+}
+
+.glass-card__side-head {
+    justify-content: space-between;
+}
+
+.glass-card__vehicles {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--ag-space-0-5);
+    min-width: 0;
+    margin: 0;
+    padding: var(--ag-space-2-5) 0;
+    list-style: none;
+}
+
+.glass-card__vehicle {
+    min-height: 0;
+}
+
 .glass-card__offers {
-    font-size: var(--ag-text-sm);
     white-space: nowrap;
 }
 
@@ -213,26 +208,95 @@
     display: none;
 }
 
-.glass-card__chips {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    gap: var(--ag-space-1-5);
-    min-width: 0;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+@media (min-width: 48rem) {
+    .glass-card__side {
+        display: block;
+        padding-inline-start: var(--ag-space-5);
+        border-top: 0;
+        border-inline-start: var(--glass-card-rule);
+    }
+
+    .glass-card__vehicles {
+        display: block;
+        padding: 0;
+    }
+
+    .glass-card__vehicle {
+        min-height: var(--glass-card-line);
+        border-top: var(--glass-card-rule);
+    }
 }
 
+.glass-card__value {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.glass-card__empty,
+.glass-card__more {
+    flex: none;
+    color: var(--ag-text-muted);
+}
+
+.glass-card__more {
+    cursor: default;
+}
+
+/* Code badges: one height for every code, so lines with and without codes match. */
+.glass-card__code {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    padding: var(--ag-space-0-5) var(--ag-space-2);
+    border: var(--ag-border-width) solid var(--glass-card-code-border);
+    border-radius: var(--ag-radius-control);
+    background-color: var(--glass-card-code-bg);
+    font-size: var(--ag-text-xs);
+    line-height: var(--ag-leading-xs);
+    font-weight: var(--ag-weight-medium);
+    font-variant-numeric: tabular-nums;
+    color: var(--glass-card-code-text);
+    white-space: nowrap;
+}
+
+/* The main Eurocode: soft primary, a step larger and semibold. */
+.glass-card__code--main {
+    --glass-card-code-bg: var(--ag-soft-primary-bg);
+    --glass-card-code-text: var(--ag-soft-primary-text);
+    --glass-card-code-border: var(--primary-200);
+
+    justify-self: start;
+    font-size: var(--ag-text-sm);
+    line-height: var(--ag-leading-sm);
+    font-weight: var(--ag-weight-semibold);
+}
+
+/* Further Eurocodes: the info tint, a different blue below the main one. */
+.glass-card__code--further {
+    --glass-card-code-bg: var(--ag-soft-info-bg);
+    --glass-card-code-text: var(--ag-soft-info-text);
+    --glass-card-code-border: var(--ag-soft-info-border);
+}
+
+.glass-card__code--oem {
+    --glass-card-code-bg: var(--ag-soft-gray-bg);
+    --glass-card-code-text: var(--ag-soft-gray-text);
+    --glass-card-code-border: var(--ag-soft-gray-border);
+}
+
+/* Equipment: neutral pills, so a feature never reads as a code. */
 .glass-card__chip {
     flex: none;
     padding: var(--ag-space-0-5) var(--ag-space-2);
     border: var(--ag-border-width) solid var(--ag-soft-gray-border);
     border-radius: var(--ag-radius-pill);
-    background-color: var(--ag-soft-gray-bg);
+    background-color: var(--ag-surface);
     font-size: var(--ag-text-xs);
     line-height: var(--ag-leading-xs);
     color: var(--ag-soft-gray-text);
+    white-space: nowrap;
 }
 
 /*
@@ -264,13 +328,21 @@
     flex: 1 1 0;
     min-height: 0;
     width: 100%;
-    max-width: 6.5rem;
 }
 
+/* A short hairline (60% of the picture) parts the glass from its pictograms; none without pictograms. */
 .glass-card__picture .glass-thumbnail__pictograms {
     flex-wrap: nowrap;
     justify-content: center;
+    width: 60%;
     min-height: 1.25rem;
+    padding-top: var(--ag-space-2);
+    border-top: var(--glass-card-rule);
+    box-sizing: content-box;
+}
+
+.glass-card__picture .glass-thumbnail__pictograms:not(:has(li)) {
+    border-top-color: transparent;
 }
 
 .glass-thumbnail__pictograms {

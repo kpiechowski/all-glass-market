@@ -8,79 +8,76 @@
     $route = MatchRoute::tryFrom((string) $record->getAttribute('match_route'));
     $furtherEurocodes = $record->eurocodes->where('is_main', false)->sortBy('code')->pluck('code');
     $oemCodes = $record->oemCodes->sortBy('code')->pluck('code');
-    $vehicleNames = $record->vehicles->pluck('name');
+    $vehicleNames = $record->vehicles->pluck('name')->values();
+    $hiddenVehicles = $record->vehicles_count - min(3, $vehicleNames->count());
     $subtitle = array_filter([$record->position?->name, $record->colour?->name]);
     $equipment = $record->equipment->pluck('name')->sort()->values();
-    $equipmentLimit = 3;
 @endphp
 
 <div class="glass-card">
     <div class="glass-card__picture">{{ $thumbnail }}</div>
 
-    <div class="glass-card__title">
-        <div class="glass-card__heading">
-            <span class="glass-card__main">{{ $record->mainEurocode?->code }}</span>
-            <span class="glass-card__subtitle">{{ $subtitle ? implode(' · ', $subtitle) : '—' }}</span>
-        </div>
+    <div class="glass-card__body">
+        <div class="glass-card__line glass-card__line--title">
+            <span class="glass-card__code glass-card__code--main">{{ $record->mainEurocode?->code }}</span>
 
-        <div class="glass-card__flags">
-            @if ($record->withdrawn)
-                <x-filament::badge color="gray">{{ __('catalogue::resources.glass_model.state.withdrawn') }}</x-filament::badge>
-            @endif
+            <div class="glass-card__heading">
+                <span class="glass-card__subtitle">{{ $subtitle ? implode(' · ', $subtitle) : '—' }}</span>
 
-            @if ($route)
-                <x-filament::badge color="gray" class="glass-card__match">
-                    {{ $route->getLabel() }}: {{ $record->getAttribute('matched_value') }}
-                </x-filament::badge>
-            @endif
-        </div>
-    </div>
+                @if ($record->withdrawn || $route)
+                    <span class="glass-card__flags">
+                        @if ($record->withdrawn)
+                            <x-filament::badge color="gray">{{ __('catalogue::resources.glass_model.state.withdrawn') }}</x-filament::badge>
+                        @endif
 
-    <dl class="glass-card__facts">
-        <div class="glass-card__fact">
-            <dt>{{ __('catalogue::resources.glass_model.fields.further_eurocodes') }}</dt>
-            <dd class="glass-card__badges">
-                @forelse ($furtherEurocodes->take(2) as $code)
-                    <x-filament::badge class="glass-card__eurocode">{{ $code }}</x-filament::badge>
-                @empty
-                    —
-                @endforelse
-                @if ($furtherEurocodes->count() > 2)
-                    <span class="glass-card__more" x-tooltip="{ content: @js($furtherEurocodes->slice(2)->implode(', ')) }">{{ __('catalogue::resources.glass_model.card.more', ['count' => $furtherEurocodes->count() - 2]) }}</span>
+                        @if ($route)
+                            <x-filament::badge color="gray" class="glass-card__match">
+                                {{ $route->getLabel() }}: {{ $record->getAttribute('matched_value') }}
+                            </x-filament::badge>
+                        @endif
+                    </span>
                 @endif
-            </dd>
+            </div>
         </div>
 
-        <div class="glass-card__fact">
-            <dt>{{ __('catalogue::resources.glass_model.fields.oem_codes') }}</dt>
-            <dd>@include('catalogue::filament.tables.glass-card-values', ['values' => $oemCodes, 'limit' => 2])</dd>
-        </div>
+        <dl class="glass-card__facts">
+            <div class="glass-card__line">
+                <dt>{{ __('catalogue::resources.glass_model.fields.further_eurocodes') }}</dt>
+                <dd>@include('catalogue::filament.tables.glass-card-values', ['values' => $furtherEurocodes, 'limit' => 2, 'itemClass' => 'glass-card__code glass-card__code--further'])</dd>
+            </div>
 
-        <div class="glass-card__fact">
-            <dt>{{ __('catalogue::resources.glass_model.fields.equipment') }}</dt>
-            <dd>
-                <ul class="glass-card__chips">
-                    @forelse ($equipment->take($equipmentLimit) as $name)
-                        <li class="glass-card__chip">{{ $name }}</li>
-                    @empty
-                        <li>—</li>
-                    @endforelse
-                    @if ($equipment->count() > $equipmentLimit)
-                        <li class="glass-card__more" x-tooltip="{ content: @js($equipment->slice($equipmentLimit)->implode(', ')) }">{{ __('catalogue::resources.glass_model.card.more', ['count' => $equipment->count() - $equipmentLimit]) }}</li>
-                    @endif
-                </ul>
-            </dd>
-        </div>
-    </dl>
+            <div class="glass-card__line">
+                <dt>{{ __('catalogue::resources.glass_model.fields.oem_codes') }}</dt>
+                <dd>@include('catalogue::filament.tables.glass-card-values', ['values' => $oemCodes, 'limit' => 2, 'itemClass' => 'glass-card__code glass-card__code--oem'])</dd>
+            </div>
 
-    <div class="glass-card__side">
-        <dl class="glass-card__facts glass-card__facts--side">
-            <div class="glass-card__fact glass-card__vehicles">
-                <dt>{{ __('catalogue::resources.glass_model.card.vehicles') }} ({{ $record->vehicles_count }})</dt>
-                <dd>@include('catalogue::filament.tables.glass-card-values', ['values' => $vehicleNames, 'limit' => 2, 'total' => $record->vehicles_count])</dd>
+            <div class="glass-card__line">
+                <dt>{{ __('catalogue::resources.glass_model.fields.equipment') }}</dt>
+                <dd>@include('catalogue::filament.tables.glass-card-values', ['values' => $equipment, 'limit' => 3, 'itemClass' => 'glass-card__chip'])</dd>
             </div>
         </dl>
+    </div>
 
-        <div class="glass-card__offers">{{ $offersLink }}</div>
+    <div class="glass-card__side">
+        <div class="glass-card__line glass-card__side-head">
+            <span class="glass-card__side-label">{{ __('catalogue::resources.glass_model.card.vehicles') }} ({{ $record->vehicles_count }})</span>
+            <span class="glass-card__offers">{{ $offersLink }}</span>
+        </div>
+
+        {{-- Always three lines, so the side keeps the main column's line grid. --}}
+        <ul class="glass-card__vehicles">
+            @foreach ([0, 1, 2] as $index)
+                <li class="glass-card__line glass-card__vehicle">
+                    @if ($vehicleNames->has($index))
+                        <span class="glass-card__value">{{ $vehicleNames[$index] }}</span>
+                    @elseif ($index === 0)
+                        <span class="glass-card__empty">—</span>
+                    @endif
+                    @if ($index === 2 && $hiddenVehicles > 0)
+                        <span class="glass-card__more" x-tooltip="{ content: @js($vehicleNames->slice(3)->implode(', ')) }">{{ __('catalogue::resources.glass_model.card.more', ['count' => $hiddenVehicles]) }}</span>
+                    @endif
+                </li>
+            @endforeach
+        </ul>
     </div>
 </div>
