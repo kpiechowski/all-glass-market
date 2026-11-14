@@ -18,9 +18,12 @@
 | 07 thumbnail | resolved (2a18c4a) | removed | 0 | approved |
 | 08 module-api-for-offers | resolved (27c73a3) | removed | 1 | approved |
 | 10 seeding-testowy-katalogu | resolved (c4aeda2) | removed | 0 | approved |
-| 11 glass-model-list-as-catalogue-cards | resolved (af59b66) | removed | 0 | approved (technical; user checks the screen) |
+| 11 glass-model-list-as-catalogue-cards | fix round 1 merged (3bc9bbd), waits for user screen review | `.worktrees/catalogue-11` (kept for round 2) | 1 | technical: approved |
 
 ## Next action
+
+2026-11-14: issue 11 reopened for one fix round from the user's screen review (target layout in the issue Comments). Fresh worker in `.worktrees/catalogue-11`; after technical review merge again so the user can look.
+Sheet double-hairline fix merged (607f300, `entry.css`). Both wait for the user's screen review; round 2 (if any) goes to a fresh worker in the kept worktree; issue 11 is resolved on acceptance.
 
 Closed 2026-11-12: issue 11 resolved and merged (af59b66), `npm run build` done in the main tree. No migrations. The user checks `/admin/glass-models` at desktop/390px, light/dark; visual feedback becomes follow-up rounds. Open: Core Authorizer runs one `users` role query per row action (cache per request?).
 
