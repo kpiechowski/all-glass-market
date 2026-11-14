@@ -76,10 +76,15 @@
 /*
  * Variant: sheet (`infolist--sheet` on a Section, D-10a A and B).
  *
- * - Rows: every entry of the section is a row, 12 px above and below, a gray-200 hairline on top.
- *   Each row is pulled up 1 px, so the first row's hairline lies exactly on the section divider
- *   (or on the card edge when there is no header) and no line is doubled or left over. Hairlines
- *   are on top only, so a short last row in two columns leaves no orphan line.
+ * - Rows: every entry of the section is a row, 12 px above and below. A gray-200 hairline sits on
+ *   top of every row except the first row(s), and each of those rows is pulled up 1 px so the
+ *   hairline replaces the last pixel of the row above (same pitch as without lines). The first
+ *   row draws no hairline and has no pull: the section divider (or the card edge when there is
+ *   no header) is the only line there, so nothing can double up or drift by a pixel at
+ *   fractional zoom. The first row is child 1, and also child 2 where the schema has two
+ *   columns from xl (Filament marks that grid with `xl:fi-grid-cols`) and child 1 does not span
+ *   the full width. Hairlines are on top
+ *   only, so a short last row in two columns leaves no orphan line.
  * - Two sheet columns come from the schema (`->columns(['default' => 1, 'xl' => 2])`); grid rows
  *   keep both columns aligned, 32 px apart.
  * - Label | value: from md, a row at least 20 rem wide puts the grey label in a column of
@@ -102,9 +107,21 @@
 
     & > .fi-grid-col {
         container-type: inline-size;
-        margin-top: calc(-1 * var(--ag-border-width));
         padding-block: var(--ag-sheet-row-padding-y);
+    }
+
+    /* Every row below the first gets the hairline; see the comment block above. */
+    & > .fi-grid-col:not(:first-child) {
+        margin-top: calc(-1 * var(--ag-border-width));
         border-top: var(--ag-border-width) solid var(--ag-sheet-rule);
+    }
+
+    /* Two columns from xl: child 2 shares the first row, unless child 1 spans the full width (Filament writes `--col-span-…: 1 / -1` inline). */
+    @media (min-width: 80rem) {
+        &.xl\:fi-grid-cols > .fi-grid-col:first-child:not([style*="1 / -1"]) + .fi-grid-col {
+            margin-top: 0;
+            border-top: 0;
+        }
     }
 
     /* A link's underline hangs below the text; without extra room it reads as touching the next hairline. */
