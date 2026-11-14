@@ -1,6 +1,6 @@
 # 11 - Glass model list laid out like a product catalogue
 
-Status: resolved
+Status: ready-for-agent
 Blocked by: 06, 07, 10 (resolved; 10 gives the seeded data to check the screen against)
 
 Spec: FR-04, FR-05 (search match label), FR-18 (thumbnail and pictograms). Decisions: D-53 (cards, compared side by side; "layout details at delivery"), D-57, D-37 (the "N offers" slot stays for 09). Skill: `admin-ui-design` (template A), `filament-module-wiring`.
@@ -77,3 +77,50 @@ The same card stacked: picture box smaller (about 6rem) on the left of the title
 ### Review — 2026-11-12
 - **Verdict:** approved after 0 fix rounds (technical review; the user checks the screen by hand after the merge)
 - **Notes:** accepted deviations: vehicle names are the `name` column; the eager load caps at 10 vehicles per model (tooltip lists at most those, "+N" uses the real count); the query-count test leaves out the Core Authorizer's per-row `users` role lookup, which predates this ticket and is a candidate for a Core fix (cache the role per request). The manager fixed the indentation in `glass-thumbnail.blade.php`. Seams: `offersLink()` slot in the footer (09); the card view is data in, HTML out, for 09's picker.
+
+### User review, round 1 — 2026-11-14
+Screenshots in `11-assets/`: `round1-current.png` (what af59b66 looks like), `ref-allegro-list.png` and `ref-mediaexpert.png` (the readability and layout the user had in mind; not to copy 1:1). User's points:
+- Still uneven and not "catalogue" enough. The picture does not need to be big (not MediaExpert size), but the row should be divided better.
+- Spacing and padding are wrong around the title (Eurocode) and in the bottom part: the picture box touches the row lines, the equipment chips fall *under* the picture box as an extra row (rows get ragged), and there is a line under the subtitle that splits nothing. The right half of the row is empty.
+- Not sure the rounded grey frame suits the pictures.
+- The main Eurocode, one of the most important facts, is not a badge (blue). Further Eurocodes could be badges too, in another but still informative colour (lighter primary, or a secondary).
+
+### Manager — target layout for fix round 1 (one series of changes, then the user reviews again)
+Model: Allegro's list row. Three fixed column tracks, identical in every row, with no extra band below them:
+
+```
+┌──────────┬────────────────────────────────────────────────┬─────────────────────┬───┐
+│          │ [1049AGSV]  Przednia · Zielona   [Wycofany] [Eurokod: …]          │ ⋮ │
+│  [SVG]   │ Dalsze eurokody  [1049AGSV1] [1049AGSV2] +1    │ POJAZDY (3)         │   │
+│          │ Kody OEM         198-028-198 · B198-028-198     │ Ford Focus I        │   │
+│ (•) ▢ ◀) │ Wyposażenie      (Antena) (Kamera) +1           │ Skoda Kodiaq I  +1  │   │
+│          │                                                 │ (N ofert → slot 09) │   │
+└──────────┴────────────────────────────────────────────────┴─────────────────────┴───┘
+  picture       main column                                    side column (border-left)
+```
+
+1. **Picture column** (~8rem fixed): no grey box, no radius, no background — the glass SVG on the row background, like a product photo on Allegro, centred, with the pictograms as one small row under it. Fixed height, so every row's picture area is the same.
+2. **Title line:** the main Eurocode as a **solid primary badge** (filled primary, white/contrasting text, a step larger than other badges, semibold, tabular figures) — the strongest element of the row. Next to it position · colour as plain muted text. Flags on the right of the same line: "Wycofany" only when withdrawn, the search match badge when searching. No divider line under it.
+3. **Fact lines** under the title, MediaExpert style "label: value", a **fixed label width** (e.g. 8rem, muted, normal case — not uppercase captions) so values start at the same x in every row. Always all three lines (with "—" when empty) so every row has the same height:
+   - Dalsze eurokody — Filament **soft primary** badges (the default soft `primary` badge = lighter primary): informative and blue, but clearly below the solid main one. Max 2 then "+N" with tooltip. No new global colour.
+   - Kody OEM — plain text (tabular figures), max 2 then "+N".
+   - Wyposażenie — the neutral chips, one line, max 3 then "+N"; never wraps to a second line.
+4. **Side column** (~15rem fixed, a thin border-left divider like Allegro's price column): "Pasuje do pojazdów (N)" caption, the first 2 vehicle names, "+N". At the bottom the `offersLink()` slot (09), empty now.
+5. **Spacing:** one vertical rhythm from the theme spacing tokens: equal padding above and below the row content (the picture must not touch the row lines), a consistent gap between the title line and the fact lines and between the lines themselves, and a clear gap between the three columns. Rows end at the same height; no shadows, separation stays the table's lines.
+6. **Mobile (< md):** picture ~5rem left of the title line; fact lines below at full width (label above or beside value); the side column becomes a normal fact line ("Pasuje do pojazdów (N): …") with no border; no horizontal scroll at 390px; row click and "⋮" keep working.
+
+Everything else from the "What" and "Rules that stay" sections holds (tokens, `glass-card.css`, `catalogue::` strings, card markup independent of the table, constant query count).
+
+### Worker — fix round 1 — 2026-11-14
+- **Built:** the manager's target layout. Three fixed tracks (picture 8rem | main 1fr | side 15rem with border-left); nothing renders below them (the footer band is gone, equipment is now the third fact line). Picture: no box, radius or background, fixed 7.5rem area, glass centred with the pictogram row under it. Title line: main Eurocode as a solid primary badge (`--ag-accent`, white text, semibold, tabular, a step above other badges), position · colour as muted text, flags right ("Wycofany", search match); no divider. Fact lines "label: value" on an 8rem label (muted, normal case), always all three with "—" when empty: Dalsze eurokody = default soft primary Filament badges (2, then "+N" tooltip), Kody OEM = plain text (2, then "+N"), Wyposażenie = neutral chips on one line (3, then "+N" tooltip, nowrap). Side: "Pasuje do pojazdów (N)", 2 names, "+N", `offersLink()` slot at the bottom (hidden while empty). Spacing: Filament's `.fi-ta-cell` is p-0 vertically at every width (horizontal padding only: px-4 below sm, ps-3 from sm), so the card now owns `padding-block: space-4` at all widths and no inline padding of its own (md+: small end padding next to the "⋮" column); one gap token (space-2) between lines, space-5 between columns. Mobile (<md): picture 5.5rem beside the title line, facts stack full width (label above value), side becomes one more fact line without the border; title keeps space for the floating "⋮" below sm.
+- **Deviations:** (1) Previous mobile padding was 16px all round on top of the cell's px-4 (double horizontal padding); now the cell supplies horizontal padding, the card only vertical. (2) Equipment chips limit lowered from 4 to 3 (per target layout). (3) Only the card order test changed (equipment line now precedes the side column).
+- **Seams left:** `offersLink()` slot (09) in `.glass-card__offers` inside the side column.
+- **Open questions:** none
+- **Check:** composer check green (1066 tests); `npm run build` done. Test change: card order test now expects equipment before vehicles (markup order changed).
+
+**For the user to check by hand (`/admin/glass-models`, light and dark):**
+- Desktop: every row the same height; the picture (no frame) never touches the row lines (equal space above and below); label column (Dalsze eurokody / Kody OEM / Wyposażenie) and values start at the same x in every row; equipment chips on a single line, none under the picture; main Eurocode is a solid blue badge, further Eurocodes lighter blue badges; side column divider and vehicles list; models with empty lists still show three lines with "—"; "⋮" and row click work; search match badge shows at the title line right.
+- 390px: picture left of the title line, fact lines full width below, vehicles as a normal line, no horizontal scroll, no overlap of flags with "⋮".
+
+### Review — fix round 1 — 2026-11-14
+- **Verdict:** technically approved; the manager replaced a hard-coded `#fff` on the main Eurocode badge with `--ag-control-mark` (white mark on an accent fill). Waits for the user's screen review.

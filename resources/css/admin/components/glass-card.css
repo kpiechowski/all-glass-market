@@ -1,42 +1,47 @@
 /*
- * Glass model card (FR-04, D-53): one catalogue row per model, the same grid tracks in every row.
- * Markup: catalogue::filament.tables.glass-model-card (GlassModelCardColumn).
+ * Glass model card (FR-04, D-53): one catalogue row per model, the same three column tracks in
+ * every row. Markup: catalogue::filament.tables.glass-model-card (GlassModelCardColumn).
  *
- *   picture   fixed-size framed box: the glass and the equipment pictograms (glass-thumbnail below)
- *   title     main Eurocode, position and colour, flags (withdrawn, search match)
- *   facts     three fixed tracks: further Eurocodes, OEM codes, vehicles (at most 2 values each, then "+N")
- *   footer    equipment chips and the offers slot (09)
+ *   picture   the glass and the equipment pictograms (glass-thumbnail below), no frame
+ *   main      title line (main Eurocode badge, position and colour, flags), then three fact lines
+ *             on a fixed label width: further Eurocodes, OEM codes, equipment (always all three)
+ *   side      vehicles (first 2, then "+N") and the offers slot (09), a border-left divider
  *
- * Below md the picture sits beside the title and the facts stack as label/value rows.
+ * Vertical padding: the Filament table cell gives the column none at any width (`.fi-ta-cell`
+ * is p-0, the horizontal padding comes from the cell), so the card owns it. Below md the picture
+ * sits beside the title line, the fact lines stack at full width and the side column becomes one
+ * more fact line without the divider.
  */
 .glass-card {
-    --glass-card-picture-width: 6rem;
-    --glass-card-picture-height: 6.5rem;
+    --glass-card-picture-width: 5rem;
+    --glass-card-picture-height: 5.5rem;
+    --glass-card-gap: var(--ag-space-2);
 
     display: grid;
     grid-template-columns: var(--glass-card-picture-width) minmax(0, 1fr);
     grid-template-areas:
         "picture title"
         "facts facts"
-        "footer footer";
-    gap: var(--ag-space-2) var(--ag-space-3);
-    padding: var(--ag-table-card-padding);
+        "side side";
+    gap: var(--ag-space-3);
+    padding-block: var(--ag-space-4);
+    min-width: 0;
 }
 
 @media (min-width: 48rem) {
     .glass-card {
-        --glass-card-picture-width: 10.5rem;
-        --glass-card-picture-height: 9rem;
+        --glass-card-picture-width: 8rem;
+        --glass-card-picture-height: 7.5rem;
 
-        grid-template-columns: var(--glass-card-picture-width) minmax(0, 1fr);
+        grid-template-columns: var(--glass-card-picture-width) minmax(0, 1fr) 15rem;
         grid-template-areas:
-            "picture title"
-            "picture facts"
-            "picture footer";
-        grid-template-rows: auto 1fr auto;
-        column-gap: var(--ag-space-4);
-        /* From md the table cell has its own padding. */
-        padding: 0;
+            "picture title side"
+            "picture facts side";
+        grid-template-rows: auto 1fr;
+        column-gap: var(--ag-space-5);
+        row-gap: var(--glass-card-gap);
+        /* The picture sits centred in the row; the cell's own end padding is zero. */
+        padding-inline-end: var(--ag-space-2);
     }
 }
 
@@ -44,33 +49,54 @@
     grid-area: picture;
     height: var(--glass-card-picture-height);
     overflow: hidden;
-    border-radius: var(--ag-radius-container);
-    background-color: var(--ag-surface-hover);
     color: var(--ag-text-muted);
+}
+
+@media (min-width: 48rem) {
+    .glass-card__picture {
+        grid-row: 1 / -1;
+        align-self: center;
+    }
 }
 
 .glass-card__title {
     grid-area: title;
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
-    gap: var(--ag-space-2);
+    gap: var(--ag-space-2) var(--ag-space-3);
     min-width: 0;
+    /* Below sm the row-actions "⋮" floats over the top right of the cell. */
+    padding-inline-end: var(--ag-space-8);
+}
+
+@media (min-width: 40rem) {
+    .glass-card__title {
+        padding-inline-end: 0;
+    }
 }
 
 .glass-card__heading {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ag-space-1) var(--ag-space-3);
     min-width: 0;
 }
 
+/* The strongest element of the row: the main Eurocode as a solid primary badge, a step above other badges. */
 .glass-card__main {
-    font-size: var(--ag-text-lg);
-    line-height: var(--ag-leading-lg);
+    display: inline-flex;
+    align-items: center;
+    padding: var(--ag-space-1) var(--ag-space-3);
+    border-radius: var(--ag-radius-control);
+    background-color: var(--ag-accent);
+    font-size: var(--ag-text-base);
+    line-height: var(--ag-leading-base);
     font-weight: var(--ag-weight-semibold);
     font-variant-numeric: tabular-nums;
-    color: var(--ag-text);
+    color: var(--ag-control-mark); /* white on the accent fill, as a checked control */
     overflow-wrap: anywhere;
 }
 
@@ -87,57 +113,64 @@
 }
 
 .glass-card__facts {
-    grid-area: facts;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--ag-space-1) var(--ag-space-4);
+    gap: var(--glass-card-gap);
     margin: 0;
     align-content: start;
+    min-width: 0;
 }
 
-@media (min-width: 48rem) {
-    .glass-card__facts {
-        /* Identical in every row, so the columns line up down the list. */
-        grid-template-columns: 11rem 11rem minmax(0, 1fr);
-        padding-top: var(--ag-space-2);
-        border-top: var(--ag-border-width) solid var(--ag-divider);
-    }
+.glass-card__facts:not(.glass-card__facts--side) {
+    grid-area: facts;
 }
 
 .glass-card__fact {
     display: grid;
-    grid-template-columns: 8rem minmax(0, 1fr);
-    gap: var(--ag-space-2);
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--ag-space-0-5);
     min-width: 0;
 }
 
 @media (min-width: 48rem) {
-    .glass-card__fact {
-        grid-template-columns: minmax(0, 1fr);
-        gap: var(--ag-space-0-5);
-        align-content: start;
+    /* Fixed label width, so the values start at the same x in every row. */
+    .glass-card__facts:not(.glass-card__facts--side) .glass-card__fact {
+        grid-template-columns: 8rem minmax(0, 1fr);
+        gap: var(--ag-space-3);
+        align-items: center;
+        /* One line high in every row (the badge row sets it), so rows end at the same height. */
+        min-height: 1.5rem;
     }
 }
 
 .glass-card__fact dt {
-    font-size: var(--ag-text-xs);
-    line-height: var(--ag-leading-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    font-size: var(--ag-text-sm);
+    line-height: var(--ag-leading-sm);
     color: var(--ag-text-muted);
 }
 
 .glass-card__fact dd {
     display: flex;
-    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--ag-space-2);
     margin: 0;
     font-size: var(--ag-text-sm);
     line-height: var(--ag-leading-sm);
     color: var(--ag-text);
     min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.glass-card__vehicles dd {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
 }
 
 .glass-card__value {
+    max-width: 100%;
     font-variant-numeric: tabular-nums;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -145,29 +178,54 @@
 }
 
 .glass-card__more {
+    flex: none;
     color: var(--ag-text-muted);
     cursor: default;
 }
 
-.glass-card__footer {
-    grid-area: footer;
+.glass-card__eurocode {
+    flex: none;
+    font-variant-numeric: tabular-nums;
+}
+
+.glass-card__side {
+    grid-area: side;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: space-between;
-    gap: var(--ag-space-3);
+    gap: var(--ag-space-2);
     min-width: 0;
+}
+
+@media (min-width: 48rem) {
+    .glass-card__side {
+        padding-inline-start: var(--ag-space-4);
+        border-inline-start: var(--ag-border-width) solid var(--ag-divider);
+    }
+}
+
+.glass-card__offers {
+    font-size: var(--ag-text-sm);
+    white-space: nowrap;
+}
+
+.glass-card__offers:empty {
+    display: none;
 }
 
 .glass-card__chips {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    align-items: center;
     gap: var(--ag-space-1-5);
+    min-width: 0;
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
 .glass-card__chip {
+    flex: none;
     padding: var(--ag-space-0-5) var(--ag-space-2);
     border: var(--ag-border-width) solid var(--ag-soft-gray-border);
     border-radius: var(--ag-radius-pill);
@@ -175,12 +233,6 @@
     font-size: var(--ag-text-xs);
     line-height: var(--ag-leading-xs);
     color: var(--ag-soft-gray-text);
-}
-
-.glass-card__offers {
-    margin-inline-start: auto;
-    font-size: var(--ag-text-sm);
-    white-space: nowrap;
 }
 
 /*
@@ -201,11 +253,10 @@
     height: auto;
 }
 
-/* In the card the picture box has a fixed height: the glass takes what the pictogram row leaves. */
+/* In the card the picture area has a fixed height: the glass takes what the pictogram row leaves. */
 .glass-card__picture .glass-thumbnail {
     height: 100%;
     justify-content: space-between;
-    padding: var(--ag-space-2);
     box-sizing: border-box;
 }
 
@@ -213,10 +264,16 @@
     flex: 1 1 0;
     min-height: 0;
     width: 100%;
-    max-width: 8.5rem;
+    max-width: 6.5rem;
 }
 
 .glass-card__picture .glass-thumbnail__pictograms {
+    flex-wrap: nowrap;
+    justify-content: center;
+    min-height: 1.25rem;
+}
+
+.glass-thumbnail__pictograms {
     flex-wrap: nowrap;
     justify-content: center;
     min-height: 1.25rem;

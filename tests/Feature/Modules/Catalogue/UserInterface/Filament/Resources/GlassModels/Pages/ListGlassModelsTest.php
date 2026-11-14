@@ -72,7 +72,7 @@ class ListGlassModelsTest extends TestCase
         GlassModelOemCodeModelFactory::new()->state(['glass_model_id' => $model->id])->code('1K0-845-011')->create();
 
         Livewire::test(ListGlassModels::class)
-            ->assertSeeInOrder(['8613AGS', $model->position->name, 'Zielony', '9999ZZZ', '1K0-845-011', 'Pasuje do pojazdów (2)', 'Czujnik deszczu'])
+            ->assertSeeInOrder(['8613AGS', $model->position->name, 'Zielony', '9999ZZZ', '1K0-845-011', 'Czujnik deszczu', 'Pasuje do pojazdów (2)'])
             ->assertSee('Pasuje do pojazdów');
     }
 
