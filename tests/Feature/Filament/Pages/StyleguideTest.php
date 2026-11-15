@@ -7,6 +7,7 @@ namespace Tests\Feature\Filament\Pages;
 use App\Filament\Pages\Styleguide;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Filament\Facades\Filament;
+use Filament\Navigation\NavigationGroup;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Bootstrap\LoadConfiguration;
@@ -83,14 +84,15 @@ class StyleguideTest extends TestCase
             ->assertSee('Faktury wyłącznie elektronicznie');
     }
 
-    public function test_it_is_the_last_item_of_the_main_sidebar_block_locally(): void
+    public function test_it_is_the_last_item_of_the_administracja_group_locally(): void
     {
         Filament::setCurrentPanel('admin');
         $this->actingAs(UserModel::factory()->superAdmin()->create());
 
-        $mainItems = array_values(Filament::getNavigation())[1]->getItems();
+        $group = collect(Filament::getNavigation())->first(fn (NavigationGroup $group): bool => $group->getLabel() === 'Administracja');
+        $items = $group->getItems();
 
-        $this->assertSame('Styleguide', (string) end($mainItems)->getLabel());
+        $this->assertSame('Styleguide', (string) end($items)->getLabel());
     }
 
     public function test_the_empty_state_switch_empties_the_table_locally(): void

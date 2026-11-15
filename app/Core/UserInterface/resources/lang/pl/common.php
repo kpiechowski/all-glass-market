@@ -11,6 +11,10 @@ return [
     'created_at' => 'Utworzono',
     'updated_at' => 'Zaktualizowano',
 
+    'navigation' => [
+        'administration' => 'Administracja',
+    ],
+
     'actors' => [
         'dev_create_user' => 'Konsola: dev:create-user',
     ],

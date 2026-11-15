@@ -21,24 +21,25 @@ use Filament\Pages\Page;
 use Filament\Resources\Resource as FilamentResource;
 
 /**
- * D-25, D-25a: the sidebar is built here, not discovered. Three blocks: the top one holds only the
- * dashboard and is closed by a divider (`.sidebar-group--top`); the main one holds the work screens
- * right under it; the bottom one (profile, later settings) is pushed to the foot of the sidebar by
- * the theme (`.sidebar-group--bottom`). A new resource or page appears only once it is listed here.
+ * D-25, D-25a: the sidebar is built here, not discovered. The top block holds the dashboard and the
+ * user's own journal and is closed by a divider (`.sidebar-group--top`); then labelled, always open
+ * groups (Katalog first, Administracja); the bottom block (profile) is pushed to the foot of the
+ * sidebar by the theme (`.sidebar-group--bottom`). Groups carry only a label, never an icon, and do
+ * not collapse: there are few screens, and the top navigation will group further. A new resource or
+ * page appears only once it is listed here.
  */
 final class PanelNavigation
 {
     public static function build(NavigationBuilder $builder): NavigationBuilder
     {
-        $main = [
+        $administration = [
             UserResource::class,
-            JournalEntryResource::class,
             HistoryAndLogs::class,
         ];
 
         /* D-33: the Styleguide route exists only locally, so its item may not be built elsewhere. */
         if (app()->isLocal()) {
-            $main[] = Styleguide::class;
+            $administration[] = Styleguide::class;
         }
 
         return $builder->groups([
@@ -46,16 +47,19 @@ final class PanelNavigation
                 ->extraSidebarAttributes(['class' => 'sidebar-group--top'])
                 ->items(self::items([
                     Dashboard::class,
+                    JournalEntryResource::class,
                 ])),
-            NavigationGroup::make()
-                ->items(self::items($main)),
             NavigationGroup::make(__('catalogue::resources.navigation.group'))
+                ->collapsible(false)
                 ->items(self::items([
                     GlassModelResource::class,
                     VehicleResource::class,
                     DictionaryValueResource::class,
                     CatalogueSettings::class,
                 ])),
+            NavigationGroup::make(__('core::common.navigation.administration'))
+                ->collapsible(false)
+                ->items(self::items($administration)),
             NavigationGroup::make()
                 ->extraSidebarAttributes(['class' => 'sidebar-group--bottom'])
                 ->items(self::items([

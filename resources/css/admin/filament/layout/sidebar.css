@@ -57,9 +57,22 @@
     color: var(--ag-sidebar-icon);
 }
 
+/* Group label: a small uppercase caption, set a little left of the item icons, with room above it. */
+.fi-sidebar-group:has(> .fi-sidebar-group-btn) {
+    margin-top: var(--ag-space-2);
+    row-gap: var(--ag-space-1);
+}
+
+.fi-sidebar-group-btn {
+    padding: var(--ag-space-1) var(--ag-space-1);
+}
+
 .fi-sidebar-group-label {
     font-size: var(--ag-text-xs);
-    font-weight: var(--ag-weight-medium);
+    line-height: var(--ag-leading-xs);
+    font-weight: var(--ag-weight-semibold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: var(--ag-sidebar-group-label);
 }
 

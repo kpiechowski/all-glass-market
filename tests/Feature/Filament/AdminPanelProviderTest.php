@@ -21,7 +21,7 @@ use Filament\Pages\Dashboard;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-/** D-25, D-25a: the sidebar is built explicitly: a top block with the dashboard, a main block of work screens and a bottom block with the profile. */
+/** D-25, D-25a: the sidebar is built explicitly: a top block (dashboard, journal), the labelled groups Katalog and Administracja, and a bottom block with the profile. */
 class AdminPanelProviderTest extends TestCase
 {
     use RefreshDatabase;
@@ -33,31 +33,40 @@ class AdminPanelProviderTest extends TestCase
         Filament::setCurrentPanel('admin');
     }
 
-    public function test_the_super_admin_sees_the_dashboard_on_top_every_screen_in_the_main_block_and_the_profile_at_the_bottom(): void
+    public function test_the_super_admin_sees_the_top_block_the_administracja_group_and_the_profile_at_the_bottom(): void
     {
         $this->actingAs(UserModel::factory()->superAdmin()->create());
 
-        [$top, $main, $bottom] = $this->blocks();
+        [$top, $bottom] = $this->blocks();
 
-        $this->assertSame([Dashboard::getNavigationLabel()], $this->labels($top));
+        $this->assertSame([Dashboard::getNavigationLabel(), JournalEntryResource::getNavigationLabel()], $this->labels($top));
         $this->assertStringContainsString('sidebar-group--top', $top->getExtraSidebarAttributeBag()->get('class'));
         $this->assertSame([
             UserResource::getNavigationLabel(),
-            JournalEntryResource::getNavigationLabel(),
             HistoryAndLogs::getNavigationLabel(),
-        ], $this->labels($main));
+        ], $this->labels($this->group('Administracja')));
+        $this->assertFalse($this->group('Administracja')->isCollapsible());
         $this->assertSame([EditProfile::getNavigationLabel()], $this->labels($bottom));
         $this->assertStringContainsString('sidebar-group--bottom', $bottom->getExtraSidebarAttributeBag()->get('class'));
+    }
+
+    public function test_the_katalog_group_comes_before_administracja(): void
+    {
+        $this->actingAs(UserModel::factory()->superAdmin()->create());
+
+        $labels = collect(Filament::getNavigation())->map(fn (NavigationGroup $group): ?string => $group->getLabel())->values()->all();
+
+        $this->assertSame([null, 'Katalog', 'Administracja', null], $labels);
     }
 
     public function test_a_plain_user_does_not_see_the_permission_gated_screens(): void
     {
         $this->actingAs(UserModel::factory()->create());
 
-        [$top, $main, $bottom] = $this->blocks();
+        [$top, $bottom] = $this->blocks();
 
-        $this->assertSame([Dashboard::getNavigationLabel()], $this->labels($top));
-        $this->assertSame([JournalEntryResource::getNavigationLabel()], $this->labels($main));
+        $this->assertSame([Dashboard::getNavigationLabel(), JournalEntryResource::getNavigationLabel()], $this->labels($top));
+        $this->assertNull($this->group('Administracja'));
         $this->assertSame([EditProfile::getNavigationLabel()], $this->labels($bottom));
     }
 
@@ -85,7 +94,7 @@ class AdminPanelProviderTest extends TestCase
     {
         $this->actingAs(UserModel::factory()->create());
 
-        [, , $bottom] = $this->blocks();
+        [, $bottom] = $this->blocks();
 
         $this->assertSame('!', $bottom->getItems()[0]->getBadge());
     }
@@ -132,16 +141,21 @@ class AdminPanelProviderTest extends TestCase
     }
 
     /**
-     * Top, main and bottom block; the labelled "Katalog" group sits between main and bottom for those who may open it.
+     * The top and the bottom block; the labelled groups sit between them for those who may open them.
      *
-     * @return array{0: NavigationGroup, 1: NavigationGroup, 2: NavigationGroup}
+     * @return array{0: NavigationGroup, 1: NavigationGroup}
      */
     private function blocks(): array
     {
         $groups = array_values(Filament::getNavigation());
-        $this->assertGreaterThanOrEqual(3, count($groups));
+        $this->assertGreaterThanOrEqual(2, count($groups));
 
-        return [$groups[0], $groups[1], $groups[array_key_last($groups)]];
+        return [$groups[0], $groups[array_key_last($groups)]];
+    }
+
+    private function group(string $label): ?NavigationGroup
+    {
+        return collect(Filament::getNavigation())->first(fn (NavigationGroup $group): bool => $group->getLabel() === $label);
     }
 
     /** @return list<string> */
