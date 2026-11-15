@@ -51,6 +51,19 @@ class ListDictionaryValuesTest extends TestCase
             ->assertCanNotSeeTableRecords([$colour]);
     }
 
+    public function test_rows_carry_a_row_number_and_the_date_added_with_how_long_ago(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $value = DictionaryValueModelFactory::new()->of(Dictionary::Position)->create(['created_at' => now()->subDays(3)]);
+
+        Livewire::test(ListDictionaryValues::class)
+            ->assertTableColumnExists('index')
+            ->assertTableColumnStateSet('created_at', $value->created_at, $value)
+            ->assertSeeInOrder(['Lp.', 'Nazwa', 'Stan', 'Data dodania'])
+            ->assertSee($value->created_at->format('d.m.Y'))
+            ->assertSee('3 dni temu');
+    }
+
     public function test_an_admin_creates_a_value_in_the_dictionary_of_the_active_tab(): void
     {
         $this->actingAs(UserModel::factory()->admin()->create());

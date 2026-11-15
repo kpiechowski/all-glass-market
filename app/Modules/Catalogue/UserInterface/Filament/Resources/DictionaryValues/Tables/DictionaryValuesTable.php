@@ -28,6 +28,7 @@ class DictionaryValuesTable
         $table = $table
             ->columns(self::columns())
             ->filters(DictionaryValuesTableFilters::make(), layout: FiltersLayout::AboveContent)
+            ->extraAttributes(['class' => 'table--compact-filtering'])
             ->recordUrl(fn (DictionaryValueModel $record): string => DictionaryValueResource::getUrl('view', ['record' => $record]))
             ->recordActions([
                 ActionGroup::make([
@@ -56,6 +57,12 @@ class DictionaryValuesTable
                 ->title(fn (DictionaryValueModel $record): string => (string) $record->name)
                 ->status(fn (DictionaryValueModel $record): array => self::state($record)),
 
+            TextColumn::make('index')
+                ->label(__('core::tables.row_index'))
+                ->rowIndex()
+                ->width('1%')
+                ->visibleFrom('md'),
+
             TextColumn::make('name')
                 ->label(__('catalogue::resources.dictionary_value.fields.name'))
                 ->searchable()
@@ -67,6 +74,13 @@ class DictionaryValuesTable
                 ->badge()
                 ->formatStateUsing(fn (bool $state): string => DictionaryValueInfolist::stateLabel($state))
                 ->color(fn (bool $state): string => $state ? 'gray' : 'success')
+                ->visibleFrom('md'),
+
+            TextColumn::make('created_at')
+                ->label(__('catalogue::resources.dictionary_value.fields.created_at'))
+                ->date('d.m.Y')
+                ->description(fn (DictionaryValueModel $record): ?string => $record->created_at?->diffForHumans())
+                ->sortable()
                 ->visibleFrom('md'),
         ];
     }
