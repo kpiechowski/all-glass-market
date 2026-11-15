@@ -1,6 +1,6 @@
 # 11 - Glass model list laid out like a product catalogue
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 06, 07, 10 (resolved; 10 gives the seeded data to check the screen against)
 
 Spec: FR-04, FR-05 (search match label), FR-18 (thumbnail and pictograms). Decisions: D-53 (cards, compared side by side; "layout details at delivery"), D-57, D-37 (the "N offers" slot stays for 09). Skill: `admin-ui-design` (template A), `filament-module-wiring`.
@@ -124,3 +124,10 @@ Everything else from the "What" and "Rules that stay" sections holds (tokens, `g
 
 ### Review — fix round 1 — 2026-11-14
 - **Verdict:** technically approved; the manager replaced a hard-coded `#fff` on the main Eurocode badge with `--ag-control-mark` (white mark on an accent fill). Waits for the user's screen review.
+
+### Review — fix rounds 2–4 (inline) — accepted 2026-11-15
+- **Done inline** by the manager (rounds 2–3, 47ba482) and the UI session (round 4), no workers: the card as a line grid, the row-actions menu removed (withdraw/restore/delete live on the view page), striping in every table (7a46d17).
+- **Round 4:** card lines 44 px and 12 px padding; label column `minmax(8.5rem, 10.5rem)` shared by the title and fact lines, a long main Eurocode ends in an ellipsis with its full code in `title`; the glass `viewBox` cropped to the drawing (`GlassShape::VIEW_BOX` `8 8 84 49`) and the 8.5rem cap dropped, so the glass fills the 10rem picture column; a short hairline between the glass and its pictograms; softer stripes. View page: the Eurocode actions moved into the header of the "Szkło" section, the main Eurocode as the card's main badge, the section "Kody" renamed "Kody OEM" (its only field's label hidden).
+- **Accepted changes:** striped rows, no row menu on the list.
+- **Tests:** the row-menu withdraw test dropped (the view page test covers withdraw/restore); the Eurocode action tests call the section actions (`schemaComponent('identity', 'infolist')`); the vehicles list shows three names. `composer check` green (1069 tests).
+

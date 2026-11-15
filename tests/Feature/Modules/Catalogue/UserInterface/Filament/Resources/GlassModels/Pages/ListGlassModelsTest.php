@@ -12,7 +12,6 @@ use App\Modules\Catalogue\Infrastructure\Factories\GlassModelOemCodeModelFactory
 use App\Modules\Catalogue\Infrastructure\Factories\VehicleModelFactory;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Pages\ListGlassModels;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
-use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -48,17 +47,6 @@ class ListGlassModelsTest extends TestCase
             ->assertSee('8613AGS')
             ->assertSee($model->position->name)
             ->assertSee('Wycofany');
-    }
-
-    public function test_a_model_is_withdrawn_from_the_row_menu(): void
-    {
-        $this->actingAs(UserModel::factory()->admin()->create());
-        $model = GlassModelModelFactory::new()->create();
-
-        Livewire::test(ListGlassModels::class)
-            ->callAction(TestAction::make('withdraw')->table($model));
-
-        $this->assertTrue($model->fresh()->withdrawn);
     }
 
     public function test_a_card_shows_every_eurocode_oem_code_parameters_and_the_vehicle_count(): void
@@ -162,7 +150,7 @@ class ListGlassModelsTest extends TestCase
     }
 
     /** D-53: a list longer than two values shows two and "+N" with the rest on hover. */
-    public function test_long_lists_collapse_to_two_values_and_a_count(): void
+    public function test_long_code_lists_collapse_to_two_values_and_a_count_and_three_vehicles_show(): void
     {
         $this->actingAs(UserModel::factory()->admin()->create());
         $model = GlassModelModelFactory::new()->fitting(
@@ -177,7 +165,7 @@ class ListGlassModelsTest extends TestCase
         Livewire::test(ListGlassModels::class)
             ->assertSeeInOrder(['111-A', '222-B', '+2'])
             ->assertDontSeeHtml('>333-C<')
-            ->assertSeeInOrder(['Audi A', 'Audi B', '+1'])
+            ->assertSeeInOrder(['Audi A', 'Audi B', 'Audi C'])
             ->assertSee('Pasuje do pojazdów (3)');
     }
 

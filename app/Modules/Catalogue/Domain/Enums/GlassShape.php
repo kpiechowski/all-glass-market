@@ -21,7 +21,7 @@ enum GlassShape: string implements HasLabel
     case Accessory = 'accessory';
     case Unknown = 'unknown';
 
-    public const string VIEW_BOX = '0 0 100 64';
+    public const string VIEW_BOX = '8 8 84 49';
 
     public function getLabel(): string
     {

@@ -44,7 +44,9 @@
 
 @media (min-width: 48rem) {
     .glass-card {
-        --glass-card-label: 8.5rem;
+        /* One label column for every line: 10.5rem, giving way to 8.5rem when the card is narrow.
+           A minmax() track, so the title line and the fact lines always share its width. */
+        --glass-card-label: minmax(8.5rem, 10.5rem);
 
         grid-template-columns: 10rem minmax(0, 1fr) 17rem;
         grid-template-areas: "picture body side";
@@ -97,6 +99,8 @@
     gap: var(--ag-space-1);
 }
 
+/* The main Eurocode sits in the label column; a code longer than the column ends in an ellipsis
+   (full code in its title), so it never runs into position · colour. */
 @media (min-width: 48rem) {
     .glass-card__line--title {
         display: grid;
@@ -271,6 +275,13 @@
     font-size: var(--ag-text-sm);
     line-height: var(--ag-leading-sm);
     font-weight: var(--ag-weight-semibold);
+}
+
+.glass-card__line--title .glass-card__code--main {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Further Eurocodes: the info tint, a different blue below the main one. */

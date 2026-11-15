@@ -42,7 +42,7 @@ return [
 
         'sections' => [
             'identity' => 'Szkło',
-            'codes' => 'Kody',
+            'codes' => 'Kody OEM',
             'status' => 'Stan',
         ],
 
@@ -150,6 +150,7 @@ return [
             'dictionary' => 'Słownik',
             'name' => 'Nazwa',
             'state' => 'Stan',
+            'created_at' => 'Data dodania',
         ],
 
         'state' => [

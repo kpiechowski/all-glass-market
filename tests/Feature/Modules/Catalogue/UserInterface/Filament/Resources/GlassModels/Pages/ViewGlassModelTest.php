@@ -11,6 +11,7 @@ use App\Modules\Catalogue\Infrastructure\Persistence\Models\GlassModelModel;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Pages\ViewGlassModel;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Support\GlassModelViewSections;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
+use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -107,7 +108,7 @@ class ViewGlassModelTest extends TestCase
         $model = GlassModelModelFactory::new()->withMainEurocode('8613AGS')->create();
 
         Livewire::test(ViewGlassModel::class, ['record' => $model->getKey()])
-            ->callAction('addEurocode', ['eurocode' => '8613 cgs'])
+            ->callAction(self::eurocodeAction('addEurocode'), ['eurocode' => '8613 cgs'])
             ->assertHasNoActionErrors();
 
         $this->assertEqualsCanonicalizing(['8613AGS', '8613CGS'], $model->fresh()->eurocodes->pluck('code')->all());
@@ -120,7 +121,7 @@ class ViewGlassModelTest extends TestCase
         GlassModelModelFactory::new()->withMainEurocode('8613XYZ')->create();
 
         Livewire::test(ViewGlassModel::class, ['record' => $model->getKey()])
-            ->callAction('addEurocode', ['eurocode' => '8613XYZ'])
+            ->callAction(self::eurocodeAction('addEurocode'), ['eurocode' => '8613XYZ'])
             ->assertNotified();
 
         $this->assertSame(['8613AGS'], $model->fresh()->eurocodes->pluck('code')->all());
@@ -132,8 +133,8 @@ class ViewGlassModelTest extends TestCase
         $model = $this->modelWithTwoEurocodes();
 
         Livewire::test(ViewGlassModel::class, ['record' => $model->getKey()])
-            ->callAction('changeMainEurocode', ['eurocode' => '8613BGS'])
-            ->callAction('removeEurocode', ['eurocode' => '8613AGS']);
+            ->callAction(self::eurocodeAction('changeMainEurocode'), ['eurocode' => '8613BGS'])
+            ->callAction(self::eurocodeAction('removeEurocode'), ['eurocode' => '8613AGS']);
 
         $this->assertSame(['8613BGS'], $model->fresh()->eurocodes->pluck('code')->all());
         $this->assertSame('8613BGS', $model->fresh()->mainEurocode->code);
@@ -146,7 +147,7 @@ class ViewGlassModelTest extends TestCase
         $target = GlassModelModelFactory::new()->withMainEurocode('9999TGT')->withdrawn()->create();
 
         Livewire::test(ViewGlassModel::class, ['record' => $model->getKey()])
-            ->callAction('moveEurocode', ['eurocode' => '8613BGS', 'target_id' => $target->id])
+            ->callAction(self::eurocodeAction('moveEurocode'), ['eurocode' => '8613BGS', 'target_id' => $target->id])
             ->assertHasNoActionErrors();
 
         $this->assertSame(['8613AGS'], $model->fresh()->eurocodes->pluck('code')->all());
@@ -160,9 +161,15 @@ class ViewGlassModelTest extends TestCase
         $target = GlassModelModelFactory::new()->create();
 
         Livewire::test(ViewGlassModel::class, ['record' => $model->getKey()])
-            ->callAction('moveEurocode', ['eurocode' => '8613AGS', 'target_id' => $target->id])
+            ->callAction(self::eurocodeAction('moveEurocode'), ['eurocode' => '8613AGS', 'target_id' => $target->id])
             ->assertNotified();
 
         $this->assertCount(2, $model->fresh()->eurocodes);
+    }
+
+    /** The Eurocode actions sit in the header of the infolist section "Szkło". */
+    private static function eurocodeAction(string $name): TestAction
+    {
+        return TestAction::make($name)->schemaComponent('identity', 'infolist');
     }
 }

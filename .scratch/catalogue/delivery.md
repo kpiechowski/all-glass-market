@@ -18,9 +18,11 @@
 | 07 thumbnail | resolved (2a18c4a) | removed | 0 | approved |
 | 08 module-api-for-offers | resolved (27c73a3) | removed | 1 | approved |
 | 10 seeding-testowy-katalogu | resolved (c4aeda2) | removed | 0 | approved |
-| 11 glass-model-list-as-catalogue-cards | fix round 1 merged (3bc9bbd), waits for user screen review | `.worktrees/catalogue-11` (kept for round 2) | 1 | technical: approved |
+| 11 glass-model-list-as-catalogue-cards | resolved (47ba482 + round 4, accepted 2026-11-15) | removed | 1 | approved |
 
 ## Next action
+
+2026-11-15: issue 11 resolved, the user accepted rounds 2–4 (inline). Worktree `catalogue-11` removed. No migrations; `npm run build` done. Same round, panel-wide: sidebar groups "Katalog" and "Administracja" (uppercase labels, not collapsible; Dziennik in the top block), tables (edge padding after the mobile card, `table--compact-filtering`, info strip for active filters), dictionary list (Lp., Data dodania). Next: issue 09 waits for Offers.
 
 2026-11-14: issue 11 UI polish continues inline (no workers, no tests until the user accepts): read `.scratch/catalogue/ui-polish-handoff.md`. Rounds 2–3 committed 2026-11-15 (not yet accepted; ListGlassModelsTest needs updating after acceptance). OEM key bug fixed in 9293f0d.
 

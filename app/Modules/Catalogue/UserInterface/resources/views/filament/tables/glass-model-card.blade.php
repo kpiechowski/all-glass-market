@@ -19,7 +19,7 @@
 
     <div class="glass-card__body">
         <div class="glass-card__line glass-card__line--title">
-            <span class="glass-card__code glass-card__code--main">{{ $record->mainEurocode?->code }}</span>
+            <span class="glass-card__code glass-card__code--main" title="{{ $record->mainEurocode?->code }}">{{ $record->mainEurocode?->code }}</span>
 
             <div class="glass-card__heading">
                 <span class="glass-card__subtitle">{{ $subtitle ? implode(' · ', $subtitle) : '—' }}</span>

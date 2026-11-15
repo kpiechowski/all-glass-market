@@ -5,12 +5,18 @@ declare(strict_types=1);
 namespace App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Schemas;
 
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\GlassModelModel;
+use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Actions\AddEurocodeAction;
+use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Actions\ChangeMainEurocodeAction;
+use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Actions\MoveEurocodeAction;
+use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Actions\RemoveEurocodeAction;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Support\GlassModelViewSections;
+use Filament\Actions\ActionGroup;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\HtmlString;
 
 /**
  * Template C, layout (b): the state and dates stay in view beside the data. FR-25: sections other
@@ -36,10 +42,13 @@ class GlassModelInfolist
     private static function identitySection(): Section
     {
         return Section::make(__('catalogue::resources.glass_model.sections.identity'))
+            ->key('identity')
             ->extraAttributes(['class' => 'infolist--sheet'])
+            ->headerActions([self::eurocodeActions()])
             ->schema([
                 TextEntry::make('mainEurocode.code')
                     ->label(__('catalogue::resources.glass_model.fields.main_eurocode'))
+                    ->formatStateUsing(fn (?string $state): HtmlString => self::mainEurocodeBadge((string) $state))
                     ->copyable(),
                 TextEntry::make('eurocodes.code')
                     ->label(__('catalogue::resources.glass_model.fields.eurocodes'))
@@ -70,10 +79,31 @@ class GlassModelInfolist
             ->schema([
                 TextEntry::make('oemCodes.code')
                     ->label(__('catalogue::resources.glass_model.fields.oem_codes'))
+                    ->hiddenLabel()
                     ->badge()
                     ->color('gray')
                     ->placeholder('—'),
             ]);
+    }
+
+    /** The Eurocode actions concern the codes of this section only, so they sit in its header. */
+    private static function eurocodeActions(): ActionGroup
+    {
+        return ActionGroup::make([
+            AddEurocodeAction::make(),
+            ChangeMainEurocodeAction::make(),
+            MoveEurocodeAction::make(),
+            RemoveEurocodeAction::make(),
+        ])->label(__('catalogue::resources.glass_model.actions.eurocodes.label'))
+            ->icon('heroicon-o-hashtag')
+            ->button()
+            ->color('gray');
+    }
+
+    /** The same soft primary badge as the main Eurocode on the catalogue card. */
+    private static function mainEurocodeBadge(string $code): HtmlString
+    {
+        return new HtmlString('<span class="glass-card__code glass-card__code--main">'.e($code).'</span>');
     }
 
     private static function statusSection(): Section
