@@ -54,7 +54,9 @@
     --ag-filter-inline-gap-y: var(--ag-space-3);
     --ag-filter-panel-padding: var(--ag-space-5);       /* 20 px inside the 24 rem panel (TableDefaults sets the width) */
     --ag-filter-panel-gap: var(--ag-space-4);           /* 16 px between panel fields */
-    --ag-filter-chip-label: var(--ag-text-muted);
+    --ag-filter-chip-label: var(--ag-soft-info-text);
+    --ag-filter-indicators-bg: var(--ag-soft-info-bg);      /* active filters strip: info is rare, so it reads as "narrowed" */
+    --ag-filter-indicators-border: var(--ag-soft-info-border);
 
     /* Pagination. */
     --ag-pagination-padding-y: var(--ag-space-3);

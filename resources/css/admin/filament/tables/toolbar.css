@@ -57,6 +57,11 @@
                 flex: 1 1 100%;
             }
         }
+
+        /* An empty toolbar-actions block (no bulk or toolbar actions) took its own line and gap. */
+        & > .fi-ta-actions:not(:has(*)) {
+            display: none;
+        }
     }
 
     /* Search: the 06 field frame comes from `.fi-input-wrp`; only the width is set here. */

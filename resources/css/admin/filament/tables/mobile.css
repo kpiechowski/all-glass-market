@@ -38,6 +38,26 @@
             padding-top: 0;
         }
 
+        /* Active filters: the info strip becomes a rounded card like the cards below it; the
+           label and chips wrap, the clear button stays top right. */
+        & .fi-ta-filter-indicators {
+            align-items: flex-start;
+            margin-bottom: var(--ag-table-card-gap);
+            padding: var(--ag-space-2-5) var(--ag-space-3) var(--ag-space-2-5) var(--ag-space-4);
+            border: var(--ag-border-width) solid var(--ag-filter-indicators-border);
+            border-radius: var(--ag-radius-container);
+
+            /* Filament stacks label and chips in a column below sm, and the centring of the
+               desktop line then pushed the label to the middle: one wrapping row instead. */
+            & > :nth-child(1) {
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+                row-gap: var(--ag-space-1-5);
+                min-width: 0;
+            }
+        }
+
         & .fi-ta-selection-indicator {
             margin-bottom: var(--ag-table-card-gap);
             padding-inline: var(--ag-space-4);

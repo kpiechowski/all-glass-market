@@ -114,6 +114,18 @@
     }
 }
 
+/*
+ * Edge padding after the mobile card: Filament gives 24 px only to the `:first-of-type` cell, and in a
+ * table with RecordCardColumn that is the card cell, hidden from md. The first visible cell then had
+ * 12 px and the columns sat left of the heading, filters and pagination.
+ */
+@media (min-width: 48rem) {
+    .fi-ta-row > .ta-card-cell:first-child + .fi-ta-cell,
+    .fi-ta-table > thead > tr > .ta-card-header:first-child + .fi-ta-header-cell {
+        padding-inline-start: var(--ag-table-edge-padding-x);
+    }
+}
+
 /* Cells. */
 .fi-ta-text:not(.fi-inline) {
     padding-block: var(--ag-table-cell-padding-y);

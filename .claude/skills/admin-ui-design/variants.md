@@ -1,6 +1,6 @@
 # Variants
 
-A variant is one of our classes set on a schema component with `->extraAttributes(['class' => '…'])`. It is rung 2 of the styling ladder: use it when the native look does not fit the place. Its CSS lives in the component's own file (`resources/css/admin/filament/<area>/<component>.css`).
+A variant is one of our classes set on a schema component (or a table) with `->extraAttributes(['class' => '…'])`. It is rung 2 of the styling ladder: use it when the native look does not fit the place. Its CSS lives in the component's own file (`resources/css/admin/filament/<area>/<component>.css`).
 
 - Only the classes below go into `extraAttributes`. A new variant is added only when a real module needs one, and goes into this file once the user accepts it on the Styleguide.
 - One variant per component. The Styleguide ("Sekcje i układ", "Karta rekordu") shows each one next to the default.
@@ -86,4 +86,18 @@ Section::make()
             ]),
         ])->verticallyAlignCenter(),
     ]);
+```
+
+## Tables
+
+Set on the table: `$table->extraAttributes(['class' => '…'])`. CSS in `filament/tables/filters.css`.
+
+| Variant | Use for | Not for |
+|---|---|---|
+| `table--compact-filtering` | a list with 1–2 inline filters (`FiltersLayout::AboveContent`): from md the filters and the search share one line, filters left, search right | 3 inline filters or the funnel panel; a table with a heading and header actions crowding the same block |
+
+```php
+$table
+    ->filters(DictionaryValuesTableFilters::make(), layout: FiltersLayout::AboveContent)
+    ->extraAttributes(['class' => 'table--compact-filtering']);
 ```
