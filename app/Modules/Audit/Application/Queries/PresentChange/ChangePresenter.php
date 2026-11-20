@@ -83,6 +83,7 @@ final class ChangePresenter
             ValuePresenterKind::MoneyGrosze => new PresentedValue(is_numeric($raw) ? $this->money((float) $raw / 100) : $this->plain($raw)),
             ValuePresenterKind::Date => new PresentedValue($this->date($raw)),
             ValuePresenterKind::List => new PresentedValue($this->list($raw)),
+            ValuePresenterKind::FileCount => new PresentedValue($this->fileCount($raw)),
             ValuePresenterKind::Boolean => new PresentedValue($this->plain(filter_var($raw, FILTER_VALIDATE_BOOLEAN))),
             ValuePresenterKind::Translated => new PresentedValue($this->translated((string) $presenter->target, $raw)),
             ValuePresenterKind::Plain => new PresentedValue($this->plain($raw)),
@@ -163,6 +164,13 @@ final class ChangePresenter
         }
 
         return implode(', ', array_map(fn (mixed $item): string => $this->plain($item), $raw));
+    }
+
+    private function fileCount(mixed $raw): string
+    {
+        $files = is_string($raw) ? json_decode($raw, true) : $raw;
+
+        return is_array($files) ? (string) trans_choice('audit::presentation.files', count($files)) : $this->plain($raw);
     }
 
     private function plain(mixed $raw): string

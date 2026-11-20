@@ -10,6 +10,8 @@ use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Pages\EditOffer;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -65,5 +67,46 @@ class EditOfferTest extends TestCase
         $offer = OfferModelFactory::new()->create();
 
         Livewire::test(EditOffer::class, ['record' => $offer->getRouteKey()])->assertNotFound();
+    }
+
+    public function test_uploaded_photos_travel_as_paths_in_the_command_and_keep_their_order(): void
+    {
+        Storage::fake('public');
+        Storage::fake('local');
+        $owner = UserModel::factory()->create();
+        $this->actingAs($owner);
+        $offer = OfferModelFactory::new()->ownedBy($owner->id)->create();
+
+        Livewire::test(EditOffer::class, ['record' => $offer->getRouteKey()])
+            ->fillForm([
+                'public_photos' => [UploadedFile::fake()->image('a.jpg'), UploadedFile::fake()->image('b.jpg')],
+                'private_photos' => [UploadedFile::fake()->image('p.jpg')],
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $fresh = $offer->fresh();
+        $this->assertCount(2, $fresh->public_photos);
+        $this->assertCount(1, $fresh->private_photos);
+        $this->assertStringStartsWith("offers/public/{$owner->id}/", $fresh->public_photos[0]);
+        $this->assertStringStartsWith("offers/private/{$owner->id}/", $fresh->private_photos[0]);
+        Storage::disk('public')->assertExists($fresh->public_photos);
+        Storage::disk('local')->assertExists($fresh->private_photos);
+    }
+
+    public function test_dragging_changes_the_order_of_the_public_photos(): void
+    {
+        $owner = UserModel::factory()->create();
+        $this->actingAs($owner);
+        $a = "offers/public/{$owner->id}/a.jpg";
+        $b = "offers/public/{$owner->id}/b.jpg";
+        $offer = OfferModelFactory::new()->ownedBy($owner->id)->withPublicPhotos([$a, $b])->create();
+
+        Livewire::test(EditOffer::class, ['record' => $offer->getRouteKey()])
+            ->fillForm(['public_photos' => [$b, $a]])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame([$b, $a], $offer->fresh()->public_photos);
     }
 }

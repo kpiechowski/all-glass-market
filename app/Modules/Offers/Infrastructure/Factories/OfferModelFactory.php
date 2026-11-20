@@ -31,6 +31,8 @@ final class OfferModelFactory extends ModelFactory
             'description' => null,
             'private_notes' => null,
             'price_grosze' => null,
+            'public_photos' => [],
+            'private_photos' => [],
         ];
     }
 
@@ -57,5 +59,21 @@ final class OfferModelFactory extends ModelFactory
     public function priced(int $grosze): static
     {
         return $this->state(fn (): array => ['price_grosze' => $grosze]);
+    }
+
+    /**
+     * @param  list<string>  $paths
+     */
+    public function withPublicPhotos(array $paths): static
+    {
+        return $this->state(fn (): array => ['public_photos' => $paths]);
+    }
+
+    /**
+     * @param  list<string>  $paths
+     */
+    public function withPrivatePhotos(array $paths): static
+    {
+        return $this->state(fn (): array => ['private_photos' => $paths]);
     }
 }

@@ -75,4 +75,22 @@ class ViewOfferTest extends TestCase
 
         Livewire::test(ViewOffer::class, ['record' => $offer->getRouteKey()])->assertNotFound();
     }
+
+    public function test_the_owner_sees_both_galleries_and_an_admin_too(): void
+    {
+        $owner = UserModel::factory()->create();
+        $offer = OfferModelFactory::new()->ownedBy($owner->id)
+            ->withPublicPhotos(["offers/public/{$owner->id}/a.jpg"])
+            ->withPrivatePhotos(["offers/private/{$owner->id}/x.jpg"])
+            ->create();
+
+        foreach ([$owner, UserModel::factory()->admin()->create()] as $viewer) {
+            $this->actingAs($viewer);
+
+            Livewire::test(ViewOffer::class, ['record' => $offer->getRouteKey()])
+                ->assertSee('Zdjęcia prywatne')
+                ->assertSee('offers/public/'.$owner->id.'/a.jpg')
+                ->assertSee("offers/{$offer->id}/private-photos/0");
+        }
+    }
 }

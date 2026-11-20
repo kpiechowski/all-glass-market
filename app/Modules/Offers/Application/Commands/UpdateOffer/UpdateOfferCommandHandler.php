@@ -11,6 +11,7 @@ use App\Modules\Offers\Domain\Enums\OffersPermission;
 use App\Modules\Offers\Domain\Exceptions\OfferRefused;
 use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
 use App\Modules\Offers\Domain\Repositories\OfferRepository;
+use App\Modules\Offers\Domain\ValueObjects\OfferPhotos;
 use Ecotone\Modelling\Attribute\CommandHandler;
 
 /** FR-06, §3: the owner edits their Offer, an admin any Offer; the owner never changes and a Draft stays a Draft. */
@@ -50,6 +51,13 @@ final class UpdateOfferCommandHandler
             $content,
             $this->contents->glassModelCanBePicked($content),
             $this->contents->producerCanBePicked($content),
+        );
+        $offer->arrangePhotos(
+            OfferPhotos::from(
+                $command->publicPhotos ?? $offer->photos()->public,
+                $command->privatePhotos ?? $offer->photos()->private,
+            ),
+            $userId,
         );
         $this->offers->save($offer);
     }

@@ -67,4 +67,19 @@ final class OfferRefused extends DomainException
     {
         return new self('offers::exceptions.not_yours');
     }
+
+    public static function tooManyPublicPhotos(int $max): self
+    {
+        return new self('offers::exceptions.too_many_public_photos', ['max' => $max]);
+    }
+
+    public static function tooManyPrivatePhotos(int $max): self
+    {
+        return new self('offers::exceptions.too_many_private_photos', ['max' => $max]);
+    }
+
+    public static function photoIsInvalid(): self
+    {
+        return new self('offers::exceptions.photo_is_invalid');
+    }
 }

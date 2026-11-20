@@ -16,10 +16,15 @@ return [
             'glass' => 'Szyba',
             'piece' => 'Sztuka',
             'notes' => 'Notatki prywatne',
+            'photos' => 'Zdjęcia',
+            'public_photos' => 'Zdjęcia publiczne',
+            'private_photos' => 'Zdjęcia prywatne',
             'price' => 'Cena',
             'offer' => 'Oferta',
         ],
         'descriptions' => [
+            'photos' => 'Do 10 zdjęć. Pierwsze jest zdjęciem głównym, kolejność zmienisz przeciągając.',
+            'private_photos' => 'Do 10 zdjęć. Widzisz je tylko Ty i administratorzy. Nie trafiają do ogłoszeń.',
             'notes' => 'Widzisz je tylko Ty i administratorzy. Nie trafiają do ogłoszeń.',
         ],
         'fields' => [
@@ -36,6 +41,7 @@ return [
             'private_notes' => 'Notatki prywatne',
             'price' => 'Cena',
             'created_at' => 'Utworzono',
+            'main_photo' => 'Główne',
             'glass' => 'Szyba',
         ],
         'helpers' => [

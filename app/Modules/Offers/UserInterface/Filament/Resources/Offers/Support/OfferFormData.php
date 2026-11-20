@@ -11,7 +11,7 @@ final class OfferFormData
 {
     /**
      * @param  array<string, mixed>  $data
-     * @return array{glassModelId: ?int, identificationHint: ?string, producerId: ?int, year: ?int, condition: ?string, rating: ?int, description: ?string, privateNotes: ?string, priceGrosze: ?int}
+     * @return array{glassModelId: ?int, identificationHint: ?string, producerId: ?int, year: ?int, condition: ?string, rating: ?int, description: ?string, privateNotes: ?string, priceGrosze: ?int, publicPhotos: list<string>, privatePhotos: list<string>}
      */
     public static function commandArguments(array $data): array
     {
@@ -25,6 +25,8 @@ final class OfferFormData
             'description' => self::text($data['description'] ?? null),
             'privateNotes' => self::text($data['private_notes'] ?? null),
             'priceGrosze' => self::grosze($data['price'] ?? null),
+            'publicPhotos' => self::paths($data['public_photos'] ?? null),
+            'privatePhotos' => self::paths($data['private_photos'] ?? null),
         ];
     }
 
@@ -46,6 +48,16 @@ final class OfferFormData
     public static function condition(mixed $state): ?OfferCondition
     {
         return $state instanceof OfferCondition ? $state : (filled($state) ? OfferCondition::tryFrom((string) $state) : null);
+    }
+
+    /**
+     * The upload field's state is keyed by file; the command takes the paths in display order.
+     *
+     * @return list<string>
+     */
+    private static function paths(mixed $state): array
+    {
+        return is_array($state) ? array_values(array_map('strval', $state)) : [];
     }
 
     private static function text(mixed $value): ?string

@@ -17,6 +17,8 @@ return [
             'rating' => 'Ocena',
             'description' => 'Opis dla kupujących',
             'private_notes' => 'Notatki prywatne',
+            'public_photos' => 'Zdjęcia publiczne',
+            'private_photos' => 'Zdjęcia prywatne',
             'price' => 'Cena (w groszach)',
         ],
     ],

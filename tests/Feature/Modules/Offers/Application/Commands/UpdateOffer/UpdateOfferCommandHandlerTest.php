@@ -144,4 +144,70 @@ class UpdateOfferCommandHandlerTest extends TestCase
         $other = DictionaryValueModelFactory::new()->of(Dictionary::Producer)->withdrawn()->create();
         $this->assertRefused('producer_cannot_be_picked', fn () => $this->send(Actor::user($owner->id), $offer->id, producerId: $other->id));
     }
+
+    /**
+     * @param  list<string>|null  $public
+     * @param  list<string>|null  $private
+     */
+    private function sendPhotos(Actor $actor, int $offerId, ?array $public, ?array $private): void
+    {
+        app(CommandBus::class)->send(new UpdateOfferCommand(actor: $actor, offerId: $offerId, publicPhotos: $public, privatePhotos: $private));
+    }
+
+    public function test_the_owner_reorders_and_replaces_photos(): void
+    {
+        $owner = UserModel::factory()->create();
+        $offer = OfferModelFactory::new()->ownedBy($owner->id)
+            ->withPublicPhotos(["offers/public/{$owner->id}/a.jpg", "offers/public/{$owner->id}/b.jpg"])
+            ->withPrivatePhotos(["offers/private/{$owner->id}/x.jpg"])
+            ->create();
+
+        $this->sendPhotos(Actor::user($owner->id), $offer->id, ["offers/public/{$owner->id}/b.jpg", "offers/public/{$owner->id}/a.jpg", "offers/public/{$owner->id}/c.jpg"], []);
+
+        $fresh = $offer->fresh();
+        $this->assertSame(["offers/public/{$owner->id}/b.jpg", "offers/public/{$owner->id}/a.jpg", "offers/public/{$owner->id}/c.jpg"], $fresh->public_photos);
+        $this->assertSame([], $fresh->private_photos);
+    }
+
+    public function test_an_update_without_photo_lists_keeps_the_photos(): void
+    {
+        $owner = UserModel::factory()->create();
+        $offer = OfferModelFactory::new()->ownedBy($owner->id)->withPublicPhotos(["offers/public/{$owner->id}/a.jpg"])->create();
+
+        $this->send(Actor::user($owner->id), $offer->id, hint: 'OEM');
+
+        $this->assertSame(["offers/public/{$owner->id}/a.jpg"], $offer->fresh()->public_photos);
+    }
+
+    public function test_an_admin_keeps_the_sellers_photos_and_adds_their_own(): void
+    {
+        $owner = UserModel::factory()->create();
+        $admin = UserModel::factory()->admin()->create();
+        $existing = "offers/public/{$owner->id}/a.jpg";
+        $offer = OfferModelFactory::new()->ownedBy($owner->id)->withPublicPhotos([$existing])->create();
+
+        $this->sendPhotos(Actor::user($admin->id), $offer->id, [$existing, "offers/public/{$admin->id}/n.jpg"], null);
+
+        $this->assertSame([$existing, "offers/public/{$admin->id}/n.jpg"], $offer->fresh()->public_photos);
+    }
+
+    public function test_an_eleventh_photo_is_refused_and_the_photos_stay(): void
+    {
+        $owner = UserModel::factory()->create();
+        $offer = OfferModelFactory::new()->ownedBy($owner->id)->withPrivatePhotos(["offers/private/{$owner->id}/x.jpg"])->create();
+        $eleven = array_map(fn (int $n): string => "offers/private/{$owner->id}/{$n}.jpg", range(1, 11));
+
+        $this->assertRefused('too_many_private_photos', fn () => $this->sendPhotos(Actor::user($owner->id), $offer->id, null, $eleven));
+        $this->assertSame(["offers/private/{$owner->id}/x.jpg"], $offer->fresh()->private_photos);
+    }
+
+    public function test_another_sellers_private_photo_cannot_be_added_to_ones_own_offer(): void
+    {
+        $owner = UserModel::factory()->create();
+        $victim = UserModel::factory()->create();
+        $offer = OfferModelFactory::new()->ownedBy($owner->id)->create();
+
+        $this->assertRefused('photo_is_invalid', fn () => $this->sendPhotos(Actor::user($owner->id), $offer->id, null, ["offers/private/{$victim->id}/secret.jpg"]));
+        $this->assertSame([], $offer->fresh()->private_photos);
+    }
 }

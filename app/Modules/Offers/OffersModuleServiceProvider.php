@@ -17,9 +17,11 @@ use App\Modules\Offers\Domain\Repositories\OfferRepository;
 use App\Modules\Offers\Infrastructure\Persistence\EloquentOfferRepository;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
+use App\Modules\Offers\UserInterface\Http\Controllers\PrivatePhotoController;
 use App\Modules\Users\Application\ModuleApi\RoleRegistry;
 use App\Modules\Users\Domain\Enums\UserRole;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
+use Illuminate\Support\Facades\Route;
 
 class OffersModuleServiceProvider extends ModuleServiceProvider
 {
@@ -42,8 +44,18 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
     {
         parent::boot();
 
+        $this->registerRoutes();
         $this->declarePermissions($this->app->make(RoleRegistry::class));
         $this->registerAuditableRecords($this->app->make(AuditableRecords::class));
+    }
+
+    /** FR-05: the only way to a private photo is this route; it checks the viewer itself. */
+    private function registerRoutes(): void
+    {
+        Route::middleware(['web', 'auth'])
+            ->get('admin/offers/{offer}/private-photos/{position}', PrivatePhotoController::class)
+            ->whereNumber(['offer', 'position'])
+            ->name(PrivatePhotoController::ROUTE);
     }
 
     /** §3: a seller (User) works on own Offers; an admin on all; Super Admin holds every Permission by wildcard. */
@@ -76,6 +88,8 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
                 'description' => 'offers::audit.offer.fields.description',
                 'private_notes' => 'offers::audit.offer.fields.private_notes',
                 'price_grosze' => 'offers::audit.offer.fields.price',
+                'public_photos' => 'offers::audit.offer.fields.public_photos',
+                'private_photos' => 'offers::audit.offer.fields.private_photos',
             ],
             valuePresenters: [
                 'owner_id' => ValuePresenter::reference(UserModel::class, 'name'),
@@ -83,6 +97,8 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
                 'producer_id' => ValuePresenter::reference(DictionaryValueModel::class, 'name'),
                 'condition' => ValuePresenter::enum(OfferCondition::class),
                 'price_grosze' => ValuePresenter::moneyInGrosze(),
+                'public_photos' => ValuePresenter::fileCount(),
+                'private_photos' => ValuePresenter::fileCount(),
             ],
         ));
     }

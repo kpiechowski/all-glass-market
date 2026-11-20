@@ -14,5 +14,8 @@ return [
     'condition_is_unknown' => 'Wybierz stan: nowa, używana albo outlet.',
     'glass_model_cannot_be_picked' => 'Tego modelu szyby nie można wybrać, bo nie istnieje albo został wycofany. Wybierz inny model.',
     'producer_cannot_be_picked' => 'Tego producenta nie można wybrać, bo nie ma go na liście albo został wycofany. Wybierz innego producenta.',
+    'too_many_public_photos' => 'Oferta może mieć najwyżej :max zdjęć publicznych.',
+    'too_many_private_photos' => 'Oferta może mieć najwyżej :max zdjęć prywatnych.',
+    'photo_is_invalid' => 'Nie można użyć tego zdjęcia. Dodaj je ponownie.',
     'not_yours' => 'Nie masz dostępu do tej oferty.',
 ];

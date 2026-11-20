@@ -11,6 +11,7 @@ use App\Modules\Offers\Domain\ValueObjects\EnteredPrice;
 use App\Modules\Offers\Domain\ValueObjects\GlassReference;
 use App\Modules\Offers\Domain\ValueObjects\OfferContent;
 use App\Modules\Offers\Domain\ValueObjects\OfferNumber;
+use App\Modules\Offers\Domain\ValueObjects\OfferPhotos;
 use App\Modules\Offers\Domain\ValueObjects\Rating;
 use App\Modules\Offers\Infrastructure\Factories\OfferModelFactory;
 use App\Modules\Offers\Infrastructure\Persistence\Mappers\OfferMapper;
@@ -25,7 +26,7 @@ class OfferMapperTest extends TestCase
     {
         $mapper = new OfferMapper;
         $content = OfferContent::from(GlassReference::from(4, null), 6, 2019, OfferCondition::Used, Rating::from(3), 'Opis', 'Notatka', EnteredPrice::fromGrosze(12050));
-        $entity = Offer::reconstitute(7, OfferNumber::from('AG00000007'), 2, OfferStatus::Draft, $content);
+        $entity = Offer::reconstitute(7, OfferNumber::from('AG00000007'), 2, OfferStatus::Draft, $content, OfferPhotos::none());
 
         $model = OfferModelFactory::new()->make(['id' => 7] + $mapper->toRow($entity));
 
@@ -36,7 +37,7 @@ class OfferMapperTest extends TestCase
     {
         $mapper = new OfferMapper;
         $content = OfferContent::from(GlassReference::from(null, 'VIN WVW123'), null, null, null, null, null, null, null);
-        $entity = Offer::reconstitute(8, OfferNumber::from('AG00000008'), 2, OfferStatus::Draft, $content);
+        $entity = Offer::reconstitute(8, OfferNumber::from('AG00000008'), 2, OfferStatus::Draft, $content, OfferPhotos::from(['offers/public/2/b.jpg', 'offers/public/2/a.jpg'], ['offers/private/2/x.jpg']));
 
         $model = OfferModelFactory::new()->make(['id' => 8] + $mapper->toRow($entity));
 

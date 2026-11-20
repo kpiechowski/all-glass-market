@@ -14,6 +14,7 @@ enum ValuePresenterKind: string
     case MoneyGrosze = 'money_grosze';
     case Date = 'date';
     case List = 'list';
+    case FileCount = 'file_count';
     case Boolean = 'boolean';
     case Translated = 'translated';
 }

@@ -6,8 +6,10 @@ namespace App\Modules\Offers\Domain\Entities;
 
 use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Exceptions\OfferRefused;
+use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
 use App\Modules\Offers\Domain\ValueObjects\OfferContent;
 use App\Modules\Offers\Domain\ValueObjects\OfferNumber;
+use App\Modules\Offers\Domain\ValueObjects\OfferPhotos;
 
 /**
  * An Offer (§2): one physical piece (RULE-01). It has an owner who never changes (RULE-07) and a
@@ -24,6 +26,7 @@ final class Offer
         private int $ownerId,
         private OfferStatus $status,
         private OfferContent $content,
+        private OfferPhotos $photos,
     ) {}
 
     public static function draft(
@@ -35,13 +38,13 @@ final class Offer
     ): self {
         self::guardPicks(null, $content, $glassModelCanBePicked, $producerCanBePicked);
 
-        return new self(null, $number, $ownerId, OfferStatus::Draft, $content);
+        return new self(null, $number, $ownerId, OfferStatus::Draft, $content, OfferPhotos::none());
     }
 
     /** @internal for the mapper */
-    public static function reconstitute(int $id, OfferNumber $number, int $ownerId, OfferStatus $status, OfferContent $content): self
+    public static function reconstitute(int $id, OfferNumber $number, int $ownerId, OfferStatus $status, OfferContent $content, OfferPhotos $photos): self
     {
-        return new self($id, $number, $ownerId, $status, $content);
+        return new self($id, $number, $ownerId, $status, $content, $photos);
     }
 
     /** FR-06: saves any content and keeps the status. */
@@ -50,6 +53,23 @@ final class Offer
         self::guardPicks($this->content, $content, $glassModelCanBePicked, $producerCanBePicked);
 
         $this->content = $content;
+    }
+
+    /**
+     * FR-05: replaces both photo lists, order kept. A path the Offer already holds stays whoever
+     * saves; a new one must sit in the uploader's own folder for its kind, so nobody can name
+     * another user's file, a private one included, as their own photo.
+     */
+    public function arrangePhotos(OfferPhotos $photos, int $uploaderId): void
+    {
+        if (
+            ! OfferDomainPolicy::photosAreFromUploader($photos->public, $this->photos->public, OfferDomainPolicy::publicPhotoDirectory($uploaderId))
+            || ! OfferDomainPolicy::photosAreFromUploader($photos->private, $this->photos->private, OfferDomainPolicy::privatePhotoDirectory($uploaderId))
+        ) {
+            throw OfferRefused::photoIsInvalid();
+        }
+
+        $this->photos = $photos;
     }
 
     private static function guardPicks(?OfferContent $current, OfferContent $content, bool $glassModelCanBePicked, bool $producerCanBePicked): void
@@ -87,5 +107,10 @@ final class Offer
     public function content(): OfferContent
     {
         return $this->content;
+    }
+
+    public function photos(): OfferPhotos
+    {
+        return $this->photos;
     }
 }

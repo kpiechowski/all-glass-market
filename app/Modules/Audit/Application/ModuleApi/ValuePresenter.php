@@ -15,6 +15,7 @@ use App\Modules\Audit\Domain\Enums\ValuePresenterKind;
  *     ValuePresenter::moneyInGrosze()   // an integer number of grosze, shown "123,45 zł"
  *     ValuePresenter::date()    // an ISO date or date-time
  *     ValuePresenter::list()    // an array, shown comma separated
+ *     ValuePresenter::fileCount()   // a list of stored paths (an array or its JSON), shown as "3 pliki"
  *     ValuePresenter::boolean()   // 0/1 -> tak / nie
  *     ValuePresenter::translated('users::permissions.')   // 'users.manage' -> the translation at prefix + 'users_manage'; raw when missing
  *     ValuePresenter::plain()   // as stored
@@ -66,6 +67,12 @@ final readonly class ValuePresenter
     public static function list(): self
     {
         return new self(ValuePresenterKind::List);
+    }
+
+    /** A list of stored file paths: the entry shows how many files there are, not their random names. */
+    public static function fileCount(): self
+    {
+        return new self(ValuePresenterKind::FileCount);
     }
 
     /** A flag stored as 0/1 (or true/false), shown "tak" / "nie". */

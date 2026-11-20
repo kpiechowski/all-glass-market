@@ -39,6 +39,8 @@ final class OfferModel extends ReadOnlyModel
             'condition' => OfferCondition::class,
             'rating' => 'integer',
             'price_grosze' => 'integer',
+            'public_photos' => 'array',
+            'private_photos' => 'array',
         ];
     }
 

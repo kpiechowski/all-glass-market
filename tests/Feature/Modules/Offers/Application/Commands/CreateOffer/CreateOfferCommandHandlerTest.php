@@ -162,4 +162,43 @@ class CreateOfferCommandHandlerTest extends TestCase
 
         $this->send(Actor::system('test'));
     }
+
+    /**
+     * @param  list<string>  $public
+     * @param  list<string>  $private
+     */
+    private function sendWithPhotos(Actor $actor, array $public, array $private): int
+    {
+        return app(CommandBus::class)->send(new CreateOfferCommand(actor: $actor, publicPhotos: $public, privatePhotos: $private));
+    }
+
+    public function test_photos_are_saved_in_order_from_the_creators_folders(): void
+    {
+        $seller = $this->seller();
+        $public = ["offers/public/{$seller->id}/b.jpg", "offers/public/{$seller->id}/a.jpg"];
+        $private = ["offers/private/{$seller->id}/x.jpg"];
+
+        $offer = OfferModel::findOrFail($this->sendWithPhotos($seller, $public, $private));
+
+        $this->assertSame($public, $offer->public_photos);
+        $this->assertSame($private, $offer->private_photos);
+    }
+
+    public function test_an_eleventh_public_or_private_photo_is_refused(): void
+    {
+        $seller = $this->seller();
+        $many = fn (string $kind): array => array_map(fn (int $n): string => "offers/{$kind}/{$seller->id}/{$n}.jpg", range(1, 11));
+
+        $this->assertRefused('too_many_public_photos', fn () => $this->sendWithPhotos($seller, $many('public'), []));
+        $this->assertRefused('too_many_private_photos', fn () => $this->sendWithPhotos($seller, [], $many('private')));
+        $this->assertSame(0, OfferModel::count());
+    }
+
+    public function test_another_users_private_photo_cannot_be_named_as_ones_own(): void
+    {
+        $seller = $this->seller();
+        $other = UserModel::factory()->create();
+
+        $this->assertRefused('photo_is_invalid', fn () => $this->sendWithPhotos($seller, [], ["offers/private/{$other->id}/secret.jpg"]));
+    }
 }

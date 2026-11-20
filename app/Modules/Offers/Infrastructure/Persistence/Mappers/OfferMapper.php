@@ -10,6 +10,7 @@ use App\Modules\Offers\Domain\ValueObjects\EnteredPrice;
 use App\Modules\Offers\Domain\ValueObjects\GlassReference;
 use App\Modules\Offers\Domain\ValueObjects\OfferContent;
 use App\Modules\Offers\Domain\ValueObjects\OfferNumber;
+use App\Modules\Offers\Domain\ValueObjects\OfferPhotos;
 use App\Modules\Offers\Domain\ValueObjects\Rating;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use Illuminate\Database\Eloquent\Model;
@@ -35,6 +36,7 @@ final class OfferMapper implements Mapper
                 $model->private_notes,
                 $model->price_grosze === null ? null : EnteredPrice::fromGrosze($model->price_grosze),
             ),
+            OfferPhotos::from($model->public_photos ?? [], $model->private_photos ?? []),
         );
     }
 
@@ -56,6 +58,8 @@ final class OfferMapper implements Mapper
             'description' => $content->description,
             'private_notes' => $content->privateNotes,
             'price_grosze' => $content->price?->grosze,
+            'public_photos' => $entity->photos()->public,
+            'private_photos' => $entity->photos()->private,
         ];
     }
 }

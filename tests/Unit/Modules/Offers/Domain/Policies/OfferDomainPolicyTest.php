@@ -32,4 +32,18 @@ class OfferDomainPolicyTest extends TestCase
         $this->assertTrue(OfferDomainPolicy::canBeSeenBy(ownerId: 5, userId: 9, managesAll: true));
         $this->assertFalse(OfferDomainPolicy::canBeSeenBy(ownerId: 5, userId: 9, managesAll: false));
     }
+
+    public function test_a_new_photo_must_sit_in_the_uploaders_folder_and_an_existing_one_may_stay(): void
+    {
+        $this->assertTrue(OfferDomainPolicy::photosAreFromUploader(['offers/public/3/a.jpg'], [], 'offers/public/3'));
+        $this->assertTrue(OfferDomainPolicy::photosAreFromUploader(['offers/public/9/old.jpg'], ['offers/public/9/old.jpg'], 'offers/public/3'));
+        $this->assertFalse(OfferDomainPolicy::photosAreFromUploader(['offers/public/9/other.jpg'], ['offers/public/9/old.jpg'], 'offers/public/3'));
+        $this->assertFalse(OfferDomainPolicy::photosAreFromUploader(['offers/public/30/a.jpg'], [], 'offers/public/3'));
+    }
+
+    public function test_the_upload_folders_belong_to_the_uploader_and_the_kind(): void
+    {
+        $this->assertSame('offers/public/3', OfferDomainPolicy::publicPhotoDirectory(3));
+        $this->assertSame('offers/private/3', OfferDomainPolicy::privatePhotoDirectory(3));
+    }
 }

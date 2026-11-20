@@ -10,10 +10,12 @@ use App\Modules\Offers\Domain\Enums\OffersPermission;
 use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferRating;
+use App\Modules\Offers\UserInterface\Http\Controllers\PrivatePhotoController;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Template C, layout (a): stacked sheet sections. The Glass model shows Catalogue's current data
@@ -27,7 +29,9 @@ class OfferInfolist
             self::offerSection(),
             self::glassSection(),
             self::pieceSection(),
+            self::photosSection(),
             self::notesSection(),
+            self::privatePhotosSection(),
         ]);
     }
 
@@ -79,15 +83,46 @@ class OfferInfolist
             ]);
     }
 
+    private static function photosSection(): Section
+    {
+        return Section::make(__('offers::resources.offer.sections.photos'))
+            ->schema([
+                View::make('offers::filament.photo-gallery')
+                    ->viewData(fn (OfferModel $record): array => [
+                        'urls' => array_map(fn (string $path): string => Storage::disk('public')->url($path), $record->public_photos ?? []),
+                        'marksMain' => true,
+                    ]),
+            ]);
+    }
+
+    /** FR-05: the owner and admins only; each photo comes through the guarded route, never by its own URL. */
+    private static function privatePhotosSection(): Section
+    {
+        return Section::make(__('offers::resources.offer.sections.private_photos'))
+            ->description(__('offers::resources.offer.descriptions.private_photos'))
+            ->visible(fn (OfferModel $record): bool => self::ownerOrAdmin($record))
+            ->schema([
+                View::make('offers::filament.photo-gallery')
+                    ->viewData(fn (OfferModel $record): array => [
+                        'urls' => array_map(
+                            fn (int $position): string => route(PrivatePhotoController::ROUTE, ['offer' => $record->id, 'position' => $position]),
+                            array_keys($record->private_photos ?? []),
+                        ),
+                        'marksMain' => false,
+                    ]),
+            ]);
+    }
+
+    private static function ownerOrAdmin(OfferModel $record): bool
+    {
+        return OfferDomainPolicy::canBeSeenBy($record->owner_id, (int) auth()->id(), CurrentActor::can(OffersPermission::ManageAll));
+    }
+
     private static function notesSection(): Section
     {
         return Section::make(__('offers::resources.offer.sections.notes'))
             ->description(__('offers::resources.offer.descriptions.notes'))
-            ->visible(fn (OfferModel $record): bool => OfferDomainPolicy::canBeSeenBy(
-                $record->owner_id,
-                (int) auth()->id(),
-                CurrentActor::can(OffersPermission::ManageAll),
-            ))
+            ->visible(fn (OfferModel $record): bool => self::ownerOrAdmin($record))
             ->schema([
                 TextEntry::make('private_notes')
                     ->label(__('offers::resources.offer.sections.notes'))

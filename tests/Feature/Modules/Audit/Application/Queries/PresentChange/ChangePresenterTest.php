@@ -29,7 +29,7 @@ class ChangePresenterTest extends TestCase
         $this->setUpThings();
         app(AuditableRecords::class)->register(new AuditableRecordType(
             'things.thing', ThingModel::class, 'Rzecz', fn (): string => 'x', fn (): ?string => null,
-            fieldLabels: ['name' => 'Nazwa', 'producer_id' => 'Producent', 'price' => 'Cena', 'price_grosze' => 'Cena (gr)', 'status' => 'Status', 'due' => 'Termin', 'tags' => 'Tagi', 'flag' => 'Flaga'],
+            fieldLabels: ['name' => 'Nazwa', 'producer_id' => 'Producent', 'price' => 'Cena', 'price_grosze' => 'Cena (gr)', 'status' => 'Status', 'due' => 'Termin', 'tags' => 'Tagi', 'flag' => 'Flaga', 'photos' => 'Zdjęcia'],
             valuePresenters: [
                 'producer_id' => ValuePresenter::reference(ProducerModel::class),
                 'price' => ValuePresenter::money(),
@@ -37,6 +37,7 @@ class ChangePresenterTest extends TestCase
                 'status' => ValuePresenter::enum(ThingStatus::class),
                 'due' => ValuePresenter::date(),
                 'tags' => ValuePresenter::list(),
+                'photos' => ValuePresenter::fileCount(),
             ],
             trackedRelations: ['producers' => new TrackedRelation('Producenci', ValuePresenter::reference(ProducerModel::class))],
         ));
@@ -113,6 +114,15 @@ class ChangePresenterTest extends TestCase
         $lines = $this->present(['price_grosze' => ['old' => 120000, 'new' => 12345]]);
 
         $this->assertSame(['1 200 zł', '123,45 zł'], [$lines[0]->old->text, $lines[0]->new->text]);
+    }
+
+    public function test_a_list_of_files_is_shown_as_a_count_whether_stored_as_json_or_array(): void
+    {
+        $lines = $this->present(['photos' => ['old' => '[]', 'new' => '["a.jpg","b.jpg","c.jpg"]']]);
+        $this->assertSame(['brak plików', '3 pliki'], [$lines[0]->old->text, $lines[0]->new->text]);
+
+        $lines = $this->present(['photos' => ['old' => ['a.jpg'], 'new' => array_fill(0, 6, 'x.jpg')]]);
+        $this->assertSame(['1 plik', '6 plików'], [$lines[0]->old->text, $lines[0]->new->text]);
     }
 
     public function test_relation_items_are_named_added_and_removed(): void

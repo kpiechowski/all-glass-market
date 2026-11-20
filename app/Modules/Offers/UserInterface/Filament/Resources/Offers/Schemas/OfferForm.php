@@ -11,7 +11,9 @@ use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\PickGlassModelAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferFormData;
+use Closure;
 use Filament\Actions\Action;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -25,8 +27,8 @@ use Filament\Schemas\Schema;
 /**
  * Template B, layout (a): one column of sections, no side column (an Offer is a Draft here, and
  * its status is shown elsewhere). One form for sellers and admins (FR-01): "Szyba" on top, then
- * the piece, the private notes and the price. Every field may stay empty in a Draft (FR-06);
- * photos are added by a later ticket.
+ * the piece, the photos, the private notes and photos, and the price. Every field may stay empty
+ * in a Draft (FR-06).
  */
 class OfferForm
 {
@@ -35,7 +37,9 @@ class OfferForm
         return $schema->columns(1)->components([
             self::glassSection(),
             self::pieceSection(),
+            self::photosSection(),
             self::notesSection(),
+            self::privatePhotosSection(),
             self::priceSection(),
         ]);
     }
@@ -165,6 +169,47 @@ class OfferForm
                     ->hiddenLabel()
                     ->rows(3),
             ]);
+    }
+
+    /** FR-05: up to 10 public photos on the public disk; the first is the main one, dragging changes the order. */
+    private static function photosSection(): Section
+    {
+        return Section::make(__('offers::resources.offer.sections.photos'))
+            ->description(__('offers::resources.offer.descriptions.photos'))
+            ->schema([
+                self::photoUpload('public_photos', 'public', 'public', fn (): string => OfferDomainPolicy::publicPhotoDirectory((int) auth()->id())),
+            ]);
+    }
+
+    /** FR-05, D-49: up to 10 private photos on a disk with no public URL; only the owner and admins ever see them. */
+    private static function privatePhotosSection(): Section
+    {
+        return Section::make(__('offers::resources.offer.sections.private_photos'))
+            ->description(__('offers::resources.offer.descriptions.private_photos'))
+            ->schema([
+                self::photoUpload('private_photos', 'local', 'private', fn (): string => OfferDomainPolicy::privatePhotoDirectory((int) auth()->id())),
+            ]);
+    }
+
+    /**
+     * The files are stored when picked and their paths travel in the command (golden rule 5). A
+     * removed file is not deleted from the disk at once: the Offer may still hold it until saved.
+     */
+    private static function photoUpload(string $name, string $disk, string $visibility, Closure $directory): FileUpload
+    {
+        return FileUpload::make($name)
+            ->label(__('offers::resources.offer.sections.'.$name))
+            ->hiddenLabel()
+            ->multiple()
+            ->image()
+            ->reorderable()
+            ->appendFiles()
+            ->panelLayout('grid')
+            ->maxFiles(OfferDomainPolicy::MAX_PHOTOS_PER_KIND)
+            ->disk($disk)
+            ->visibility($visibility)
+            ->directory($directory)
+            ->deleteUploadedFileUsing(static fn (): null => null);
     }
 
     private static function priceSection(): Section

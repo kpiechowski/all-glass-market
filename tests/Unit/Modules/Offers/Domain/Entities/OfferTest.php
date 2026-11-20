@@ -11,6 +11,7 @@ use App\Modules\Offers\Domain\Exceptions\OfferRefused;
 use App\Modules\Offers\Domain\ValueObjects\GlassReference;
 use App\Modules\Offers\Domain\ValueObjects\OfferContent;
 use App\Modules\Offers\Domain\ValueObjects\OfferNumber;
+use App\Modules\Offers\Domain\ValueObjects\OfferPhotos;
 use PHPUnit\Framework\TestCase;
 
 class OfferTest extends TestCase
@@ -59,7 +60,7 @@ class OfferTest extends TestCase
 
     public function test_a_withdrawn_glass_model_the_offer_already_has_survives_a_revision(): void
     {
-        $offer = Offer::reconstitute(3, OfferNumber::from('AG00000001'), 11, OfferStatus::Draft, $this->content(glassModelId: 5));
+        $offer = Offer::reconstitute(3, OfferNumber::from('AG00000001'), 11, OfferStatus::Draft, $this->content(glassModelId: 5), OfferPhotos::none());
 
         $offer->revise($this->content(glassModelId: 5, hint: null), false, true);
 
@@ -68,7 +69,7 @@ class OfferTest extends TestCase
 
     public function test_changing_to_a_glass_model_that_cannot_be_picked_is_refused(): void
     {
-        $offer = Offer::reconstitute(3, OfferNumber::from('AG00000001'), 11, OfferStatus::Draft, $this->content(glassModelId: 5));
+        $offer = Offer::reconstitute(3, OfferNumber::from('AG00000001'), 11, OfferStatus::Draft, $this->content(glassModelId: 5), OfferPhotos::none());
 
         $this->expectException(OfferRefused::class);
 
@@ -77,12 +78,55 @@ class OfferTest extends TestCase
 
     public function test_a_producer_that_cannot_be_picked_is_refused_for_a_new_choice_but_kept_when_unchanged(): void
     {
-        $offer = Offer::reconstitute(3, OfferNumber::from('AG00000001'), 11, OfferStatus::Draft, $this->content(producerId: 8));
+        $offer = Offer::reconstitute(3, OfferNumber::from('AG00000001'), 11, OfferStatus::Draft, $this->content(producerId: 8), OfferPhotos::none());
 
         $offer->revise($this->content(producerId: 8), true, false);
         $this->assertSame(8, $offer->content()->producerId);
 
         $this->expectException(OfferRefused::class);
         $offer->revise($this->content(producerId: 9), true, false);
+    }
+
+    public function test_a_new_draft_has_no_photos(): void
+    {
+        $this->assertSame([], $this->draft()->photos()->public);
+        $this->assertSame([], $this->draft()->photos()->private);
+    }
+
+    public function test_the_uploader_arranges_photos_in_their_own_folders(): void
+    {
+        $offer = $this->draft();
+
+        $offer->arrangePhotos(OfferPhotos::from(['offers/public/11/b.jpg', 'offers/public/11/a.jpg'], ['offers/private/11/x.jpg']), 11);
+
+        $this->assertSame(['offers/public/11/b.jpg', 'offers/public/11/a.jpg'], $offer->photos()->public);
+        $this->assertSame(['offers/private/11/x.jpg'], $offer->photos()->private);
+    }
+
+    public function test_a_photo_already_on_the_offer_stays_when_an_admin_saves_it(): void
+    {
+        $offer = Offer::reconstitute(3, OfferNumber::from('AG00000001'), 11, OfferStatus::Draft, $this->content(), OfferPhotos::from(['offers/public/11/a.jpg'], ['offers/private/11/x.jpg']));
+
+        $offer->arrangePhotos(OfferPhotos::from(['offers/public/11/a.jpg', 'offers/public/99/new.jpg'], ['offers/private/11/x.jpg']), 99);
+
+        $this->assertSame(['offers/public/11/a.jpg', 'offers/public/99/new.jpg'], $offer->photos()->public);
+    }
+
+    public function test_a_new_photo_from_another_users_folder_is_refused(): void
+    {
+        $offer = $this->draft();
+
+        $this->expectException(OfferRefused::class);
+
+        $offer->arrangePhotos(OfferPhotos::from([], ['offers/private/12/secret.jpg']), 11);
+    }
+
+    public function test_a_private_path_cannot_be_added_as_a_public_photo(): void
+    {
+        $offer = $this->draft();
+
+        $this->expectException(OfferRefused::class);
+
+        $offer->arrangePhotos(OfferPhotos::from(['offers/private/11/x.jpg'], []), 11);
     }
 }

@@ -11,6 +11,7 @@ use App\Modules\Offers\Application\Services\OfferNumberGenerator;
 use App\Modules\Offers\Domain\Entities\Offer;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
 use App\Modules\Offers\Domain\Repositories\OfferRepository;
+use App\Modules\Offers\Domain\ValueObjects\OfferPhotos;
 use Ecotone\Modelling\Attribute\CommandHandler;
 
 /** WF-01 steps 1, 2 and 5: the creator becomes the owner, the Draft gets its number. */
@@ -48,6 +49,8 @@ final class CreateOfferCommandHandler
             $this->contents->glassModelCanBePicked($content),
             $this->contents->producerCanBePicked($content),
         );
+
+        $offer->arrangePhotos(OfferPhotos::from($command->publicPhotos, $command->privatePhotos), $ownerId);
 
         return $this->offers->add($offer);
     }
