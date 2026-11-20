@@ -18,9 +18,12 @@
 | 07 thumbnail | resolved (2a18c4a) | removed | 0 | approved |
 | 08 module-api-for-offers | resolved (27c73a3) | removed | 1 | approved |
 | 10 seeding-testowy-katalogu | resolved (c4aeda2) | removed | 0 | approved |
+| 09 offers-facing-pieces (picker) | resolved (48282f2) | removed | 0 | approved |
 | 11 glass-model-list-as-catalogue-cards | resolved (47ba482 + round 4, accepted 2026-11-15) | removed | 1 | approved |
 
 ## Next action
+
+2026-11-20: issue 09 (Glass model picker) resolved and merged (48282f2) under the Offers run (`.scratch/offers/delivery.md`). No migrations; `npm run build` done.
 
 2026-11-15: issue 11 resolved, the user accepted rounds 2–4 (inline). Worktree `catalogue-11` removed. No migrations; `npm run build` done. Same round, panel-wide: sidebar groups "Katalog" and "Administracja" (uppercase labels, not collapsible; Dziennik in the top block), tables (edge padding after the mobile card, `table--compact-filtering`, info strip for active filters), dictionary list (Lp., Data dodania). Next: issue 09 waits for Offers.
 
