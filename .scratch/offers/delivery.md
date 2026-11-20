@@ -11,8 +11,8 @@
 | catalogue 09 glass-model-picker | resolved (48282f2) | removed | 0 | approved |
 | 01 offer-core | resolved (5d68513) | removed | 1 | approved |
 | 02 photos | resolved (8ea14a9) | removed | 0 | approved |
-| 03 approval | in progress | .worktrees/offers-03 | 0 | — |
-| 04 history-and-changes-since-approval | waiting | — | — | — |
+| 03 approval | resolved (4db8d7f) | removed | 0 | approved |
+| 04 history-and-changes-since-approval | in progress | .worktrees/offers-04 | 0 | — |
 | 05 prices-and-vat | waiting | — | — | — |
 | 06 withdraw-and-trash | waiting | — | — | — |
 | 07 reservations-and-sales | waiting | — | — | — |
@@ -26,5 +26,5 @@
 
 ## Next action
 
-2026-11-20: Offers 02 merged (8ea14a9). Migrations so far: `create_offers_table` (01), `add_photos_to_offers_table` (02) — run `dartisan migrate`; public photos need `dartisan storage:link` once. Offers 03 dispatched in `.worktrees/offers-03`.
-Open for the user: admin picker keeps the "with withdrawn" toggle; hand-check the picker slide-over and photo uploads in the browser.
+2026-11-21: Offers 03 merged (4db8d7f). Migrations so far: `create_offers_table` (01), `add_photos_to_offers_table` (02), `add_approval_dates_to_offers_table` (03) — run `dartisan migrate`; public photos need `dartisan storage:link` once. Offers 04 dispatched in `.worktrees/offers-04`.
+Open for the user: admin picker keeps the "with withdrawn" toggle; rejection reason is stored only in the owner's Journal entry; hand-check the picker slide-over and photo uploads.
