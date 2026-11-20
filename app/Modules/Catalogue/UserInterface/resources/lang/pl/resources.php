@@ -270,4 +270,19 @@ return [
             ],
         ],
     ],
+
+    'glass_model_picker' => [
+        'heading' => 'Wybierz model szyby',
+        'confirm' => 'Wybierz',
+        'required' => 'Zaznacz model szyby na liście.',
+        'empty' => [
+            'heading' => 'Brak pasujących modeli szkła',
+            'description' => 'Zmień wyszukiwanie lub filtry.',
+        ],
+        'create' => [
+            'label' => 'Utwórz nowy model szkła',
+            'heading' => 'Nowy model szkła',
+            'submit' => 'Utwórz i wybierz',
+        ],
+    ],
 ];

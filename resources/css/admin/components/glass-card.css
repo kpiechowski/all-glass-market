@@ -389,3 +389,20 @@
 .glass-thumbnail-option--shape .glass-thumbnail__shape {
     width: 3rem;
 }
+
+/*
+ * Glass model picker (FR-19): the card list inside a slide-over. The marked card gets the table's
+ * selected-row tone and an accent edge; the click target is the card (GlassModelPicker::mark()).
+ */
+.glass-model-picker .glass-card-cell {
+    cursor: pointer;
+}
+
+.fi-ta-row.glass-card-row--marked,
+.fi-ta-row.glass-card-row--marked .fi-ta-cell {
+    background-color: var(--ag-table-row-selected);
+}
+
+.fi-ta-row.glass-card-row--marked .glass-card {
+    box-shadow: inset 0.25rem 0 0 var(--ag-accent);
+}

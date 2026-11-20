@@ -9,6 +9,7 @@ use App\Modules\Audit\Application\ModuleApi\AuditableRecords;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecordType;
 use App\Modules\Audit\Application\ModuleApi\ValuePresenter;
 use App\Modules\Catalogue\Application\ModuleApi\DictionaryValueUsages;
+use App\Modules\Catalogue\Application\ModuleApi\EurocodeSuggestions;
 use App\Modules\Catalogue\Application\ModuleApi\GlassModelThumbnails;
 use App\Modules\Catalogue\Application\ModuleApi\GlassModelUsages;
 use App\Modules\Catalogue\Application\Providers\CatalogueEventServiceProvider;
@@ -35,12 +36,14 @@ use App\Modules\Catalogue\Infrastructure\Persistence\Models\VehicleModel;
 use App\Modules\Catalogue\Infrastructure\Persistence\VehicleDictionaryUsage;
 use App\Modules\Catalogue\Infrastructure\Seeders\CatalogueTestDataSeeder;
 use App\Modules\Catalogue\UserInterface\Console\SeedCatalogueConsoleCommand;
+use App\Modules\Catalogue\UserInterface\Filament\GlassModelPicker\GlassModelPicker;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\DictionaryValueResource;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\Support\DictionaryValueViewSections;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Support\GlassModelViewSections;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\VehicleResource;
 use App\Modules\Users\Application\ModuleApi\RoleRegistry;
 use App\Modules\Users\Domain\Enums\UserRole;
+use Livewire\Livewire;
 
 class CatalogueModuleServiceProvider extends ModuleServiceProvider
 {
@@ -77,6 +80,7 @@ class CatalogueModuleServiceProvider extends ModuleServiceProvider
         $this->app->scoped(GlassModelThumbnails::class);
         $this->app->singleton(GlassModelUsages::class);
         $this->app->singleton(GlassModelViewSections::class);
+        $this->app->singleton(EurocodeSuggestions::class);
     }
 
     public function boot(): void
@@ -86,6 +90,8 @@ class CatalogueModuleServiceProvider extends ModuleServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([SeedCatalogueConsoleCommand::class]);
         }
+
+        Livewire::component('catalogue-glass-model-picker', GlassModelPicker::class);
 
         $this->declarePermissions($this->app->make(RoleRegistry::class));
         $this->registerAuditableRecords($this->app->make(AuditableRecords::class));

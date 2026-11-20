@@ -15,7 +15,7 @@ final readonly class Eurocode
 
     public static function from(string $typed): self
     {
-        $value = preg_replace('/[^A-Z0-9]/', '', mb_strtoupper($typed)) ?? '';
+        $value = self::normalise($typed);
 
         if ($value === '') {
             throw GlassModelRefused::eurocodeIsBlank();
@@ -26,6 +26,12 @@ final readonly class Eurocode
         }
 
         return new self($value);
+    }
+
+    /** RULE-03 without the length checks: uppercase, letters and digits only. For suggestions the user then confirms. */
+    public static function normalise(string $typed): string
+    {
+        return preg_replace('/[^A-Z0-9]/', '', mb_strtoupper($typed)) ?? '';
     }
 
     public function equals(self $other): bool

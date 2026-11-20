@@ -34,4 +34,11 @@ class EurocodeTest extends TestCase
 
         Eurocode::from(str_repeat('A', 18));
     }
+
+    public function test_the_typed_text_can_be_normalised_without_being_validated(): void
+    {
+        $this->assertSame('8613AGSMV1B', Eurocode::normalise(' 8613 ags-mv.1b '));
+        $this->assertSame('', Eurocode::normalise(' - . '));
+        $this->assertSame(str_repeat('A', 20), Eurocode::normalise(str_repeat('a', 20)));
+    }
 }

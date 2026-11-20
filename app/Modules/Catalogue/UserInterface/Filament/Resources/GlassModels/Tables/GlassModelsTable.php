@@ -32,7 +32,7 @@ class GlassModelsTable
             ->filters(GlassModelsTableFilters::make())
             ->searchable()
             ->searchPlaceholder(__('catalogue::resources.glass_model.search.placeholder'))
-            ->searchUsing(fn (Builder $query, string $search, HasTable $livewire): Builder => self::candidates($query, $search, $livewire))
+            ->searchUsing(fn (Builder $query, string $search, HasTable $livewire): Builder => self::candidates($query, $search, $livewire, self::asksForWithdrawn($livewire)))
             ->recordUrl(fn (GlassModelModel $record): string => GlassModelResource::getUrl('view', ['record' => $record]))
             ->defaultSort('id', 'desc');
 
@@ -45,8 +45,8 @@ class GlassModelsTable
         );
     }
 
-    /** @return array<mixed> */
-    private static function columns(): array
+    /** The card column, shared with the Glass model picker (FR-19), which lists the same cards. @return array<mixed> */
+    public static function columns(): array
     {
         return [
             GlassModelCardColumn::make()
@@ -72,7 +72,7 @@ class GlassModelsTable
     }
 
     /** The search narrows to the candidates, in their order; the table's filters are handed to it so the limit counts only what they let through. */
-    private static function candidates(Builder $query, string $search, HasTable $livewire): Builder
+    public static function candidates(Builder $query, string $search, HasTable $livewire, bool $includeWithdrawn): Builder
     {
         $selected = fn (string $filter): ?int => filled($livewire->getTableFilterState($filter)['value'] ?? null)
             ? (int) $livewire->getTableFilterState($filter)['value']
@@ -83,7 +83,7 @@ class GlassModelsTable
             positionId: $selected(GlassModelsTableFilters::POSITION),
             colourId: $selected(GlassModelsTableFilters::COLOUR),
             makeId: $selected(GlassModelsTableFilters::MAKE),
-            includeWithdrawn: self::asksForWithdrawn($livewire),
+            includeWithdrawn: $includeWithdrawn,
             base: $query,
         );
     }

@@ -29,8 +29,11 @@ class GlassModelsTableFilters
 
     public const string WITH_WITHDRAWN = 'with_withdrawn';
 
-    /** @return list<BaseFilter> */
-    public static function make(): array
+    /**
+     * @param  bool  $withWithdrawnToggle  false in the seller's picker: withdrawn models are never offered (FR-19)
+     * @return list<BaseFilter>
+     */
+    public static function make(bool $withWithdrawnToggle = true): array
     {
         return [
             SelectFilter::make(self::POSITION)
@@ -57,9 +60,11 @@ class GlassModelsTableFilters
                     ? app(GlassModelQueries::class)->fittingMake($query, (int) $data['value'])
                     : $query),
 
-            Filter::make(self::WITH_WITHDRAWN)
-                ->label(__('catalogue::resources.glass_model.filters.with_withdrawn'))
-                ->toggle(),
+            ...($withWithdrawnToggle ? [
+                Filter::make(self::WITH_WITHDRAWN)
+                    ->label(__('catalogue::resources.glass_model.filters.with_withdrawn'))
+                    ->toggle(),
+            ] : []),
         ];
     }
 
