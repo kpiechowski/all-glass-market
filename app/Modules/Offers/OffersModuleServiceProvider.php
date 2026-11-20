@@ -8,6 +8,7 @@ use App\Core\Providers\ModuleServiceProvider;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecords;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecordType;
 use App\Modules\Audit\Application\ModuleApi\ValuePresenter;
+use App\Modules\Catalogue\Application\ModuleApi\GlassModelSummaries;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\DictionaryValueModel;
 use App\Modules\Offers\Application\Providers\OfferJournalSubject;
 use App\Modules\Offers\Application\Providers\OffersEventServiceProvider;
@@ -28,9 +29,6 @@ use Illuminate\Support\Facades\Route;
 
 class OffersModuleServiceProvider extends ModuleServiceProvider
 {
-    /** Stable name stored in every entry: never rename it. */
-    private const string AUDIT_KEY = 'offers.offer';
-
     protected bool $loadsTranslations = true;
 
     /** @var array<class-string> */
@@ -74,7 +72,7 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
     private function registerAuditableRecords(AuditableRecords $records): void
     {
         $records->register(new AuditableRecordType(
-            key: self::AUDIT_KEY,
+            key: OfferModel::AUDIT_KEY,
             modelClass: OfferModel::class,
             name: 'offers::audit.offer.type',
             title: fn (OfferModel $offer): string => $offer->number,
@@ -99,6 +97,7 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
             ],
             valuePresenters: [
                 'owner_id' => ValuePresenter::reference(UserModel::class, 'name'),
+                'glass_model_id' => ValuePresenter::resolved(fn (mixed $id): ?string => is_numeric($id) ? app(GlassModelSummaries::class)->of((int) $id)?->mainEurocode : null),
                 'status' => ValuePresenter::enum(OfferStatus::class),
                 'producer_id' => ValuePresenter::reference(DictionaryValueModel::class, 'name'),
                 'condition' => ValuePresenter::enum(OfferCondition::class),

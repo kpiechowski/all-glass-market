@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\Audit\Application\Queries\PresentChange;
 
 use App\Modules\Audit\Application\ModuleApi\AuditableRecords;
+use App\Modules\Audit\Application\ModuleApi\PresentedLine;
+use App\Modules\Audit\Application\ModuleApi\PresentedValue;
 use App\Modules\Audit\Application\ModuleApi\ValuePresenter;
 use App\Modules\Audit\Domain\Contracts\ReferenceNames;
 use App\Modules\Audit\Domain\Enums\ValuePresenterKind;
@@ -86,6 +88,7 @@ final class ChangePresenter
             ValuePresenterKind::FileCount => new PresentedValue($this->fileCount($raw)),
             ValuePresenterKind::Boolean => new PresentedValue($this->plain(filter_var($raw, FILTER_VALIDATE_BOOLEAN))),
             ValuePresenterKind::Translated => new PresentedValue($this->translated((string) $presenter->target, $raw)),
+            ValuePresenterKind::Resolved => new PresentedValue($presenter->resolver === null ? $this->plain($raw) : ($presenter->resolver)($raw) ?? $this->plain($raw)),
             ValuePresenterKind::Plain => new PresentedValue($this->plain($raw)),
         };
     }

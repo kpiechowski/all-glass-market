@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Offers\UserInterface\Filament\Resources\Offers;
 
 use App\Core\UserInterface\CurrentActor;
+use App\Modules\Audit\UserInterface\Filament\RelationManagers\RecordHistoryRelationManager;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
 use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
@@ -96,6 +97,14 @@ class OfferResource extends Resource
     public static function table(Table $table): Table
     {
         return OffersTable::configure($table);
+    }
+
+    /** The History tab (Audit's, FR-12): admins only, by Audit's RecordHistory Permission. */
+    public static function getRelations(): array
+    {
+        return [
+            RecordHistoryRelationManager::make(['recordType' => OfferModel::AUDIT_KEY]),
+        ];
     }
 
     public static function getPages(): array

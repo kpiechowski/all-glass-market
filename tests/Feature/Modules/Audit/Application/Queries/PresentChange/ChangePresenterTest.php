@@ -6,10 +6,10 @@ namespace Tests\Feature\Modules\Audit\Application\Queries\PresentChange;
 
 use App\Modules\Audit\Application\ModuleApi\AuditableRecords;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecordType;
+use App\Modules\Audit\Application\ModuleApi\PresentedLine;
 use App\Modules\Audit\Application\ModuleApi\TrackedRelation;
 use App\Modules\Audit\Application\ModuleApi\ValuePresenter;
 use App\Modules\Audit\Application\Queries\PresentChange\ChangePresenter;
-use App\Modules\Audit\Application\Queries\PresentChange\PresentedLine;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\Fixtures\Audit\ProducerModel;
@@ -29,7 +29,7 @@ class ChangePresenterTest extends TestCase
         $this->setUpThings();
         app(AuditableRecords::class)->register(new AuditableRecordType(
             'things.thing', ThingModel::class, 'Rzecz', fn (): string => 'x', fn (): ?string => null,
-            fieldLabels: ['name' => 'Nazwa', 'producer_id' => 'Producent', 'price' => 'Cena', 'price_grosze' => 'Cena (gr)', 'status' => 'Status', 'due' => 'Termin', 'tags' => 'Tagi', 'flag' => 'Flaga', 'photos' => 'Zdjęcia'],
+            fieldLabels: ['name' => 'Nazwa', 'producer_id' => 'Producent', 'price' => 'Cena', 'price_grosze' => 'Cena (gr)', 'status' => 'Status', 'due' => 'Termin', 'tags' => 'Tagi', 'flag' => 'Flaga', 'photos' => 'Zdjęcia', 'code' => 'Kod'],
             valuePresenters: [
                 'producer_id' => ValuePresenter::reference(ProducerModel::class),
                 'price' => ValuePresenter::money(),
@@ -38,9 +38,18 @@ class ChangePresenterTest extends TestCase
                 'due' => ValuePresenter::date(),
                 'tags' => ValuePresenter::list(),
                 'photos' => ValuePresenter::fileCount(),
+                'code' => ValuePresenter::resolved(fn (mixed $id): ?string => $id === 7 ? 'EC-7' : null),
             ],
             trackedRelations: ['producers' => new TrackedRelation('Producenci', ValuePresenter::reference(ProducerModel::class))],
         ));
+    }
+
+    public function test_a_resolved_value_shows_the_modules_text_and_falls_back_to_the_raw_value(): void
+    {
+        $line = $this->present(['code' => ['old' => 7, 'new' => 8]])[0];
+
+        $this->assertSame('EC-7', $line->old->text);
+        $this->assertSame('8', $line->new->text);
     }
 
     public function test_a_reference_shows_the_current_name_after_a_rename(): void

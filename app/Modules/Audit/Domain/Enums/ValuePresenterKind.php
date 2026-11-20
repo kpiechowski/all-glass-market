@@ -17,4 +17,5 @@ enum ValuePresenterKind: string
     case FileCount = 'file_count';
     case Boolean = 'boolean';
     case Translated = 'translated';
+    case Resolved = 'resolved';
 }

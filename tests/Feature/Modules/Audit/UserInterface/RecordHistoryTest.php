@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\Audit\UserInterface;
 
 use App\Core\Domain\Events\ChangeKind;
-use App\Modules\Audit\Application\Queries\PresentChange\PresentedLine;
-use App\Modules\Audit\Application\Queries\PresentChange\PresentedValue;
+use App\Modules\Audit\Application\ModuleApi\PresentedLine;
+use App\Modules\Audit\Application\ModuleApi\PresentedValue;
 use App\Modules\Audit\Infrastructure\Persistence\Models\ChangeModel;
 use App\Modules\Audit\UserInterface\Filament\RelationManagers\RecordHistoryRelationManager;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Audit\Application\ModuleApi;
 
 use App\Modules\Audit\Domain\Enums\ValuePresenterKind;
+use Closure;
 
 /**
  * How a module wants one audited value shown (FR-07):
@@ -18,6 +19,7 @@ use App\Modules\Audit\Domain\Enums\ValuePresenterKind;
  *     ValuePresenter::fileCount()   // a list of stored paths (an array or its JSON), shown as "3 pliki"
  *     ValuePresenter::boolean()   // 0/1 -> tak / nie
  *     ValuePresenter::translated('users::permissions.')   // 'users.manage' -> the translation at prefix + 'users_manage'; raw when missing
+ *     ValuePresenter::resolved(fn (mixed $raw): ?string => ...)   // the module names the value itself, for example an id of another module's record
  *     ValuePresenter::plain()   // as stored
  *
  * The entry always keeps the raw value; this only decides the display.
@@ -31,6 +33,7 @@ final readonly class ValuePresenter
         public ValuePresenterKind $kind,
         public ?string $target = null,
         public ?string $nameAttribute = null,
+        public ?Closure $resolver = null,
     ) {}
 
     /**
@@ -85,6 +88,14 @@ final readonly class ValuePresenter
     public static function translated(string $keyPrefix): self
     {
         return new self(ValuePresenterKind::Translated, $keyPrefix);
+    }
+
+    /**
+     * @param  Closure(mixed): ?string  $resolver  the raw value to its text; null shows the raw value
+     */
+    public static function resolved(Closure $resolver): self
+    {
+        return new self(ValuePresenterKind::Resolved, resolver: $resolver);
     }
 
     public static function plain(): self

@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Modules\Offers\UserInterface\Filament\Resources\Offers\Schemas;
 
 use App\Core\UserInterface\CurrentActor;
+use App\Modules\Audit\Application\ModuleApi\RecordChangesAfter;
 use App\Modules\Catalogue\Application\ModuleApi\GlassModelSummaries;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
+use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferRating;
@@ -26,6 +28,7 @@ class OfferInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema->columns(1)->components([
+            self::changesSinceApprovalSection(),
             self::offerSection(),
             self::glassSection(),
             self::pieceSection(),
@@ -33,6 +36,24 @@ class OfferInfolist
             self::notesSection(),
             self::privatePhotosSection(),
         ]);
+    }
+
+    /**
+     * FR-12: on a Pending Offer approved before, what changed since that approval, read from Audit's
+     * Change history (the approval's own change is left out). Admins only.
+     */
+    private static function changesSinceApprovalSection(): Section
+    {
+        return Section::make(__('offers::resources.offer.sections.changes_since_approval'))
+            ->visible(fn (OfferModel $record): bool => CurrentActor::can(OffersPermission::ManageAll)
+                && $record->status === OfferStatus::Pending
+                && $record->last_approved_at !== null)
+            ->schema([
+                View::make('offers::filament.changes-since-approval')
+                    ->viewData(fn (OfferModel $record): array => [
+                        'lines' => app(RecordChangesAfter::class)->lastChangeOf(OfferModel::AUDIT_KEY, $record->id, 'last_approved_at', ['status']) ?? [],
+                    ]),
+            ]);
     }
 
     private static function offerSection(): Section

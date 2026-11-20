@@ -21,6 +21,10 @@ return [
             'private_photos' => 'Zdjęcia prywatne',
             'price' => 'Cena',
             'offer' => 'Oferta',
+            'changes_since_approval' => 'Zmiany od ostatniego zatwierdzenia',
+        ],
+        'changes_since_approval' => [
+            'none' => 'Brak zmian do przejrzenia.',
         ],
         'descriptions' => [
             'photos' => 'Do 10 zdjęć. Pierwsze jest zdjęciem głównym, kolejność zmienisz przeciągając.',

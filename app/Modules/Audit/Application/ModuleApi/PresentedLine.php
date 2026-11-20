@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Modules\Audit\Application\Queries\PresentChange;
+namespace App\Modules\Audit\Application\ModuleApi;
 
 /**
  * One line of an entry's details (FR-10): a field with its old and new value,

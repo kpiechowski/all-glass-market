@@ -19,6 +19,9 @@ final class OfferModel extends ReadOnlyModel
     /** @use HasFactory<OfferModelFactory> */
     use HasFactory;
 
+    /** The Offer's type key in Audit's registry, stored in every entry: never rename it. */
+    public const string AUDIT_KEY = 'offers.offer';
+
     protected $table = 'offers';
 
     protected $guarded = [];

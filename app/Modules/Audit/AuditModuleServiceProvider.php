@@ -11,12 +11,14 @@ use App\Core\UserInterface\Filament\QuickAccess\FilamentQuickAccessItem;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecords;
 use App\Modules\Audit\Application\Providers\AuditEventServiceProvider;
 use App\Modules\Audit\Domain\Contracts\FailedJobs;
+use App\Modules\Audit\Domain\Contracts\RecordChangeReader;
 use App\Modules\Audit\Domain\Contracts\RecordLoader;
 use App\Modules\Audit\Domain\Contracts\ReferenceNames;
 use App\Modules\Audit\Domain\Contracts\RetentionPeriod;
 use App\Modules\Audit\Domain\Enums\AuditPermission;
 use App\Modules\Audit\Domain\Repositories\ChangeRepository;
 use App\Modules\Audit\Infrastructure\Persistence\EloquentChangeRepository;
+use App\Modules\Audit\Infrastructure\Persistence\EloquentRecordChangeReader;
 use App\Modules\Audit\Infrastructure\Persistence\EloquentRecordLoader;
 use App\Modules\Audit\Infrastructure\Persistence\EloquentReferenceNames;
 use App\Modules\Audit\Infrastructure\Queue\LaravelFailedJobs;
@@ -41,6 +43,7 @@ class AuditModuleServiceProvider extends ModuleServiceProvider
     protected array $containerBindings = [
         ChangeRepository::class => EloquentChangeRepository::class,
         RecordLoader::class => EloquentRecordLoader::class,
+        RecordChangeReader::class => EloquentRecordChangeReader::class,
         ReferenceNames::class => EloquentReferenceNames::class,
         RetentionPeriod::class => ConfigRetentionPeriod::class,
         FailedJobs::class => LaravelFailedJobs::class,
