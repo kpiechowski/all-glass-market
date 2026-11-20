@@ -37,6 +37,8 @@ final class OfferMapper implements Mapper
                 $model->price_grosze === null ? null : EnteredPrice::fromGrosze($model->price_grosze),
             ),
             OfferPhotos::from($model->public_photos ?? [], $model->private_photos ?? []),
+            $model->first_approved_at,
+            $model->last_approved_at,
         );
     }
 
@@ -60,6 +62,8 @@ final class OfferMapper implements Mapper
             'price_grosze' => $content->price?->grosze,
             'public_photos' => $entity->photos()->public,
             'private_photos' => $entity->photos()->private,
+            'first_approved_at' => $entity->firstApprovedAt(),
+            'last_approved_at' => $entity->lastApprovedAt(),
         ];
     }
 }

@@ -7,14 +7,18 @@ namespace App\Modules\Offers\Domain\Entities;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Exceptions\OfferRefused;
 use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
+use App\Modules\Offers\Domain\ValueObjects\GlassReference;
 use App\Modules\Offers\Domain\ValueObjects\OfferContent;
 use App\Modules\Offers\Domain\ValueObjects\OfferNumber;
 use App\Modules\Offers\Domain\ValueObjects\OfferPhotos;
+use Carbon\CarbonImmutable;
 
 /**
  * An Offer (§2): one physical piece (RULE-01). It has an owner who never changes (RULE-07) and a
  * number assigned once (RULE-13). It stores a Glass model's id or a hint, never glass data (RULE-02).
- * Only Draft exists in this slice. Whether a newly chosen Glass model or producer may be picked
+ * Statuses here are Draft, Pending, Rejected and Active (§7); the status machine is this class
+ * (RULE-04): sending, approving, rejecting and editing are the only ways to move between them.
+ * Whether a newly chosen Glass model or producer may be picked
  * (exists, not withdrawn) is a fact the handler gathers from Catalogue and passes in; a value the
  * Offer already has survives a save even when it was withdrawn since.
  */
@@ -27,6 +31,8 @@ final class Offer
         private OfferStatus $status,
         private OfferContent $content,
         private OfferPhotos $photos,
+        private ?CarbonImmutable $firstApprovedAt,
+        private ?CarbonImmutable $lastApprovedAt,
     ) {}
 
     public static function draft(
@@ -38,21 +44,137 @@ final class Offer
     ): self {
         self::guardPicks(null, $content, $glassModelCanBePicked, $producerCanBePicked);
 
-        return new self(null, $number, $ownerId, OfferStatus::Draft, $content, OfferPhotos::none());
+        return new self(null, $number, $ownerId, OfferStatus::Draft, $content, OfferPhotos::none(), null, null);
     }
 
     /** @internal for the mapper */
-    public static function reconstitute(int $id, OfferNumber $number, int $ownerId, OfferStatus $status, OfferContent $content, OfferPhotos $photos): self
-    {
-        return new self($id, $number, $ownerId, $status, $content, $photos);
+    public static function reconstitute(
+        int $id,
+        OfferNumber $number,
+        int $ownerId,
+        OfferStatus $status,
+        OfferContent $content,
+        OfferPhotos $photos,
+        ?CarbonImmutable $firstApprovedAt = null,
+        ?CarbonImmutable $lastApprovedAt = null,
+    ): self {
+        return new self($id, $number, $ownerId, $status, $content, $photos, $firstApprovedAt, $lastApprovedAt);
     }
 
-    /** FR-06: saves any content and keeps the status. */
-    public function revise(OfferContent $content, bool $glassModelCanBePicked, bool $producerCanBePicked): void
+    /**
+     * §7 Draft or Rejected to Pending (a seller) or Active (an admin's own Offer with a Glass model,
+     * FR-13). FR-06 must hold first; the refusal names what is missing.
+     */
+    public function send(bool $ownerIsAdmin, CarbonImmutable $now): void
     {
+        if (! OfferDomainPolicy::canBeSent($this->status)) {
+            throw OfferRefused::cannotBeSent();
+        }
+
+        $this->guardCompleteForSending($this->content, $this->photos);
+
+        if ($ownerIsAdmin && $this->content->glass->glassModelId !== null) {
+            $this->activate($now);
+
+            return;
+        }
+
+        $this->status = OfferStatus::Pending;
+    }
+
+    /**
+     * FR-09, RULE-03: Pending or Rejected to Active, only with a Glass model. A Glass model the
+     * admin chose while approving (FR-10) is selected for the Offer first and replaces the hint.
+     */
+    public function approve(CarbonImmutable $now, ?int $chosenGlassModelId = null, bool $chosenGlassModelCanBePicked = true): void
+    {
+        if (! OfferDomainPolicy::approvalApplies($this->status)) {
+            throw OfferRefused::cannotBeApproved();
+        }
+
+        $glass = $this->content->glass;
+
+        if ($chosenGlassModelId !== null && $chosenGlassModelId !== $glass->glassModelId) {
+            if (! $chosenGlassModelCanBePicked) {
+                throw OfferRefused::glassModelCannotBePicked();
+            }
+
+            $glass = GlassReference::from($chosenGlassModelId, null);
+        }
+
+        if (! OfferDomainPolicy::canBeApproved($this->status, $glass->glassModelId !== null)) {
+            throw OfferRefused::glassModelRequired();
+        }
+
+        $this->content = $this->content->withGlass($glass);
+        $this->activate($now);
+    }
+
+    /** FR-09: Pending or Active to Rejected, with a reason (the reason goes to the owner's Journal). */
+    public function reject(string $reason): void
+    {
+        if (! OfferDomainPolicy::canBeRejected($this->status)) {
+            throw OfferRefused::cannotBeRejected();
+        }
+
+        if (trim($reason) === '') {
+            throw OfferRefused::rejectionReasonRequired();
+        }
+
+        $this->status = OfferStatus::Rejected;
+    }
+
+    /**
+     * FR-05 to FR-08: saves the edit of the content and both photo lists and says whether anything
+     * changed. An admin's edit never changes the status (FR-08). A seller's change of anything but
+     * the entered price, private notes and private photos sends an Active or Rejected Offer to
+     * Pending (FR-07); that needs FR-06 to hold. Draft and Pending stay as they are.
+     */
+    public function edit(
+        OfferContent $content,
+        OfferPhotos $photos,
+        int $editorId,
+        bool $editorIsAdmin,
+        bool $glassModelCanBePicked,
+        bool $producerCanBePicked,
+    ): bool {
         self::guardPicks($this->content, $content, $glassModelCanBePicked, $producerCanBePicked);
+        $this->guardPhotos($photos, $editorId);
+
+        $needsReapproval = ! $editorIsAdmin
+            && ($this->status === OfferStatus::Active || $this->status === OfferStatus::Rejected)
+            && OfferDomainPolicy::changeNeedsReapproval($this->content, $this->photos, $content, $photos);
+
+        if ($needsReapproval) {
+            $this->guardCompleteForSending($content, $photos);
+        }
+
+        $changed = $content != $this->content || $photos != $this->photos;
 
         $this->content = $content;
+        $this->photos = $photos;
+
+        if ($needsReapproval) {
+            $this->status = OfferStatus::Pending;
+        }
+
+        return $changed;
+    }
+
+    private function activate(CarbonImmutable $now): void
+    {
+        $this->status = OfferStatus::Active;
+        $this->firstApprovedAt ??= $now;
+        $this->lastApprovedAt = $now;
+    }
+
+    private function guardCompleteForSending(OfferContent $content, OfferPhotos $photos): void
+    {
+        $missing = OfferDomainPolicy::missingForSending($content, $photos);
+
+        if ($missing !== []) {
+            throw OfferRefused::missingForSending($missing);
+        }
     }
 
     /**
@@ -62,14 +184,19 @@ final class Offer
      */
     public function arrangePhotos(OfferPhotos $photos, int $uploaderId): void
     {
+        $this->guardPhotos($photos, $uploaderId);
+
+        $this->photos = $photos;
+    }
+
+    private function guardPhotos(OfferPhotos $photos, int $uploaderId): void
+    {
         if (
             ! OfferDomainPolicy::photosAreFromUploader($photos->public, $this->photos->public, OfferDomainPolicy::publicPhotoDirectory($uploaderId))
             || ! OfferDomainPolicy::photosAreFromUploader($photos->private, $this->photos->private, OfferDomainPolicy::privatePhotoDirectory($uploaderId))
         ) {
             throw OfferRefused::photoIsInvalid();
         }
-
-        $this->photos = $photos;
     }
 
     private static function guardPicks(?OfferContent $current, OfferContent $content, bool $glassModelCanBePicked, bool $producerCanBePicked): void
@@ -112,5 +239,15 @@ final class Offer
     public function photos(): OfferPhotos
     {
         return $this->photos;
+    }
+
+    public function firstApprovedAt(): ?CarbonImmutable
+    {
+        return $this->firstApprovedAt;
+    }
+
+    public function lastApprovedAt(): ?CarbonImmutable
+    {
+        return $this->lastApprovedAt;
     }
 }

@@ -33,7 +33,32 @@ final class OfferModelFactory extends ModelFactory
             'price_grosze' => null,
             'public_photos' => [],
             'private_photos' => [],
+            'first_approved_at' => null,
+            'last_approved_at' => null,
         ];
+    }
+
+    public function status(OfferStatus $status): static
+    {
+        return $this->state(fn (): array => ['status' => $status]);
+    }
+
+    /** Pending with everything FR-06 asks for and a hint (no Glass model). */
+    public function pending(): static
+    {
+        return $this->sendable()->status(OfferStatus::Pending);
+    }
+
+    /** Everything FR-06 asks for, with a hint instead of a Glass model; the status stays as it is. */
+    public function sendable(): static
+    {
+        return $this->state(fn (): array => [
+            'identification_hint' => 'VW Golf 2015',
+            'condition' => OfferCondition::Used,
+            'rating' => 3,
+            'price_grosze' => 15000,
+            'public_photos' => ['offers/public/1/a.jpg'],
+        ]);
     }
 
     public function ownedBy(int $userId): static

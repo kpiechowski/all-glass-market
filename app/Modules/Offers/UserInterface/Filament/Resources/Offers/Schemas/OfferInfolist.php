@@ -48,6 +48,16 @@ class OfferInfolist
                     ->money('PLN', divideBy: 100)
                     ->placeholder('—'),
                 TextEntry::make('created_at')->label(__('offers::resources.offer.fields.created_at'))->date('d.m.Y'),
+                TextEntry::make('first_approved_at')
+                    ->label(__('offers::resources.offer.fields.first_approved_at'))
+                    ->date('d.m.Y')
+                    ->placeholder('—')
+                    ->visible(fn (): bool => CurrentActor::can(OffersPermission::ManageAll)),
+                TextEntry::make('last_approved_at')
+                    ->label(__('offers::resources.offer.fields.last_approved_at'))
+                    ->date('d.m.Y')
+                    ->placeholder('—')
+                    ->visible(fn (): bool => CurrentActor::can(OffersPermission::ManageAll)),
             ]);
     }
 

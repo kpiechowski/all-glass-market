@@ -9,15 +9,21 @@ use App\Core\UserInterface\Filament\Tables\Columns\RecordCardColumn;
 use App\Core\UserInterface\Filament\Tables\TableEmptyState;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ApproveOfferAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ApproveOffersBulkAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ApproveOfferWithGlassModelAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\RejectOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferGlassLabel;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferRating;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-/** Template A (list): plain list; tabs, filters and stat cards come later. The same table serves "Moje oferty" and "Wszystkie oferty". */
+/** Template A (list): list with the approval actions (FR-09, FR-11); filters and stat cards come later. The same table serves "Moje oferty" and "Wszystkie oferty". */
 class OffersTable
 {
     public static function configure(Table $table): Table
@@ -25,6 +31,18 @@ class OffersTable
         $table = $table
             ->columns(self::columns())
             ->recordUrl(fn (OfferModel $record): string => OfferResource::getUrl('view', ['record' => $record]))
+            ->recordActions([
+                ActionGroup::make([
+                    ApproveOfferAction::make(),
+                    ApproveOfferWithGlassModelAction::make(),
+                    RejectOfferAction::make(),
+                ]),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    ApproveOffersBulkAction::make(),
+                ]),
+            ])
             ->defaultSort('created_at', 'desc');
 
         return TableEmptyState::configure(

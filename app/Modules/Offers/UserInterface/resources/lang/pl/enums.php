@@ -14,5 +14,8 @@ return [
     ],
     'offer_status' => [
         'draft' => 'Szkic',
+        'pending' => 'Oczekuje na zatwierdzenie',
+        'rejected' => 'Odrzucona',
+        'active' => 'Aktywna',
     ],
 ];

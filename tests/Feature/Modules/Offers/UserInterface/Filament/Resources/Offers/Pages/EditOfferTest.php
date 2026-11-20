@@ -6,6 +6,7 @@ namespace Tests\Feature\Modules\Offers\UserInterface\Filament\Resources\Offers\P
 
 use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Infrastructure\Factories\OfferModelFactory;
+use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Pages\EditOffer;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Filament\Facades\Filament;
@@ -108,5 +109,58 @@ class EditOfferTest extends TestCase
             ->assertHasNoFormErrors();
 
         $this->assertSame([$b, $a], $offer->fresh()->public_photos);
+    }
+
+    /** The upload field only keeps files that exist on its disk. */
+    private function activeOfferWithAPhoto(?UserModel $owner): OfferModel
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('offers/public/1/a.jpg', 'x');
+
+        $factory = OfferModelFactory::new()->sendable()->status(OfferStatus::Active);
+
+        return ($owner === null ? $factory : $factory->ownedBy($owner->id))->create();
+    }
+
+    public function test_a_seller_changing_the_description_of_an_active_offer_sends_it_back_to_pending_and_says_so(): void
+    {
+        $owner = UserModel::factory()->create();
+        $this->actingAs($owner);
+        $offer = $this->activeOfferWithAPhoto($owner);
+
+        Livewire::test(EditOffer::class, ['record' => $offer->getRouteKey()])
+            ->fillForm(['description' => 'Nowy opis'])
+            ->call('save')
+            ->assertNotified(__('offers::resources.offer.notifications.saved_pending_again'));
+
+        $this->assertSame(OfferStatus::Pending, $offer->fresh()->status);
+    }
+
+    public function test_a_seller_changing_only_the_price_of_an_active_offer_keeps_it_active(): void
+    {
+        $owner = UserModel::factory()->create();
+        $this->actingAs($owner);
+        $offer = $this->activeOfferWithAPhoto($owner);
+
+        Livewire::test(EditOffer::class, ['record' => $offer->getRouteKey()])
+            ->fillForm(['price' => '300'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $fresh = $offer->fresh();
+        $this->assertSame(OfferStatus::Active, $fresh->status);
+        $this->assertSame(30000, $fresh->price_grosze);
+    }
+
+    public function test_an_admin_editing_an_active_offer_keeps_it_active(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $offer = $this->activeOfferWithAPhoto(null);
+
+        Livewire::test(EditOffer::class, ['record' => $offer->getRouteKey()])
+            ->fillForm(['description' => 'Opis admina'])
+            ->call('save');
+
+        $this->assertSame(OfferStatus::Active, $offer->fresh()->status);
     }
 }

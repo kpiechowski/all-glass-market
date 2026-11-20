@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Modules\Offers\Infrastructure\Persistence\Queries;
 
+use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Infrastructure\Factories\OfferModelFactory;
 use App\Modules\Offers\Infrastructure\Persistence\Queries\OfferQueries;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
@@ -31,5 +32,15 @@ class OfferQueriesTest extends TestCase
         OfferModelFactory::new()->count(2)->create();
 
         $this->assertCount(2, (new OfferQueries)->visibleTo($admin->id, managesAll: true)->get());
+    }
+
+    public function test_the_approval_queue_holds_pending_offers_only(): void
+    {
+        $pending = OfferModelFactory::new()->pending()->create();
+        OfferModelFactory::new()->create();
+        OfferModelFactory::new()->status(OfferStatus::Rejected)->create();
+        OfferModelFactory::new()->status(OfferStatus::Active)->create();
+
+        $this->assertSame([$pending->id], (new OfferQueries)->pendingApproval()->pluck('id')->all());
     }
 }

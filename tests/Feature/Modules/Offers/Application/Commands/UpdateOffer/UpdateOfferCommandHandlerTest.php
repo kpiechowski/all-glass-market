@@ -12,6 +12,8 @@ use App\Modules\Offers\Application\Commands\UpdateOffer\UpdateOfferCommand;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Exceptions\OfferRefused;
 use App\Modules\Offers\Infrastructure\Factories\OfferModelFactory;
+use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
+use App\Modules\Users\Infrastructure\Persistence\Models\JournalEntryModel;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Ecotone\Modelling\CommandBus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -209,5 +211,133 @@ class UpdateOfferCommandHandlerTest extends TestCase
 
         $this->assertRefused('photo_is_invalid', fn () => $this->sendPhotos(Actor::user($owner->id), $offer->id, null, ["offers/private/{$victim->id}/secret.jpg"]));
         $this->assertSame([], $offer->fresh()->private_photos);
+    }
+
+    /** An Active, complete Offer (hint VW Golf 2015, used 3 stars, 150 zł, one public photo, no year, no description). */
+    private function activeOffer(UserModel $owner, OfferStatus $status = OfferStatus::Active): OfferModel
+    {
+        return OfferModelFactory::new()->sendable()->status($status)->ownedBy($owner->id)->create(['private_notes' => 'stara']);
+    }
+
+    /** @param array<string, mixed> $changes */
+    private function sendWith(Actor $actor, int $offerId, array $changes = []): void
+    {
+        $arguments = [
+            'actor' => $actor,
+            'offerId' => $offerId,
+            'identificationHint' => 'VW Golf 2015',
+            'condition' => 'used',
+            'rating' => 3,
+            'priceGrosze' => 15000,
+            'privateNotes' => 'stara',
+            'publicPhotos' => ['offers/public/1/a.jpg'],
+        ];
+
+        app(CommandBus::class)->send(new UpdateOfferCommand(...array_merge($arguments, $changes)));
+    }
+
+    public function test_a_sellers_price_and_private_notes_edit_keeps_an_active_offer_active(): void
+    {
+        $owner = UserModel::factory()->create();
+        $offer = $this->activeOffer($owner);
+
+        $this->sendWith(Actor::user($owner->id), $offer->id, ['priceGrosze' => 99900, 'privateNotes' => 'nowa']);
+
+        $fresh = $offer->fresh();
+        $this->assertSame(OfferStatus::Active, $fresh->status);
+        $this->assertSame(99900, $fresh->price_grosze);
+        $this->assertSame('nowa', $fresh->private_notes);
+    }
+
+    public function test_a_sellers_private_photo_edit_keeps_an_active_offer_active(): void
+    {
+        $owner = UserModel::factory()->create();
+        $offer = $this->activeOffer($owner);
+
+        $this->sendWith(Actor::user($owner->id), $offer->id, ['privatePhotos' => ["offers/private/{$owner->id}/x.jpg"]]);
+
+        $fresh = $offer->fresh();
+        $this->assertSame(OfferStatus::Active, $fresh->status);
+        $this->assertSame(["offers/private/{$owner->id}/x.jpg"], $fresh->private_photos);
+    }
+
+    public function test_a_sellers_public_photo_edit_sends_an_active_offer_to_pending(): void
+    {
+        $owner = UserModel::factory()->create();
+        $offer = $this->activeOffer($owner);
+
+        $this->sendWith(Actor::user($owner->id), $offer->id, ['publicPhotos' => ['offers/public/1/a.jpg', "offers/public/{$owner->id}/b.jpg"]]);
+
+        $this->assertSame(OfferStatus::Pending, $offer->fresh()->status);
+    }
+
+    public function test_a_sellers_description_edit_sends_an_active_or_rejected_offer_to_pending(): void
+    {
+        $owner = UserModel::factory()->create();
+
+        foreach ([OfferStatus::Active, OfferStatus::Rejected] as $status) {
+            $offer = $this->activeOffer($owner, $status);
+
+            $this->sendWith(Actor::user($owner->id), $offer->id, ['description' => 'Zmieniony opis']);
+
+            $this->assertSame(OfferStatus::Pending, $offer->fresh()->status);
+        }
+    }
+
+    public function test_a_sellers_edit_that_empties_the_photos_of_an_active_offer_is_refused(): void
+    {
+        $owner = UserModel::factory()->create();
+        $offer = $this->activeOffer($owner);
+
+        $this->assertRefused('missing_for_sending', fn () => $this->sendWith(Actor::user($owner->id), $offer->id, ['publicPhotos' => []]));
+
+        $this->assertSame(OfferStatus::Active, $offer->fresh()->status);
+    }
+
+    public function test_an_admin_edit_never_changes_the_status_and_the_owner_gets_a_journal_entry(): void
+    {
+        $owner = UserModel::factory()->create();
+        $admin = UserModel::factory()->admin()->create();
+        $offer = $this->activeOffer($owner);
+
+        $this->sendWith(Actor::user($admin->id), $offer->id, ['description' => 'Opis admina']);
+
+        $this->assertSame(OfferStatus::Active, $offer->fresh()->status);
+        $entry = JournalEntryModel::query()->where('user_id', $owner->id)->sole();
+        $this->assertSame($offer->id, $entry->subject_id);
+        $this->assertSame('offer', $entry->kind);
+        $this->assertStringContainsString($offer->number, $entry->title);
+    }
+
+    public function test_an_admin_save_with_nothing_changed_writes_no_journal_entry(): void
+    {
+        $owner = UserModel::factory()->create();
+        $admin = UserModel::factory()->admin()->create();
+        $offer = $this->activeOffer($owner);
+
+        $this->sendWith(Actor::user($admin->id), $offer->id);
+
+        $this->assertSame(0, JournalEntryModel::query()->count());
+    }
+
+    public function test_an_admin_editing_their_own_offer_writes_no_journal_entry(): void
+    {
+        $admin = UserModel::factory()->admin()->create();
+        $offer = $this->activeOffer($admin);
+
+        $this->sendWith(Actor::user($admin->id), $offer->id, ['description' => 'Opis']);
+
+        $this->assertSame(0, JournalEntryModel::query()->count());
+        $this->assertSame(OfferStatus::Active, $offer->fresh()->status);
+    }
+
+    public function test_a_seller_editing_their_own_offer_writes_no_journal_entry(): void
+    {
+        $owner = UserModel::factory()->create();
+        $offer = $this->activeOffer($owner);
+
+        $this->sendWith(Actor::user($owner->id), $offer->id, ['description' => 'Opis']);
+
+        $this->assertSame(0, JournalEntryModel::query()->count());
     }
 }

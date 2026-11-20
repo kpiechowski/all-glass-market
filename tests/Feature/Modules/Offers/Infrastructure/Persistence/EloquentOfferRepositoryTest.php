@@ -71,7 +71,7 @@ class EloquentOfferRepositoryTest extends TestCase
         $model = OfferModelFactory::new()->create(['number' => 'AG00000001']);
         $entity = $this->repository->get($model->id);
 
-        $entity->revise($this->content('NOWY'), true, true);
+        $entity->edit($this->content('NOWY'), $entity->photos(), $entity->ownerId(), false, true, true);
         $this->asCommand(fn () => $this->repository->save($entity));
 
         $fresh = OfferModel::findOrFail($model->id);

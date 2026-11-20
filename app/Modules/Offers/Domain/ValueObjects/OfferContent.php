@@ -58,6 +58,12 @@ final readonly class OfferContent
         );
     }
 
+    /** FR-10: the same content with another Glass reference. */
+    public function withGlass(GlassReference $glass): self
+    {
+        return new self($glass, $this->producerId, $this->year, $this->condition, $this->rating, $this->description, $this->privateNotes, $this->price);
+    }
+
     private static function text(?string $text): ?string
     {
         $text = $text === null ? '' : trim($text);

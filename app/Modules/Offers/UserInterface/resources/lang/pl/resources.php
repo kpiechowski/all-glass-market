@@ -43,6 +43,9 @@ return [
             'created_at' => 'Utworzono',
             'main_photo' => 'Główne',
             'glass' => 'Szyba',
+            'rejection_reason' => 'Powód odrzucenia',
+            'first_approved_at' => 'Pierwsze zatwierdzenie',
+            'last_approved_at' => 'Ostatnie zatwierdzenie',
         ],
         'helpers' => [
             'identification_hint' => 'Dowolny kod, numer OEM, opis pojazdu lub auta dawcy; może być też numer VIN.',
@@ -63,11 +66,45 @@ return [
             'pick_glass_model' => 'Wybierz model szyby',
             'unknown_glass_model' => 'Nie znam modelu',
             'create' => 'Utwórz ofertę',
+            'send_for_approval' => [
+                'label' => 'Wyślij do zatwierdzenia',
+                'heading' => 'Wysłać ofertę do zatwierdzenia?',
+                'description' => 'Oferta musi mieć szybę (model albo podpowiedź), cenę od 1 zł, stan, ocenę (dla używanej i outletu) i co najmniej jedno zdjęcie publiczne.',
+                'submit' => 'Wyślij',
+                'done_pending' => 'Oferta czeka na zatwierdzenie',
+                'done_active' => 'Oferta jest aktywna',
+            ],
+            'approve' => [
+                'label' => 'Zatwierdź',
+                'heading' => 'Zatwierdzić ofertę?',
+                'description' => 'Oferta stanie się aktywna, a jej właściciel dostanie wpis w Dzienniku.',
+                'done' => 'Oferta została zatwierdzona',
+            ],
+            'approve_with_glass_model' => [
+                'label' => 'Wybierz model i zatwierdź',
+                'submit' => 'Wybierz i zatwierdź',
+            ],
+            'reject' => [
+                'label' => 'Odrzuć',
+                'heading' => 'Odrzucić ofertę?',
+                'description' => 'Właściciel zobaczy powód w swoim Dzienniku.',
+                'done' => 'Oferta została odrzucona',
+            ],
+            'approve_selected' => [
+                'label' => 'Zatwierdź zaznaczone',
+                'heading' => 'Zatwierdzić zaznaczone oferty?',
+                'description' => 'Zatwierdzone zostaną oczekujące i odrzucone oferty, które mają model szyby. Pozostałe zostaną pominięte.',
+                'done' => 'Zatwierdzono: :approved, pominięto: :skipped',
+                'skipped_reason' => 'Pominięte oferty nie mają modelu szyby albo nie oczekują na zatwierdzenie.',
+            ],
         ],
         'notifications' => [
             'created' => 'Zapisano ofertę',
+            'saved_pending_again' => 'Zapisano. Oferta czeka ponownie na zatwierdzenie',
         ],
         'tabs' => [
+            'all' => 'Wszystkie',
+            'pending' => 'Oczekujące',
             'details' => 'Szczegóły',
         ],
         'empty' => [

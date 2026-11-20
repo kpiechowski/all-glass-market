@@ -15,6 +15,7 @@ use App\Modules\Offers\Domain\ValueObjects\OfferPhotos;
 use App\Modules\Offers\Domain\ValueObjects\Rating;
 use App\Modules\Offers\Infrastructure\Factories\OfferModelFactory;
 use App\Modules\Offers\Infrastructure\Persistence\Mappers\OfferMapper;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -40,6 +41,26 @@ class OfferMapperTest extends TestCase
         $entity = Offer::reconstitute(8, OfferNumber::from('AG00000008'), 2, OfferStatus::Draft, $content, OfferPhotos::from(['offers/public/2/b.jpg', 'offers/public/2/a.jpg'], ['offers/private/2/x.jpg']));
 
         $model = OfferModelFactory::new()->make(['id' => 8] + $mapper->toRow($entity));
+
+        $this->assertEquals($entity, $mapper->toEntity($model));
+    }
+
+    public function test_the_status_and_both_approval_dates_survive_the_round_trip(): void
+    {
+        $mapper = new OfferMapper;
+        $content = OfferContent::from(GlassReference::from(4, null), null, null, null, null, null, null, null);
+        $entity = Offer::reconstitute(
+            9,
+            OfferNumber::from('AG00000009'),
+            2,
+            OfferStatus::Active,
+            $content,
+            OfferPhotos::none(),
+            CarbonImmutable::parse('2026-01-02 10:00:00'),
+            CarbonImmutable::parse('2026-03-04 12:30:00'),
+        );
+
+        $model = OfferModelFactory::new()->make(['id' => 9] + $mapper->toRow($entity));
 
         $this->assertEquals($entity, $mapper->toEntity($model));
     }

@@ -41,6 +41,8 @@ final class OfferModel extends ReadOnlyModel
             'price_grosze' => 'integer',
             'public_photos' => 'array',
             'private_photos' => 'array',
+            'first_approved_at' => 'immutable_datetime',
+            'last_approved_at' => 'immutable_datetime',
         ];
     }
 

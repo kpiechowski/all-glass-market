@@ -59,6 +59,12 @@ final class OfferContentAssembler
             return true;
         }
 
+        return $this->glassModelIdCanBePicked($id);
+    }
+
+    /** FR-10: a model chosen while approving is client state too: it must exist and not be withdrawn. */
+    public function glassModelIdCanBePicked(int $id): bool
+    {
         $summary = $this->glassModels->of($id);
 
         return $summary !== null && ! $summary->withdrawn;

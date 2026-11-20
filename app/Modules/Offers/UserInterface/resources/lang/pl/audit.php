@@ -20,6 +20,8 @@ return [
             'public_photos' => 'Zdjęcia publiczne',
             'private_photos' => 'Zdjęcia prywatne',
             'price' => 'Cena (w groszach)',
+            'first_approved_at' => 'Pierwsze zatwierdzenie',
+            'last_approved_at' => 'Ostatnie zatwierdzenie',
         ],
     ],
 ];

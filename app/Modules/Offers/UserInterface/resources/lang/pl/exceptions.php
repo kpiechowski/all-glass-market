@@ -18,4 +18,17 @@ return [
     'too_many_private_photos' => 'Oferta może mieć najwyżej :max zdjęć prywatnych.',
     'photo_is_invalid' => 'Nie można użyć tego zdjęcia. Dodaj je ponownie.',
     'not_yours' => 'Nie masz dostępu do tej oferty.',
+    'missing_for_sending' => 'Nie można wysłać oferty do zatwierdzenia. Uzupełnij: :fields.',
+    'sending_fields' => [
+        'glass' => 'Szyba (model albo podpowiedź identyfikacyjna)',
+        'price' => 'Cena (co najmniej 1 zł)',
+        'condition' => 'Stan',
+        'rating' => 'Ocena',
+        'public_photos' => 'Zdjęcia publiczne (co najmniej jedno)',
+    ],
+    'cannot_be_sent' => 'Tej oferty nie można wysłać do zatwierdzenia w jej obecnym statusie.',
+    'cannot_be_approved' => 'Zatwierdzić można tylko ofertę oczekującą na zatwierdzenie albo odrzuconą.',
+    'glass_model_required' => 'Oferta bez modelu szyby nie może zostać zatwierdzona. Wybierz albo utwórz model szyby.',
+    'cannot_be_rejected' => 'Odrzucić można tylko ofertę oczekującą na zatwierdzenie albo aktywną.',
+    'rejection_reason_required' => 'Podaj powód odrzucenia oferty.',
 ];
