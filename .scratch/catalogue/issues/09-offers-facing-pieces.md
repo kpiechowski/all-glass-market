@@ -1,22 +1,21 @@
-# 09 - Pieces that need Offers: picker, approval, offer counts, in-use guard
+# 09 - Glass model picker slide-over and in-place creation (for Offers)
 
-Status: needs-triage
-Blocked by: 08, and the Offers module (spec and delivery; D-66)
+Status: ready-for-agent
+Blocked by: 08
 
-Spec: FR-19, FR-20, FR-04 "N offers" link, FR-24 (a Glass model or producer referred to by an offer is in use), WF-06 (picker), §9 last bullet. Decisions: D-17, D-19, D-37, D-38, D-44, D-52.
+Spec: FR-19 (amended 2026-11-20), FR-20, WF-06, WF-01 (from approval). Decisions: D-17, D-19, D-38, D-52, D-57, D-67. Offers spec: FR-02, FR-10, FR-14 (`.scratch/offers/functional-spec.md`).
 
 ## What
 
-- The seller's Glass model picker in the offer form, as a dedicated search modal with cards and thumbnails (FR-19).
-- Creating a Glass model in place during an offer's approval, main Eurocode prefilled from the identification hint (FR-20).
-- The "N offers" link on Glass model cards (D-37).
-- The guard: a Glass model or producer that an offer refers to cannot be deleted (FR-24), without Catalogue depending on Offers.
-
-Waits for the Offers grilling and spec (D-66). The Offers spec decides the form shape and where the guard lives; triage this issue then.
+- A reusable **Glass model picker**: a slide-over holding the catalogue card list with its search and filters (the same cards as the admin list, issues 06 and 11), in a seller variant (no "N ofert", no withdrawn models) and an admin variant. The user marks one card and confirms at the bottom; the picker hands the chosen Glass model id back to the form or action that opened it. It can open prefilled with a search text (Offers' identification hint).
+- **In-place creation** for admins from the picker (FR-20): create a Glass model (WF-01) with the main Eurocode suggested from the prefill text, normalised by RULE-03, for the admin to confirm or correct; the new model is returned as the choice.
+- Catalogue still knows nothing of Offers: the picker is a UI element of Catalogue that Offers' form and actions embed. A small demo use (e.g. on a styleguide or test page) is enough to test it before Offers exists.
+- Moved out of this issue (2026-11-20): the in-use guard and the "N ofert" link → Offers issue 11.
 
 ## Done when
 
-- Set at triage.
+- Seller variant hides withdrawn models and counts; confirming returns the id; prefill searches; admin in-place creation returns the new model and refuses a taken Eurocode naming its model.
+- Livewire tests for the picker; `composer check` passes.
 
 ## Comments
 
