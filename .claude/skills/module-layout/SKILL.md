@@ -73,6 +73,7 @@ A module **exposes operations, not data**. Another module may import exactly:
 | `Domain/Contracts/*`, `Domain/Enums/*` | yes — meant to be shared |
 | `Infrastructure/Persistence/Models/*` | read only: Eloquent relations and Filament display |
 | `UserInterface/Filament/RelationManagers/*` | yes — a hosting resource lists it in `getRelations()` (Audit's `RecordHistoryRelationManager`); deptrac already lets UserInterface use UserInterface |
+| `UserInterface/Filament/GlassModelPicker/*` | yes — Catalogue's embeddable Glass model picker (`GlassModelPickerSlideOver`, `GlassModelPickerField`); the embedder's command re-checks the chosen id |
 | everything else | private to module B |
 
 **`ModuleApi` classes** are named by capability (`RoleRegistry`, `UserAccounts`), not `{Name}Service`. A write method dispatches a command of its own module, so there is one write path with one set of rules and events. A read method returns an id, a DTO or a scalar.

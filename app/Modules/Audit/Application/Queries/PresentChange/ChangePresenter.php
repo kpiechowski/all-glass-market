@@ -80,6 +80,7 @@ final class ChangePresenter
             ValuePresenterKind::Reference => $this->reference($presenter, $raw),
             ValuePresenterKind::Enum => new PresentedValue($this->enumLabel((string) $presenter->target, $raw)),
             ValuePresenterKind::Money => new PresentedValue($this->money($raw)),
+            ValuePresenterKind::MoneyGrosze => new PresentedValue(is_numeric($raw) ? $this->money((float) $raw / 100) : $this->plain($raw)),
             ValuePresenterKind::Date => new PresentedValue($this->date($raw)),
             ValuePresenterKind::List => new PresentedValue($this->list($raw)),
             ValuePresenterKind::Boolean => new PresentedValue($this->plain(filter_var($raw, FILTER_VALIDATE_BOOLEAN))),

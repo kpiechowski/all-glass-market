@@ -29,10 +29,11 @@ class ChangePresenterTest extends TestCase
         $this->setUpThings();
         app(AuditableRecords::class)->register(new AuditableRecordType(
             'things.thing', ThingModel::class, 'Rzecz', fn (): string => 'x', fn (): ?string => null,
-            fieldLabels: ['name' => 'Nazwa', 'producer_id' => 'Producent', 'price' => 'Cena', 'status' => 'Status', 'due' => 'Termin', 'tags' => 'Tagi', 'flag' => 'Flaga'],
+            fieldLabels: ['name' => 'Nazwa', 'producer_id' => 'Producent', 'price' => 'Cena', 'price_grosze' => 'Cena (gr)', 'status' => 'Status', 'due' => 'Termin', 'tags' => 'Tagi', 'flag' => 'Flaga'],
             valuePresenters: [
                 'producer_id' => ValuePresenter::reference(ProducerModel::class),
                 'price' => ValuePresenter::money(),
+                'price_grosze' => ValuePresenter::moneyInGrosze(),
                 'status' => ValuePresenter::enum(ThingStatus::class),
                 'due' => ValuePresenter::date(),
                 'tags' => ValuePresenter::list(),
@@ -105,6 +106,13 @@ class ChangePresenterTest extends TestCase
         $this->assertSame(['05.11.2026', '06.11.2026 14:30'], [$lines[2]->old->text, $lines[2]->new->text]);
         $this->assertSame(['—', 'a, b'], [$lines[3]->old->text, $lines[3]->new->text]);
         $this->assertSame(['nie', 'tak'], [$lines[4]->old->text, $lines[4]->new->text]);
+    }
+
+    public function test_a_price_in_grosze_is_shown_in_zloty(): void
+    {
+        $lines = $this->present(['price_grosze' => ['old' => 120000, 'new' => 12345]]);
+
+        $this->assertSame(['1 200 zł', '123,45 zł'], [$lines[0]->old->text, $lines[0]->new->text]);
     }
 
     public function test_relation_items_are_named_added_and_removed(): void

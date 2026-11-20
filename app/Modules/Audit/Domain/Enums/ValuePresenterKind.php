@@ -11,6 +11,7 @@ enum ValuePresenterKind: string
     case Reference = 'reference';
     case Enum = 'enum';
     case Money = 'money';
+    case MoneyGrosze = 'money_grosze';
     case Date = 'date';
     case List = 'list';
     case Boolean = 'boolean';

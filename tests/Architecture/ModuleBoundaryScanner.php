@@ -18,6 +18,7 @@ final class ModuleBoundaryScanner
         'Domain\\Enums\\',
         'Infrastructure\\Persistence\\Models\\',
         'UserInterface\\Filament\\RelationManagers\\',
+        'UserInterface\\Filament\\GlassModelPicker\\',
     ];
 
     public function __construct(private readonly string $projectRoot) {}

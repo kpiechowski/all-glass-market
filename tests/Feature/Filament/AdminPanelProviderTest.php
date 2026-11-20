@@ -56,7 +56,7 @@ class AdminPanelProviderTest extends TestCase
 
         $labels = collect(Filament::getNavigation())->map(fn (NavigationGroup $group): ?string => $group->getLabel())->values()->all();
 
-        $this->assertSame([null, 'Katalog', 'Administracja', null], $labels);
+        $this->assertSame([null, 'Oferty', 'Katalog', 'Administracja', null], $labels);
     }
 
     public function test_a_plain_user_does_not_see_the_permission_gated_screens(): void

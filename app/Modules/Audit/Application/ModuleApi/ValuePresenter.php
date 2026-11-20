@@ -12,6 +12,7 @@ use App\Modules\Audit\Domain\Enums\ValuePresenterKind;
  *     ValuePresenter::reference(ProducerModel::class, 'name')   // id -> readable name
  *     ValuePresenter::enum(OfferStatus::class)                  // case value -> its label
  *     ValuePresenter::money()   // a number of zloty, shown "1 200 zł"
+ *     ValuePresenter::moneyInGrosze()   // an integer number of grosze, shown "123,45 zł"
  *     ValuePresenter::date()    // an ISO date or date-time
  *     ValuePresenter::list()    // an array, shown comma separated
  *     ValuePresenter::boolean()   // 0/1 -> tak / nie
@@ -50,6 +51,11 @@ final readonly class ValuePresenter
     public static function money(): self
     {
         return new self(ValuePresenterKind::Money);
+    }
+
+    public static function moneyInGrosze(): self
+    {
+        return new self(ValuePresenterKind::MoneyGrosze);
     }
 
     public static function date(): self

@@ -10,6 +10,7 @@ use App\Modules\Catalogue\UserInterface\Filament\Pages\CatalogueSettings\Catalog
 use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\DictionaryValueResource;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\GlassModelResource;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\VehicleResource;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
 use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\EditProfile;
 use App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\JournalEntryResource;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
@@ -23,7 +24,7 @@ use Filament\Resources\Resource as FilamentResource;
 /**
  * D-25, D-25a: the sidebar is built here, not discovered. The top block holds the dashboard and the
  * user's own journal and is closed by a divider (`.sidebar-group--top`); then labelled, always open
- * groups (Katalog first, Administracja); the bottom block (profile) is pushed to the foot of the
+ * groups (Oferty, Katalog, Administracja); the bottom block (profile) is pushed to the foot of the
  * sidebar by the theme (`.sidebar-group--bottom`). Groups carry only a label, never an icon, and do
  * not collapse: there are few screens, and the top navigation will group further. A new resource or
  * page appears only once it is listed here.
@@ -48,6 +49,11 @@ final class PanelNavigation
                 ->items(self::items([
                     Dashboard::class,
                     JournalEntryResource::class,
+                ])),
+            NavigationGroup::make(__('offers::resources.navigation.group'))
+                ->collapsible(false)
+                ->items(self::items([
+                    OfferResource::class,
                 ])),
             NavigationGroup::make(__('catalogue::resources.navigation.group'))
                 ->collapsible(false)
