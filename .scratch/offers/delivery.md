@@ -9,8 +9,8 @@
 | Issue | Status | Worktree | Round | Last verdict |
 |---|---|---|---|---|
 | catalogue 09 glass-model-picker | resolved (48282f2) | removed | 0 | approved |
-| 01 offer-core | in progress | .worktrees/offers-01 | 0 | — |
-| 02 photos | waiting | — | — | — |
+| 01 offer-core | resolved (5d68513) | removed | 1 | approved |
+| 02 photos | in progress | .worktrees/offers-02 | 0 | — |
 | 03 approval | waiting | — | — | — |
 | 04 history-and-changes-since-approval | waiting | — | — | — |
 | 05 prices-and-vat | waiting | — | — | — |
@@ -26,4 +26,5 @@
 
 ## Next action
 
-2026-11-20: catalogue 09 merged (48282f2; no migrations, `npm run build` done). Open for the user: admin picker keeps the "with withdrawn" toggle; hand-check the slide-over picker. Offers 01 dispatched to a worker in `.worktrees/offers-01`.
+2026-11-20: Offers 01 merged (5d68513) after 1 fix round. Migration `create_offers_table` (run `dartisan migrate`). Offers 02 dispatched in `.worktrees/offers-02`.
+Open for the user: admin picker keeps the "with withdrawn" toggle; hand-check the picker slide-over in the browser.
