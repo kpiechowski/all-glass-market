@@ -8,6 +8,10 @@
 
 Step 2 is done: `.scratch/catalogue/functional-spec.md`, issues `.scratch/catalogue/issues/01–09`, data migration in `.scratch/data-migration/catalogue/`. The user changed the order: **Catalogue delivery (step 4) comes before the Offers grilling (step 3)**. Catalogue issue 09 (picker, approval, offer counts, in-use guard) waits for the Offers spec. If Offers needs more from Catalogue's `ModuleApi`, add it then and record a `D-` in both discoveries.
 
+## Update 2026-11-20 (Offers grilling)
+
+Step 3 is done: `.scratch/offers/functional-spec.md` (audit r07 applied), data migration in `.scratch/data-migration/offers/`, decisions D-29–D-68 in the Offers discovery. Catalogue got D-67 (picker as a slide-over, FR-19 amended) and a triage note on issue 09. Next: triage Catalogue issue 09, cut Offers issues, then `/module-delivery`.
+
 ## Where we are
 
 - Vehicles and Offers discoveries are done (`ready-for-grilling`).

@@ -17,3 +17,7 @@ Waits for the Offers grilling and spec (D-66). The Offers spec decides the form 
 ## Done when
 
 - Set at triage.
+
+## Comments
+
+- 2026-11-20 (Offers grilling): the Offers spec is written (`.scratch/offers/functional-spec.md`). Inputs for triage: the picker is a **slide-over** with the catalogue card list (Catalogue D-67, FR-19 amended; Offers D-38, FR-02); in-place creation during approval (Offers FR-10, D-44); "N ofert" counts Offers outside the Trash in every status and links to the filtered offer list (Offers FR-33, D-48); the in-use guard counts every Offer Offers keeps, Trash included (Offers FR-25, D-43). Offers also needs bulk "change Glass model" (Offers FR-14), which uses the picker. No new Catalogue module interface needed beyond §9.

@@ -78,7 +78,7 @@ Defined in `GLOSSARY.md`, section *Glass catalogue*: **Glass model**, **Eurocode
 
 ### Picking a Glass model (seller and approval)
 
-- **FR-19** [Correct] A seller filling in an offer can open a Glass model picker: a search window showing candidates as cards with the thumbnail, pictograms, Eurocodes, OEM codes, position, colour and vehicles; choosing one sets the offer's Glass model. Withdrawn models are not shown. The rest of the offer form belongs to Offers. — (F-05, F-16, Q-08, IMP-04; D-17, D-52)
+- **FR-19** [Correct] A seller filling in an offer can open a Glass model picker: a slide-over holding the catalogue card list (search and filters as on the admin list), cards with the thumbnail, pictograms, Eurocodes, OEM codes, position, colour and vehicles, without offer counts; the user marks one card and confirms at the bottom, which sets the offer's Glass model. Withdrawn models are not shown. The rest of the offer form belongs to Offers. — (F-05, F-16, Q-08, IMP-04; D-17, D-52, D-67)
 - **FR-20** [New] An admin approving an offer can search candidates with the search prefilled from the seller's identification hint, and can create a new Glass model in place (FR-01), with the main Eurocode prefilled from the hint (normalised by RULE-03) for the admin to confirm or correct; the new model is selected for the offer at once. The approval itself, including the rule that an offer cannot be approved without a Glass model, belongs to Offers. — (F-10; D-19, D-38)
 
 ### Services to other modules

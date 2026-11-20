@@ -6,9 +6,9 @@
 
 ## A. Metadata
 
-- **Status:** grilling
-- **Next actions:** domain decisions D-01–D-28 carried into section M and the resolutions (2026-11-11). Next: wait for the Catalogue spec, then the Offers module grilling, Phases 6–9 of `grilling.md` (`.scratch/domain/handoff-catalogue-offers.md`, step 3). The Catalogue spec's section 9 is the contract.
-- **Started:** 2026-11-09 · **Last updated:** 2026-11-11
+- **Status:** spec-written
+- **Next actions:** spec written (`.scratch/offers/functional-spec.md`, audit r07 applied), data migration written (`.scratch/data-migration/offers/spec.md`, `ticket.md`); decisions D-29–D-68 (2026-11-20). Next: user review and commit; triage Catalogue issue 09 against Offers FR-02, FR-10, FR-14, FR-33 and §9; cut Offers issues into `.scratch/offers/issues/`; then architecture/delivery via `/module-delivery` ("deliver offers").
+- **Started:** 2026-11-09 · **Last updated:** 2026-11-20
 - **Inputs to the grilling:** this discovery, the domain model `.scratch/domain/glass-offer-model.md` (D-01–D-28, GLOSSARY, ADR 0008–0010) and the Catalogue spec `.scratch/catalogue/functional-spec.md` once written.
 - **V1:** `/home/kp/laravel/projekty/AllGlass/` @ `511ce3b` (dirty: `docker-compose.yml` modified, `SECURITY_INCIDENT_2026-10.md` untracked; neither touches offer behaviour)
 - **V2 state:** module absent.
@@ -301,13 +301,13 @@ _Partial; completed as wave 1 returns._
 ### Q-09 Reservations are private to their author — `defect?`
 
 - **Evidence:** r03: only the author can release or sell a reservation; the owner's "Moje rezerwacje" shows only their own, so an admin's reservation on their offer is invisible to them yet reduces stock; an admin cannot release another person's reservation.
-- **Resolution:** open — deferred to the Offers grilling (D-21: who may release or sell whose reservation).
+- **Resolution:** D-34 — admin's Reservation locked for the seller; the seller's may be handled by the seller or an admin; author always shown.
 
 ### Q-10 Two unread channels for the same event — `decide`
 
 - **Evidence:** r03: each event writes both a journal entry and a bell notification to the owner; prod journal 22 of 3571 read, bell 4932 of 6888 unread; journal policy is fully commented out (anyone with panel access sees only their own entries via the query filter).
 - **Question for the user:** does V2 need a per-offer history for the seller, a notification, both, or does the offer's own history (Audit) cover it?
-- **Resolution:** open — deferred to the Offers grilling (journal and notifications).
+- **Resolution:** D-37 — one Journal (Users) that raises the bell; the entry list is fixed there.
 
 ### Q-11 Dead and debug code — `defect?`
 
@@ -318,37 +318,37 @@ _Partial; completed as wave 1 returns._
 
 - **Evidence:** BR-30: the status, the column and a form field exist; no mechanism since July 2025; prod has no data.
 - **Question for the user:** drop expiry, or define a rule (for example: unsold after N days → withdrawn, with notice)?
-- **Resolution:** open — deferred to the Offers grilling (expiry).
+- **Resolution:** D-36 — no expiry; withdraw by hand; client §7.
 
 ### Q-13 Re-moderation of every seller edit hides the change from live listings — `decide`
 
 - **Evidence:** r01: a seller's save sets Oczekuje, and Oczekuje skips the WooCommerce push and the Otomoto refresh, so the listing shows the old data until an admin accepts; an Aktywna offer of a seller disappears from "Aktywne" while waiting.
 - **Question for the user:** must every seller change be re-approved, or only changes to some fields (price, eurocode, photos)?
-- **Resolution:** open — deferred to the Offers grilling (D-19: which seller edits need re-approval).
+- **Resolution:** D-31 — price at once without approval; every other change re-approved; client §6.
 
 ### Q-14 Status vocabulary carries V1 mistakes — `ambiguous`
 
 - **Evidence:** r01: the stored value "Zarezerowana" is misspelled (5 rows), displayed as "Zarezerwowana"; "Archiwalna" is displayed as "Wycofana"; Szkic, Oczekuje and Wygasła exist but have no rows.
 - **Question for the user:** settled with the status model in grilling; the data migration maps the stored values.
-- **Resolution:** open — deferred to the Offers grilling (status model); the migration maps the stored values.
+- **Resolution:** D-30 — seven statuses, deletion apart; the migration maps the stored values (Phase 9).
 
 ### Q-15 Price history and VAT follow the current state — `defect?`
 
 - **Evidence:** r05 `User.php:110-130`: sales value = sold quantity × the offer's **current** price, not the price at sale (the sale row stores no price); r01/r05: VAT depends on the owner's current account type, so a change re-prices every offer retroactively, including in WooCommerce.
 - **Question for the user:** should a sale record its price, and does a price follow the seller's VAT status at listing time or always the current one?
-- **Resolution:** partly D-21 — a Sale records the price at sale, the date and the channel. VAT at listing time vs current → Offers grilling (deferred).
+- **Resolution:** D-21, D-33 — buyer's price follows the current Account type; a Sale records entered price, VAT rate and buyer's price.
 
 ### Q-16 Three audit trails on offers — `decide`
 
 - **Evidence:** r01, r05: package versions (2923 rows, admin revisions page), the changes log (5996) and the activity log. V2 has Audit.
 - **Question for the user:** is the V2 Audit history enough, or does the offer need a "revisions" view of its own (for example to compare what the seller changed before approval, Q-03)?
-- **Resolution:** partly D-20 — what a seller changed is shown from the Change history. Whether the Offer needs its own history view → Offers grilling (deferred).
+- **Resolution:** D-20, D-39 — History tab and a "changes since last approval" block; separate revision screen ADD-04 (pending).
 
 ### Q-17 Seller bulk price change skips re-approval — `defect?`
 
 - **Evidence:** BR-35, spot-checked.
 - **Question for the user:** is a price change something that needs approval? Decide together with Q-13.
-- **Resolution:** open — deferred with Q-13.
+- **Resolution:** D-31 — price changes need no approval, single or bulk.
 
 ### Q-18 Is the seller's view of the catalogue intentionally blind? — `decide`
 
@@ -387,12 +387,12 @@ _Partial; completed as wave 1 returns._
 <!-- Changes to existing behaviour. Not requirements until a D- decision approves them. -->
 
 - **IMP-01** One approval queue — tickets (F-01–F-07) duplicate the list of offers waiting for approval and are ignored → the waiting list is the queue, and the admin sees what the seller changed (from Audit) instead of a snapshot; value: one door instead of three, nothing left unresolved; decision: D-20 — accepted.
-- **IMP-02** Guarded status transitions — every action sets any status (BR-31, Q-01, Q-06, Q-08) → each transition is allowed only from defined statuses, and reserve/sell/release/return derive the status from what is left; value: no forced or wrong statuses; decision: open — status model deferred to the Offers grilling (D-21 settles the parts).
-- **IMP-03** A sale records its price — sales value uses today's price (Q-15) → the sale stores the net and gross price at sale time; value: correct sales history and reports; decision: D-21 — accepted for the price, date and channel; VAT open (Q-15).
+- **IMP-02** Guarded status transitions — every action sets any status (BR-31, Q-01, Q-06, Q-08) → each transition is allowed only from defined statuses, and reserve/sell/release/return derive the status from what is left; value: no forced or wrong statuses; decision: D-42 — accepted.
+- **IMP-03** A sale records its price — sales value uses today's price (Q-15) → the sale stores the net and gross price at sale time; value: correct sales history and reports; decision: D-21, D-33 — accepted.
 - **IMP-04** Stock changes leave a trace — release and return write nothing and "sell reserved" is not atomic (BR-14, BR-15, W-06) → every stock change is one atomic step with history and a notice to the owner; decision: partly D-21 (a return is kept in history); details → Offers grilling.
-- **IMP-05** One re-approval rule — single edit re-approves, bulk price and duplicate do not (BR-20, BR-35, BR-37) → the same rule for every way a seller changes an offer, possibly limited to chosen fields (Q-13, Q-17); decision: open — deferred to the Offers grilling (Q-13, Q-17).
+- **IMP-05** One re-approval rule — single edit re-approves, bulk price and duplicate do not (BR-20, BR-35, BR-37) → the same rule for every way a seller changes an offer, possibly limited to chosen fields (Q-13, Q-17); decision: D-31.
 - **IMP-06** Publishing to external shops does not block or break the panel action — every save pushes synchronously to WooCommerce, failures are only logged (473 failed jobs) (BR-28) → publishing follows the offer's events, retries visibly, and a failure is shown on the offer; decision: partly D-05, D-24, D-26 (the panel only publishes; integrations react to domain events; mappings live in the integration). Retries and failure display → WooCommerce.
-- **IMP-07** One channel for the seller — journal and bell duplicate each other and are unread (Q-10) → one notification stream plus the offer's history; decision: open — deferred to the Offers grilling.
+- **IMP-07** One channel for the seller — journal and bell duplicate each other and are unread (Q-10) → one notification stream plus the offer's history; decision: D-37.
 
 ## J. Additional functionality to implement
 
@@ -407,13 +407,23 @@ _Partial; completed as wave 1 returns._
 
 - **Description:** an unsold offer is withdrawn or flagged after a period, with notice to the seller.
 - **Value:** the status and column exist and the business once wanted it (BR-30).
-- **Kind:** entirely new (V1 feature removed) · **Source:** discovery (r01, r05) · **Discussed:** no · **Decision:** open — deferred to the Offers grilling (Q-12).
+- **Kind:** entirely new (V1 feature removed) · **Source:** discovery (r01, r05) · **Discussed:** no · **Decision:** D-36 — exclude (client §7).
+
+### ADD-04 Separate admin revision screen
+
+- **Description:** a screen of its own for reviewing an Offer before approval, apart from the offer view (D-39 gives a History tab and a changes block on the view).
+- **Source:** user (round 1, Q11) · **Discussed:** briefly · **Decision:** pending — client (`zweryfikwoania_klientem.md` §8).
+
+### ADD-05 Seller dashboard chart
+
+- **Description:** one line chart with one or two lines (for example Offers listed and sold per month) on each user's page, to impress sellers; no doughnut charts. A full dashboard redesign is a separate matter.
+- **Source:** user (round 2, Q7) · **Discussed:** yes (Phase 7) · **Decision:** D-58 — new.
 
 ### ADD-03 Inquiries record who asks
 
 - **Description:** an inquiry stores the requester (buyer or channel) and links to the reservation it causes.
 - **Value:** today the admin relays a request with no record of the buyer (Q-07).
-- **Kind:** extends F-16, F-17 · **Source:** manager · **Discussed:** partly (D-22) · **Decision:** open — deferred to the Offers grilling (requester and channel).
+- **Kind:** extends F-16, F-17 · **Source:** manager · **Discussed:** partly (D-22) · **Decision:** D-35 — sender, channel and note recorded; no buyer personal data.
 
 ## K. Investigation log
 
@@ -422,6 +432,7 @@ _Partial; completed as wave 1 returns._
 | r01 | local | Offer core: model, statuses, lifecycle, price/VAT, quantity, events, policy, jobs | returned, good | full status-transition table; no expiry; re-moderation; VAT; SKU; versions; hooks; F-21–25, BR-20–31, W-09–10, Q-12–16 | edit-route guard (G-03); `gallery`/`attachments` columns unused | G-03 → r02; Woo sync rows 2155 vs 2046 → WooCommerce discovery | spot: BR-20 re-moderation, BR-21 VAT |
 | r02 | local | Offer screens and roles: create/edit/view/list, seller vs admin, approval, bulk actions, revisions, widgets | returned, good | roles in prod; field rules by role; approval doors; seller blind to others; bulk price bypass; F-28–34, BR-32–37, W-11, Q-17–19 | URL-level guards inferred (G-03); trashed filter default | producer approval → Vehicles (dictionary workflow) | spot: BR-35 bulk price; settled Q-19 |
 | r06 | verify (data) | production data shape: catalogue (Vehicles G-09), offers per eurocode, attribute consistency within eurocode groups, sellers, timing | returned, good | glass parameters constant per eurocode, producer/year/usage vary; catalogue clean, dictionaries all Aktywna; `car_offer` redundant; creation dates = import; BR-38–39, Q-20 | oem_code vs oem_codes overlap not cross-tabbed | Vehicles G-09 closed | spot: section C re-run by manager (same result, 204 vs 238 groups by primary-eurocode definition) |
+| r07 | spec-audit | fresh-eyes check of `functional-spec.md` against C, J, M | returned, good | 0 untraced; D-50 Draft→Withdrawn missing; D-27 misplaced; omissions (no buyer data, no reservation expiry, F-18, F-26); class tags; Trash-stats wording; first-approval date; candidate events; bulk rules; 3 behaviour gaps (accepted-Inquiry Reservation author, Inquiries when Offer leaves Active otherwise, admin resume) | read no V1 code | editorial fixes applied 2026-11-20; behaviour gaps → round 5 Q8–Q10 | n/a |
 | r03 | local | Stock and transactions: reservations, sales, inquiries, journal, notifications | returned, good | stock derived; reservation/sale/return/withdraw/inquiry lifecycles; journal map (10 actions); F-08–20, BR-11–19, W-05–08, X-05, Q-06–11; prod: no partial stock ever | Woo re-sync after undo (G-02) | G-02 → r01; inquiry meaning Q-07 | spot: BR-13 reservation rule, BR-14 release |
 | r04 | local + flow | Submissions: what they are, how created, how they change an offer | returned, good | tickets are seller-generated review tickets, not a public form (archive refuted); F-01–07, BR-01–10, W-01–04, X-01–04, Q-01–05; prod shapes | runtime reload; Otomoto queue (dropped) | `dd()` at `AdminTab.php:127` → r02; Admin permissions → settled by manager query (BR-09) | spot: BR-05 resolve without guard; creation guard |
 | r05 | cross-repo | vocabulary across V1 + entry-point census | returned, good | 74-row census; expiry command deleted (git); company-account re-price; FK/orphan map; failed jobs 473 (Otomoto, Woo); F-26–27, X-06–07 | runtime items (missing provider, `UserNotification` list) | `car_offer` 1531 rows → Vehicles data-shape (G-09 there); failed sync handling → WooCommerce discovery | relies on r01 spot-checks (same hooks) |
@@ -474,3 +485,58 @@ D-01–D-28 are the **domain decisions** of `.scratch/domain/glass-offer-model.m
 - **D-26** (domain, 2026-11-09) re BR-28, BR-29, X-02 — Channel keys and mappings live in the integration; publishing rules for a channel are the integration's. Class: correct.
 - **D-27** (domain, 2026-11-09) re 70 V1 accessory offers — An Offer of a seal, moulding or frame is an ordinary Offer of a GlassModel with an accessory position. Class: preserve.
 - **D-28** (domain, 2026-11-09) re process — Offers is grilled after the Catalogue spec and delivered after Catalogue. Class: n/a (process).
+
+### Module grilling, round 1 (2026-11-20)
+
+- **D-29** (2026-11-20) re F-21–F-31, F-34, F-25, F-33, BR-24 — Inventory: F-21 delete/restore, F-22 duplicate, F-23 gross price and bulk price change, F-24 photos (≤ 10 public with a main one, ≤ 10 private), F-26 tabs with counts and widgets, F-28 "Moje oferty", F-29 admin "Wszystkie oferty", F-30 approval, F-31 form, F-34 draft are kept, shaped by D-30–D-40. F-25 versions and F-33 changes log are replaced by the Audit Change history (one history). F-08–F-20 keep their purpose, reshaped for one piece (D-02, D-34, D-35, D-37). The offer number "AG" + 8 digits is assigned once and never changes; imported offers keep their number. Class: preserve (kept items) / correct (F-25, F-33 → Change history).
+- **D-30** (2026-11-20) re Q-14, BR-22, BR-23, BR-30, IMP-02, F-14, F-21 — Seven statuses: Draft (Szkic), Pending approval (Oczekuje na zatwierdzenie), Rejected (Odrzucona), Active (Aktywna), Reserved (Zarezerwowana), Sold (Sprzedana), Withdrawn (Wycofana; V1 Archiwalna). Expired (Wygasła) is dropped. **Deletion is not a status:** a deleted Offer keeps its status and leaves the lists; only an admin deletes. A seller or an admin who wants an Offer off sale withdraws it. Reason (user): the admin wants to collect glass data and keep statistics, which V1 loses. Transitions → round 2. Class: correct.
+- **D-31** (2026-11-20) re Q-13, Q-17, IMP-05, BR-20, BR-35 — A seller's **price change takes effect at once, without approval**, in a single edit and in bulk. Any other change by a seller (Glass model or identification hint, photos, descriptions, producer, year, condition, rating) sends the Offer back to Pending approval, and it leaves the channels until approved. To confirm with the client (`zweryfikwoania_klientem.md` §6). Class: correct.
+- **D-32** (2026-11-20) re F-22, BR-25, BR-37 — Duplicate creates a new **Draft** owned by **whoever duplicates**, admin included (V1 once had a bug where an admin's copy kept the previous owner). It copies the Glass model (or hint), descriptions and price; not photos, producer, year, condition or rating. Allowed to the owner and to admins. Class: correct.
+- **D-33** (2026-11-20) re Q-15, BR-21, F-23, F-27, IMP-03 — The seller enters one price. The buyer's price is that price for a Company account (VAT payer) and that price + VAT for a Private one; reason (user): AllGlass bears the VAT of sellers who do not settle it. The buyer's price follows the owner's **current** Account type; a change of Account type refreshes Adverts (integration reacts). The VAT rate (23%) becomes an Offers setting, not code. A Sale records the entered price, the VAT rate applied and the buyer's price at the moment of sale. Class: correct.
+- **D-34** (2026-11-20) re Q-09, F-09–F-13, BR-14, BR-15, IMP-04 — A Reservation is made by an admin or the owner, with a note "for whom", and always shows who made it and when. **An admin's Reservation is locked for the seller:** the seller sees it but cannot release it or sell it (V1 rule kept: the admin may have agreed with a buyer elsewhere). A seller's Reservation may be released or turned into a Sale by the seller or an admin. A Sale is marked by an admin or the owner, with a channel (panel/direct, WooCommerce, OLX, other) and the price prefilled from the Offer, editable. Only an admin returns a Sale. Reservations do not expire. Class: correct.
+- **D-35** (2026-11-20) re Q-07, ADD-03, BR-17, F-16–F-18 — An Inquiry records its sender (admin), an optional channel and a note for the seller; no buyer personal data in fields. Accepting creates the Reservation with that note, linked to the Inquiry. The answer goes to the sending admin's Journal (V1: all admins). How many open Inquiries one Offer may have → round 2. Class: correct.
+- **D-36** (2026-11-20) re Q-12, ADD-02, BR-30 — No automatic expiry; the Expired status goes. An Offer is taken off sale by withdrawing it by hand. Expiry after a date → client (`zweryfikwoania_klientem.md` §7). Class: exclude.
+- **D-37** (2026-11-20) re Q-10, IMP-07, BR-18, F-19, F-20 — Offers writes to the Users Journal (which raises the bell itself). To the owner: approved, rejected (with reason), new Inquiry, Reservation made or released, Sale made or returned **by someone else**, withdrawn or deleted by an admin. To an admin: the answer to their Inquiry. The approval queue is the counter on the Pending tab; no bell to all admins on each seller save. Nobody gets an entry for what they did themselves. Class: correct.
+- **D-38** (2026-11-20) re D-17, F-31, BR-34; Catalogue D-52, D-67 — One offer form, no wizard: a "Szyba" section on top, then the piece (producer, year, condition, rating, descriptions), photos, price. "Wybierz model szyby" opens a **slide-over** holding the catalogue card list (search and filters, as on the Catalogue list; a ready element provided by Catalogue); the user marks one card and confirms at the bottom, and the form shows the chosen model's card. "Nie znam modelu" shows the identification hint field. Supersedes the "search modal" of Catalogue D-52 / FR-19. Class: correct.
+- **D-39** (2026-11-20) re Q-16, D-20, F-25, F-33 — The admin's offer view has a History tab from the Change history. A Pending Offer shows a block "Zmiany od ostatniego zatwierdzenia" (field, old → new) from the Change history; none for a new Offer. Sellers see no history; they have the Journal. A separate admin revision screen is ADD-04 (pending, client §8). Class: correct.
+- **D-40** (2026-11-20) re F-31, BR-20 — The owner is always the creator; an admin cannot create an Offer on behalf of a seller or change the owner. An admin's own Offer is approved on saving when it has a Glass model; without one it waits in Pending like any other. Class: preserve.
+
+### Module grilling, round 2 (2026-11-20)
+
+- **D-41** (2026-11-20) re D-35, BR-17, Q-07 — An Offer may have any number of open Inquiries. Sending one shows the admin how many are already open and from whom. A seller may accept an Inquiry only while the Offer is Active. Accepting one closes the other open Inquiries as **Outdated** (Nieaktualne), with a Journal entry to each sender; a Reservation or Sale made another way closes them the same way. Class: correct.
+- **D-42** (2026-11-20) re IMP-02, BR-31, Q-01, Q-06, Q-08, BR-23, G-03 — Status transitions (who · guard): Draft → Pending (seller owner, required fields D-45); Draft → Active (admin owner, needs a Glass model, else Pending); Pending → Active (admin approves, needs a Glass model); Pending → Rejected (admin, reason required); Rejected → Pending (seller resubmits after editing); Rejected → Active (admin, needs a Glass model); Active → Rejected (admin, reason required); Active → Pending (a seller's non-price change, D-31); Active → Reserved (Reservation by admin, owner or accepted Inquiry; one at a time); Active/Reserved → Sold (Sale by admin or owner; the seller never touches an admin's Reservation, D-34); Reserved → Active (release); Sold → Active (admin return, reason required, the Sale stays in history); Pending/Rejected/Active → Withdrawn (owner or admin); Withdrawn → Active (owner or admin "Wznów sprzedaż", only if approved before and unchanged since); Withdrawn → Pending (seller edits, D-31). Editing: a seller in Draft, Pending, Rejected, Active, Withdrawn, never Reserved or Sold; an admin in every status, including Sold (corrections for statistics), and an admin's edit never changes the status. A Reserved Offer cannot be withdrawn or deleted until released. Class: correct.
+- **D-43** (2026-11-20) re F-21, BR-22, W-09, D-30 — Only an admin deletes, from any status except Reserved; a deleted Offer goes to the **Trash** (Kosz), keeps counting in statistics and as a use of its Glass model and producer (Catalogue FR-24), and restoring returns it to the status it had (V1: always Pending). **Permanent delete stays, but only from the Trash view** (like the WordPress trash), for test or wrong Offers; it removes the Offer with its photos, Reservations, Sales and Inquiries (no orphans, unlike V1). Class: correct.
+- **D-44** (2026-11-20) re D-19, Catalogue FR-20, issue 09, Catalogue D-40 — While approving, the admin opens the same catalogue slide-over (D-38) prefilled from the hint and may create a Glass model in place with its main Eurocode suggested from the hint. An admin may change an Offer's Glass model at any time, singly and **in bulk on the offer list** ("Zmień model szyby"; re-pointing offers of a duplicate model). It does not change the status. The owner gets a Journal entry when an admin changes their Offer's Glass model or data (extends D-37). Class: new.
+- **D-45** (2026-11-20) re BR-34 — A Draft saves with anything. Sending for approval requires: a Glass model **or** an identification hint, price ≥ 1, condition (Nowa / Używana / Outlet), a rating 1–5 for Używana and Outlet, and **at least one public photo** (new; V1 required only price and condition). Producer and year stay optional. Class: correct.
+- **D-46** (2026-11-20) re BR-26, F-02 — A "Nowa" Offer stores no rating; screens (and, if the integration wants, adverts) show it with **five stars** as a visual mark of new glass (client wish). Migration drops ratings of "Nowa" offers. Class: correct.
+- **D-47** (2026-11-20) re F-26, F-28, F-29 — Admin "Wszystkie oferty": tabs Pending (with counter), Active, Reserved, Sold, Withdrawn, Rejected, Drafts, Trash; filters Eurocode/OEM/vehicle text, position, colour (through Catalogue search), "without Glass model", seller, producer, condition, rating, price range; bulk approve, change price, change Glass model, withdraw, delete. Seller section "Oferty": "Moje oferty" with the same tabs except Trash, bulk change price and withdraw, plus pages "Rezerwacje" and "Zapytania". Above the "Moje oferty" table: **custom stat cards with an icon** (not stock Filament widgets): own active, pending, reserved, sold this month. A line chart and a redesigned dashboard are additional (ADD-05). Class: correct.
+- **D-48** (2026-11-20) re Catalogue D-37, issue 09 — The "N ofert" count on a Glass model card counts the model's Offers not in the Trash, in every status; the link opens "Wszystkie oferty" filtered by that model. Class: new.
+
+### Module grilling, round 3 (2026-11-20)
+
+- **D-49** (2026-11-20) re F-24, BR-34, D-31 — Up to 10 public photos, the first is the main one, order changeable by dragging. Up to 10 private photos and private notes ("Notatki własne"), never in adverts, visible to the **owner and admins** (V1 text said "only you"). The public description ("Opis szyby") is available for every condition, "Nowa" included (V1: used and outlet only). V1 "Informacje o pojeździe" is the identification hint. Changing private notes or private photos needs **no re-approval** (refines D-31). Class: correct.
+- **D-50** (2026-11-20) re X-06, Users (Deactivated User) — When a seller is deactivated, their Active, Pending and Draft Offers become Withdrawn automatically (Actor: System, reason "seller deactivated"); Reserved Offers stay for an admin to finish or release. Reactivation restores nothing automatically. Class: new.
+- **D-51** (2026-11-20) re X-02, BR-28, BR-29, IMP-06, D-05, D-26, ADR 0010 — Offers is only the source for channels: an Offer is a candidate for adverts while Active or Reserved (Reserved with a reservation flag). Offers announces: approved/activated, changed, reserved, released, sold, returned, withdrawn, deleted, restored; and provides an offer summary for adverts (AG number, Glass model summary from Catalogue, producer, year, condition, rating, description, public photos, buyer's price, reservation flag). Which Offers go to which channel, and how publish failures show → WooCommerce grilling. Class: correct.
+- **D-52** (2026-11-20) re Q-15, F-12 — A seller sees the Sales of their own Offers (date, channel, sale price, returned or not) on the Sold tab and on the Offer; admins see all. No separate sales page or reports now; admin statistics are a later addition. Class: correct.
+- **D-53** (2026-11-20) re F-23, W-10, D-31 — Bulk price change keeps V1's modes: amount ± zł, percent ± %, fixed price (≥ 1); Offers whose price would be ≤ 0 are skipped and counted in the result message. A seller acts only on own Offers; Reserved and Sold Offers are skipped. Class: preserve.
+- **D-54** (2026-11-20) re D-33, BR-21 — The VAT rate is an Offers setting changed only by a Super Admin; a change applies at once to buyer's prices of every Private seller's Offer and refreshes adverts; recorded Sales keep the rate of their day. Class: correct.
+- **D-55** (2026-11-20) re shipping (domain deferred list; Catalogue D-33) — Shipping methods stay out of Offers until the panel admin is asked (`zweryfikwoania_klientem.md` §1). Class: pending.
+- **D-56** (2026-11-20) re Q-11, F-08, X-03, X-05, IMP-04, G-01, G-03 — Closing items: the V1 dead and debug code (Q-11) is not ported; available quantity (F-08) goes with D-02; Otomoto (X-03) is dropped; the WooCommerce import (X-05) does not carry over (D-05); every Reservation, Sale and status change is one atomic step recorded in the Change history (IMP-04); G-01 and G-03 need no answer (the screen is redesigned; the edit guard is D-42). Class: exclude / correct.
+
+### Additional functionality (Phase 7, 2026-11-20)
+
+- **D-57** (2026-11-20) re section J — The user confirmed a shared understanding of the existing functionality (Phase 6 done). Additional functionality: ADD-01 accepted earlier (D-17); ADD-02 excluded (D-36, client §7); ADD-03 decided (D-35); ADD-04 pending (client §8); ADD-05 selected and grilled (D-58). No new ideas. Class: n/a (record).
+- **D-58** (2026-11-20) re ADD-05 — One line chart, last 12 months, two lines: "Dodane do sprzedaży" (Offers approved in the month) and "Sprzedane" (Sales in the month); no money amounts. A seller sees it for own Offers on "Moje oferty" under the stat cards, collapsible; an admin sees it for all Offers above "Wszystkie oferty", filterable by seller. Only Offers outside the Trash count; a returned Sale does not count as sold; a seller with little history sees zeros. Migrated V1 Offers count as added on their creation date (V1 stored no approval date), so the 2025-09–2026-01 import shows as a spike, accepted. The dashboard redesign is out of scope. Class: new.
+
+### Round 5 — data migration and audit gaps (2026-11-20)
+
+- **D-59** (2026-11-20) re D-30, D-43, BR-22 — V1 deleted offers (288, status Usunięta, no earlier status kept) go to the Trash as **Withdrawn**, with the V1 deletion date. Class: correct.
+- **D-60** (2026-11-20) re RULE-03, D-10, D-16 — Migrated Active offers without a Glass model (8 before the Catalogue migration) become **Pending**; the V1 typed eurocode, "Informacje o pojeździe" and VIN form their identification hint. Other statuses without a Glass model keep their status, with the hint. Class: correct.
+- **D-61** (2026-11-20) re D-21, D-33, BR-19, BR-15 — Migrated Sales: entered price = the V1 offer price; VAT rate and buyer's price by the owner's **current** Account type; marked "migrated from V1"; channel WooCommerce for label "Status sprzedaży z wordpress", "other" otherwise; marked by the System (migration). The 4 V1 returns become returned Sales, their label the return reason. The 3 Sold offers without a sale row get a Sale dated the offer's last change, channel "other". Class: correct.
+- **D-62** (2026-11-20) re D-34, F-09 — Migrated Reservations: the 5 current ones (on Zarezerowana offers, all made by admins) stay current, label → note (free text as typed); 3 on sold offers end as sold; 2 on deleted offers end as released; 4 orphans are dropped. Class: correct.
+- **D-63** (2026-11-20) re D-35, F-16 — V1 Inquiries are **not migrated** (no sender recorded); the ticket lists the 3 still open on Active offers for the admin to resend. Class: exclude.
+- **D-64** (2026-11-20) re D-46, D-49, BR-26 — Minor data: public photos beyond 10 (2 offers, up to 14) → the first 10 stay public (V1 main photo first), the rest become private; malformed years ("22", "200", "-") dropped; ratings of Nowa offers dropped; "Notatki własne" → private notes; unused V1 fields dropped (gallery, attachments, expiry date, archived date, sold date, shipping method); first and last approval dates of Active, Reserved, Sold and Withdrawn offers set to the V1 last change; Submissions, versions, change logs, user journal and WooCommerce sync data are outside this migration (D-20, Audit, Users, integration). Class: correct.
+- **D-65** (2026-11-20) re D-35, D-34, r07 — A Reservation created by accepting an Inquiry is made in the name of the **sending admin**, so it is locked for the seller (D-34). Class: correct.
+- **D-66** (2026-11-20) re D-41, r07 — Whenever an Offer stops being Active by any route (reserved, sold, withdrawn, deleted, rejected, sent back to Pending), its open Inquiries become Outdated and their senders get a Journal entry. Class: correct.
+- **D-67** (2026-11-20) re D-42, r07 — "Wznów sprzedaż": "unchanged since the last approval" means nothing changed except the entered price and private material; an admin's own Withdrawn Offer resumes to Active whenever it has a Glass model, approved before or not. Class: correct.
+- **D-68** (2026-11-20) re D-02, Phase 9 — The 16 V1 offers with quantity > 1 (no sale or reservation ever) go on the client review list (`zweryfikwoania_klientem.md` §9); the client corrects the quantity in V1 before the import, and the import splits whatever quantity stands then (original keeps its number; copies get new numbers, the same Glass model, description, price and copied photos, status Active). Without an answer the stored quantity is split. Class: correct.

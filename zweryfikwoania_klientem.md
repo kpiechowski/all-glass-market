@@ -20,3 +20,15 @@ Uszczelki, listwy, ramki są dziś „modelami szyb” z pozycją akcesorium. Cz
 
 ## 5. Kanał informacyjny o zmianach sprzedawców (D-20)
 W V1 admin czytał zgłoszenia (tickety) jako changelog zmian sprzedawców. W V2 jest tylko zakładka „oczekujące”. Czy admin panelu potrzebuje dodatkowo takiego strumienia informacji?
+
+## 6. Które zmiany sprzedawcy wymagają ponownej akceptacji (Oferty, D-31)
+Propozycja V2: **zmiana ceny działa od razu, bez akceptacji** (pojedynczo i masowo). Każda inna zmiana sprzedawcy (model szyby lub wskazówka, zdjęcia, opisy, producent, rok, stan, ocena) wraca do „Oczekuje na zatwierdzenie” i oferta znika z kanałów do czasu akceptacji. W V1 każda edycja (także ceny) wymagała akceptacji, ale masowa zmiana ceny ją omijała. Czy klient się zgadza?
+
+## 7. Automatyczne wygasanie ofert (Oferty, D-36)
+W V2 na razie brak: ofertę zdejmuje się ze sprzedaży ręcznie („Wycofana”). Czy klient chce reguły typu „niesprzedana po N dniach → wycofana, z powiadomieniem sprzedawcy”? Jeśli tak, po ilu dniach i kogo powiadomić?
+
+## 8. Osobny ekran rewizji oferty dla admina (Oferty, ADD-04)
+W V2 admin widzi na ofercie zakładkę „Historia” i blok „Zmiany od ostatniego zatwierdzenia”. Czy potrzebny jest osobny ekran przeglądu oferty przed akceptacją, inny niż widok oferty?
+
+## 9. Oferty z ilością większą niż 1 (Oferty, D-02, D-68)
+W V2 jedna oferta = jedna fizyczna szyba. W V1 16 ofert ma wpisaną ilość > 1 (11 „Nowa”, do 13 sztuk; 5 „Używana”, do 4 sztuk), wszystkie Aktywne, żadna nie miała sprzedaży ani rezerwacji. Prośba: sprawdzić w V1, ile sztuk naprawdę jest, i poprawić ilość (np. na 1, jeśli to pomyłka). Migracja podzieli to, co zostanie, na osobne oferty (każda sztuka z własnym numerem i kopią zdjęć). Lista ofert: zapytanie `select id, sku, quantity from offers where quantity > 1` (wygenerować przed migracją).
