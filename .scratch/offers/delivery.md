@@ -17,7 +17,7 @@
 | 06 withdraw-and-trash | resolved (959f1e0) | removed | 1 | approved |
 | 07 reservations-and-sales | resolved (c5d27de) | removed | 0 | approved |
 | 08 inquiries | resolved (e87d3f9) | removed | 0 | approved |
-| 09 duplicate-and-bulk-actions | in progress | .worktrees/offers-09 | 0 | — |
+| 09 duplicate-and-bulk-actions | resolved (4fb5fa7) | removed | 0 | approved |
 | 10 lists-tabs-filters-stat-cards | waiting | — | — | — |
 | 11 catalogue-uses-and-offer-counts | waiting | — | — | — |
 | 12 deactivated-seller | waiting | — | — | — |
@@ -26,4 +26,4 @@
 
 ## Next action
 
-2026-11-22: Offers 08 merged (e87d3f9); 09 dispatched. `composer check` now needs `COMPOSER_PROCESS_TIMEOUT=0` (suite > 300 s). Migrations so far: `create_offers_table` (01), `add_photos_to_offers_table` (02), `add_approval_dates_to_offers_table` (03), `create_offer_settings_table` (05), `add_withdrawal_and_trash_to_offers_table` (06), `create_offer_reservations_and_sales_tables` (07), `create_offer_inquiries_table` (08) — run `dartisan migrate`; public photos need `dartisan storage:link` once.
+2026-11-22: Offers 09 merged (4fb5fa7). Milestone stop (user): the next manager starts from `.scratch/offers/handoff.md`, then dispatches 10. `composer check` needs `COMPOSER_PROCESS_TIMEOUT=0`. Migrations so far: `create_offers_table` (01), `add_photos_to_offers_table` (02), `add_approval_dates_to_offers_table` (03), `create_offer_settings_table` (05), `add_withdrawal_and_trash_to_offers_table` (06), `create_offer_reservations_and_sales_tables` (07), `create_offer_inquiries_table` (08) — run `dartisan migrate`; public photos need `dartisan storage:link` once.
