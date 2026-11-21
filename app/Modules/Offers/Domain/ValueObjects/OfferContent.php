@@ -70,6 +70,12 @@ final readonly class OfferContent
         return new self($this->glass, $this->producerId, $this->year, $this->condition, $this->rating, $this->description, $this->privateNotes, $price);
     }
 
+    /** §10: the content without what channels never see (the private notes), to tell whether adverts are affected. */
+    public function forAdverts(): self
+    {
+        return new self($this->glass, $this->producerId, $this->year, $this->condition, $this->rating, $this->description, null, $this->price);
+    }
+
     private static function text(?string $text): ?string
     {
         $text = $text === null ? '' : trim($text);

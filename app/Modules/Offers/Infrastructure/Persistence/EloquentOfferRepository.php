@@ -8,7 +8,14 @@ use App\Core\Abstracts\EloquentRepository;
 use App\Core\Domain\Actor;
 use App\Core\Infrastructure\Bus\ActorStack;
 use App\Modules\Offers\Domain\Entities\Offer;
+use App\Modules\Offers\Domain\Enums\OfferAnnouncement;
+use App\Modules\Offers\Domain\Events\OfferBecameCandidate;
+use App\Modules\Offers\Domain\Events\OfferChangedWhileCandidate;
+use App\Modules\Offers\Domain\Events\OfferReserved;
+use App\Modules\Offers\Domain\Events\OfferSold;
 use App\Modules\Offers\Domain\Events\OfferStoppedBeingActive;
+use App\Modules\Offers\Domain\Events\OfferStoppedBeingCandidate;
+use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
 use App\Modules\Offers\Domain\Repositories\OfferRepository;
 use App\Modules\Offers\Infrastructure\Persistence\Mappers\OfferMapper;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
@@ -23,8 +30,8 @@ final class EloquentOfferRepository extends EloquentRepository implements OfferR
     }
 
     /**
-     * FR-23: the one place the fact "this Offer stopped being Active" becomes an event, inside the command's
-     * transaction and with its Actor, whichever handler changed the Offer.
+     * FR-23, §10: the one place the facts about an Offer become events (stopped being Active; the announcements
+     * for channels), inside the command's transaction, whichever handler changed the Offer.
      *
      * @param  Offer  $entity
      */
@@ -38,6 +45,18 @@ final class EloquentOfferRepository extends EloquentRepository implements OfferR
                 $this->actors->hasCurrent() ? $this->actors->current() : Actor::system('offer-stopped-being-active'),
             );
         }
+
+        foreach ($entity->pullAnnouncements() as $announcement) {
+            $offerId = (int) $entity->id();
+
+            match ($announcement) {
+                OfferAnnouncement::BecameCandidate => OfferBecameCandidate::dispatch($offerId),
+                OfferAnnouncement::ChangedWhileCandidate => OfferChangedWhileCandidate::dispatch($offerId),
+                OfferAnnouncement::Reserved => OfferReserved::dispatch($offerId),
+                OfferAnnouncement::Sold => OfferSold::dispatch($offerId),
+                OfferAnnouncement::StoppedBeingCandidate => OfferStoppedBeingCandidate::dispatch($offerId),
+            };
+        }
     }
 
     public function numberIsTaken(string $number): bool
@@ -48,6 +67,27 @@ final class EloquentOfferRepository extends EloquentRepository implements OfferR
     public function idsOfOwner(int $ownerId): array
     {
         return $this->query()->where('owner_id', $ownerId)->orderBy('id')->pluck('id')->map(fn ($id): int => (int) $id)->all();
+    }
+
+    public function isCandidate(int $offerId): bool
+    {
+        return $this->candidates()->whereKey($offerId)->exists();
+    }
+
+    public function candidateIdsOfGlassModel(int $glassModelId): array
+    {
+        return $this->candidates()->where('glass_model_id', $glassModelId)->orderBy('id')->pluck('id')->map(fn ($id): int => (int) $id)->all();
+    }
+
+    public function candidateIdsOfProducer(int $producerId): array
+    {
+        return $this->candidates()->where('producer_id', $producerId)->orderBy('id')->pluck('id')->map(fn ($id): int => (int) $id)->all();
+    }
+
+    /** @return Builder<OfferModel> */
+    private function candidates(): Builder
+    {
+        return $this->query()->whereIn('status', OfferDomainPolicy::CANDIDATE_STATUSES)->whereNull('trashed_at');
     }
 
     public function pricedOffersOfOwner(int $ownerId): array

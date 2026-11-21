@@ -193,6 +193,15 @@ final class OfferDomainPolicy
         return ! $inTrash && $status === OfferStatus::Active;
     }
 
+    /** §10: the statuses in which an Offer outside the Trash is a candidate for adverts. */
+    public const array CANDIDATE_STATUSES = [OfferStatus::Active, OfferStatus::Reserved];
+
+    /** §10: an Offer is a candidate for adverts while Active or Reserved and outside the Trash. */
+    public static function isCandidate(OfferStatus $status, bool $inTrash): bool
+    {
+        return ! $inTrash && in_array($status, self::CANDIDATE_STATUSES, true);
+    }
+
     /** FR-17: only a Reserved Offer outside the Trash is released. */
     public static function canBeReleased(OfferStatus $status, bool $inTrash): bool
     {

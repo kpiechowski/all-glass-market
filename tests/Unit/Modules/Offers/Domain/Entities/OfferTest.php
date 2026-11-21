@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Modules\Offers\Domain\Entities;
 
 use App\Modules\Offers\Domain\Entities\Offer;
+use App\Modules\Offers\Domain\Enums\OfferAnnouncement;
 use App\Modules\Offers\Domain\Enums\OfferCondition;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Exceptions\OfferRefused;
@@ -933,5 +934,55 @@ class OfferTest extends TestCase
         $this->assertSame('offers::exceptions.glass_model_cannot_be_picked', $this->refusalKey(fn () => $this->offerIn(OfferStatus::Active)->changeGlassModel(8, false)));
         $trashed = Offer::reconstitute(3, OfferNumber::from('AG00000001'), 11, OfferStatus::Active, $this->complete(), OfferPhotos::none(), null, null, false, $this->now());
         $this->assertSame('offers::exceptions.is_in_trash', $this->refusalKey(fn () => $trashed->changeGlassModel(8, true)));
+    }
+
+    private function loaded(OfferStatus $status, ?CarbonImmutable $trashedAt = null): Offer
+    {
+        return Offer::reconstitute(7, OfferNumber::from('AG00000007'), 11, $status, $this->content(glassModelId: 5), OfferPhotos::none(), trashedAt: $trashedAt);
+    }
+
+    public function test_announcements_are_given_once_and_not_again_until_something_else_happens(): void
+    {
+        $offer = $this->loaded(OfferStatus::Active);
+
+        $offer->reserve(false);
+
+        $this->assertSame([OfferAnnouncement::Reserved], $offer->pullAnnouncements());
+        $this->assertSame([], $offer->pullAnnouncements());
+
+        $offer->release();
+
+        $this->assertSame([OfferAnnouncement::BecameCandidate], $offer->pullAnnouncements());
+    }
+
+    public function test_a_net_nothing_in_one_save_announces_nothing(): void
+    {
+        $offer = $this->loaded(OfferStatus::Active);
+
+        $offer->reserve(false);
+        $offer->release();
+
+        $this->assertSame([], $offer->pullAnnouncements());
+    }
+
+    public function test_a_trashed_offer_is_not_a_candidate_and_a_draft_announces_nothing(): void
+    {
+        $trashed = $this->loaded(OfferStatus::Active, CarbonImmutable::now());
+
+        $this->assertSame([], $trashed->pullAnnouncements());
+        $this->assertSame([], $this->draft()->pullAnnouncements());
+    }
+
+    public function test_only_what_adverts_show_counts_as_a_change(): void
+    {
+        $offer = $this->loaded(OfferStatus::Active);
+        $photos = $offer->photos();
+
+        $offer->edit($this->content(glassModelId: 5)->withPrice(EnteredPrice::fromGrosze(100)), $photos, 11, true, true, true);
+        $this->assertSame([OfferAnnouncement::ChangedWhileCandidate], $offer->pullAnnouncements());
+
+        $notes = OfferContent::from(GlassReference::from(5, null), null, 2020, OfferCondition::New, null, 'Opis', 'Inna notatka', EnteredPrice::fromGrosze(100));
+        $offer->edit($notes, $photos, 11, true, true, true);
+        $this->assertSame([], $offer->pullAnnouncements());
     }
 }

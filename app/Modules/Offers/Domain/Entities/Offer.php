@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Offers\Domain\Entities;
 
+use App\Modules\Offers\Domain\Enums\OfferAnnouncement;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Exceptions\OfferRefused;
 use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
@@ -39,6 +40,8 @@ final class Offer
         private bool $changedSinceApproval,
         private ?CarbonImmutable $trashedAt,
         private bool $leftActive = false,
+        private ?OfferStatus $candidateBaseline = null,
+        private bool $changedForAdverts = false,
     ) {}
 
     public static function draft(
@@ -66,7 +69,10 @@ final class Offer
         bool $changedSinceApproval = false,
         ?CarbonImmutable $trashedAt = null,
     ): self {
-        return new self($id, $number, $ownerId, $status, $content, $photos, $firstApprovedAt, $lastApprovedAt, $changedSinceApproval, $trashedAt);
+        return new self(
+            $id, $number, $ownerId, $status, $content, $photos, $firstApprovedAt, $lastApprovedAt, $changedSinceApproval, $trashedAt,
+            candidateBaseline: self::candidateStatusOf($status, $trashedAt),
+        );
     }
 
     /**
@@ -183,6 +189,10 @@ final class Offer
             $this->changedSinceApproval = true;
         }
 
+        if ($content->forAdverts() != $this->content->forAdverts() || $photos->public !== $this->photos->public) {
+            $this->changedForAdverts = true;
+        }
+
         $this->content = $content;
         $this->photos = $photos;
 
@@ -208,6 +218,7 @@ final class Offer
 
         $price = $change->applyTo($this->content->price) ?? throw OfferRefused::priceWouldNotBePositive();
         $changed = $price != $this->content->price;
+        $this->changedForAdverts = $this->changedForAdverts || $changed;
         $this->content = $this->content->withPrice($price);
 
         return $changed;
@@ -228,6 +239,7 @@ final class Offer
         self::guardPicks($this->content, $content, $glassModelCanBePicked, true);
 
         $changed = $content != $this->content;
+        $this->changedForAdverts = $this->changedForAdverts || $changed;
         $this->content = $content;
 
         return $changed;
@@ -268,6 +280,39 @@ final class Offer
         $this->leftActive = false;
 
         return $left;
+    }
+
+    /**
+     * §10, RULE-12: what channels must hear about this save, judged by comparing the candidate state (Active or
+     * Reserved, outside the Trash) the Offer had when loaded or last asked with the one it has now, so every route
+     * (approve, resume, release, restore, edit, trash...) is noticed once in one place. A sale is announced as a
+     * sale only. Asking again returns nothing until something else happens.
+     *
+     * @return list<OfferAnnouncement>
+     */
+    public function pullAnnouncements(): array
+    {
+        $before = $this->candidateBaseline;
+        $after = self::candidateStatusOf($this->status, $this->trashedAt);
+        $changed = $this->changedForAdverts;
+
+        $this->candidateBaseline = $after;
+        $this->changedForAdverts = false;
+
+        return match (true) {
+            $before !== null && $this->status === OfferStatus::Sold => [OfferAnnouncement::Sold],
+            $before === null && $after !== null,
+            $before === OfferStatus::Reserved && $after === OfferStatus::Active => [OfferAnnouncement::BecameCandidate],
+            $before === OfferStatus::Active && $after === OfferStatus::Reserved => [OfferAnnouncement::Reserved],
+            $before !== null && $after === null => [OfferAnnouncement::StoppedBeingCandidate],
+            $before !== null && $changed => [OfferAnnouncement::ChangedWhileCandidate],
+            default => [],
+        };
+    }
+
+    private static function candidateStatusOf(OfferStatus $status, ?CarbonImmutable $trashedAt): ?OfferStatus
+    {
+        return OfferDomainPolicy::isCandidate($status, $trashedAt !== null) ? $status : null;
     }
 
     private function activate(CarbonImmutable $now): void
@@ -448,6 +493,7 @@ final class Offer
     {
         $this->guardPhotos($photos, $uploaderId);
 
+        $this->changedForAdverts = $this->changedForAdverts || $photos->public !== $this->photos->public;
         $this->photos = $photos;
     }
 

@@ -33,4 +33,21 @@ interface OfferRepository extends Repository
      * @return list<array{id: int, ownerId: int, grosze: int}>
      */
     public function pricedOffers(): array;
+
+    /** §10: whether the Offer is Active or Reserved and outside the Trash. */
+    public function isCandidate(int $offerId): bool;
+
+    /**
+     * §10: the candidates (Active or Reserved, outside the Trash) that have the Glass model, in one read.
+     *
+     * @return list<int>
+     */
+    public function candidateIdsOfGlassModel(int $glassModelId): array;
+
+    /**
+     * §10: the candidates that have the producer, in one read.
+     *
+     * @return list<int>
+     */
+    public function candidateIdsOfProducer(int $producerId): array;
 }

@@ -251,6 +251,14 @@ class OfferDomainPolicyTest extends TestCase
         $this->assertFalse(OfferDomainPolicy::canBeReturned(OfferStatus::Sold, true));
     }
 
+    public function test_an_active_or_reserved_offer_outside_the_trash_is_a_candidate_for_adverts(): void
+    {
+        foreach (OfferStatus::cases() as $status) {
+            $this->assertSame(in_array($status, [OfferStatus::Active, OfferStatus::Reserved], true), OfferDomainPolicy::isCandidate($status, false), $status->value);
+            $this->assertFalse(OfferDomainPolicy::isCandidate($status, true), $status->value);
+        }
+    }
+
     public function test_a_reserved_offer_cannot_be_trashed_but_a_sold_one_can(): void
     {
         $this->assertFalse(OfferDomainPolicy::canBeTrashed(OfferStatus::Reserved, false));
