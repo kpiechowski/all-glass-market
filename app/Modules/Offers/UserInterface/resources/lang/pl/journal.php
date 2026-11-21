@@ -39,4 +39,20 @@ return [
         'title' => 'Sprzedaż oferty :number została zwrócona',
         'content' => 'Administrator zwrócił sprzedaż Twojej oferty :number. Oferta jest znów aktywna.',
     ],
+    'inquiry_sent' => [
+        'title' => 'Zapytanie o ofertę :number',
+        'content' => 'Administrator zapytał o Twoją ofertę :number. Odpowiedz na zapytanie w sekcji Zapytania.',
+    ],
+    'inquiry_accepted' => [
+        'title' => 'Zapytanie o ofertę :number zaakceptowane',
+        'content' => 'Sprzedawca zaakceptował Twoje zapytanie. Oferta :number jest zarezerwowana na Twoje nazwisko.',
+    ],
+    'inquiry_rejected' => [
+        'title' => 'Zapytanie o ofertę :number odrzucone',
+        'content' => 'Sprzedawca odrzucił Twoje zapytanie o ofertę :number.',
+    ],
+    'inquiry_outdated' => [
+        'title' => 'Zapytanie o ofertę :number jest nieaktualne',
+        'content' => 'Oferta :number przestała być aktywna, więc Twoje zapytanie straciło aktualność.',
+    ],
 ];

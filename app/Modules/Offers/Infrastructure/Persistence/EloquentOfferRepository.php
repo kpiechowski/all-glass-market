@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Modules\Offers\Infrastructure\Persistence;
 
 use App\Core\Abstracts\EloquentRepository;
+use App\Core\Domain\Actor;
+use App\Core\Infrastructure\Bus\ActorStack;
 use App\Modules\Offers\Domain\Entities\Offer;
+use App\Modules\Offers\Domain\Events\OfferStoppedBeingActive;
 use App\Modules\Offers\Domain\Repositories\OfferRepository;
 use App\Modules\Offers\Infrastructure\Persistence\Mappers\OfferMapper;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
@@ -14,9 +17,27 @@ use Illuminate\Database\Eloquent\Builder;
 /** @extends EloquentRepository<Offer> */
 final class EloquentOfferRepository extends EloquentRepository implements OfferRepository
 {
-    public function __construct(OfferMapper $mapper)
+    public function __construct(OfferMapper $mapper, private readonly ActorStack $actors)
     {
         parent::__construct(OfferModel::class, $mapper);
+    }
+
+    /**
+     * FR-23: the one place the fact "this Offer stopped being Active" becomes an event, inside the command's
+     * transaction and with its Actor, whichever handler changed the Offer.
+     *
+     * @param  Offer  $entity
+     */
+    public function save(object $entity): void
+    {
+        parent::save($entity);
+
+        if ($entity->pullLeftActive()) {
+            OfferStoppedBeingActive::dispatch(
+                (int) $entity->id(),
+                $this->actors->hasCurrent() ? $this->actors->current() : Actor::system('offer-stopped-being-active'),
+            );
+        }
     }
 
     public function numberIsTaken(string $number): bool

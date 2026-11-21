@@ -16,6 +16,7 @@ use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\RestoreOf
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ResumeOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ReturnSaleAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\SellOfferAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\SendInquiryAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\SendOfferForApprovalAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\WithdrawOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
@@ -27,7 +28,7 @@ use Filament\Resources\Pages\ViewRecord;
 /**
  * Template C (record view). One primary: sending (owner), approving (admin), resuming or restoring when it
  * applies, else Edit. Reserving, releasing and selling are the (at most two) secondary actions; returning a
- * Sale, withdrawing and deleting (dangerous) sit in "⋮" with rejecting.
+ * Sale, sending an Inquiry, withdrawing and deleting (dangerous) sit in "⋮" with rejecting.
  */
 class ViewOffer extends ViewRecord
 {
@@ -48,6 +49,7 @@ class ViewOffer extends ViewRecord
             ReleaseReservationAction::make(),
             SellOfferAction::make(),
             ActionGroup::make([
+                SendInquiryAction::make(),
                 ReturnSaleAction::make(),
                 RejectOfferAction::make(),
                 WithdrawOfferAction::make(),

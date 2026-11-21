@@ -209,6 +209,31 @@ final class OfferRefused extends DomainException
         return new self('offers::exceptions.reservation_note_is_too_long', ['max' => $max]);
     }
 
+    public static function inquiryNoteRequired(): self
+    {
+        return new self('offers::exceptions.inquiry_note_required');
+    }
+
+    public static function inquiryNoteIsTooLong(int $max): self
+    {
+        return new self('offers::exceptions.inquiry_note_is_too_long', ['max' => $max]);
+    }
+
+    public static function inquiryIsClosed(): self
+    {
+        return new self('offers::exceptions.inquiry_is_closed');
+    }
+
+    public static function offerCannotReceiveInquiry(): self
+    {
+        return new self('offers::exceptions.offer_cannot_receive_inquiry');
+    }
+
+    public static function inquiryChannelIsUnknown(): self
+    {
+        return new self('offers::exceptions.inquiry_channel_is_unknown');
+    }
+
     public static function reservationAlreadyEnded(): self
     {
         return new self('offers::exceptions.reservation_already_ended');

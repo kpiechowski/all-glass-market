@@ -55,4 +55,9 @@ return [
     'sale_channel_is_unknown' => 'Wybierz kanał sprzedaży: panel, WooCommerce, OLX albo inny.',
     'return_reason_required' => 'Podaj powód zwrotu sprzedaży.',
     'sale_already_returned' => 'Ta sprzedaż została już zwrócona.',
+    'inquiry_note_required' => 'Napisz treść zapytania.',
+    'inquiry_note_is_too_long' => 'Zapytanie może mieć najwyżej :max znaków.',
+    'inquiry_is_closed' => 'To zapytanie jest już zamknięte: zostało zaakceptowane, odrzucone albo nieaktualne.',
+    'offer_cannot_receive_inquiry' => 'Zapytanie można wysłać tylko o aktywną ofertę.',
+    'inquiry_channel_is_unknown' => 'Wybierz kanał: panel, WooCommerce, OLX albo inny.',
 ];

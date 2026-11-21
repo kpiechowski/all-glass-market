@@ -26,9 +26,10 @@ final class Reservation
         private CarbonImmutable $madeAt,
         private ?ReservationEnd $endedAs,
         private ?CarbonImmutable $endedAt,
+        private ?int $inquiryId = null,
     ) {}
 
-    public static function make(int $offerId, int $authorId, bool $madeByAdmin, string $note, CarbonImmutable $madeAt): self
+    public static function make(int $offerId, int $authorId, bool $madeByAdmin, string $note, CarbonImmutable $madeAt, ?int $inquiryId = null): self
     {
         $note = trim($note);
 
@@ -40,7 +41,7 @@ final class Reservation
             throw OfferRefused::reservationNoteIsTooLong(OfferDomainPolicy::MAX_RESERVATION_NOTE_LENGTH);
         }
 
-        return new self(null, $offerId, $authorId, $madeByAdmin, $note, $madeAt, null, null);
+        return new self(null, $offerId, $authorId, $madeByAdmin, $note, $madeAt, null, null, $inquiryId);
     }
 
     /** @internal for the mapper */
@@ -53,8 +54,9 @@ final class Reservation
         CarbonImmutable $madeAt,
         ?ReservationEnd $endedAs,
         ?CarbonImmutable $endedAt,
+        ?int $inquiryId = null,
     ): self {
-        return new self($id, $offerId, $authorId, $madeByAdmin, $note, $madeAt, $endedAs, $endedAt);
+        return new self($id, $offerId, $authorId, $madeByAdmin, $note, $madeAt, $endedAs, $endedAt, $inquiryId);
     }
 
     /** RULE-05: an admin's Reservation is released or sold by an admin only. */
@@ -118,5 +120,11 @@ final class Reservation
     public function endedAt(): ?CarbonImmutable
     {
         return $this->endedAt;
+    }
+
+    /** FR-22: the Inquiry this Reservation was made from, if any. */
+    public function inquiryId(): ?int
+    {
+        return $this->inquiryId;
     }
 }

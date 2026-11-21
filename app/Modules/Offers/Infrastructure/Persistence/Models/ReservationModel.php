@@ -38,6 +38,7 @@ final class ReservationModel extends ReadOnlyModel
             'made_at' => 'immutable_datetime',
             'ended_as' => ReservationEnd::class,
             'ended_at' => 'immutable_datetime',
+            'inquiry_id' => 'integer',
             'is_current' => 'boolean',
         ];
     }
@@ -46,6 +47,12 @@ final class ReservationModel extends ReadOnlyModel
     public function offer(): BelongsTo
     {
         return $this->belongsTo(OfferModel::class, 'offer_id');
+    }
+
+    /** @return BelongsTo<InquiryModel, $this> */
+    public function inquiry(): BelongsTo
+    {
+        return $this->belongsTo(InquiryModel::class, 'inquiry_id');
     }
 
     /** @return BelongsTo<UserModel, $this> */

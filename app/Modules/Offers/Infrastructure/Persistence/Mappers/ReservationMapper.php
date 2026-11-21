@@ -24,6 +24,7 @@ final class ReservationMapper implements Mapper
             $model->made_at,
             $model->ended_as,
             $model->ended_at,
+            $model->inquiry_id,
         );
     }
 
@@ -38,6 +39,7 @@ final class ReservationMapper implements Mapper
             'made_at' => $entity->madeAt(),
             'ended_as' => $entity->endedAs(),
             'ended_at' => $entity->endedAt(),
+            'inquiry_id' => $entity->inquiryId(),
             'is_current' => $entity->isCurrent() ? true : null,
         ];
     }

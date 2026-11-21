@@ -37,6 +37,7 @@ final class Offer
         private ?CarbonImmutable $lastApprovedAt,
         private bool $changedSinceApproval,
         private ?CarbonImmutable $trashedAt,
+        private bool $leftActive = false,
     ) {}
 
     public static function draft(
@@ -87,7 +88,7 @@ final class Offer
             return;
         }
 
-        $this->status = OfferStatus::Pending;
+        $this->moveTo(OfferStatus::Pending);
     }
 
     /**
@@ -137,7 +138,7 @@ final class Offer
             throw OfferRefused::rejectionReasonRequired();
         }
 
-        $this->status = OfferStatus::Rejected;
+        $this->moveTo(OfferStatus::Rejected);
         $this->changedSinceApproval = true;
     }
 
@@ -185,15 +186,37 @@ final class Offer
         $this->photos = $photos;
 
         if ($needsReapproval) {
-            $this->status = OfferStatus::Pending;
+            $this->moveTo(OfferStatus::Pending);
         }
 
         return $changed;
     }
 
+    /** FR-23: every status change goes through here, so leaving Active is noticed once, whichever action caused it. */
+    private function moveTo(OfferStatus $status): void
+    {
+        if ($this->status === OfferStatus::Active && $status !== OfferStatus::Active) {
+            $this->leftActive = true;
+        }
+
+        $this->status = $status;
+    }
+
+    /**
+     * FR-23: true once, since the Offer stopped being Active (a status change, or the Trash while Active) and
+     * not asked before. The repository adapter turns it into the event on save, so no handler has to.
+     */
+    public function pullLeftActive(): bool
+    {
+        $left = $this->leftActive;
+        $this->leftActive = false;
+
+        return $left;
+    }
+
     private function activate(CarbonImmutable $now): void
     {
-        $this->status = OfferStatus::Active;
+        $this->moveTo(OfferStatus::Active);
         $this->firstApprovedAt ??= $now;
         $this->lastApprovedAt = $now;
         $this->changedSinceApproval = false;
@@ -208,7 +231,7 @@ final class Offer
             throw OfferRefused::cannotBeWithdrawn();
         }
 
-        $this->status = OfferStatus::Withdrawn;
+        $this->moveTo(OfferStatus::Withdrawn);
     }
 
     /**
@@ -234,7 +257,7 @@ final class Offer
             throw OfferRefused::cannotBeResumed();
         }
 
-        $this->status = OfferStatus::Active;
+        $this->moveTo(OfferStatus::Active);
     }
 
     /**
@@ -249,7 +272,7 @@ final class Offer
             throw OfferRefused::cannotBeReserved();
         }
 
-        $this->status = OfferStatus::Reserved;
+        $this->moveTo(OfferStatus::Reserved);
     }
 
     /** FR-17: Reserved to Active (the handler checks who may, from the Reservation). */
@@ -261,7 +284,7 @@ final class Offer
             throw OfferRefused::cannotBeReleased();
         }
 
-        $this->status = OfferStatus::Active;
+        $this->moveTo(OfferStatus::Active);
     }
 
     /** FR-18: Active or Reserved to Sold; the Sale records the entered price, so the Offer must have one. */
@@ -277,7 +300,7 @@ final class Offer
             throw OfferRefused::priceRequiredToSell();
         }
 
-        $this->status = OfferStatus::Sold;
+        $this->moveTo(OfferStatus::Sold);
     }
 
     /** FR-19: Sold to Active (an admin, with a reason on the Sale). */
@@ -289,7 +312,7 @@ final class Offer
             throw OfferRefused::saleCannotBeReturned();
         }
 
-        $this->status = OfferStatus::Active;
+        $this->moveTo(OfferStatus::Active);
     }
 
     private function canResumeWithoutApproval(): bool
@@ -302,6 +325,10 @@ final class Offer
     {
         if (! OfferDomainPolicy::canBeTrashed($this->status, $this->isInTrash())) {
             throw $this->isInTrash() ? OfferRefused::cannotBeTrashed() : OfferRefused::reservedCannotBeTrashed();
+        }
+
+        if ($this->status === OfferStatus::Active) {
+            $this->leftActive = true;
         }
 
         $this->trashedAt = $now;

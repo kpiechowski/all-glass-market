@@ -39,4 +39,16 @@ class ReservationMapperTest extends TestCase
         $this->assertNull($row['is_current']);
         $this->assertEquals($entity, $mapper->toEntity($model));
     }
+
+    public function test_the_inquiry_a_reservation_came_from_survives_the_round_trip(): void
+    {
+        $mapper = new ReservationMapper;
+        $entity = Reservation::reconstitute(5, 3, 9, true, 'Pan Kowalski', CarbonImmutable::parse('2026-11-21 10:00:00'), null, null, 12);
+
+        $row = $mapper->toRow($entity);
+        $model = ReservationModelFactory::new()->make(['id' => 5] + $row);
+
+        $this->assertSame(12, $row['inquiry_id']);
+        $this->assertEquals($entity, $mapper->toEntity($model));
+    }
 }

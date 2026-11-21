@@ -756,4 +756,42 @@ class OfferTest extends TestCase
             $this->assertSame('Inny opis', $offer->content()->description);
         }
     }
+
+    public function test_every_exit_from_active_is_noticed_once_and_other_moves_are_not(): void
+    {
+        $exits = [
+            'reject' => fn (Offer $offer) => $offer->reject('Powód'),
+            'withdraw' => fn (Offer $offer) => $offer->withdraw(),
+            'reserve' => fn (Offer $offer) => $offer->reserve(false),
+            'sell' => fn (Offer $offer) => $offer->sell(),
+            'trash' => fn (Offer $offer) => $offer->moveToTrash(CarbonImmutable::now()),
+            'edit to pending' => fn (Offer $offer) => $offer->edit($this->complete(description: 'Inny opis'), $offer->photos(), 11, false, true, true),
+        ];
+
+        foreach ($exits as $name => $exit) {
+            $offer = $this->offerIn(OfferStatus::Active);
+            $this->assertFalse($offer->pullLeftActive(), $name);
+
+            $exit($offer);
+
+            $this->assertTrue($offer->pullLeftActive(), $name);
+            $this->assertFalse($offer->pullLeftActive(), $name.' (once)');
+        }
+    }
+
+    public function test_moves_that_do_not_leave_active_are_not_noticed(): void
+    {
+        $price = $this->offerIn(OfferStatus::Active);
+        $price->edit($this->complete(), $price->photos(), 11, false, true, true);
+        $reserved = $this->offerIn(OfferStatus::Reserved);
+        $reserved->sell();
+        $pending = $this->offerIn(OfferStatus::Pending);
+        $pending->reject('Powód');
+        $trashedPending = $this->offerIn(OfferStatus::Pending);
+        $trashedPending->moveToTrash(CarbonImmutable::now());
+
+        foreach ([$price, $reserved, $pending, $trashedPending] as $offer) {
+            $this->assertFalse($offer->pullLeftActive());
+        }
+    }
 }

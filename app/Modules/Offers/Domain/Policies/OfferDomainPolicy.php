@@ -169,6 +169,15 @@ final class OfferDomainPolicy
         return ! $inTrash && $status !== OfferStatus::Reserved;
     }
 
+    /** FR-21: the longest note of an Inquiry; the Reservation made from it takes the note over. */
+    public const int MAX_INQUIRY_NOTE_LENGTH = 500;
+
+    /** FR-21: an Inquiry is sent only about an Active Offer outside the Trash. */
+    public static function canReceiveInquiry(OfferStatus $status, bool $inTrash): bool
+    {
+        return ! $inTrash && $status === OfferStatus::Active;
+    }
+
     /** FR-16: only an Active Offer outside the Trash is reserved. */
     public static function canBeReserved(OfferStatus $status, bool $inTrash): bool
     {

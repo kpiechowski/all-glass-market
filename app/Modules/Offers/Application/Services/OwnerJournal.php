@@ -61,6 +61,11 @@ final class OwnerJournal
         $this->write($actor, $offer, JournalSeverity::Success, 'sold');
     }
 
+    public function inquirySent(Actor $actor, Offer $offer): void
+    {
+        $this->write($actor, $offer, JournalSeverity::Info, 'inquiry_sent');
+    }
+
     public function returned(Actor $actor, Offer $offer): void
     {
         $this->write($actor, $offer, JournalSeverity::Info, 'returned');

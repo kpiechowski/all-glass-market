@@ -22,6 +22,7 @@ use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\RestoreOf
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ResumeOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ReturnSaleAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\SellOfferAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\SendInquiryAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\WithdrawOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferGlassLabel;
@@ -49,6 +50,7 @@ class OffersTable
                     ReserveOfferAction::make(),
                     ReleaseReservationAction::make(),
                     SellOfferAction::make(),
+                    SendInquiryAction::make(),
                     ReturnSaleAction::make(),
                     ResumeOfferAction::make(),
                     WithdrawOfferAction::make(),

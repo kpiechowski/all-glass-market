@@ -85,6 +85,12 @@ final class OfferActionVisibility
         return OfferDomainPolicy::canBeReserved($offer->status, self::isInTrash($offer));
     }
 
+    /** FR-21: only an admin sends an Inquiry, and only about an Active Offer. */
+    public static function canSendInquiry(OfferModel $offer): bool
+    {
+        return self::managesAll() && OfferDomainPolicy::canReceiveInquiry($offer->status, self::isInTrash($offer));
+    }
+
     /** FR-17, RULE-05: an admin's Reservation is visible but locked for its seller. */
     public static function canRelease(OfferModel $offer): bool
     {

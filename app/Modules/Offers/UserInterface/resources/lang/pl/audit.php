@@ -38,6 +38,21 @@ return [
             'made_at' => 'Zarezerwowano',
             'ended_as' => 'Zakończona jako',
             'ended_at' => 'Zakończono',
+            'inquiry' => 'Zapytanie, z którego powstała',
+        ],
+    ],
+    'inquiry' => [
+        'type' => 'Zapytanie',
+        'title' => 'Zapytanie o ofertę :number',
+        'fields' => [
+            'offer' => 'Oferta',
+            'sender' => 'Wysłał administrator',
+            'channel' => 'Kanał',
+            'note' => 'Treść',
+            'state' => 'Stan',
+            'sent_at' => 'Wysłano',
+            'read_at' => 'Przeczytano',
+            'answered_at' => 'Odpowiedziano',
         ],
     ],
     'sale' => [

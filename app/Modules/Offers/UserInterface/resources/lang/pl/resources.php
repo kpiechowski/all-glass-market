@@ -167,6 +167,14 @@ return [
                 'description' => 'Sprzedaż zapisze kanał, cenę oraz stawkę VAT z tej chwili. Ewentualna rezerwacja zakończy się jako sprzedana.',
                 'done' => 'Oferta została sprzedana',
             ],
+            'send_inquiry' => [
+                'label' => 'Wyślij zapytanie',
+                'heading' => 'Wysłać zapytanie do właściciela?',
+                'submit' => 'Wyślij zapytanie',
+                'none_open' => 'Nikt jeszcze nie pytał o tę ofertę.',
+                'open' => 'Otwartych zapytań: :count (od: :senders).',
+                'done' => 'Wysłano zapytanie',
+            ],
             'return_sale' => [
                 'label' => 'Zwróć sprzedaż',
                 'heading' => 'Zwrócić sprzedaż?',
@@ -211,6 +219,45 @@ return [
         'empty' => [
             'heading' => 'Brak rezerwacji',
             'description' => 'Zarezerwowane oferty pojawią się tutaj.',
+        ],
+    ],
+
+    'inquiry' => [
+        'label' => 'Zapytanie',
+        'plural_label' => 'Zapytania',
+        'sections' => [
+            'inquiry' => 'Zapytanie o ofertę',
+        ],
+        'fields' => [
+            'offer' => 'Oferta',
+            'sender' => 'Wysłał administrator',
+            'channel' => 'Kanał',
+            'note' => 'Treść zapytania',
+            'state' => 'Stan',
+            'sent_at' => 'Wysłano',
+            'read_at' => 'Przeczytano',
+            'answered_at' => 'Odpowiedziano',
+        ],
+        'helpers' => [
+            'note' => 'Dla kogo lub o co pytasz: imię, telefon albo krótka uwaga. Po akceptacji trafia do rezerwacji.',
+        ],
+        'actions' => [
+            'accept' => [
+                'label' => 'Zaakceptuj',
+                'heading' => 'Zaakceptować zapytanie?',
+                'description' => 'Oferta zostanie zarezerwowana na nazwisko administratora, który zapytał. Tylko administrator zwolni tę rezerwację.',
+                'done' => 'Zaakceptowano zapytanie, oferta jest zarezerwowana',
+            ],
+            'reject' => [
+                'label' => 'Odrzuć',
+                'heading' => 'Odrzucić zapytanie?',
+                'description' => 'Administrator, który zapytał, dostanie informację o odrzuceniu.',
+                'done' => 'Odrzucono zapytanie',
+            ],
+        ],
+        'empty' => [
+            'heading' => 'Brak zapytań',
+            'description' => 'Zapytania administratorów o Twoje oferty pojawią się tutaj.',
         ],
     ],
 ];

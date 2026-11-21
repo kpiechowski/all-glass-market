@@ -32,4 +32,11 @@ return [
         'released' => 'Zwolniona',
         'sold' => 'Sprzedana',
     ],
+    'inquiry_state' => [
+        'sent' => 'Wysłane',
+        'read' => 'Przeczytane',
+        'accepted' => 'Zaakceptowane',
+        'rejected' => 'Odrzucone',
+        'outdated' => 'Nieaktualne',
+    ],
 ];

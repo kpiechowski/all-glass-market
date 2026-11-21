@@ -11,6 +11,7 @@ use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\Dict
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\GlassModelResource;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\VehicleResource;
 use App\Modules\Offers\UserInterface\Filament\Pages\OfferSettings\OfferSettings;
+use App\Modules\Offers\UserInterface\Filament\Resources\Inquiries\InquiryResource;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
 use App\Modules\Offers\UserInterface\Filament\Resources\Reservations\ReservationResource;
 use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\EditProfile;
@@ -57,6 +58,7 @@ final class PanelNavigation
                 ->items(self::items([
                     OfferResource::class,
                     ReservationResource::class,
+                    InquiryResource::class,
                     OfferSettings::class,
                 ])),
             NavigationGroup::make(__('catalogue::resources.navigation.group'))

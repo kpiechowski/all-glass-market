@@ -14,20 +14,24 @@ use App\Modules\Offers\Application\ModuleApi\BuyersPrices;
 use App\Modules\Offers\Application\Providers\OfferJournalSubject;
 use App\Modules\Offers\Application\Providers\OffersEventServiceProvider;
 use App\Modules\Offers\Application\Services\OwnerJournal;
+use App\Modules\Offers\Domain\Enums\InquiryState;
 use App\Modules\Offers\Domain\Enums\OfferCondition;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Enums\ReservationEnd;
 use App\Modules\Offers\Domain\Enums\SaleChannel;
+use App\Modules\Offers\Domain\Repositories\InquiryRepository;
 use App\Modules\Offers\Domain\Repositories\OfferPhotoStorage;
 use App\Modules\Offers\Domain\Repositories\OfferRepository;
 use App\Modules\Offers\Domain\Repositories\ReservationRepository;
 use App\Modules\Offers\Domain\Repositories\SaleRepository;
 use App\Modules\Offers\Domain\Repositories\VatRateSetting;
+use App\Modules\Offers\Infrastructure\Persistence\EloquentInquiryRepository;
 use App\Modules\Offers\Infrastructure\Persistence\EloquentOfferRepository;
 use App\Modules\Offers\Infrastructure\Persistence\EloquentReservationRepository;
 use App\Modules\Offers\Infrastructure\Persistence\EloquentSaleRepository;
 use App\Modules\Offers\Infrastructure\Persistence\EloquentVatRateSetting;
+use App\Modules\Offers\Infrastructure\Persistence\Models\InquiryModel;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use App\Modules\Offers\Infrastructure\Persistence\Models\ReservationModel;
 use App\Modules\Offers\Infrastructure\Persistence\Models\SaleModel;
@@ -54,6 +58,7 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
         OfferRepository::class => EloquentOfferRepository::class,
         ReservationRepository::class => EloquentReservationRepository::class,
         SaleRepository::class => EloquentSaleRepository::class,
+        InquiryRepository::class => EloquentInquiryRepository::class,
         VatRateSetting::class => EloquentVatRateSetting::class,
         OfferPhotoStorage::class => StorageOfferPhotoStorage::class,
     ];
@@ -92,12 +97,13 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
         $registry->grant(UserRole::Admin, OffersPermission::Create, OffersPermission::ManageAll);
     }
 
-    /** §9 Audit: the Offer, its Reservations and its Sales are auditable (RULE-10). */
+    /** §9 Audit: the Offer, its Reservations, Sales and Inquiries are auditable (RULE-10). */
     private function registerAuditableRecords(AuditableRecords $records): void
     {
         $this->registerOfferRecord($records);
         $this->registerReservationRecord($records);
         $this->registerSaleRecord($records);
+        $this->registerInquiryRecord($records);
     }
 
     private function registerOfferRecord(AuditableRecords $records): void
@@ -162,6 +168,7 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
                 'made_at' => 'offers::audit.reservation.fields.made_at',
                 'ended_as' => 'offers::audit.reservation.fields.ended_as',
                 'ended_at' => 'offers::audit.reservation.fields.ended_at',
+                'inquiry_id' => 'offers::audit.reservation.fields.inquiry',
             ],
             valuePresenters: [
                 'offer_id' => ValuePresenter::reference(OfferModel::class, 'number'),
@@ -170,6 +177,7 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
                 'made_at' => ValuePresenter::date(),
                 'ended_as' => ValuePresenter::enum(ReservationEnd::class),
                 'ended_at' => ValuePresenter::date(),
+                'inquiry_id' => ValuePresenter::resolved(fn (mixed $id): ?string => is_numeric($id) ? '#'.$id : null),
             ],
         ));
     }
@@ -206,6 +214,36 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
                 'sold_at' => ValuePresenter::date(),
                 'returned_at' => ValuePresenter::date(),
                 'returned_by_id' => ValuePresenter::reference(UserModel::class, 'name'),
+            ],
+        ));
+    }
+
+    private function registerInquiryRecord(AuditableRecords $records): void
+    {
+        $records->register(new AuditableRecordType(
+            key: InquiryModel::AUDIT_KEY,
+            modelClass: InquiryModel::class,
+            name: 'offers::audit.inquiry.type',
+            title: fn (InquiryModel $inquiry): string => __('offers::audit.inquiry.title', ['number' => $inquiry->offer->number]),
+            url: fn (InquiryModel $inquiry): string => OfferResource::getUrl('view', ['record' => $inquiry->offer_id]),
+            fieldLabels: [
+                'offer_id' => 'offers::audit.inquiry.fields.offer',
+                'sender_id' => 'offers::audit.inquiry.fields.sender',
+                'channel' => 'offers::audit.inquiry.fields.channel',
+                'note' => 'offers::audit.inquiry.fields.note',
+                'state' => 'offers::audit.inquiry.fields.state',
+                'sent_at' => 'offers::audit.inquiry.fields.sent_at',
+                'read_at' => 'offers::audit.inquiry.fields.read_at',
+                'answered_at' => 'offers::audit.inquiry.fields.answered_at',
+            ],
+            valuePresenters: [
+                'offer_id' => ValuePresenter::reference(OfferModel::class, 'number'),
+                'sender_id' => ValuePresenter::reference(UserModel::class, 'name'),
+                'channel' => ValuePresenter::enum(SaleChannel::class),
+                'state' => ValuePresenter::enum(InquiryState::class),
+                'sent_at' => ValuePresenter::date(),
+                'read_at' => ValuePresenter::date(),
+                'answered_at' => ValuePresenter::date(),
             ],
         ));
     }
