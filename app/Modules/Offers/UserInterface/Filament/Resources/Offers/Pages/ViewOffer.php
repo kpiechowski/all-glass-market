@@ -7,8 +7,10 @@ namespace App\Modules\Offers\UserInterface\Filament\Resources\Offers\Pages;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ApproveOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ApproveOfferWithGlassModelAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ChangeGlassModelAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\DeleteOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\DeleteOfferPermanentlyAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\DuplicateOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\RejectOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ReleaseReservationAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ReserveOfferAction;
@@ -49,6 +51,8 @@ class ViewOffer extends ViewRecord
             ReleaseReservationAction::make(),
             SellOfferAction::make(),
             ActionGroup::make([
+                DuplicateOfferAction::make(),
+                ChangeGlassModelAction::make(),
                 SendInquiryAction::make(),
                 ReturnSaleAction::make(),
                 RejectOfferAction::make(),

@@ -63,6 +63,18 @@ final class OfferActionVisibility
             || ($offer->glass_model_id !== null && self::ownerManagesAll($offer));
     }
 
+    /** FR-14: only an admin changes the Glass model, in any status outside the Trash. */
+    public static function canChangeGlassModel(OfferModel $offer): bool
+    {
+        return self::managesAll() && OfferDomainPolicy::glassModelCanBeChanged(self::isInTrash($offer));
+    }
+
+    /** FR-27: whoever sees the Offer (its owner, or an admin) duplicates it, unless it is in the Trash. */
+    public static function canDuplicate(OfferModel $offer): bool
+    {
+        return OfferDomainPolicy::canBeDuplicated(self::isInTrash($offer));
+    }
+
     /** FR-25: only an admin deletes. */
     public static function canDelete(OfferModel $offer): bool
     {

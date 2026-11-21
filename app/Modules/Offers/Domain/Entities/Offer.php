@@ -11,6 +11,7 @@ use App\Modules\Offers\Domain\ValueObjects\GlassReference;
 use App\Modules\Offers\Domain\ValueObjects\OfferContent;
 use App\Modules\Offers\Domain\ValueObjects\OfferNumber;
 use App\Modules\Offers\Domain\ValueObjects\OfferPhotos;
+use App\Modules\Offers\Domain\ValueObjects\PriceChange;
 use Carbon\CarbonImmutable;
 
 /**
@@ -190,6 +191,61 @@ final class Offer
         }
 
         return $changed;
+    }
+
+    /**
+     * FR-29, D-31: a change of the entered price keeps the status and never sends the Offer to approval, for a
+     * seller or an admin. Reserved and Sold Offers and Offers without a price keep theirs; a result of 0 zł or
+     * less is refused. Says whether the price changed.
+     */
+    public function changePrice(PriceChange $change): bool
+    {
+        $this->guardNotInTrash();
+
+        if (! OfferDomainPolicy::priceCanBeChanged($this->status, false, $this->content->price !== null)) {
+            throw OfferRefused::priceCannotBeChanged();
+        }
+
+        $price = $change->applyTo($this->content->price) ?? throw OfferRefused::priceWouldNotBePositive();
+        $changed = $price != $this->content->price;
+        $this->content = $this->content->withPrice($price);
+
+        return $changed;
+    }
+
+    /**
+     * FR-14: an admin's choice of the Glass model replaces the model or hint the Offer has; the status stays and
+     * nobody is sent to approval. Says whether the Offer changed. Whether the model may be picked is a fact the
+     * handler gathers from Catalogue.
+     */
+    public function changeGlassModel(int $glassModelId, bool $glassModelCanBePicked): bool
+    {
+        if (! OfferDomainPolicy::glassModelCanBeChanged($this->isInTrash())) {
+            throw OfferRefused::isInTrash();
+        }
+
+        $content = $this->content->withGlass(GlassReference::from($glassModelId, null));
+        self::guardPicks($this->content, $content, $glassModelCanBePicked, true);
+
+        $changed = $content != $this->content;
+        $this->content = $content;
+
+        return $changed;
+    }
+
+    /**
+     * FR-27, RULE-07: a new Draft for whoever duplicates, with the Glass model or hint, description and entered
+     * price of this Offer; photos, private notes and the rest start empty.
+     */
+    public function duplicate(OfferNumber $number, int $duplicatorId, bool $glassModelCanBePicked): self
+    {
+        if (! OfferDomainPolicy::canBeDuplicated($this->isInTrash())) {
+            throw OfferRefused::isInTrash();
+        }
+
+        $content = OfferContent::from($this->content->glass, null, null, null, null, $this->content->description, null, $this->content->price);
+
+        return self::draft($number, $duplicatorId, $content, $glassModelCanBePicked, true);
     }
 
     /** FR-23: every status change goes through here, so leaving Active is noticed once, whichever action caused it. */

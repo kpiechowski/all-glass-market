@@ -40,6 +40,8 @@ return [
             'notes' => 'Widzisz je tylko Ty i administratorzy. Nie trafiają do ogłoszeń.',
         ],
         'fields' => [
+            'price_change_kind' => 'Sposób zmiany',
+            'price_change_value' => 'Wartość',
             'number' => 'Numer oferty',
             'owner' => 'Właściciel',
             'status' => 'Status',
@@ -75,6 +77,9 @@ return [
             'return_reason' => 'Powód zwrotu',
         ],
         'helpers' => [
+            'price_change_amount' => 'Kwota w złotych: plus podnosi cenę, minus ją obniża.',
+            'price_change_percent' => 'Procent: plus podnosi cenę, minus ją obniża.',
+            'price_change_fixed' => 'Nowa cena każdej zaznaczonej oferty, od 1 zł.',
             'reservation_note' => 'Dla kogo jest rezerwacja: imię, telefon albo krótka uwaga. Rezerwacja nie wygasa sama.',
             'sale_price' => 'Domyślnie cena dla kupującego; możesz ją zmienić.',
             'identification_hint' => 'Dowolny kod, numer OEM, opis pojazdu lub auta dawcy; może być też numer VIN.',
@@ -90,6 +95,11 @@ return [
             'equipment' => 'Wyposażenie',
             'vehicles' => 'Pojazdy',
             'missing' => 'Ten model szkła nie jest już dostępny.',
+        ],
+        'price_change_kinds' => [
+            'amount' => 'O kwotę (zł)',
+            'percent' => 'O procent (%)',
+            'fixed' => 'Cena stała (zł)',
         ],
         'actions' => [
             'pick_glass_model' => 'Wybierz model szyby',
@@ -180,6 +190,46 @@ return [
                 'heading' => 'Zwrócić sprzedaż?',
                 'description' => 'Oferta znów będzie aktywna, a sprzedaż zostanie w historii jako zwrócona.',
                 'done' => 'Sprzedaż została zwrócona',
+            ],
+            'duplicate' => [
+                'label' => 'Duplikuj',
+                'heading' => 'Zduplikować ofertę?',
+                'description' => 'Powstanie nowy szkic należący do Ciebie, z tą samą szybą, opisem i ceną. Zdjęć, notatek, producenta, roku, stanu i oceny nie kopiujemy.',
+                'done' => 'Utworzono kopię oferty jako szkic',
+            ],
+            'change_glass_model' => [
+                'label' => 'Zmień model szyby',
+                'submit' => 'Zmień model',
+                'done' => 'Zmieniono model szyby',
+                'unchanged' => 'Oferta ma już ten model szyby albo jest w koszu',
+            ],
+            'change_glass_model_selected' => [
+                'label' => 'Zmień model szyby',
+                'submit' => 'Zmień model',
+                'done' => 'Zmieniono: :done, pominięto: :skipped',
+                'skipped_reason' => 'Pominięte oferty są w koszu albo mają już ten model szyby.',
+            ],
+            'change_price_selected' => [
+                'label' => 'Zmień cenę',
+                'heading' => 'Zmienić cenę zaznaczonych ofert?',
+                'description' => 'Status ofert się nie zmieni i nie trafią do ponownego zatwierdzenia. Pominiemy oferty zarezerwowane, sprzedane, bez ceny oraz te, których nowa cena nie byłaby większa od zera.',
+                'submit' => 'Zmień cenę',
+                'done' => 'Zmieniono: :done, pominięto: :skipped',
+                'skipped_reason' => 'Pominięte oferty są zarezerwowane, sprzedane, w koszu, nie należą do Ciebie, nie mają ceny albo nowa cena nie byłaby większa od zera.',
+            ],
+            'withdraw_selected' => [
+                'label' => 'Wycofaj zaznaczone',
+                'heading' => 'Wycofać zaznaczone oferty?',
+                'description' => 'Wycofane zostaną oczekujące, odrzucone i aktywne oferty. Pozostałe zostaną pominięte.',
+                'done' => 'Wycofano: :done, pominięto: :skipped',
+                'skipped_reason' => 'Pominięte oferty nie są oczekujące, odrzucone ani aktywne albo nie należą do Ciebie.',
+            ],
+            'delete_selected' => [
+                'label' => 'Usuń zaznaczone',
+                'heading' => 'Usunąć zaznaczone oferty?',
+                'description' => 'Oferty trafią do kosza z dotychczasowym statusem. Zarezerwowane zostaną pominięte.',
+                'done' => 'Usunięto: :done, pominięto: :skipped',
+                'skipped_reason' => 'Pominięte oferty są zarezerwowane albo już w koszu.',
             ],
             'approve_selected' => [
                 'label' => 'Zatwierdź zaznaczone',

@@ -60,4 +60,7 @@ return [
     'inquiry_is_closed' => 'To zapytanie jest już zamknięte: zostało zaakceptowane, odrzucone albo nieaktualne.',
     'offer_cannot_receive_inquiry' => 'Zapytanie można wysłać tylko o aktywną ofertę.',
     'inquiry_channel_is_unknown' => 'Wybierz kanał: panel, WooCommerce, OLX albo inny.',
+    'price_change_is_invalid' => 'Wybierz sposób zmiany ceny; cena stała musi wynosić co najmniej 1 zł.',
+    'price_cannot_be_changed' => 'Ceny tej oferty nie można zmienić: jest zarezerwowana, sprzedana, w koszu albo nie ma ceny.',
+    'price_would_not_be_positive' => 'Nowa cena musiałaby być większa od zera.',
 ];

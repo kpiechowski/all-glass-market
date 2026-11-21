@@ -263,4 +263,19 @@ final class OfferRefused extends DomainException
     {
         return new self('offers::exceptions.sale_already_returned');
     }
+
+    public static function priceChangeIsInvalid(): self
+    {
+        return new self('offers::exceptions.price_change_is_invalid');
+    }
+
+    public static function priceCannotBeChanged(): self
+    {
+        return new self('offers::exceptions.price_cannot_be_changed');
+    }
+
+    public static function priceWouldNotBePositive(): self
+    {
+        return new self('offers::exceptions.price_would_not_be_positive');
+    }
 }

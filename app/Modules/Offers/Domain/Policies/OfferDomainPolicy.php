@@ -214,6 +214,24 @@ final class OfferDomainPolicy
         return $status !== OfferStatus::Reserved && $status !== OfferStatus::Sold;
     }
 
+    /** FR-29: Reserved and Sold Offers, Offers in the Trash and Offers without a price keep their price. */
+    public static function priceCanBeChanged(OfferStatus $status, bool $inTrash, bool $hasPrice): bool
+    {
+        return ! $inTrash && $hasPrice && $status !== OfferStatus::Reserved && $status !== OfferStatus::Sold;
+    }
+
+    /** FR-14: an admin changes the Glass model of an Offer in any status, outside the Trash. */
+    public static function glassModelCanBeChanged(bool $inTrash): bool
+    {
+        return ! $inTrash;
+    }
+
+    /** FR-27: an Offer outside the Trash is duplicated. */
+    public static function canBeDuplicated(bool $inTrash): bool
+    {
+        return ! $inTrash;
+    }
+
     /** FR-25: only an Offer in the Trash is restored. */
     public static function canBeRestored(bool $inTrash): bool
     {

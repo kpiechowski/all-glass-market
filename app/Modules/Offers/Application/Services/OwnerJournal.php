@@ -36,6 +36,11 @@ final class OwnerJournal
         $this->write($actor, $offer, JournalSeverity::Info, 'changed_by_admin');
     }
 
+    public function glassModelChanged(Actor $actor, Offer $offer): void
+    {
+        $this->write($actor, $offer, JournalSeverity::Info, 'glass_model_changed');
+    }
+
     public function withdrawn(Actor $actor, Offer $offer): void
     {
         $this->write($actor, $offer, JournalSeverity::Info, 'withdrawn');

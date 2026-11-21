@@ -15,6 +15,10 @@ return [
         'title' => 'Administrator zmienił ofertę :number',
         'content' => 'Administrator zmienił dane Twojej oferty :number. Status oferty pozostał bez zmian.',
     ],
+    'glass_model_changed' => [
+        'title' => 'Administrator zmienił model szyby oferty :number',
+        'content' => 'Administrator zmienił model szyby Twojej oferty :number. Status oferty pozostał bez zmian.',
+    ],
     'withdrawn' => [
         'title' => 'Oferta :number została wycofana',
         'content' => 'Administrator wycofał Twoją ofertę :number. Możesz ją wznowić, jeśli nie zmieniano jej po zatwierdzeniu.',

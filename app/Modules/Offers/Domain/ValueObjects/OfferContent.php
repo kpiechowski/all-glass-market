@@ -64,6 +64,12 @@ final readonly class OfferContent
         return new self($glass, $this->producerId, $this->year, $this->condition, $this->rating, $this->description, $this->privateNotes, $this->price);
     }
 
+    /** FR-29: the same content with another entered price. */
+    public function withPrice(EnteredPrice $price): self
+    {
+        return new self($this->glass, $this->producerId, $this->year, $this->condition, $this->rating, $this->description, $this->privateNotes, $price);
+    }
+
     private static function text(?string $text): ?string
     {
         $text = $text === null ? '' : trim($text);

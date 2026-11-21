@@ -13,6 +13,7 @@ use App\Modules\Offers\Domain\ValueObjects\GlassReference;
 use App\Modules\Offers\Domain\ValueObjects\OfferContent;
 use App\Modules\Offers\Domain\ValueObjects\OfferNumber;
 use App\Modules\Offers\Domain\ValueObjects\OfferPhotos;
+use App\Modules\Offers\Domain\ValueObjects\PriceChange;
 use App\Modules\Offers\Domain\ValueObjects\Rating;
 use Carbon\CarbonImmutable;
 use PHPUnit\Framework\TestCase;
@@ -793,5 +794,112 @@ class OfferTest extends TestCase
         foreach ([$price, $reserved, $pending, $trashedPending] as $offer) {
             $this->assertFalse($offer->pullLeftActive());
         }
+    }
+
+    public function test_a_duplicate_is_a_draft_of_whoever_duplicates_with_only_glass_description_and_price(): void
+    {
+        $source = $this->offerIn(OfferStatus::Active, $this->complete(glassModelId: 5));
+
+        $copy = $source->duplicate(OfferNumber::from('AG00000002'), 99, true);
+
+        $this->assertNull($copy->id());
+        $this->assertSame(99, $copy->ownerId());
+        $this->assertSame('AG00000002', $copy->number()->value);
+        $this->assertSame(OfferStatus::Draft, $copy->status());
+        $this->assertSame(5, $copy->content()->glass->glassModelId);
+        $this->assertSame('Opis', $copy->content()->description);
+        $this->assertSame(15000, $copy->content()->price?->grosze);
+        $this->assertNull($copy->content()->producerId);
+        $this->assertNull($copy->content()->year);
+        $this->assertNull($copy->content()->condition);
+        $this->assertNull($copy->content()->rating);
+        $this->assertNull($copy->content()->privateNotes);
+        $this->assertSame([], $copy->photos()->public);
+        $this->assertSame([], $copy->photos()->private);
+        $this->assertSame(11, $source->ownerId());
+    }
+
+    public function test_a_duplicate_keeps_the_hint(): void
+    {
+        $source = $this->offerIn(OfferStatus::Pending, $this->complete(glassModelId: null, hint: 'VW Golf'));
+
+        $copy = $source->duplicate(OfferNumber::from('AG00000002'), 99, true);
+
+        $this->assertSame('VW Golf', $copy->content()->glass->identificationHint);
+    }
+
+    public function test_an_offer_in_the_trash_is_not_duplicated(): void
+    {
+        $offer = Offer::reconstitute(3, OfferNumber::from('AG00000001'), 11, OfferStatus::Active, $this->complete(), OfferPhotos::none(), null, null, false, $this->now());
+
+        $this->assertSame('offers::exceptions.is_in_trash', $this->refusalKey(fn () => $offer->duplicate(OfferNumber::from('AG00000002'), 99, true)));
+    }
+
+    public function test_a_glass_model_that_cannot_be_picked_is_refused_for_the_copy(): void
+    {
+        $offer = $this->offerIn(OfferStatus::Active);
+
+        $this->assertSame('offers::exceptions.glass_model_cannot_be_picked', $this->refusalKey(fn () => $offer->duplicate(OfferNumber::from('AG00000002'), 99, false)));
+    }
+
+    public function test_a_price_change_keeps_the_status_even_for_a_seller_and_needs_no_approval(): void
+    {
+        foreach ([OfferStatus::Draft, OfferStatus::Pending, OfferStatus::Rejected, OfferStatus::Active, OfferStatus::Withdrawn] as $status) {
+            $offer = $this->offerIn($status);
+
+            $changed = $offer->changePrice(PriceChange::from('amount', -1000));
+
+            $this->assertTrue($changed);
+            $this->assertSame(14000, $offer->content()->price?->grosze);
+            $this->assertSame($status, $offer->status());
+            $this->assertFalse($offer->changedSinceApproval());
+        }
+    }
+
+    public function test_a_price_change_is_refused_for_reserved_sold_trashed_and_unpriced_offers_and_a_price_not_above_zero(): void
+    {
+        $change = PriceChange::from('amount', -1000);
+
+        $this->assertSame('offers::exceptions.price_cannot_be_changed', $this->refusalKey(fn () => $this->offerIn(OfferStatus::Reserved)->changePrice($change)));
+        $this->assertSame('offers::exceptions.price_cannot_be_changed', $this->refusalKey(fn () => $this->offerIn(OfferStatus::Sold)->changePrice($change)));
+        $this->assertSame('offers::exceptions.price_cannot_be_changed', $this->refusalKey(fn () => $this->offerIn(OfferStatus::Active, $this->emptyContent())->changePrice($change)));
+        $this->assertSame('offers::exceptions.price_would_not_be_positive', $this->refusalKey(fn () => $this->offerIn(OfferStatus::Active)->changePrice(PriceChange::from('percent', -10000))));
+        $trashed = Offer::reconstitute(3, OfferNumber::from('AG00000001'), 11, OfferStatus::Active, $this->complete(), OfferPhotos::none(), null, null, false, $this->now());
+        $this->assertSame('offers::exceptions.is_in_trash', $this->refusalKey(fn () => $trashed->changePrice($change)));
+    }
+
+    public function test_the_glass_model_changes_in_every_status_and_the_status_stays(): void
+    {
+        foreach ([OfferStatus::Pending, OfferStatus::Active, OfferStatus::Reserved, OfferStatus::Sold, OfferStatus::Withdrawn] as $status) {
+            $offer = $this->offerIn($status);
+
+            $changed = $offer->changeGlassModel(8, true);
+
+            $this->assertTrue($changed);
+            $this->assertSame(8, $offer->content()->glass->glassModelId);
+            $this->assertSame($status, $offer->status());
+        }
+    }
+
+    public function test_a_hint_is_replaced_by_the_chosen_glass_model(): void
+    {
+        $offer = $this->offerIn(OfferStatus::Pending, $this->complete(glassModelId: null, hint: 'VW Golf'));
+
+        $offer->changeGlassModel(8, true);
+
+        $this->assertSame(8, $offer->content()->glass->glassModelId);
+        $this->assertNull($offer->content()->glass->identificationHint);
+    }
+
+    public function test_choosing_the_model_the_offer_has_changes_nothing(): void
+    {
+        $this->assertFalse($this->offerIn(OfferStatus::Active)->changeGlassModel(5, true));
+    }
+
+    public function test_the_glass_model_is_refused_when_it_cannot_be_picked_or_the_offer_is_in_the_trash(): void
+    {
+        $this->assertSame('offers::exceptions.glass_model_cannot_be_picked', $this->refusalKey(fn () => $this->offerIn(OfferStatus::Active)->changeGlassModel(8, false)));
+        $trashed = Offer::reconstitute(3, OfferNumber::from('AG00000001'), 11, OfferStatus::Active, $this->complete(), OfferPhotos::none(), null, null, false, $this->now());
+        $this->assertSame('offers::exceptions.is_in_trash', $this->refusalKey(fn () => $trashed->changeGlassModel(8, true)));
     }
 }

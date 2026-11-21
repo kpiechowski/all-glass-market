@@ -13,8 +13,13 @@ use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ApproveOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ApproveOffersBulkAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ApproveOfferWithGlassModelAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ChangeGlassModelAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ChangeGlassModelOffersBulkAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ChangePriceOffersBulkAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\DeleteOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\DeleteOfferPermanentlyAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\DeleteOffersBulkAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\DuplicateOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\RejectOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ReleaseReservationAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ReserveOfferAction;
@@ -24,6 +29,7 @@ use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ReturnSal
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\SellOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\SendInquiryAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\WithdrawOfferAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\WithdrawOffersBulkAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferGlassLabel;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferRating;
@@ -52,6 +58,8 @@ class OffersTable
                     SellOfferAction::make(),
                     SendInquiryAction::make(),
                     ReturnSaleAction::make(),
+                    ChangeGlassModelAction::make(),
+                    DuplicateOfferAction::make(),
                     ResumeOfferAction::make(),
                     WithdrawOfferAction::make(),
                     RestoreOfferAction::make(),
@@ -62,6 +70,10 @@ class OffersTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     ApproveOffersBulkAction::make(),
+                    ChangePriceOffersBulkAction::make(),
+                    ChangeGlassModelOffersBulkAction::make(),
+                    WithdrawOffersBulkAction::make(),
+                    DeleteOffersBulkAction::make(),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');

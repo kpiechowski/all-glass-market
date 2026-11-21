@@ -257,4 +257,24 @@ class OfferDomainPolicyTest extends TestCase
         $this->assertFalse(OfferDomainPolicy::canBeEditedBySeller(OfferStatus::Sold));
         $this->assertTrue(OfferDomainPolicy::canBeEditedBySeller(OfferStatus::Active));
     }
+
+    public function test_a_price_changes_unless_reserved_sold_trashed_or_missing(): void
+    {
+        foreach ([OfferStatus::Draft, OfferStatus::Pending, OfferStatus::Rejected, OfferStatus::Active, OfferStatus::Withdrawn] as $status) {
+            $this->assertTrue(OfferDomainPolicy::priceCanBeChanged($status, false, true));
+        }
+
+        $this->assertFalse(OfferDomainPolicy::priceCanBeChanged(OfferStatus::Reserved, false, true));
+        $this->assertFalse(OfferDomainPolicy::priceCanBeChanged(OfferStatus::Sold, false, true));
+        $this->assertFalse(OfferDomainPolicy::priceCanBeChanged(OfferStatus::Active, true, true));
+        $this->assertFalse(OfferDomainPolicy::priceCanBeChanged(OfferStatus::Active, false, false));
+    }
+
+    public function test_the_glass_model_changes_and_the_offer_duplicates_outside_the_trash_only(): void
+    {
+        $this->assertTrue(OfferDomainPolicy::glassModelCanBeChanged(false));
+        $this->assertFalse(OfferDomainPolicy::glassModelCanBeChanged(true));
+        $this->assertTrue(OfferDomainPolicy::canBeDuplicated(false));
+        $this->assertFalse(OfferDomainPolicy::canBeDuplicated(true));
+    }
 }
