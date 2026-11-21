@@ -12,11 +12,7 @@ return [
     'activity_chart' => [
         'title' => 'Aktywność ofert',
         'subtitle' => 'Ostatnie 12 miesięcy',
-        'toggle' => 'Pokaż lub ukryj wykres',
-        'seller_filter' => 'Sprzedający',
         'all_sellers' => 'Wszyscy sprzedający',
-        'table_caption' => 'Oferty dodane do sprzedaży i sprzedane w kolejnych miesiącach',
-        'month_column' => 'Miesiąc',
         'series' => [
             'added' => 'Dodane do sprzedaży',
             'sold' => 'Sprzedane',

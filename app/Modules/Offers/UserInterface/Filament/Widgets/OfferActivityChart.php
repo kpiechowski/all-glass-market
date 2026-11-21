@@ -7,122 +7,118 @@ namespace App\Modules\Offers\UserInterface\Filament\Widgets;
 use App\Core\UserInterface\CurrentActor;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
 use App\Modules\Offers\Infrastructure\Persistence\Queries\OfferQueries;
-use Filament\Support\Icons\Heroicon;
-use Filament\Widgets\Widget;
+use Filament\Support\Facades\FilamentColor;
+use Filament\Widgets\ChartWidget;
+use Illuminate\Contracts\Support\Htmlable;
 
 /**
- * FR-36, FR-37, template F (a sketch): a line chart of the last twelve months, "Dodane do sprzedaży" and
+ * FR-36, FR-37: a line chart (Filament's `ChartWidget`) of the last twelve months, "Dodane do sprzedaży" and
  * "Sprzedane", counts only. A seller gets their own Offers on "Moje oferty", an admin all Offers above
- * "Wszystkie oferty" with a seller filter. The seller filter is an admin's alone: whatever `$sellerId` a
- * seller's browser sends, the numbers stay their own. Own SVG and `activity-chart` CSS (the dataviz rules:
- * 2 px lines, legend, hover readout, table view), not Filament's chart widget. Used by the list page alone.
+ * "Wszystkie oferty" with a seller filter. The filter is an admin's alone: a seller has none, and whatever
+ * `$filter` a seller's browser sends, the numbers stay their own. Used by the list page alone.
  */
-class OfferActivityChart extends Widget
+class OfferActivityChart extends ChartWidget
 {
-    private const int WIDTH = 640;
-
-    private const int HEIGHT = 240;
-
-    private const int PAD_LEFT = 32;
-
-    private const int PAD_RIGHT = 16;
-
-    private const int PAD_TOP = 12;
-
-    private const int PAD_BOTTOM = 28;
+    private const string ALL_SELLERS = 'all';
 
     protected static bool $isDiscovered = false;
 
-    protected string $view = 'offers::filament.widgets.offer-activity-chart';
-
     protected int|string|array $columnSpan = 'full';
 
-    /** The admin's seller filter; null is every seller. */
-    public ?int $sellerId = null;
+    protected bool $isCollapsible = true;
 
-    /** @return array<string, mixed> */
-    protected function getViewData(): array
+    protected ?string $maxHeight = '280px';
+
+    /** The admin's seller filter: `all` or a seller id. */
+    public ?string $filter = self::ALL_SELLERS;
+
+    protected function getType(): string
     {
-        $queries = app(OfferQueries::class);
-        $managesAll = CurrentActor::can(OffersPermission::ManageAll);
-        $ownerId = $managesAll ? ($this->sellerId ?: null) : (int) auth()->id();
-        $months = $queries->monthlyActivity(now(), $ownerId);
+        return 'line';
+    }
 
-        $ceiling = $this->ceiling(max(1, ...array_map(fn (array $month): int => max($month['added'], $month['sold']), $months)));
-        $step = $ceiling / 4;
-        $plotWidth = self::WIDTH - self::PAD_LEFT - self::PAD_RIGHT;
-        $plotHeight = self::HEIGHT - self::PAD_TOP - self::PAD_BOTTOM;
-        $x = fn (int $index): float => round(self::PAD_LEFT + $plotWidth * $index / 11, 1);
-        $y = fn (int $value): float => round(self::PAD_TOP + $plotHeight * (1 - $value / $ceiling), 1);
+    public function getHeading(): string|Htmlable|null
+    {
+        return __('offers::widgets.activity_chart.title');
+    }
 
-        $series = [];
+    public function getDescription(): string|Htmlable|null
+    {
+        return __('offers::widgets.activity_chart.subtitle');
+    }
 
-        foreach (['added', 'sold'] as $key) {
-            $points = [];
-
-            foreach ($months as $index => $month) {
-                $points[] = ['x' => $x($index), 'y' => $y($month[$key]), 'value' => $month[$key]];
-            }
-
-            $series[$key] = [
-                'label' => __('offers::widgets.activity_chart.series.'.$key),
-                'points' => $points,
-                'path' => 'M'.implode(' L', array_map(fn (array $point): string => $point['x'].' '.$point['y'], $points)),
-            ];
+    /** @return array<string, string>|null */
+    protected function getFilters(): ?array
+    {
+        if (! CurrentActor::can(OffersPermission::ManageAll)) {
+            return null;
         }
 
+        $sellers = [];
+
+        foreach (app(OfferQueries::class)->sellersWithOffers() as $id => $name) {
+            $sellers[(string) $id] = $name;
+        }
+
+        return [self::ALL_SELLERS => __('offers::widgets.activity_chart.all_sellers')] + $sellers;
+    }
+
+    /** @return array<string, mixed> */
+    protected function getData(): array
+    {
+        $months = app(OfferQueries::class)->monthlyActivity(now(), $this->ownerId());
+
         return [
-            'width' => self::WIDTH,
-            'height' => self::HEIGHT,
-            'plotLeft' => self::PAD_LEFT,
-            'plotRight' => self::WIDTH - self::PAD_RIGHT,
-            'plotTop' => self::PAD_TOP,
-            'plotBottom' => self::HEIGHT - self::PAD_BOTTOM,
-            'bandWidth' => round($plotWidth / 11, 1),
-            'ticks' => array_map(fn (int $tick): array => ['value' => $tick * $step, 'y' => $y((int) ($tick * $step))], range(0, 4)),
-            'months' => array_map(fn (array $month, int $index): array => [
-                'x' => $x($index),
-                'short' => $this->shortLabel($month['month']),
-                'long' => $this->longLabel($month['month']),
-                'added' => $month['added'],
-                'sold' => $month['sold'],
-            ], $months, array_keys($months)),
-            'series' => $series,
-            'sellers' => $managesAll ? $queries->sellersWithOffers() : [],
-            'managesAll' => $managesAll,
-            'chevron' => Heroicon::OutlinedChevronDown,
+            'labels' => array_map(fn (array $month): string => $this->label($month['month']), $months),
+            'datasets' => [
+                $this->dataset('added', array_column($months, 'added'), 'primary'),
+                $this->dataset('sold', array_column($months, 'sold'), 'info'),
+            ],
         ];
     }
 
-    /** The y-axis top: a multiple of four steps of 1, 2, 5 or 10 times a power of ten, so the four gaps are whole numbers. */
-    private function ceiling(int $max): int
+    /** @return array<string, mixed> */
+    protected function getOptions(): array
     {
-        $magnitude = 1;
-
-        while (true) {
-            foreach ([1, 2, 5] as $factor) {
-                $step = $factor * $magnitude;
-
-                if ($step * 4 >= $max) {
-                    return $step * 4;
-                }
-            }
-
-            $magnitude *= 10;
-        }
+        return [
+            'scales' => [
+                'y' => ['beginAtZero' => true, 'ticks' => ['precision' => 0]],
+            ],
+        ];
     }
 
-    private function shortLabel(string $month): string
+    /** A seller's own id always; an admin's pick only when it is a seller who has Offers. */
+    private function ownerId(): ?int
+    {
+        if (! CurrentActor::can(OffersPermission::ManageAll)) {
+            return (int) auth()->id();
+        }
+
+        $sellerId = (int) $this->filter;
+
+        return array_key_exists($sellerId, app(OfferQueries::class)->sellersWithOffers()) ? $sellerId : null;
+    }
+
+    /**
+     * @param  array<int, int>  $counts
+     * @return array<string, mixed>
+     */
+    private function dataset(string $key, array $counts, string $color): array
+    {
+        $shade = FilamentColor::getColor($color)[500] ?? null;
+
+        return [
+            'label' => __('offers::widgets.activity_chart.series.'.$key),
+            'data' => array_values($counts),
+            'borderColor' => $shade,
+            'backgroundColor' => $shade,
+        ];
+    }
+
+    private function label(string $month): string
     {
         [$year, $number] = explode('-', $month);
 
         return __('offers::widgets.activity_chart.months.'.(int) $number).($number === '01' ? ' '.substr($year, 2) : '');
-    }
-
-    private function longLabel(string $month): string
-    {
-        [$year, $number] = explode('-', $month);
-
-        return __('offers::widgets.activity_chart.months.'.(int) $number).' '.$year;
     }
 }

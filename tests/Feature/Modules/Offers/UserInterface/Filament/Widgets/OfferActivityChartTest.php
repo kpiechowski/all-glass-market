@@ -12,6 +12,7 @@ use App\Modules\Offers\UserInterface\Filament\Widgets\OfferStatCards;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -28,10 +29,18 @@ class OfferActivityChartTest extends TestCase
         $this->travelTo(now()->setDate(2026, 11, 21)->setTime(12, 0));
     }
 
-    /** @return array<string, mixed> */
-    private function viewData(OfferActivityChart $chart): array
+    /** @return array{labels: array<int, string>, datasets: array<int, array<string, mixed>>} */
+    private function chartData(Testable $component): array
     {
-        return (fn (): array => $this->getViewData())->call($chart);
+        return (fn (): array => $this->getData())->call($component->instance());
+    }
+
+    /** @return array{0: int, 1: int} the current month's added and sold counts */
+    private function thisMonth(Testable $component): array
+    {
+        $datasets = $this->chartData($component)['datasets'];
+
+        return [$datasets[0]['data'][11], $datasets[1]['data'][11]];
     }
 
     private function sellOffer(int $ownerId, int $sales): void
@@ -51,11 +60,13 @@ class OfferActivityChartTest extends TestCase
             ->assertSeeLivewire(OfferStatCards::class)
             ->assertSeeLivewire(OfferActivityChart::class);
 
-        $component = Livewire::test(OfferActivityChart::class);
-        $component->assertSee('Dodane do sprzedaży')->assertSee('Sprzedane')->assertSee('lis')->assertDontSee('Wszyscy sprzedający');
+        $component = Livewire::test(OfferActivityChart::class)->assertDontSee('Wszyscy sprzedający');
 
-        $data = $this->viewData($component->instance());
-        $this->assertSame([1, 2], [$data['months'][11]['added'], $data['months'][11]['sold']]);
+        $data = $this->chartData($component);
+        $this->assertSame(['Dodane do sprzedaży', 'Sprzedane'], array_column($data['datasets'], 'label'));
+        $this->assertCount(12, $data['labels']);
+        $this->assertSame('lis', $data['labels'][11]);
+        $this->assertSame([1, 2], $this->thisMonth($component));
     }
 
     public function test_a_seller_cannot_widen_the_chart_through_the_seller_filter(): void
@@ -66,11 +77,9 @@ class OfferActivityChartTest extends TestCase
         $this->sellOffer($seller->id, 1);
         $this->sellOffer($other->id, 4);
 
-        $component = Livewire::test(OfferActivityChart::class)->set('sellerId', $other->id);
+        $component = Livewire::test(OfferActivityChart::class)->set('filter', (string) $other->id);
 
-        $data = $this->viewData($component->instance());
-        $this->assertSame([1, 1], [$data['months'][11]['added'], $data['months'][11]['sold']]);
-        $this->assertSame([], $data['sellers']);
+        $this->assertSame([1, 1], $this->thisMonth($component));
     }
 
     public function test_an_admin_sees_the_chart_alone_for_all_offers_and_can_filter_by_seller(): void
@@ -87,23 +96,32 @@ class OfferActivityChartTest extends TestCase
 
         $component = Livewire::test(OfferActivityChart::class)
             ->assertSee('Wszyscy sprzedający')->assertSee('Ann Seller')->assertSee('Bob Seller');
-        $this->assertSame([2, 4], [$this->viewData($component->instance())['months'][11]['added'], $this->viewData($component->instance())['months'][11]['sold']]);
+        $this->assertSame([2, 4], $this->thisMonth($component));
 
-        $component->set('sellerId', $bob->id);
-        $this->assertSame([1, 3], [$this->viewData($component->instance())['months'][11]['added'], $this->viewData($component->instance())['months'][11]['sold']]);
+        $component->set('filter', (string) $bob->id);
+        $this->assertSame([1, 3], $this->thisMonth($component));
 
-        $component->set('sellerId', null);
-        $this->assertSame(2, $this->viewData($component->instance())['months'][11]['added']);
+        $component->set('filter', 'all');
+        $this->assertSame([2, 4], $this->thisMonth($component));
     }
 
     public function test_a_chart_without_history_draws_twelve_months_of_zeros(): void
     {
         $this->actingAs(UserModel::factory()->create());
 
-        $data = $this->viewData(Livewire::test(OfferActivityChart::class)->instance());
+        $data = $this->chartData(Livewire::test(OfferActivityChart::class));
 
-        $this->assertCount(12, $data['months']);
-        $this->assertSame(0, array_sum(array_column($data['months'], 'added')) + array_sum(array_column($data['months'], 'sold')));
-        $this->assertSame([0, 1, 2, 3, 4], array_column($data['ticks'], 'value'));
+        $this->assertCount(12, $data['labels']);
+        $this->assertSame(0, array_sum($data['datasets'][0]['data']) + array_sum($data['datasets'][1]['data']));
+    }
+
+    public function test_the_two_lines_have_different_colours(): void
+    {
+        $this->actingAs(UserModel::factory()->create());
+
+        $datasets = $this->chartData(Livewire::test(OfferActivityChart::class))['datasets'];
+
+        $this->assertNotNull($datasets[0]['borderColor']);
+        $this->assertNotSame($datasets[0]['borderColor'], $datasets[1]['borderColor']);
     }
 }
