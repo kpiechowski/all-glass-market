@@ -12,6 +12,7 @@ use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\GlassMode
 use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\VehicleResource;
 use App\Modules\Offers\UserInterface\Filament\Pages\OfferSettings\OfferSettings;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
+use App\Modules\Offers\UserInterface\Filament\Resources\Reservations\ReservationResource;
 use App\Modules\Users\UserInterface\Filament\Pages\EditProfile\EditProfile;
 use App\Modules\Users\UserInterface\Filament\Resources\JournalEntries\JournalEntryResource;
 use App\Modules\Users\UserInterface\Filament\Resources\Users\UserResource;
@@ -55,6 +56,7 @@ final class PanelNavigation
                 ->collapsible(false)
                 ->items(self::items([
                     OfferResource::class,
+                    ReservationResource::class,
                     OfferSettings::class,
                 ])),
             NavigationGroup::make(__('catalogue::resources.navigation.group'))

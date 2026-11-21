@@ -12,6 +12,8 @@ use App\Modules\Offers\Infrastructure\Factories\OfferModelFactory;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /** Read-only model of an Offer. The Glass model is only an id; its data comes from Catalogue's module interface (FR-15). */
 final class OfferModel extends ReadOnlyModel
@@ -61,5 +63,17 @@ final class OfferModel extends ReadOnlyModel
     public function producer(): BelongsTo
     {
         return $this->belongsTo(DictionaryValueModel::class, 'producer_id');
+    }
+
+    /** FR-16, RULE-05: the one current Reservation, if any. @return HasOne<ReservationModel, $this> */
+    public function currentReservation(): HasOne
+    {
+        return $this->hasOne(ReservationModel::class, 'offer_id')->where('is_current', true);
+    }
+
+    /** FR-20: the Sales of the Offer, newest first, returned ones included. @return HasMany<SaleModel, $this> */
+    public function sales(): HasMany
+    {
+        return $this->hasMany(SaleModel::class, 'offer_id')->latest('id');
     }
 }

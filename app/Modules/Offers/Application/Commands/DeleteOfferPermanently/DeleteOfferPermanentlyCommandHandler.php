@@ -8,11 +8,13 @@ use App\Core\Contracts\Authorizer;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
 use App\Modules\Offers\Domain\Repositories\OfferPhotoStorage;
 use App\Modules\Offers\Domain\Repositories\OfferRepository;
+use App\Modules\Offers\Domain\Repositories\ReservationRepository;
+use App\Modules\Offers\Domain\Repositories\SaleRepository;
 use Ecotone\Modelling\Attribute\CommandHandler;
 
 /**
- * FR-26: from the Trash only, the Offer and its photo files are removed. What else belongs to an Offer
- * (Reservations, Sales, Inquiries) joins this cascade with the tickets that add it.
+ * FR-26: from the Trash only, the Offer, its Reservations and Sales and its photo files are removed. What else
+ * belongs to an Offer (Inquiries) joins this cascade with the ticket that adds it.
  */
 final class DeleteOfferPermanentlyCommandHandler
 {
@@ -20,6 +22,8 @@ final class DeleteOfferPermanentlyCommandHandler
         private Authorizer $authorizer,
         private OfferRepository $offers,
         private OfferPhotoStorage $photoStorage,
+        private ReservationRepository $reservations,
+        private SaleRepository $sales,
     ) {}
 
     #[CommandHandler]
@@ -31,6 +35,8 @@ final class DeleteOfferPermanentlyCommandHandler
 
         $offer->ensureCanBeDeletedPermanently();
 
+        $this->reservations->removeAllOfOffer($command->offerId);
+        $this->sales->removeAllOfOffer($command->offerId);
         $this->offers->remove($offer);
         $this->photoStorage->deleteAll($offer->photos());
     }

@@ -26,4 +26,35 @@ return [
             'trashed_at' => 'W koszu od',
         ],
     ],
+
+    'reservation' => [
+        'type' => 'Rezerwacja',
+        'title' => 'Rezerwacja oferty :number',
+        'fields' => [
+            'offer' => 'Oferta',
+            'author' => 'Autor rezerwacji',
+            'made_by_admin' => 'Zrobiona przez administratora',
+            'note' => 'Dla kogo',
+            'made_at' => 'Zarezerwowano',
+            'ended_as' => 'Zakończona jako',
+            'ended_at' => 'Zakończono',
+        ],
+    ],
+    'sale' => [
+        'type' => 'Sprzedaż',
+        'title' => 'Sprzedaż oferty :number',
+        'fields' => [
+            'offer' => 'Oferta',
+            'channel' => 'Kanał sprzedaży',
+            'sale_price' => 'Cena sprzedaży (w groszach)',
+            'entered_price' => 'Cena wpisana w ofercie (w groszach)',
+            'vat_rate' => 'Stawka VAT',
+            'buyers_price' => 'Cena dla kupującego (w groszach)',
+            'marked_by' => 'Sprzedaż oznaczył',
+            'sold_at' => 'Sprzedano',
+            'returned_at' => 'Zwrócono',
+            'return_reason' => 'Powód zwrotu',
+            'returned_by' => 'Zwrot przyjął',
+        ],
+    ],
 ];

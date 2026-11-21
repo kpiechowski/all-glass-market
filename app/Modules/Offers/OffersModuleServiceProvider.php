@@ -17,12 +17,20 @@ use App\Modules\Offers\Application\Services\OwnerJournal;
 use App\Modules\Offers\Domain\Enums\OfferCondition;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
+use App\Modules\Offers\Domain\Enums\ReservationEnd;
+use App\Modules\Offers\Domain\Enums\SaleChannel;
 use App\Modules\Offers\Domain\Repositories\OfferPhotoStorage;
 use App\Modules\Offers\Domain\Repositories\OfferRepository;
+use App\Modules\Offers\Domain\Repositories\ReservationRepository;
+use App\Modules\Offers\Domain\Repositories\SaleRepository;
 use App\Modules\Offers\Domain\Repositories\VatRateSetting;
 use App\Modules\Offers\Infrastructure\Persistence\EloquentOfferRepository;
+use App\Modules\Offers\Infrastructure\Persistence\EloquentReservationRepository;
+use App\Modules\Offers\Infrastructure\Persistence\EloquentSaleRepository;
 use App\Modules\Offers\Infrastructure\Persistence\EloquentVatRateSetting;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
+use App\Modules\Offers\Infrastructure\Persistence\Models\ReservationModel;
+use App\Modules\Offers\Infrastructure\Persistence\Models\SaleModel;
 use App\Modules\Offers\Infrastructure\Persistence\StorageOfferPhotoStorage;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
 use App\Modules\Offers\UserInterface\Http\Controllers\PrivatePhotoController;
@@ -44,6 +52,8 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
     /** @var array<class-string, class-string> */
     protected array $containerBindings = [
         OfferRepository::class => EloquentOfferRepository::class,
+        ReservationRepository::class => EloquentReservationRepository::class,
+        SaleRepository::class => EloquentSaleRepository::class,
         VatRateSetting::class => EloquentVatRateSetting::class,
         OfferPhotoStorage::class => StorageOfferPhotoStorage::class,
     ];
@@ -82,8 +92,15 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
         $registry->grant(UserRole::Admin, OffersPermission::Create, OffersPermission::ManageAll);
     }
 
-    /** §9 Audit: the Offer is auditable. */
+    /** §9 Audit: the Offer, its Reservations and its Sales are auditable (RULE-10). */
     private function registerAuditableRecords(AuditableRecords $records): void
+    {
+        $this->registerOfferRecord($records);
+        $this->registerReservationRecord($records);
+        $this->registerSaleRecord($records);
+    }
+
+    private function registerOfferRecord(AuditableRecords $records): void
     {
         $records->register(new AuditableRecordType(
             key: OfferModel::AUDIT_KEY,
@@ -124,6 +141,71 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
                 'last_approved_at' => ValuePresenter::date(),
                 'changed_since_approval' => ValuePresenter::boolean(),
                 'trashed_at' => ValuePresenter::date(),
+            ],
+        ));
+    }
+
+    private function registerReservationRecord(AuditableRecords $records): void
+    {
+        $records->register(new AuditableRecordType(
+            key: ReservationModel::AUDIT_KEY,
+            modelClass: ReservationModel::class,
+            name: 'offers::audit.reservation.type',
+            title: fn (ReservationModel $reservation): string => __('offers::audit.reservation.title', ['number' => $reservation->offer->number]),
+            url: fn (ReservationModel $reservation): string => OfferResource::getUrl('view', ['record' => $reservation->offer_id]),
+            excludedFields: ['is_current'],
+            fieldLabels: [
+                'offer_id' => 'offers::audit.reservation.fields.offer',
+                'author_id' => 'offers::audit.reservation.fields.author',
+                'made_by_admin' => 'offers::audit.reservation.fields.made_by_admin',
+                'note' => 'offers::audit.reservation.fields.note',
+                'made_at' => 'offers::audit.reservation.fields.made_at',
+                'ended_as' => 'offers::audit.reservation.fields.ended_as',
+                'ended_at' => 'offers::audit.reservation.fields.ended_at',
+            ],
+            valuePresenters: [
+                'offer_id' => ValuePresenter::reference(OfferModel::class, 'number'),
+                'author_id' => ValuePresenter::reference(UserModel::class, 'name'),
+                'made_by_admin' => ValuePresenter::boolean(),
+                'made_at' => ValuePresenter::date(),
+                'ended_as' => ValuePresenter::enum(ReservationEnd::class),
+                'ended_at' => ValuePresenter::date(),
+            ],
+        ));
+    }
+
+    private function registerSaleRecord(AuditableRecords $records): void
+    {
+        $records->register(new AuditableRecordType(
+            key: SaleModel::AUDIT_KEY,
+            modelClass: SaleModel::class,
+            name: 'offers::audit.sale.type',
+            title: fn (SaleModel $sale): string => __('offers::audit.sale.title', ['number' => $sale->offer->number]),
+            url: fn (SaleModel $sale): string => OfferResource::getUrl('view', ['record' => $sale->offer_id]),
+            fieldLabels: [
+                'offer_id' => 'offers::audit.sale.fields.offer',
+                'channel' => 'offers::audit.sale.fields.channel',
+                'sale_price_grosze' => 'offers::audit.sale.fields.sale_price',
+                'entered_price_grosze' => 'offers::audit.sale.fields.entered_price',
+                'vat_rate_basis_points' => 'offers::audit.sale.fields.vat_rate',
+                'buyers_price_grosze' => 'offers::audit.sale.fields.buyers_price',
+                'marked_by_id' => 'offers::audit.sale.fields.marked_by',
+                'sold_at' => 'offers::audit.sale.fields.sold_at',
+                'returned_at' => 'offers::audit.sale.fields.returned_at',
+                'return_reason' => 'offers::audit.sale.fields.return_reason',
+                'returned_by_id' => 'offers::audit.sale.fields.returned_by',
+            ],
+            valuePresenters: [
+                'offer_id' => ValuePresenter::reference(OfferModel::class, 'number'),
+                'channel' => ValuePresenter::enum(SaleChannel::class),
+                'sale_price_grosze' => ValuePresenter::moneyInGrosze(),
+                'entered_price_grosze' => ValuePresenter::moneyInGrosze(),
+                'vat_rate_basis_points' => ValuePresenter::resolved(fn (mixed $raw): ?string => is_numeric($raw) ? rtrim(rtrim(number_format((int) $raw / 100, 2, ',', ''), '0'), ',').' %' : null),
+                'buyers_price_grosze' => ValuePresenter::moneyInGrosze(),
+                'marked_by_id' => ValuePresenter::reference(UserModel::class, 'name'),
+                'sold_at' => ValuePresenter::date(),
+                'returned_at' => ValuePresenter::date(),
+                'returned_by_id' => ValuePresenter::reference(UserModel::class, 'name'),
             ],
         ));
     }

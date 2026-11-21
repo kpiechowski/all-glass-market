@@ -163,4 +163,79 @@ final class OfferRefused extends DomainException
     {
         return new self('offers::exceptions.is_in_trash');
     }
+
+    public static function reservedCannotBeTrashed(): self
+    {
+        return new self('offers::exceptions.reserved_cannot_be_trashed');
+    }
+
+    public static function cannotBeEditedWhileReservedOrSold(): self
+    {
+        return new self('offers::exceptions.cannot_be_edited_while_reserved_or_sold');
+    }
+
+    public static function cannotBeReserved(): self
+    {
+        return new self('offers::exceptions.cannot_be_reserved');
+    }
+
+    public static function cannotBeReleased(): self
+    {
+        return new self('offers::exceptions.cannot_be_released');
+    }
+
+    public static function cannotBeSold(): self
+    {
+        return new self('offers::exceptions.cannot_be_sold');
+    }
+
+    public static function priceRequiredToSell(): self
+    {
+        return new self('offers::exceptions.price_required_to_sell');
+    }
+
+    public static function saleCannotBeReturned(): self
+    {
+        return new self('offers::exceptions.sale_cannot_be_returned');
+    }
+
+    public static function reservationNoteRequired(): self
+    {
+        return new self('offers::exceptions.reservation_note_required');
+    }
+
+    public static function reservationNoteIsTooLong(int $max): self
+    {
+        return new self('offers::exceptions.reservation_note_is_too_long', ['max' => $max]);
+    }
+
+    public static function reservationAlreadyEnded(): self
+    {
+        return new self('offers::exceptions.reservation_already_ended');
+    }
+
+    public static function reservationIsLocked(): self
+    {
+        return new self('offers::exceptions.reservation_is_locked');
+    }
+
+    public static function salePriceIsInvalid(): self
+    {
+        return new self('offers::exceptions.sale_price_is_invalid');
+    }
+
+    public static function saleChannelIsUnknown(): self
+    {
+        return new self('offers::exceptions.sale_channel_is_unknown');
+    }
+
+    public static function returnReasonRequired(): self
+    {
+        return new self('offers::exceptions.return_reason_required');
+    }
+
+    public static function saleAlreadyReturned(): self
+    {
+        return new self('offers::exceptions.sale_already_returned');
+    }
 }

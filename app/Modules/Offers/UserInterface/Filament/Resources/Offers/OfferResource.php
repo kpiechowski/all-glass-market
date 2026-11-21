@@ -69,10 +69,11 @@ class OfferResource extends Resource
         return self::canViewAny() && self::isVisibleTo($record);
     }
 
-    /** FR-25: an Offer in the Trash is frozen until restored. */
+    /** FR-25: an Offer in the Trash is frozen until restored. RULE-06: a seller does not edit a Reserved or Sold Offer. */
     public static function canEdit(Model $record): bool
     {
-        return self::canViewAny() && self::isVisibleTo($record) && $record->getAttribute('trashed_at') === null;
+        return self::canViewAny() && self::isVisibleTo($record) && $record->getAttribute('trashed_at') === null
+            && (self::managesAll() || OfferDomainPolicy::canBeEditedBySeller($record->getAttribute('status')));
     }
 
     public static function canDelete(Model $record): bool

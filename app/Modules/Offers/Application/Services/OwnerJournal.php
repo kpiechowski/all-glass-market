@@ -46,6 +46,26 @@ final class OwnerJournal
         $this->write($actor, $offer, JournalSeverity::Info, 'deleted');
     }
 
+    public function reserved(Actor $actor, Offer $offer): void
+    {
+        $this->write($actor, $offer, JournalSeverity::Info, 'reserved');
+    }
+
+    public function released(Actor $actor, Offer $offer): void
+    {
+        $this->write($actor, $offer, JournalSeverity::Info, 'released');
+    }
+
+    public function sold(Actor $actor, Offer $offer): void
+    {
+        $this->write($actor, $offer, JournalSeverity::Success, 'sold');
+    }
+
+    public function returned(Actor $actor, Offer $offer): void
+    {
+        $this->write($actor, $offer, JournalSeverity::Info, 'returned');
+    }
+
     /** @param array<string, string> $parameters */
     private function write(Actor $actor, Offer $offer, JournalSeverity $severity, string $event, array $parameters = []): void
     {

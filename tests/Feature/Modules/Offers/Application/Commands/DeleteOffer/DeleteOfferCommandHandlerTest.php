@@ -28,11 +28,11 @@ class DeleteOfferCommandHandlerTest extends TestCase
         app(CommandBus::class)->send(new DeleteOfferCommand($actor, $offerId));
     }
 
-    public function test_an_admin_deletes_an_offer_of_any_status_into_the_trash_keeping_the_status(): void
+    public function test_an_admin_deletes_an_offer_of_any_status_but_reserved_into_the_trash_keeping_the_status(): void
     {
         $admin = UserModel::factory()->admin()->create();
 
-        foreach (OfferStatus::cases() as $status) {
+        foreach (array_filter(OfferStatus::cases(), fn (OfferStatus $status): bool => $status !== OfferStatus::Reserved) as $status) {
             $offer = OfferModelFactory::new()->sendable()->status($status)->create();
 
             $this->deleteOffer(Actor::user($admin->id), $offer->id);
@@ -92,5 +92,20 @@ class DeleteOfferCommandHandlerTest extends TestCase
         }
 
         $this->assertSame(1, OfferModel::query()->count());
+    }
+
+    public function test_a_reserved_offer_cannot_be_deleted(): void
+    {
+        $admin = UserModel::factory()->admin()->create();
+        $offer = OfferModelFactory::new()->sendable()->status(OfferStatus::Reserved)->create();
+
+        try {
+            $this->deleteOffer(Actor::user($admin->id), $offer->id);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.reserved_cannot_be_trashed', $refusal->translationKey);
+        }
+
+        $this->assertNull($offer->fresh()->trashed_at);
     }
 }

@@ -20,7 +20,7 @@ final class OfferQueries
     public function visibleTo(int $userId, bool $managesAll): Builder
     {
         return OfferModel::query()
-            ->with(['owner', 'producer'])
+            ->with(['owner', 'producer', 'currentReservation'])
             ->when(! $managesAll, fn (Builder $query) => $this->outsideTrash($query)->where('owner_id', $userId));
     }
 

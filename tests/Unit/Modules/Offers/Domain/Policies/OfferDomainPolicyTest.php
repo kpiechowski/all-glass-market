@@ -210,10 +210,10 @@ class OfferDomainPolicyTest extends TestCase
         $this->assertFalse(OfferDomainPolicy::resumesWithoutApproval(false, false));
     }
 
-    public function test_the_trash_takes_any_offer_outside_it_and_gives_back_only_what_it_holds(): void
+    public function test_the_trash_takes_any_offer_but_a_reserved_one_and_gives_back_only_what_it_holds(): void
     {
         foreach (OfferStatus::cases() as $status) {
-            $this->assertTrue(OfferDomainPolicy::canBeTrashed($status, false), $status->value);
+            $this->assertSame($status !== OfferStatus::Reserved, OfferDomainPolicy::canBeTrashed($status, false), $status->value);
             $this->assertFalse(OfferDomainPolicy::canBeTrashed($status, true), $status->value);
         }
 
@@ -221,5 +221,40 @@ class OfferDomainPolicyTest extends TestCase
         $this->assertFalse(OfferDomainPolicy::canBeRestored(false));
         $this->assertTrue(OfferDomainPolicy::canBeDeletedPermanently(true));
         $this->assertFalse(OfferDomainPolicy::canBeDeletedPermanently(false));
+    }
+
+    public function test_reserving_needs_an_active_offer_and_releasing_a_reserved_one_outside_the_trash(): void
+    {
+        foreach (OfferStatus::cases() as $status) {
+            $this->assertSame($status === OfferStatus::Active, OfferDomainPolicy::canBeReserved($status, false), $status->value);
+            $this->assertSame($status === OfferStatus::Reserved, OfferDomainPolicy::canBeReleased($status, false), $status->value);
+            $this->assertSame($status === OfferStatus::Sold, OfferDomainPolicy::canBeReturned($status, false), $status->value);
+            $this->assertSame(in_array($status, [OfferStatus::Active, OfferStatus::Reserved], true), OfferDomainPolicy::canBeSold($status, false), $status->value);
+        }
+
+        $this->assertFalse(OfferDomainPolicy::canBeReserved(OfferStatus::Active, true));
+        $this->assertFalse(OfferDomainPolicy::canBeSold(OfferStatus::Active, true));
+        $this->assertFalse(OfferDomainPolicy::canBeReturned(OfferStatus::Sold, true));
+    }
+
+    public function test_a_reserved_offer_cannot_be_trashed_but_a_sold_one_can(): void
+    {
+        $this->assertFalse(OfferDomainPolicy::canBeTrashed(OfferStatus::Reserved, false));
+        $this->assertTrue(OfferDomainPolicy::canBeTrashed(OfferStatus::Sold, false));
+    }
+
+    public function test_an_admins_reservation_is_handled_by_an_admin_only(): void
+    {
+        $this->assertTrue(OfferDomainPolicy::reservationCanBeHandledBy(true, true));
+        $this->assertFalse(OfferDomainPolicy::reservationCanBeHandledBy(true, false));
+        $this->assertTrue(OfferDomainPolicy::reservationCanBeHandledBy(false, false));
+        $this->assertTrue(OfferDomainPolicy::reservationCanBeHandledBy(false, true));
+    }
+
+    public function test_a_seller_edits_neither_a_reserved_nor_a_sold_offer(): void
+    {
+        $this->assertFalse(OfferDomainPolicy::canBeEditedBySeller(OfferStatus::Reserved));
+        $this->assertFalse(OfferDomainPolicy::canBeEditedBySeller(OfferStatus::Sold));
+        $this->assertTrue(OfferDomainPolicy::canBeEditedBySeller(OfferStatus::Active));
     }
 }

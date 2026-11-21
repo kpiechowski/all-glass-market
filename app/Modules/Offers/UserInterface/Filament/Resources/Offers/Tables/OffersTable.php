@@ -16,8 +16,12 @@ use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ApproveOf
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\DeleteOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\DeleteOfferPermanentlyAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\RejectOfferAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ReleaseReservationAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ReserveOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\RestoreOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ResumeOfferAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ReturnSaleAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\SellOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\WithdrawOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferGlassLabel;
@@ -42,6 +46,10 @@ class OffersTable
                     ApproveOfferAction::make(),
                     ApproveOfferWithGlassModelAction::make(),
                     RejectOfferAction::make(),
+                    ReserveOfferAction::make(),
+                    ReleaseReservationAction::make(),
+                    SellOfferAction::make(),
+                    ReturnSaleAction::make(),
                     ResumeOfferAction::make(),
                     WithdrawOfferAction::make(),
                     RestoreOfferAction::make(),

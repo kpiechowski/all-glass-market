@@ -16,9 +16,10 @@ use Carbon\CarbonImmutable;
 /**
  * An Offer (§2): one physical piece (RULE-01). It has an owner who never changes (RULE-07) and a
  * number assigned once (RULE-13). It stores a Glass model's id or a hint, never glass data (RULE-02).
- * Statuses here are Draft, Pending, Rejected, Active and Withdrawn (§7); the status machine is this class
- * (RULE-04): sending, approving, rejecting, withdrawing, resuming and editing are the only ways to move
- * between them. The Trash is not a status (D-30): an Offer in it keeps its status and is frozen until restored.
+ * Statuses are Draft, Pending, Rejected, Active, Reserved, Sold and Withdrawn (§7); the status machine is this class
+ * (RULE-04): sending, approving, rejecting, withdrawing, resuming, reserving, releasing, selling, returning a
+ * sale and editing are the only ways to move between them. The Reservation and the Sale are entities of their
+ * own that hold the Offer's id; the handler changes both in one command, which is one transaction (RULE-10). The Trash is not a status (D-30): an Offer in it keeps its status and is frozen until restored.
  * Whether a newly chosen Glass model or producer may be picked
  * (exists, not withdrawn) is a fact the handler gathers from Catalogue and passes in; a value the
  * Offer already has survives a save even when it was withdrawn since.
@@ -157,6 +158,11 @@ final class Offer
         bool $producerCanBePicked,
     ): bool {
         $this->guardNotInTrash();
+
+        if (! $editorIsAdmin && ! OfferDomainPolicy::canBeEditedBySeller($this->status)) {
+            throw OfferRefused::cannotBeEditedWhileReservedOrSold();
+        }
+
         self::guardPicks($this->content, $content, $glassModelCanBePicked, $producerCanBePicked);
         $this->guardPhotos($photos, $editorId);
 
@@ -231,6 +237,61 @@ final class Offer
         $this->status = OfferStatus::Active;
     }
 
+    /**
+     * FR-16, RULE-05: Active to Reserved. The handler says whether a Reservation is still current, since
+     * an Offer has at most one.
+     */
+    public function reserve(bool $hasCurrentReservation): void
+    {
+        $this->guardNotInTrash();
+
+        if (! OfferDomainPolicy::canBeReserved($this->status, false) || $hasCurrentReservation) {
+            throw OfferRefused::cannotBeReserved();
+        }
+
+        $this->status = OfferStatus::Reserved;
+    }
+
+    /** FR-17: Reserved to Active (the handler checks who may, from the Reservation). */
+    public function release(): void
+    {
+        $this->guardNotInTrash();
+
+        if (! OfferDomainPolicy::canBeReleased($this->status, false)) {
+            throw OfferRefused::cannotBeReleased();
+        }
+
+        $this->status = OfferStatus::Active;
+    }
+
+    /** FR-18: Active or Reserved to Sold; the Sale records the entered price, so the Offer must have one. */
+    public function sell(): void
+    {
+        $this->guardNotInTrash();
+
+        if (! OfferDomainPolicy::canBeSold($this->status, false)) {
+            throw OfferRefused::cannotBeSold();
+        }
+
+        if ($this->content->price === null) {
+            throw OfferRefused::priceRequiredToSell();
+        }
+
+        $this->status = OfferStatus::Sold;
+    }
+
+    /** FR-19: Sold to Active (an admin, with a reason on the Sale). */
+    public function returnSale(): void
+    {
+        $this->guardNotInTrash();
+
+        if (! OfferDomainPolicy::canBeReturned($this->status, false)) {
+            throw OfferRefused::saleCannotBeReturned();
+        }
+
+        $this->status = OfferStatus::Active;
+    }
+
     private function canResumeWithoutApproval(): bool
     {
         return OfferDomainPolicy::resumesWithoutApproval($this->lastApprovedAt !== null, $this->changedSinceApproval);
@@ -240,7 +301,7 @@ final class Offer
     public function moveToTrash(CarbonImmutable $now): void
     {
         if (! OfferDomainPolicy::canBeTrashed($this->status, $this->isInTrash())) {
-            throw OfferRefused::cannotBeTrashed();
+            throw $this->isInTrash() ? OfferRefused::cannotBeTrashed() : OfferRefused::reservedCannotBeTrashed();
         }
 
         $this->trashedAt = $now;

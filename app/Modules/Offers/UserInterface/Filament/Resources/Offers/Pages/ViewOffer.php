@@ -10,8 +10,12 @@ use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ApproveOf
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\DeleteOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\DeleteOfferPermanentlyAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\RejectOfferAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ReleaseReservationAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ReserveOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\RestoreOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ResumeOfferAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ReturnSaleAction;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\SellOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\SendOfferForApprovalAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\WithdrawOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
@@ -22,7 +26,8 @@ use Filament\Resources\Pages\ViewRecord;
 
 /**
  * Template C (record view). One primary: sending (owner), approving (admin), resuming or restoring when it
- * applies, else Edit. Withdrawing and deleting (dangerous) sit in "⋮" with rejecting.
+ * applies, else Edit. Reserving, releasing and selling are the (at most two) secondary actions; returning a
+ * Sale, withdrawing and deleting (dangerous) sit in "⋮" with rejecting.
  */
 class ViewOffer extends ViewRecord
 {
@@ -39,7 +44,11 @@ class ViewOffer extends ViewRecord
             EditAction::make()
                 ->visible(fn (OfferModel $record): bool => OfferResource::canEdit($record))
                 ->color(fn (OfferModel $record): string => OfferActionVisibility::hasPrimaryAction($record) ? 'gray' : 'primary'),
+            ReserveOfferAction::make(),
+            ReleaseReservationAction::make(),
+            SellOfferAction::make(),
             ActionGroup::make([
+                ReturnSaleAction::make(),
                 RejectOfferAction::make(),
                 WithdrawOfferAction::make(),
                 DeleteOfferAction::make(),

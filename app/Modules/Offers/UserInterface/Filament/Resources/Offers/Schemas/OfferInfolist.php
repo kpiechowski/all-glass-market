@@ -12,8 +12,11 @@ use App\Modules\Offers\Domain\Enums\OffersPermission;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
+use App\Modules\Offers\Infrastructure\Persistence\Models\SaleModel;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferActionVisibility;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferRating;
 use App\Modules\Offers\UserInterface\Http\Controllers\PrivatePhotoController;
+use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\View;
@@ -31,6 +34,8 @@ class OfferInfolist
         return $schema->columns(1)->components([
             self::changesSinceApprovalSection(),
             self::offerSection(),
+            self::reservationSection(),
+            self::salesSection(),
             self::glassSection(),
             self::pieceSection(),
             self::photosSection(),
@@ -90,6 +95,69 @@ class OfferInfolist
                     ->placeholder('—')
                     ->visible(fn (): bool => CurrentActor::can(OffersPermission::ManageAll)),
             ]);
+    }
+
+    /**
+     * FR-16, FR-17: who reserved the Offer, when and for whom. The seller sees an admin's Reservation too,
+     * with a note that it is locked.
+     */
+    private static function reservationSection(): Section
+    {
+        return Section::make(__('offers::resources.offer.sections.reservation'))
+            ->extraAttributes(['class' => 'infolist--sheet'])
+            ->visible(fn (OfferModel $record): bool => $record->currentReservation !== null)
+            ->schema([
+                TextEntry::make('currentReservation.author.name')->label(__('offers::resources.offer.fields.reserved_by')),
+                TextEntry::make('currentReservation.made_at')->label(__('offers::resources.offer.fields.reserved_at'))->dateTime('d.m.Y H:i'),
+                TextEntry::make('currentReservation.note')->label(__('offers::resources.offer.fields.reservation_note'))->columnSpanFull(),
+                TextEntry::make('reservation_lock')
+                    ->label(__('offers::resources.offer.fields.reservation_lock'))
+                    ->state(fn (OfferModel $record): ?string => OfferActionVisibility::reservationIsLocked($record) ? __('offers::resources.offer.reservation_locked') : null)
+                    ->visible(fn (OfferModel $record): bool => OfferActionVisibility::reservationIsLocked($record))
+                    ->columnSpanFull(),
+            ]);
+    }
+
+    /**
+     * FR-20: the Sales of the Offer, returned ones marked. A seller reads date, channel, sale price and whether
+     * it was returned; admins also the recorded entered price, VAT rate and buyer's price, who marked it and why it was returned.
+     */
+    private static function salesSection(): Section
+    {
+        return Section::make(__('offers::resources.offer.sections.sales'))
+            ->visible(fn (OfferModel $record): bool => $record->sales->isNotEmpty())
+            ->schema([
+                RepeatableEntry::make('sales')
+                    ->hiddenLabel()
+                    ->contained(false)
+                    ->columns(['default' => 1, 'md' => 4])
+                    ->schema([
+                        TextEntry::make('sold_at')->label(__('offers::resources.offer.fields.sold_at'))->dateTime('d.m.Y H:i'),
+                        TextEntry::make('channel')->label(__('offers::resources.offer.fields.sale_channel'))->badge()->color('gray'),
+                        TextEntry::make('sale_price_grosze')->label(__('offers::resources.offer.fields.sale_price'))->money('PLN', divideBy: 100),
+                        TextEntry::make('returned_at')
+                            ->label(__('offers::resources.offer.fields.sale_state'))
+                            ->state(fn (SaleModel $record): string => __($record->returned_at === null ? 'offers::resources.offer.sale_state.valid' : 'offers::resources.offer.sale_state.returned'))
+                            ->badge()
+                            ->color(fn (SaleModel $record): string => $record->returned_at === null ? 'gray' : 'warning'),
+                        TextEntry::make('entered_price_grosze')->label(__('offers::resources.offer.fields.entered_price_at_sale'))->money('PLN', divideBy: 100)->visible(self::managesAll(...)),
+                        TextEntry::make('vat_rate_basis_points')
+                            ->label(__('offers::resources.offer.fields.vat_rate_at_sale'))
+                            ->formatStateUsing(fn (int $state): string => rtrim(rtrim(number_format($state / 100, 2, ',', ''), '0'), ',').' %')
+                            ->visible(self::managesAll(...)),
+                        TextEntry::make('buyers_price_grosze')->label(__('offers::resources.offer.fields.buyers_price_at_sale'))->money('PLN', divideBy: 100)->visible(self::managesAll(...)),
+                        TextEntry::make('markedBy.name')->label(__('offers::resources.offer.fields.marked_by'))->visible(self::managesAll(...)),
+                        TextEntry::make('return_reason')
+                            ->label(__('offers::resources.offer.fields.return_reason'))
+                            ->visible(fn (SaleModel $record): bool => $record->returned_at !== null && self::managesAll())
+                            ->columnSpanFull(),
+                    ]),
+            ]);
+    }
+
+    private static function managesAll(): bool
+    {
+        return CurrentActor::can(OffersPermission::ManageAll);
     }
 
     private static function glassSection(): Section

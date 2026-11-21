@@ -23,4 +23,20 @@ return [
         'title' => 'Oferta :number została usunięta',
         'content' => 'Administrator usunął Twoją ofertę :number. Nie widzisz jej już na liście.',
     ],
+    'reserved' => [
+        'title' => 'Oferta :number została zarezerwowana',
+        'content' => 'Administrator zarezerwował Twoją ofertę :number.',
+    ],
+    'released' => [
+        'title' => 'Rezerwacja oferty :number została zwolniona',
+        'content' => 'Administrator zwolnił rezerwację Twojej oferty :number. Oferta jest znów aktywna.',
+    ],
+    'sold' => [
+        'title' => 'Oferta :number została sprzedana',
+        'content' => 'Administrator oznaczył Twoją ofertę :number jako sprzedaną.',
+    ],
+    'returned' => [
+        'title' => 'Sprzedaż oferty :number została zwrócona',
+        'content' => 'Administrator zwrócił sprzedaż Twojej oferty :number. Oferta jest znów aktywna.',
+    ],
 ];

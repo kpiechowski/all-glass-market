@@ -340,4 +340,22 @@ class UpdateOfferCommandHandlerTest extends TestCase
 
         $this->assertSame(0, JournalEntryModel::query()->count());
     }
+
+    public function test_a_seller_cannot_edit_a_reserved_or_sold_offer_but_an_admin_can_and_the_status_stays(): void
+    {
+        $owner = UserModel::factory()->create();
+        $admin = UserModel::factory()->admin()->create();
+
+        foreach ([OfferStatus::Reserved, OfferStatus::Sold] as $status) {
+            $offer = OfferModelFactory::new()->withHint('stare')->status($status)->ownedBy($owner->id)->create();
+
+            $this->assertRefused('cannot_be_edited_while_reserved_or_sold', fn () => $this->send(Actor::user($owner->id), $offer->id, hint: 'nowe'));
+            $this->assertSame('stare', $offer->fresh()->identification_hint);
+
+            $this->send(Actor::user($admin->id), $offer->id, hint: 'nowe');
+
+            $this->assertSame('nowe', $offer->fresh()->identification_hint);
+            $this->assertSame($status, $offer->fresh()->status);
+        }
+    }
 }

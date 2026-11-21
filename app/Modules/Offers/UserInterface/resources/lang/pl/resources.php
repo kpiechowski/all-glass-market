@@ -23,6 +23,13 @@ return [
             'price' => 'Cena',
             'offer' => 'Oferta',
             'changes_since_approval' => 'Zmiany od ostatniego zatwierdzenia',
+            'reservation' => 'Rezerwacja',
+            'sales' => 'Sprzedaże',
+        ],
+        'reservation_locked' => 'To rezerwacja administratora. Zwolnić ją albo sprzedać ofertę może tylko administrator.',
+        'sale_state' => [
+            'valid' => 'Sprzedana',
+            'returned' => 'Zwrócona',
         ],
         'changes_since_approval' => [
             'none' => 'Brak zmian do przejrzenia.',
@@ -53,8 +60,23 @@ return [
             'first_approved_at' => 'Pierwsze zatwierdzenie',
             'last_approved_at' => 'Ostatnie zatwierdzenie',
             'trashed_at' => 'W koszu od',
+            'reservation_note' => 'Dla kogo',
+            'reserved_by' => 'Zarezerwował',
+            'reserved_at' => 'Zarezerwowano',
+            'reservation_lock' => 'Blokada',
+            'sale_channel' => 'Kanał sprzedaży',
+            'sale_price' => 'Cena sprzedaży',
+            'sold_at' => 'Data sprzedaży',
+            'sale_state' => 'Stan',
+            'entered_price_at_sale' => 'Cena wpisana w chwili sprzedaży',
+            'vat_rate_at_sale' => 'Stawka VAT w chwili sprzedaży',
+            'buyers_price_at_sale' => 'Cena dla kupującego w chwili sprzedaży',
+            'marked_by' => 'Sprzedaż oznaczył',
+            'return_reason' => 'Powód zwrotu',
         ],
         'helpers' => [
+            'reservation_note' => 'Dla kogo jest rezerwacja: imię, telefon albo krótka uwaga. Rezerwacja nie wygasa sama.',
+            'sale_price' => 'Domyślnie cena dla kupującego; możesz ją zmienić.',
             'identification_hint' => 'Dowolny kod, numer OEM, opis pojazdu lub auta dawcy; może być też numer VIN.',
             'price' => 'Kwota w złotych, wpisana przez Ciebie.',
             'rating' => 'Od 1 do 5 gwiazdek.',
@@ -124,8 +146,32 @@ return [
             'delete_permanently' => [
                 'label' => 'Usuń trwale',
                 'heading' => 'Usunąć ofertę na stałe?',
-                'description' => 'Oferta i jej zdjęcia zostaną usunięte bezpowrotnie.',
+                'description' => 'Oferta, jej zdjęcia, rezerwacje i sprzedaże zostaną usunięte bezpowrotnie.',
                 'done' => 'Oferta została usunięta na stałe',
+            ],
+            'reserve' => [
+                'label' => 'Zarezerwuj',
+                'heading' => 'Zarezerwować ofertę?',
+                'description' => 'Oferta będzie zarezerwowana, dopóki jej nie zwolnisz albo nie sprzedasz. Zarezerwowanej oferty nie można edytować, wycofać ani usunąć.',
+                'done' => 'Oferta została zarezerwowana',
+            ],
+            'release' => [
+                'label' => 'Zwolnij rezerwację',
+                'heading' => 'Zwolnić rezerwację?',
+                'description' => 'Oferta znów będzie aktywna.',
+                'done' => 'Rezerwacja została zwolniona',
+            ],
+            'sell' => [
+                'label' => 'Sprzedaj',
+                'heading' => 'Oznaczyć ofertę jako sprzedaną?',
+                'description' => 'Sprzedaż zapisze kanał, cenę oraz stawkę VAT z tej chwili. Ewentualna rezerwacja zakończy się jako sprzedana.',
+                'done' => 'Oferta została sprzedana',
+            ],
+            'return_sale' => [
+                'label' => 'Zwróć sprzedaż',
+                'heading' => 'Zwrócić sprzedaż?',
+                'description' => 'Oferta znów będzie aktywna, a sprzedaż zostanie w historii jako zwrócona.',
+                'done' => 'Sprzedaż została zwrócona',
             ],
             'approve_selected' => [
                 'label' => 'Zatwierdź zaznaczone',
@@ -148,6 +194,23 @@ return [
         'empty' => [
             'heading' => 'Brak ofert',
             'description' => 'Dodaj pierwszą ofertę, aby pojawiła się na liście.',
+        ],
+    ],
+
+    'reservation' => [
+        'label' => 'Rezerwacja',
+        'plural_label' => 'Rezerwacje',
+        'fields' => [
+            'offer' => 'Oferta',
+            'glass' => 'Szyba',
+            'note' => 'Dla kogo',
+            'author' => 'Zarezerwował',
+            'made_at' => 'Zarezerwowano',
+            'locked' => 'Rezerwacja administratora',
+        ],
+        'empty' => [
+            'heading' => 'Brak rezerwacji',
+            'description' => 'Zarezerwowane oferty pojawią się tutaj.',
         ],
     ],
 ];

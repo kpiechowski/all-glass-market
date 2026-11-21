@@ -616,7 +616,7 @@ class OfferTest extends TestCase
 
     public function test_an_offer_goes_to_the_trash_keeping_its_status_and_comes_back_with_it(): void
     {
-        foreach (OfferStatus::cases() as $status) {
+        foreach (array_filter(OfferStatus::cases(), fn (OfferStatus $status): bool => $status !== OfferStatus::Reserved) as $status) {
             $offer = $this->offerIn($status);
 
             $offer->moveToTrash($this->now());
@@ -670,6 +670,90 @@ class OfferTest extends TestCase
             $offer->moveToTrash($this->now());
 
             $this->assertSame('offers::exceptions.is_in_trash', $this->refusalKey(fn () => $action($offer)), $what);
+        }
+    }
+
+    public function test_an_active_offer_is_reserved_and_released_back_to_active(): void
+    {
+        $offer = $this->offerIn(OfferStatus::Active);
+
+        $offer->reserve(false);
+        $this->assertSame(OfferStatus::Reserved, $offer->status());
+
+        $offer->release();
+        $this->assertSame(OfferStatus::Active, $offer->status());
+    }
+
+    public function test_only_an_active_offer_outside_the_trash_without_a_current_reservation_is_reserved(): void
+    {
+        foreach ([OfferStatus::Draft, OfferStatus::Pending, OfferStatus::Rejected, OfferStatus::Reserved, OfferStatus::Sold, OfferStatus::Withdrawn] as $status) {
+            $this->assertSame('offers::exceptions.cannot_be_reserved', $this->refusalKey(fn () => $this->offerIn($status)->reserve(false)), $status->value);
+        }
+
+        $this->assertSame('offers::exceptions.cannot_be_reserved', $this->refusalKey(fn () => $this->offerIn(OfferStatus::Active)->reserve(true)));
+
+        $trashed = $this->offerIn(OfferStatus::Active);
+        $trashed->moveToTrash($this->now());
+        $this->assertSame('offers::exceptions.is_in_trash', $this->refusalKey(fn () => $trashed->reserve(false)));
+    }
+
+    public function test_only_a_reserved_offer_is_released(): void
+    {
+        $this->assertSame('offers::exceptions.cannot_be_released', $this->refusalKey(fn () => $this->offerIn(OfferStatus::Active)->release()));
+    }
+
+    public function test_an_active_or_reserved_offer_is_sold_and_a_sold_one_returns_to_active(): void
+    {
+        foreach ([OfferStatus::Active, OfferStatus::Reserved] as $status) {
+            $offer = $this->offerIn($status);
+
+            $offer->sell();
+            $this->assertSame(OfferStatus::Sold, $offer->status());
+
+            $offer->returnSale();
+            $this->assertSame(OfferStatus::Active, $offer->status());
+        }
+    }
+
+    public function test_nothing_else_is_sold_or_returned(): void
+    {
+        foreach ([OfferStatus::Draft, OfferStatus::Pending, OfferStatus::Rejected, OfferStatus::Sold, OfferStatus::Withdrawn] as $status) {
+            $this->assertSame('offers::exceptions.cannot_be_sold', $this->refusalKey(fn () => $this->offerIn($status)->sell()), $status->value);
+        }
+
+        foreach ([OfferStatus::Active, OfferStatus::Reserved, OfferStatus::Withdrawn] as $status) {
+            $this->assertSame('offers::exceptions.sale_cannot_be_returned', $this->refusalKey(fn () => $this->offerIn($status)->returnSale()), $status->value);
+        }
+    }
+
+    public function test_an_offer_without_an_entered_price_is_not_sold(): void
+    {
+        $offer = $this->offerIn(OfferStatus::Active, OfferContent::from(GlassReference::from(5, null), null, 2020, OfferCondition::New, null, null, null, null));
+
+        $this->assertSame('offers::exceptions.price_required_to_sell', $this->refusalKey(fn () => $offer->sell()));
+    }
+
+    public function test_a_reserved_offer_cannot_be_withdrawn_or_trashed_and_a_sold_one_cannot_be_withdrawn(): void
+    {
+        $this->assertSame('offers::exceptions.cannot_be_withdrawn', $this->refusalKey(fn () => $this->offerIn(OfferStatus::Reserved)->withdraw()));
+        $this->assertSame('offers::exceptions.reserved_cannot_be_trashed', $this->refusalKey(fn () => $this->offerIn(OfferStatus::Reserved)->moveToTrash($this->now())));
+
+        $sold = $this->offerIn(OfferStatus::Sold);
+        $sold->moveToTrash($this->now());
+        $this->assertTrue($sold->isInTrash());
+    }
+
+    public function test_a_seller_cannot_edit_a_reserved_or_sold_offer_but_an_admin_can_without_changing_the_status(): void
+    {
+        $content = $this->complete(description: 'Inny opis');
+
+        foreach ([OfferStatus::Reserved, OfferStatus::Sold] as $status) {
+            $offer = $this->offerIn($status);
+            $this->assertSame('offers::exceptions.cannot_be_edited_while_reserved_or_sold', $this->refusalKey(fn () => $offer->edit($content, $offer->photos(), 11, false, true, true)), $status->value);
+
+            $offer->edit($content, $offer->photos(), 99, true, true, true);
+            $this->assertSame($status, $offer->status());
+            $this->assertSame('Inny opis', $offer->content()->description);
         }
     }
 }

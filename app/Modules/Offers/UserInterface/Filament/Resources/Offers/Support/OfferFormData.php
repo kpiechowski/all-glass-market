@@ -70,7 +70,8 @@ final class OfferFormData
         return $value === null || $value === '' ? null : (int) $value;
     }
 
-    private static function grosze(mixed $value): ?int
+    /** A złoty amount as typed (comma or dot) in grosze; null when empty. */
+    public static function grosze(mixed $value): ?int
     {
         if ($value === null || $value === '') {
             return null;

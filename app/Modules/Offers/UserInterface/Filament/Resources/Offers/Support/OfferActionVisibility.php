@@ -8,6 +8,7 @@ use App\Core\Contracts\Authorizer;
 use App\Core\Domain\Actor;
 use App\Core\UserInterface\CurrentActor;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
+use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 
@@ -76,6 +77,41 @@ final class OfferActionVisibility
     public static function canDeletePermanently(OfferModel $offer): bool
     {
         return self::managesAll() && OfferDomainPolicy::canBeDeletedPermanently(self::isInTrash($offer));
+    }
+
+    /** FR-16: whoever sees an Active Offer may reserve it. */
+    public static function canReserve(OfferModel $offer): bool
+    {
+        return OfferDomainPolicy::canBeReserved($offer->status, self::isInTrash($offer));
+    }
+
+    /** FR-17, RULE-05: an admin's Reservation is visible but locked for its seller. */
+    public static function canRelease(OfferModel $offer): bool
+    {
+        return OfferDomainPolicy::canBeReleased($offer->status, self::isInTrash($offer)) && self::reservationIsOpenToMe($offer);
+    }
+
+    /** FR-18: Active or Reserved, the seller not over an admin's Reservation. */
+    public static function canSell(OfferModel $offer): bool
+    {
+        return OfferDomainPolicy::canBeSold($offer->status, self::isInTrash($offer)) && self::reservationIsOpenToMe($offer);
+    }
+
+    /** FR-19: only an admin returns a Sale. */
+    public static function canReturnSale(OfferModel $offer): bool
+    {
+        return self::managesAll() && OfferDomainPolicy::canBeReturned($offer->status, self::isInTrash($offer));
+    }
+
+    /** Whether the Offer's current Reservation, if any, is locked for the logged-in user. */
+    public static function reservationIsLocked(OfferModel $offer): bool
+    {
+        return $offer->status === OfferStatus::Reserved && ! self::reservationIsOpenToMe($offer);
+    }
+
+    private static function reservationIsOpenToMe(OfferModel $offer): bool
+    {
+        return OfferDomainPolicy::reservationCanBeHandledBy((bool) $offer->currentReservation?->made_by_admin, self::managesAll());
     }
 
     public static function isInTrash(OfferModel $offer): bool

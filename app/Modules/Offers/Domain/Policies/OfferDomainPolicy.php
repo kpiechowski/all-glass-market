@@ -14,6 +14,9 @@ final class OfferDomainPolicy
     /** FR-05: how many public and how many private photos an Offer holds. */
     public const int MAX_PHOTOS_PER_KIND = 10;
 
+    /** FR-16: the longest "for whom" note of a Reservation. */
+    public const int MAX_RESERVATION_NOTE_LENGTH = 500;
+
     /** Where the public photos a user uploads are stored. */
     public static function publicPhotoDirectory(int $uploaderId): string
     {
@@ -160,13 +163,46 @@ final class OfferDomainPolicy
         return $approvedBefore && ! $changedSinceApproval;
     }
 
-    /**
-     * FR-25: any Offer outside the Trash may be deleted into it. A Reserved Offer is refused as well
-     * once that status exists (RULE-06, completed with Reservations).
-     */
+    /** FR-25, RULE-06: any Offer outside the Trash may be deleted into it, except a Reserved one. */
     public static function canBeTrashed(OfferStatus $status, bool $inTrash): bool
     {
-        return ! $inTrash;
+        return ! $inTrash && $status !== OfferStatus::Reserved;
+    }
+
+    /** FR-16: only an Active Offer outside the Trash is reserved. */
+    public static function canBeReserved(OfferStatus $status, bool $inTrash): bool
+    {
+        return ! $inTrash && $status === OfferStatus::Active;
+    }
+
+    /** FR-17: only a Reserved Offer outside the Trash is released. */
+    public static function canBeReleased(OfferStatus $status, bool $inTrash): bool
+    {
+        return ! $inTrash && $status === OfferStatus::Reserved;
+    }
+
+    /** FR-18: an Active or Reserved Offer outside the Trash is sold. */
+    public static function canBeSold(OfferStatus $status, bool $inTrash): bool
+    {
+        return ! $inTrash && in_array($status, [OfferStatus::Active, OfferStatus::Reserved], true);
+    }
+
+    /** FR-19: only a Sold Offer outside the Trash has a Sale to return. */
+    public static function canBeReturned(OfferStatus $status, bool $inTrash): bool
+    {
+        return ! $inTrash && $status === OfferStatus::Sold;
+    }
+
+    /** FR-17, RULE-05: an admin handles every Reservation; anyone else only one an admin did not make. */
+    public static function reservationCanBeHandledBy(bool $madeByAdmin, bool $actorIsAdmin): bool
+    {
+        return $actorIsAdmin || ! $madeByAdmin;
+    }
+
+    /** RULE-06, §3: a seller does not edit a Reserved or a Sold Offer; an admin edits in every status (FR-08). */
+    public static function canBeEditedBySeller(OfferStatus $status): bool
+    {
+        return $status !== OfferStatus::Reserved && $status !== OfferStatus::Sold;
     }
 
     /** FR-25: only an Offer in the Trash is restored. */

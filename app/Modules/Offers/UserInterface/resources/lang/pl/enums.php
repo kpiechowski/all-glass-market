@@ -18,6 +18,18 @@ return [
         'pending' => 'Oczekuje na zatwierdzenie',
         'rejected' => 'Odrzucona',
         'active' => 'Aktywna',
+        'reserved' => 'Zarezerwowana',
+        'sold' => 'Sprzedana',
         'withdrawn' => 'Wycofana',
+    ],
+    'sale_channel' => [
+        'panel' => 'Panel / bezpośrednio',
+        'woocommerce' => 'WooCommerce',
+        'olx' => 'OLX',
+        'other' => 'Inny',
+    ],
+    'reservation_end' => [
+        'released' => 'Zwolniona',
+        'sold' => 'Sprzedana',
     ],
 ];

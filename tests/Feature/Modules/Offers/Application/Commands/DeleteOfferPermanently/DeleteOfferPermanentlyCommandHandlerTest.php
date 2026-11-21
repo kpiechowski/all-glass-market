@@ -7,16 +7,22 @@ namespace Tests\Feature\Modules\Offers\Application\Commands\DeleteOfferPermanent
 use App\Core\Domain\Actor;
 use App\Core\Exceptions\AuthorizationException;
 use App\Modules\Offers\Application\Commands\DeleteOfferPermanently\DeleteOfferPermanentlyCommand;
+use App\Modules\Offers\Domain\Enums\OfferStatus;
+use App\Modules\Offers\Domain\Enums\ReservationEnd;
 use App\Modules\Offers\Domain\Exceptions\OfferRefused;
 use App\Modules\Offers\Infrastructure\Factories\OfferModelFactory;
+use App\Modules\Offers\Infrastructure\Factories\ReservationModelFactory;
+use App\Modules\Offers\Infrastructure\Factories\SaleModelFactory;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
+use App\Modules\Offers\Infrastructure\Persistence\Models\ReservationModel;
+use App\Modules\Offers\Infrastructure\Persistence\Models\SaleModel;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Ecotone\Modelling\CommandBus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
-/** FR-26, D-43: from the Trash only; the Offer and the files of both photo lists go. */
+/** FR-26, D-43: from the Trash only; the Offer, its Reservations and Sales and the files of both photo lists go. */
 class DeleteOfferPermanentlyCommandHandlerTest extends TestCase
 {
     use RefreshDatabase;
@@ -78,5 +84,24 @@ class DeleteOfferPermanentlyCommandHandlerTest extends TestCase
         } catch (AuthorizationException) {
             $this->assertNotNull(OfferModel::query()->find($offer->id));
         }
+    }
+
+    public function test_the_reservations_and_sales_of_the_offer_go_with_it_and_those_of_others_stay(): void
+    {
+        $admin = UserModel::factory()->admin()->create();
+        $offer = OfferModelFactory::new()->sendable()->status(OfferStatus::Sold)->inTrash()->create();
+        $other = OfferModelFactory::new()->sendable()->create();
+        ReservationModelFactory::new()->forOffer($offer->id)->ended(ReservationEnd::Sold)->create();
+        ReservationModelFactory::new()->forOffer($offer->id)->create(['is_current' => null]);
+        SaleModelFactory::new()->forOffer($offer->id)->returned($admin->id)->create();
+        SaleModelFactory::new()->forOffer($offer->id)->create();
+        $keptReservation = ReservationModelFactory::new()->forOffer($other->id)->create();
+        $keptSale = SaleModelFactory::new()->forOffer($other->id)->create();
+
+        $this->deletePermanently(Actor::user($admin->id), $offer->id);
+
+        $this->assertNull(OfferModel::query()->find($offer->id));
+        $this->assertSame([$keptReservation->id], ReservationModel::query()->pluck('id')->all());
+        $this->assertSame([$keptSale->id], SaleModel::query()->pluck('id')->all());
     }
 }

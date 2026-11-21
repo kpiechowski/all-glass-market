@@ -17,7 +17,7 @@ use Ecotone\Modelling\CommandBus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-/** FR-24, FR-34, RULE-06 (Reserved comes with Reservations), §7 to Withdrawn. */
+/** FR-24, FR-34, RULE-06 (a Reserved Offer is not withdrawn), §7 to Withdrawn. */
 class WithdrawOfferCommandHandlerTest extends TestCase
 {
     use RefreshDatabase;
@@ -56,11 +56,11 @@ class WithdrawOfferCommandHandlerTest extends TestCase
         $this->assertSame(JournalSeverity::Info, $entry->severity);
     }
 
-    public function test_a_draft_or_withdrawn_offer_cannot_be_withdrawn(): void
+    public function test_a_draft_withdrawn_reserved_or_sold_offer_cannot_be_withdrawn(): void
     {
         $owner = UserModel::factory()->create();
 
-        foreach ([OfferStatus::Draft, OfferStatus::Withdrawn] as $status) {
+        foreach ([OfferStatus::Draft, OfferStatus::Withdrawn, OfferStatus::Reserved, OfferStatus::Sold] as $status) {
             $offer = OfferModelFactory::new()->status($status)->ownedBy($owner->id)->create();
 
             try {
