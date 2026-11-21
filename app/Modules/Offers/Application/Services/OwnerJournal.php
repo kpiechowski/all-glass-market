@@ -36,6 +36,16 @@ final class OwnerJournal
         $this->write($actor, $offer, JournalSeverity::Info, 'changed_by_admin');
     }
 
+    public function withdrawn(Actor $actor, Offer $offer): void
+    {
+        $this->write($actor, $offer, JournalSeverity::Info, 'withdrawn');
+    }
+
+    public function deleted(Actor $actor, Offer $offer): void
+    {
+        $this->write($actor, $offer, JournalSeverity::Info, 'deleted');
+    }
+
     /** @param array<string, string> $parameters */
     private function write(Actor $actor, Offer $offer, JournalSeverity $severity, string $event, array $parameters = []): void
     {

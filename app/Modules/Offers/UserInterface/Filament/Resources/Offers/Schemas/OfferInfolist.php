@@ -80,6 +80,10 @@ class OfferInfolist
                     ->date('d.m.Y')
                     ->placeholder('—')
                     ->visible(fn (): bool => CurrentActor::can(OffersPermission::ManageAll)),
+                TextEntry::make('trashed_at')
+                    ->label(__('offers::resources.offer.fields.trashed_at'))
+                    ->date('d.m.Y')
+                    ->visible(fn (OfferModel $record): bool => $record->trashed_at !== null && CurrentActor::can(OffersPermission::ManageAll)),
                 TextEntry::make('last_approved_at')
                     ->label(__('offers::resources.offer.fields.last_approved_at'))
                     ->date('d.m.Y')

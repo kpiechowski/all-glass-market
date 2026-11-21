@@ -138,4 +138,46 @@ final class OfferDomainPolicy
             || $before->description !== $after->description
             || $beforePhotos->public !== $afterPhotos->public;
     }
+
+    /** FR-24: the owner or an admin withdraws a Pending, Rejected or Active Offer that is not in the Trash. */
+    public static function canBeWithdrawn(OfferStatus $status, bool $inTrash): bool
+    {
+        return ! $inTrash && in_array($status, [OfferStatus::Pending, OfferStatus::Rejected, OfferStatus::Active], true);
+    }
+
+    /** FR-24: only a Withdrawn Offer outside the Trash is resumed. */
+    public static function canBeResumed(OfferStatus $status, bool $inTrash): bool
+    {
+        return ! $inTrash && $status === OfferStatus::Withdrawn;
+    }
+
+    /**
+     * FR-24: "Wznów sprzedaż" returns the Offer to Active only when it was approved before and has not
+     * changed since, apart from its entered price and private material (an admin's own Offer: FR-13).
+     */
+    public static function resumesWithoutApproval(bool $approvedBefore, bool $changedSinceApproval): bool
+    {
+        return $approvedBefore && ! $changedSinceApproval;
+    }
+
+    /**
+     * FR-25: any Offer outside the Trash may be deleted into it. A Reserved Offer is refused as well
+     * once that status exists (RULE-06, completed with Reservations).
+     */
+    public static function canBeTrashed(OfferStatus $status, bool $inTrash): bool
+    {
+        return ! $inTrash;
+    }
+
+    /** FR-25: only an Offer in the Trash is restored. */
+    public static function canBeRestored(bool $inTrash): bool
+    {
+        return $inTrash;
+    }
+
+    /** FR-26: only from the Trash. */
+    public static function canBeDeletedPermanently(bool $inTrash): bool
+    {
+        return $inTrash;
+    }
 }

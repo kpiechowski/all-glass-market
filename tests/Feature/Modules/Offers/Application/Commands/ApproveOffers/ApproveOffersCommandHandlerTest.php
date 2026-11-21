@@ -44,6 +44,18 @@ class ApproveOffersCommandHandlerTest extends TestCase
         $this->assertSame(2, JournalEntryModel::query()->count());
     }
 
+    public function test_an_offer_in_the_trash_is_skipped(): void
+    {
+        $admin = UserModel::factory()->admin()->create();
+        $glassModel = GlassModelModelFactory::new()->create();
+        $trashed = OfferModelFactory::new()->pending()->withGlassModel($glassModel->id)->inTrash()->create();
+
+        $result = app(CommandBus::class)->send(new ApproveOffersCommand(Actor::user($admin->id), [$trashed->id]));
+
+        $this->assertSame(['approved' => 0, 'skipped' => 1], $result);
+        $this->assertSame(OfferStatus::Pending, $trashed->fresh()->status);
+    }
+
     public function test_an_unknown_offer_counts_as_skipped(): void
     {
         $admin = UserModel::factory()->admin()->create();

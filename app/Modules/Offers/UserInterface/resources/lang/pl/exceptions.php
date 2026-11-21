@@ -32,4 +32,11 @@ return [
     'glass_model_required' => 'Oferta bez modelu szyby nie może zostać zatwierdzona. Wybierz albo utwórz model szyby.',
     'cannot_be_rejected' => 'Odrzucić można tylko ofertę oczekującą na zatwierdzenie albo aktywną.',
     'rejection_reason_required' => 'Podaj powód odrzucenia oferty.',
+
+    'cannot_be_withdrawn' => 'Wycofać można tylko ofertę oczekującą na zatwierdzenie, odrzuconą albo aktywną.',
+    'cannot_be_resumed' => 'Tej oferty nie można wznowić bez nowego zatwierdzenia: nie była zatwierdzana albo zmieniono ją po zatwierdzeniu. Edytuj ją, a trafi do zatwierdzenia.',
+    'cannot_be_trashed' => 'Ta oferta jest już w koszu.',
+    'cannot_be_restored' => 'Przywrócić można tylko ofertę z kosza.',
+    'cannot_be_deleted_permanently' => 'Trwale usunąć można tylko ofertę z kosza.',
+    'is_in_trash' => 'Oferta jest w koszu. Przywróć ją, aby wprowadzić zmiany.',
 ];

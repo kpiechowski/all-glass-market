@@ -52,6 +52,7 @@ return [
             'rejection_reason' => 'Powód odrzucenia',
             'first_approved_at' => 'Pierwsze zatwierdzenie',
             'last_approved_at' => 'Ostatnie zatwierdzenie',
+            'trashed_at' => 'W koszu od',
         ],
         'helpers' => [
             'identification_hint' => 'Dowolny kod, numer OEM, opis pojazdu lub auta dawcy; może być też numer VIN.',
@@ -96,6 +97,36 @@ return [
                 'description' => 'Właściciel zobaczy powód w swoim Dzienniku.',
                 'done' => 'Oferta została odrzucona',
             ],
+            'withdraw' => [
+                'label' => 'Wycofaj',
+                'heading' => 'Wycofać ofertę?',
+                'description' => 'Oferta przestanie być sprzedawana. Możesz ją później wznowić.',
+                'done' => 'Oferta została wycofana',
+            ],
+            'resume' => [
+                'label' => 'Wznów sprzedaż',
+                'heading' => 'Wznowić sprzedaż?',
+                'description' => 'Oferta znów będzie aktywna, bez ponownego zatwierdzania.',
+                'done' => 'Sprzedaż oferty została wznowiona',
+            ],
+            'delete' => [
+                'label' => 'Usuń',
+                'heading' => 'Usunąć ofertę?',
+                'description' => 'Oferta trafi do kosza z dotychczasowym statusem. Możesz ją stamtąd przywrócić.',
+                'done' => 'Oferta trafiła do kosza',
+            ],
+            'restore' => [
+                'label' => 'Przywróć',
+                'heading' => 'Przywrócić ofertę?',
+                'description' => 'Oferta wróci na listy z takim statusem, jaki miała.',
+                'done' => 'Oferta została przywrócona',
+            ],
+            'delete_permanently' => [
+                'label' => 'Usuń trwale',
+                'heading' => 'Usunąć ofertę na stałe?',
+                'description' => 'Oferta i jej zdjęcia zostaną usunięte bezpowrotnie.',
+                'done' => 'Oferta została usunięta na stałe',
+            ],
             'approve_selected' => [
                 'label' => 'Zatwierdź zaznaczone',
                 'heading' => 'Zatwierdzić zaznaczone oferty?',
@@ -111,6 +142,7 @@ return [
         'tabs' => [
             'all' => 'Wszystkie',
             'pending' => 'Oczekujące',
+            'trash' => 'Kosz',
             'details' => 'Szczegóły',
         ],
         'empty' => [

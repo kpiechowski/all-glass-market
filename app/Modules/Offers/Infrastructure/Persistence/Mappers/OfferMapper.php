@@ -39,6 +39,8 @@ final class OfferMapper implements Mapper
             OfferPhotos::from($model->public_photos ?? [], $model->private_photos ?? []),
             $model->first_approved_at,
             $model->last_approved_at,
+            $model->changed_since_approval,
+            $model->trashed_at,
         );
     }
 
@@ -64,6 +66,8 @@ final class OfferMapper implements Mapper
             'private_photos' => $entity->photos()->private,
             'first_approved_at' => $entity->firstApprovedAt(),
             'last_approved_at' => $entity->lastApprovedAt(),
+            'changed_since_approval' => $entity->changedSinceApproval(),
+            'trashed_at' => $entity->trashedAt(),
         ];
     }
 }

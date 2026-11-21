@@ -15,4 +15,12 @@ return [
         'title' => 'Administrator zmienił ofertę :number',
         'content' => 'Administrator zmienił dane Twojej oferty :number. Status oferty pozostał bez zmian.',
     ],
+    'withdrawn' => [
+        'title' => 'Oferta :number została wycofana',
+        'content' => 'Administrator wycofał Twoją ofertę :number. Możesz ją wznowić, jeśli nie zmieniano jej po zatwierdzeniu.',
+    ],
+    'deleted' => [
+        'title' => 'Oferta :number została usunięta',
+        'content' => 'Administrator usunął Twoją ofertę :number. Nie widzisz jej już na liście.',
+    ],
 ];

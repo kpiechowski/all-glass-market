@@ -46,6 +46,8 @@ final class OfferModel extends ReadOnlyModel
             'private_photos' => 'array',
             'first_approved_at' => 'immutable_datetime',
             'last_approved_at' => 'immutable_datetime',
+            'changed_since_approval' => 'boolean',
+            'trashed_at' => 'immutable_datetime',
         ];
     }
 

@@ -11,7 +11,9 @@ use Illuminate\Database\Eloquent\Builder;
 final class OfferQueries
 {
     /**
-     * RULE-11: a seller gets their own Offers only; whoever manages all Offers gets every one.
+     * RULE-11: a seller gets their own Offers only, never one in the Trash (FR-25); whoever manages all
+     * Offers gets every one, the Trash included, so a deleted Offer can still be opened and restored.
+     * The lists narrow an admin's query with `outsideTrash` and `onlyTrash`.
      *
      * @return Builder<OfferModel>
      */
@@ -19,7 +21,7 @@ final class OfferQueries
     {
         return OfferModel::query()
             ->with(['owner', 'producer'])
-            ->when(! $managesAll, fn (Builder $query) => $query->where('owner_id', $userId));
+            ->when(! $managesAll, fn (Builder $query) => $this->outsideTrash($query)->where('owner_id', $userId));
     }
 
     /**
@@ -38,6 +40,28 @@ final class OfferQueries
      */
     public function onlyPending(Builder $query): Builder
     {
-        return $query->where('status', OfferStatus::Pending);
+        return $this->outsideTrash($query)->where('status', OfferStatus::Pending);
+    }
+
+    /**
+     * FR-25: every list but the Trash tab leaves out deleted Offers.
+     *
+     * @param  Builder<OfferModel>  $query
+     * @return Builder<OfferModel>
+     */
+    public function outsideTrash(Builder $query): Builder
+    {
+        return $query->whereNull('trashed_at');
+    }
+
+    /**
+     * FR-25: the admin's Trash tab.
+     *
+     * @param  Builder<OfferModel>  $query
+     * @return Builder<OfferModel>
+     */
+    public function onlyTrash(Builder $query): Builder
+    {
+        return $query->whereNotNull('trashed_at');
     }
 }

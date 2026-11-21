@@ -456,4 +456,220 @@ class OfferTest extends TestCase
 
         $this->assertSame(OfferStatus::Active, $offer->status());
     }
+
+    private function approvedOffer(OfferStatus $status, bool $changedSinceApproval = false, int $ownerId = 11, ?OfferContent $content = null): Offer
+    {
+        return Offer::reconstitute(
+            3,
+            OfferNumber::from('AG00000001'),
+            $ownerId,
+            $status,
+            $content ?? $this->complete(),
+            OfferPhotos::from([self::PHOTO], []),
+            $this->now(),
+            $this->now(),
+            $changedSinceApproval,
+        );
+    }
+
+    public function test_pending_rejected_and_active_offers_are_withdrawn(): void
+    {
+        foreach ([OfferStatus::Pending, OfferStatus::Rejected, OfferStatus::Active] as $status) {
+            $offer = $this->offerIn($status);
+
+            $offer->withdraw();
+
+            $this->assertSame(OfferStatus::Withdrawn, $offer->status());
+        }
+    }
+
+    public function test_a_draft_or_withdrawn_offer_cannot_be_withdrawn(): void
+    {
+        foreach ([OfferStatus::Draft, OfferStatus::Withdrawn] as $status) {
+            $this->assertSame('offers::exceptions.cannot_be_withdrawn', $this->refusalKey(fn () => $this->offerIn($status)->withdraw()));
+        }
+    }
+
+    public function test_an_unchanged_approved_withdrawn_offer_resumes_to_active_without_a_new_approval(): void
+    {
+        $offer = $this->approvedOffer(OfferStatus::Withdrawn);
+
+        $offer->resume(false, $this->now()->addDay());
+
+        $this->assertSame(OfferStatus::Active, $offer->status());
+        $this->assertEquals($this->now(), $offer->lastApprovedAt());
+    }
+
+    public function test_a_changed_or_never_approved_withdrawn_offer_cannot_resume(): void
+    {
+        $changed = $this->approvedOffer(OfferStatus::Withdrawn, changedSinceApproval: true);
+        $never = $this->offerIn(OfferStatus::Withdrawn);
+
+        $this->assertSame('offers::exceptions.cannot_be_resumed', $this->refusalKey(fn () => $changed->resume(false, $this->now())));
+        $this->assertSame('offers::exceptions.cannot_be_resumed', $this->refusalKey(fn () => $never->resume(false, $this->now())));
+        $this->assertSame(OfferStatus::Withdrawn, $changed->status());
+    }
+
+    public function test_an_offer_that_is_not_withdrawn_cannot_resume(): void
+    {
+        $this->assertSame('offers::exceptions.cannot_be_resumed', $this->refusalKey(fn () => $this->approvedOffer(OfferStatus::Active)->resume(false, $this->now())));
+    }
+
+    public function test_a_rejection_ends_the_standing_approval_so_a_withdrawn_offer_cannot_resume_until_edited(): void
+    {
+        $offer = $this->approvedOffer(OfferStatus::Active);
+
+        $offer->reject('Zdjęcia');
+        $offer->withdraw();
+
+        $this->assertSame('offers::exceptions.cannot_be_resumed', $this->refusalKey(fn () => $offer->resume(false, $this->now())));
+        $this->assertSame(OfferStatus::Withdrawn, $offer->status());
+
+        $offer->edit($this->complete(description: 'Nowy opis'), $offer->photos(), 11, false, true, true);
+
+        $this->assertSame(OfferStatus::Pending, $offer->status());
+    }
+
+    public function test_an_admins_own_withdrawn_offer_resumes_whenever_it_has_a_glass_model(): void
+    {
+        $offer = $this->offerIn(OfferStatus::Withdrawn);
+
+        $offer->resume(true, $this->now());
+
+        $this->assertSame(OfferStatus::Active, $offer->status());
+        $this->assertEquals($this->now(), $offer->lastApprovedAt());
+    }
+
+    public function test_an_admins_own_withdrawn_offer_with_only_a_hint_cannot_resume(): void
+    {
+        $offer = $this->offerIn(OfferStatus::Withdrawn, $this->complete(glassModelId: null, hint: 'kod'));
+
+        $this->assertSame('offers::exceptions.cannot_be_resumed', $this->refusalKey(fn () => $offer->resume(true, $this->now())));
+    }
+
+    public function test_a_sellers_substantive_edit_marks_the_offer_changed_since_approval(): void
+    {
+        $offer = $this->approvedOffer(OfferStatus::Active);
+
+        $offer->edit($this->complete(description: 'Inny opis'), $offer->photos(), 11, false, true, true);
+
+        $this->assertSame(OfferStatus::Pending, $offer->status());
+        $this->assertTrue($offer->changedSinceApproval());
+    }
+
+    public function test_a_price_only_edit_and_an_admin_edit_do_not_mark_the_offer_changed(): void
+    {
+        $byPrice = $this->approvedOffer(OfferStatus::Active);
+        $byAdmin = $this->approvedOffer(OfferStatus::Active);
+
+        $byPrice->edit($this->complete(priceGrosze: 20000), $byPrice->photos(), 11, false, true, true);
+        $byAdmin->edit($this->complete(description: 'Opis admina'), $byAdmin->photos(), 99, true, true, true);
+
+        $this->assertFalse($byPrice->changedSinceApproval());
+        $this->assertFalse($byAdmin->changedSinceApproval());
+    }
+
+    public function test_approving_clears_the_changed_mark(): void
+    {
+        $offer = $this->approvedOffer(OfferStatus::Pending, changedSinceApproval: true);
+
+        $offer->approve($this->now());
+
+        $this->assertFalse($offer->changedSinceApproval());
+    }
+
+    public function test_a_sellers_substantive_edit_of_a_withdrawn_offer_sends_it_to_pending(): void
+    {
+        $offer = $this->approvedOffer(OfferStatus::Withdrawn);
+
+        $offer->edit($this->complete(description: 'Inny opis'), $offer->photos(), 11, false, true, true);
+
+        $this->assertSame(OfferStatus::Pending, $offer->status());
+    }
+
+    public function test_a_sellers_price_edit_keeps_a_resumable_withdrawn_offer_withdrawn(): void
+    {
+        $offer = $this->approvedOffer(OfferStatus::Withdrawn);
+
+        $offer->edit($this->complete(priceGrosze: 20000), $offer->photos(), 11, false, true, true);
+
+        $this->assertSame(OfferStatus::Withdrawn, $offer->status());
+    }
+
+    public function test_any_edit_of_a_withdrawn_offer_that_cannot_resume_sends_it_to_pending(): void
+    {
+        $offer = $this->approvedOffer(OfferStatus::Withdrawn, changedSinceApproval: true);
+
+        $offer->edit($this->complete(priceGrosze: 20000), $offer->photos(), 11, false, true, true);
+
+        $this->assertSame(OfferStatus::Pending, $offer->status());
+    }
+
+    public function test_an_admins_edit_never_changes_a_withdrawn_status(): void
+    {
+        $offer = $this->approvedOffer(OfferStatus::Withdrawn);
+
+        $offer->edit($this->complete(description: 'Opis admina'), $offer->photos(), 99, true, true, true);
+
+        $this->assertSame(OfferStatus::Withdrawn, $offer->status());
+    }
+
+    public function test_an_offer_goes_to_the_trash_keeping_its_status_and_comes_back_with_it(): void
+    {
+        foreach (OfferStatus::cases() as $status) {
+            $offer = $this->offerIn($status);
+
+            $offer->moveToTrash($this->now());
+
+            $this->assertTrue($offer->isInTrash());
+            $this->assertEquals($this->now(), $offer->trashedAt());
+            $this->assertSame($status, $offer->status());
+
+            $offer->restoreFromTrash();
+
+            $this->assertFalse($offer->isInTrash());
+            $this->assertNull($offer->trashedAt());
+            $this->assertSame($status, $offer->status());
+        }
+    }
+
+    public function test_an_offer_in_the_trash_cannot_be_trashed_again_and_one_outside_cannot_be_restored(): void
+    {
+        $trashed = $this->offerIn(OfferStatus::Active);
+        $trashed->moveToTrash($this->now());
+
+        $this->assertSame('offers::exceptions.cannot_be_trashed', $this->refusalKey(fn () => $trashed->moveToTrash($this->now())));
+        $this->assertSame('offers::exceptions.cannot_be_restored', $this->refusalKey(fn () => $this->offerIn(OfferStatus::Active)->restoreFromTrash()));
+    }
+
+    public function test_permanent_deletion_is_allowed_from_the_trash_only(): void
+    {
+        $offer = $this->offerIn(OfferStatus::Active);
+
+        $this->assertSame('offers::exceptions.cannot_be_deleted_permanently', $this->refusalKey(fn () => $offer->ensureCanBeDeletedPermanently()));
+
+        $offer->moveToTrash($this->now());
+        $offer->ensureCanBeDeletedPermanently();
+
+        $this->assertTrue($offer->isInTrash());
+    }
+
+    public function test_an_offer_in_the_trash_cannot_be_changed(): void
+    {
+        $content = $this->complete(description: 'Inny opis');
+
+        foreach ([
+            'withdraw' => fn (Offer $offer) => $offer->withdraw(),
+            'edit' => fn (Offer $offer) => $offer->edit($content, $offer->photos(), 99, true, true, true),
+            'approve' => fn (Offer $offer) => $offer->approve($this->now()),
+            'reject' => fn (Offer $offer) => $offer->reject('Powód'),
+            'send' => fn (Offer $offer) => $offer->send(false, $this->now()),
+            'resume' => fn (Offer $offer) => $offer->resume(true, $this->now()),
+        ] as $what => $action) {
+            $offer = $this->offerIn(OfferStatus::Pending);
+            $offer->moveToTrash($this->now());
+
+            $this->assertSame('offers::exceptions.is_in_trash', $this->refusalKey(fn () => $action($offer)), $what);
+        }
+    }
 }

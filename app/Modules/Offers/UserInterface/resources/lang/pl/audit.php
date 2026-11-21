@@ -22,6 +22,8 @@ return [
             'price' => 'Cena (w groszach)',
             'first_approved_at' => 'Pierwsze zatwierdzenie',
             'last_approved_at' => 'Ostatnie zatwierdzenie',
+            'changed_since_approval' => 'Zmieniona od zatwierdzenia',
+            'trashed_at' => 'W koszu od',
         ],
     ],
 ];

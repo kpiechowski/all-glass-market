@@ -43,4 +43,37 @@ class OfferQueriesTest extends TestCase
 
         $this->assertSame([$pending->id], (new OfferQueries)->pendingApproval()->pluck('id')->all());
     }
+
+    public function test_a_seller_never_gets_an_offer_in_the_trash_but_an_admin_can_open_it(): void
+    {
+        $seller = UserModel::factory()->create();
+        $admin = UserModel::factory()->admin()->create();
+        $live = OfferModelFactory::new()->ownedBy($seller->id)->create();
+        $trashed = OfferModelFactory::new()->ownedBy($seller->id)->inTrash()->create();
+
+        $this->assertSame([$live->id], (new OfferQueries)->visibleTo($seller->id, managesAll: false)->pluck('id')->all());
+        $this->assertEqualsCanonicalizing([$live->id, $trashed->id], (new OfferQueries)->visibleTo($admin->id, managesAll: true)->pluck('id')->all());
+    }
+
+    public function test_outside_the_trash_and_only_the_trash_split_the_offers(): void
+    {
+        $live = OfferModelFactory::new()->create();
+        $trashed = OfferModelFactory::new()->inTrash()->create();
+        $queries = new OfferQueries;
+
+        $this->assertSame([$live->id], $queries->outsideTrash(OfferModelFactory::new()->newModel()->newQuery())->pluck('id')->all());
+        $this->assertSame([$trashed->id], $queries->onlyTrash(OfferModelFactory::new()->newModel()->newQuery())->pluck('id')->all());
+    }
+
+    public function test_a_pending_offer_in_the_trash_is_not_in_the_approval_queue(): void
+    {
+        $pending = OfferModelFactory::new()->pending()->create();
+        OfferModelFactory::new()->pending()->inTrash()->create();
+
+        $this->assertSame([$pending->id], (new OfferQueries)->pendingApproval()->pluck('id')->all());
+        $this->assertSame(
+            [$pending->id],
+            (new OfferQueries)->onlyPending(OfferModelFactory::new()->newModel()->newQuery())->pluck('id')->all(),
+        );
+    }
 }

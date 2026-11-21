@@ -34,7 +34,7 @@ final class ApproveOffersCommandHandler
         foreach (array_unique($command->offerIds) as $offerId) {
             $offer = $this->offers->find($offerId);
 
-            if ($offer === null || ! OfferDomainPolicy::canBeApproved($offer->status(), $offer->content()->glass->glassModelId !== null)) {
+            if ($offer === null || $offer->isInTrash() || ! OfferDomainPolicy::canBeApproved($offer->status(), $offer->content()->glass->glassModelId !== null)) {
                 $skipped++;
 
                 continue;

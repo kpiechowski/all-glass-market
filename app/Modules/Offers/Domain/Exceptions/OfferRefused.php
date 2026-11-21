@@ -133,4 +133,34 @@ final class OfferRefused extends DomainException
     {
         return new self('offers::exceptions.rejection_reason_required');
     }
+
+    public static function cannotBeWithdrawn(): self
+    {
+        return new self('offers::exceptions.cannot_be_withdrawn');
+    }
+
+    public static function cannotBeResumed(): self
+    {
+        return new self('offers::exceptions.cannot_be_resumed');
+    }
+
+    public static function cannotBeTrashed(): self
+    {
+        return new self('offers::exceptions.cannot_be_trashed');
+    }
+
+    public static function cannotBeRestored(): self
+    {
+        return new self('offers::exceptions.cannot_be_restored');
+    }
+
+    public static function cannotBeDeletedPermanently(): self
+    {
+        return new self('offers::exceptions.cannot_be_deleted_permanently');
+    }
+
+    public static function isInTrash(): self
+    {
+        return new self('offers::exceptions.is_in_trash');
+    }
 }

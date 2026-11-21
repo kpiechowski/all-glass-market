@@ -17,11 +17,13 @@ use App\Modules\Offers\Application\Services\OwnerJournal;
 use App\Modules\Offers\Domain\Enums\OfferCondition;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
+use App\Modules\Offers\Domain\Repositories\OfferPhotoStorage;
 use App\Modules\Offers\Domain\Repositories\OfferRepository;
 use App\Modules\Offers\Domain\Repositories\VatRateSetting;
 use App\Modules\Offers\Infrastructure\Persistence\EloquentOfferRepository;
 use App\Modules\Offers\Infrastructure\Persistence\EloquentVatRateSetting;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
+use App\Modules\Offers\Infrastructure\Persistence\StorageOfferPhotoStorage;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
 use App\Modules\Offers\UserInterface\Http\Controllers\PrivatePhotoController;
 use App\Modules\Users\Application\ModuleApi\JournalSubjects;
@@ -43,6 +45,7 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
     protected array $containerBindings = [
         OfferRepository::class => EloquentOfferRepository::class,
         VatRateSetting::class => EloquentVatRateSetting::class,
+        OfferPhotoStorage::class => StorageOfferPhotoStorage::class,
     ];
 
     public function register(): void
@@ -105,6 +108,8 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
                 'private_photos' => 'offers::audit.offer.fields.private_photos',
                 'first_approved_at' => 'offers::audit.offer.fields.first_approved_at',
                 'last_approved_at' => 'offers::audit.offer.fields.last_approved_at',
+                'changed_since_approval' => 'offers::audit.offer.fields.changed_since_approval',
+                'trashed_at' => 'offers::audit.offer.fields.trashed_at',
             ],
             valuePresenters: [
                 'owner_id' => ValuePresenter::reference(UserModel::class, 'name'),
@@ -117,6 +122,8 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
                 'private_photos' => ValuePresenter::fileCount(),
                 'first_approved_at' => ValuePresenter::date(),
                 'last_approved_at' => ValuePresenter::date(),
+                'changed_since_approval' => ValuePresenter::boolean(),
+                'trashed_at' => ValuePresenter::date(),
             ],
         ));
     }

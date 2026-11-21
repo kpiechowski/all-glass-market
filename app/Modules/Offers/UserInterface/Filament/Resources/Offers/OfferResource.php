@@ -69,9 +69,10 @@ class OfferResource extends Resource
         return self::canViewAny() && self::isVisibleTo($record);
     }
 
+    /** FR-25: an Offer in the Trash is frozen until restored. */
     public static function canEdit(Model $record): bool
     {
-        return self::canViewAny() && self::isVisibleTo($record);
+        return self::canViewAny() && self::isVisibleTo($record) && $record->getAttribute('trashed_at') === null;
     }
 
     public static function canDelete(Model $record): bool

@@ -184,4 +184,42 @@ class OfferDomainPolicyTest extends TestCase
         $this->assertTrue(OfferDomainPolicy::changeNeedsReapproval($content, $two, $content, $this->photos(['offers/public/1/a.jpg'])));
         $this->assertFalse(OfferDomainPolicy::changeNeedsReapproval($content, $two, $content, $two));
     }
+
+    public function test_only_pending_rejected_and_active_offers_can_be_withdrawn(): void
+    {
+        foreach ([OfferStatus::Pending, OfferStatus::Rejected, OfferStatus::Active] as $status) {
+            $this->assertTrue(OfferDomainPolicy::canBeWithdrawn($status, false), $status->value);
+            $this->assertFalse(OfferDomainPolicy::canBeWithdrawn($status, true), $status->value.' in the Trash');
+        }
+
+        $this->assertFalse(OfferDomainPolicy::canBeWithdrawn(OfferStatus::Draft, false));
+        $this->assertFalse(OfferDomainPolicy::canBeWithdrawn(OfferStatus::Withdrawn, false));
+    }
+
+    public function test_only_a_withdrawn_offer_outside_the_trash_can_be_resumed(): void
+    {
+        $this->assertTrue(OfferDomainPolicy::canBeResumed(OfferStatus::Withdrawn, false));
+        $this->assertFalse(OfferDomainPolicy::canBeResumed(OfferStatus::Withdrawn, true));
+        $this->assertFalse(OfferDomainPolicy::canBeResumed(OfferStatus::Active, false));
+    }
+
+    public function test_a_withdrawn_offer_resumes_only_when_approved_before_and_unchanged_since(): void
+    {
+        $this->assertTrue(OfferDomainPolicy::resumesWithoutApproval(true, false));
+        $this->assertFalse(OfferDomainPolicy::resumesWithoutApproval(true, true));
+        $this->assertFalse(OfferDomainPolicy::resumesWithoutApproval(false, false));
+    }
+
+    public function test_the_trash_takes_any_offer_outside_it_and_gives_back_only_what_it_holds(): void
+    {
+        foreach (OfferStatus::cases() as $status) {
+            $this->assertTrue(OfferDomainPolicy::canBeTrashed($status, false), $status->value);
+            $this->assertFalse(OfferDomainPolicy::canBeTrashed($status, true), $status->value);
+        }
+
+        $this->assertTrue(OfferDomainPolicy::canBeRestored(true));
+        $this->assertFalse(OfferDomainPolicy::canBeRestored(false));
+        $this->assertTrue(OfferDomainPolicy::canBeDeletedPermanently(true));
+        $this->assertFalse(OfferDomainPolicy::canBeDeletedPermanently(false));
+    }
 }

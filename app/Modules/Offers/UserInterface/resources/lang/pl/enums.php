@@ -18,5 +18,6 @@ return [
         'pending' => 'Oczekuje na zatwierdzenie',
         'rejected' => 'Odrzucona',
         'active' => 'Aktywna',
+        'withdrawn' => 'Wycofana',
     ],
 ];

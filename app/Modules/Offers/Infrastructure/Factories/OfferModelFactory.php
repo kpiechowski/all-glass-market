@@ -35,6 +35,8 @@ final class OfferModelFactory extends ModelFactory
             'private_photos' => [],
             'first_approved_at' => null,
             'last_approved_at' => null,
+            'changed_since_approval' => false,
+            'trashed_at' => null,
         ];
     }
 
@@ -59,6 +61,22 @@ final class OfferModelFactory extends ModelFactory
             'price_grosze' => 15000,
             'public_photos' => ['offers/public/1/a.jpg'],
         ]);
+    }
+
+    /** Approved before, as a Pending, Rejected, Active or Withdrawn Offer of a seller usually is. */
+    public function approvedBefore(): static
+    {
+        return $this->state(fn (): array => ['first_approved_at' => now()->subDays(10), 'last_approved_at' => now()->subDays(5)]);
+    }
+
+    public function changedSinceApproval(): static
+    {
+        return $this->state(fn (): array => ['changed_since_approval' => true]);
+    }
+
+    public function inTrash(): static
+    {
+        return $this->state(fn (): array => ['trashed_at' => now()]);
     }
 
     public function ownedBy(int $userId): static

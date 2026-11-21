@@ -64,4 +64,26 @@ class OfferMapperTest extends TestCase
 
         $this->assertEquals($entity, $mapper->toEntity($model));
     }
+
+    public function test_withdrawal_and_trash_state_survive_the_round_trip(): void
+    {
+        $mapper = new OfferMapper;
+        $content = OfferContent::from(GlassReference::from(4, null), null, null, null, null, null, null, null);
+        $entity = Offer::reconstitute(
+            10,
+            OfferNumber::from('AG00000010'),
+            2,
+            OfferStatus::Withdrawn,
+            $content,
+            OfferPhotos::none(),
+            CarbonImmutable::parse('2026-01-02 10:00:00'),
+            CarbonImmutable::parse('2026-03-04 12:30:00'),
+            true,
+            CarbonImmutable::parse('2026-05-06 08:00:00'),
+        );
+
+        $model = OfferModelFactory::new()->make(['id' => 10] + $mapper->toRow($entity));
+
+        $this->assertEquals($entity, $mapper->toEntity($model));
+    }
 }
