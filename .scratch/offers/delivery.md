@@ -18,12 +18,24 @@
 | 07 reservations-and-sales | resolved (c5d27de) | removed | 0 | approved |
 | 08 inquiries | resolved (e87d3f9) | removed | 0 | approved |
 | 09 duplicate-and-bulk-actions | resolved (4fb5fa7) | removed | 0 | approved |
-| 10 lists-tabs-filters-stat-cards | waiting | — | — | — |
-| 11 catalogue-uses-and-offer-counts | waiting | — | — | — |
-| 12 deactivated-seller | waiting | — | — | — |
-| 13 channel-announcements-and-advert-summary | waiting | — | — | — |
-| 14 activity-chart | waiting | — | — | — |
+| 10 lists-tabs-filters-stat-cards | resolved (68ab0d0) | removed | 0 | approved |
+| 11 catalogue-uses-and-offer-counts | resolved (40282c5) | removed | 1 | approved |
+| 12 deactivated-seller | resolved (846e3d3) | removed | 0 | approved |
+| 13 channel-announcements-and-advert-summary | resolved (3c1449a) | removed | 0 | approved |
+| 14 activity-chart | resolved (d6c85bd, fix 0935d36) | removed | 0 | approved |
 
 ## Next action
 
+2026-11-21: run 10–14 started (new manager, from handoff.md). 10 merged (68ab0d0; full check green, 1604 tests). 11 merged (40282c5, 1 fix round). 12 merged (846e3d3). 13 merged (3c1449a). 14 merged (d6c85bd); the chart was redone on Filament's ChartWidget (0935d36). All of 10–14 are resolved. The milestone `composer check` in the main tree on `catalog` is green (1695 tests). Run 10–14 added no migrations. Next: bonus issue 15 (`needs-info`), which needs the user's grilling first.
+
 2026-11-22: Offers 09 merged (4fb5fa7). Milestone stop (user): the next manager starts from `.scratch/offers/handoff.md`, then dispatches 10. `composer check` has no time limit any more; `composer check:module offers` is the quick check while working. Migrations so far: `create_offers_table` (01), `add_photos_to_offers_table` (02), `add_approval_dates_to_offers_table` (03), `create_offer_settings_table` (05), `add_withdrawal_and_trash_to_offers_table` (06), `create_offer_reservations_and_sales_tables` (07), `create_offer_inquiries_table` (08) — run `dartisan migrate`; public photos need `dartisan storage:link` once.
+
+## User decisions on the open questions (2026-11-21)
+
+1. Where the Offer's events are dispatched (entity flag, repository dispatches): leave as is; it will come up in the module's technical audit.
+2. and 5. A business history of the Offer (section or slide-over, rejection reason included): bonus issue 15, `needs-info`, grill the user first.
+3. Sale date stays the click moment.
+4. The picker keeps the "with withdrawn" toggle.
+6. A VAT rate change is not audited.
+7. and 8. The "N ofert" count by viewer and `OfferSold` alone on a sale stay as they are.
+9. Issue 14's chart is own SVG because of a wrong claim ("Chart.js not installed"). Filament ships `ChartWidget` / `LineChartWidget` with Chart.js in its widget bundle (`public/js/filament/widgets/components/chart.js`). To be redone on Filament's chart widget; see the user's answer.
