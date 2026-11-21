@@ -1,6 +1,6 @@
 ---
 name: module-testing
-description: "Testing and finishing work in a module. Use when writing or running tests, building an entity, value object, policy, mapper, repository method or handler test-first, or checking that a task is done with composer check."
+description: "Testing and finishing work in a module. Use when writing or running tests, building an entity, value object, policy, mapper, repository method or handler test-first, or checking that a task is done with composer check or composer check:module."
 ---
 
 # Testing a module
@@ -66,12 +66,22 @@ Default to real adapters and the in-memory database. Substitute a fake for an ex
 
 ```bash
 dartisan test --compact --filter=ActivateOffer   # while working: one class or test
-composer check:module offers                     # after a step: pint + phpunit for the module(s), deptrac + architecture tests for all
+composer check:module offers                     # closes a task: pint + phpunit for the module(s), deptrac + architecture tests for all
 composer check:module offers,catalogue           # several modules, comma-separated
-composer check                                   # once, to finish: pint, deptrac, test presence, full phpunit
+composer check                                   # milestones: pint, deptrac, test presence, full phpunit
 ```
 
-`check:module` takes a few minutes less than the full run (Offers: about 1.5 min against 5–6). It does not prove the task is done: a change in one module can break another module's tests, so the full `composer check` still closes every task. Neither has a time limit.
+**Which check closes the work.** Neither command has a time limit. The full run takes 5–6 minutes; `check:module` takes a fraction of that (Offers: about 1.5 min).
+
+- **A task or an issue** closes with `composer check:module` over **every module its diff touches**: changed and untracked files under `app/Modules/<X>/` or `tests/*/Modules/<X>/`.
+- **The full `composer check`** closes it instead when one of these holds:
+  - the diff touches anything outside those module folders: `app/Core`, `app/Filament`, `app/Integrations`, `config`, `routes`, `lang`, `database`, `composer.json`, `deptrac.yaml`, `phpunit.xml`, or `tests/` outside `Modules`;
+  - it is a **milestone**:
+    - the last issue of a delivery run, or of a whole module;
+    - a manager's handoff before `/clear`;
+    - a run of a single issue;
+    - a merge of a delivery branch into `main`.
+- **A full check that fails at a milestone:** find the commit that broke it (`git bisect` over the run's commits, using `check:module` of the failing test's module), and fix it as a new fix round or issue before the milestone counts as done.
 
 Never run two checks at once in the same directory: `ScaffoldCommandsTest` writes a temporary module into `app/Modules`, and the other run fails on it. Separate worktrees are fine.
 
@@ -79,4 +89,4 @@ Never run two checks at once in the same directory: `ScaffoldCommandsTest` write
 
 - Every class in the "first" rows got its test before its code, and you saw that test fail first.
 - Every handler test covers each refusal, and every query test proves exclusion.
-- The full `composer check` passes (not only `check:module`). Report its result, including failures, as it is.
+- The check that "Which check closes the work" requires passes: `check:module` over the touched modules, or the full `composer check` when the diff leaves the module folders or at a milestone. Report which one you ran and its result, including failures, as it is.

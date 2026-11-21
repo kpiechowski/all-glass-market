@@ -39,7 +39,7 @@ You are the **manager**. Workers (`module-worker` subagents, Sonnet) implement i
    - **Fix:** send the numbered findings back to the same worker with SendMessage, then wait.
    - **Approve:** go to Commit.
 4. **Commit and merge** (see Commit). Then set the issue `Status: resolved`, append your review, update `delivery.md`, and remove the worktree.
-5. **Repeat** from step 2 until no in-scope issue is ready or running. Finish with a report to the user:
+5. **Repeat** from step 2 until no in-scope issue is ready or running. Before the final report, and before any handoff, run the full `composer check` once in the main tree, on the current branch (milestone, `module-testing`). If it fails, find the breaking commit and fix it as a new fix round. Finish with a report to the user:
    - issues resolved, with their commits;
    - issues stopped, and why;
    - deviations the user should look at;
@@ -71,7 +71,7 @@ Run every check yourself; a worker's "green" is a claim, not evidence.
    - the layer rules in `CLAUDE.md` and the skills hold: no repository in Filament, no business logic in UI, and every write goes through a command carrying the Actor;
    - nothing outside the issue's scope was built, and the seams the issue names exist;
    - each logged deviation is justified by the spec or decisions. A deviation that changes behaviour the user decided goes to the user, not to the worker.
-4. `run.sh <worktree> "composer check"` (the full check, not `check:module`) must be green. It takes several minutes: start it in the background with its output in a scratchpad file, read the code meanwhile, and edit nothing in the worktree until it finishes.
+4. The check `module-testing` requires must be green, run by you in the worktree. Normally that is `run.sh <worktree> "composer check:module <modules the diff touches>"`. It is the full `composer check` when the diff leaves the module folders (`git -C <worktree> status --short` shows the paths). The milestone run happens once, in the main tree, at step 5. Start it in the background with its output in a scratchpad file, read the code meanwhile, and edit nothing in the worktree until it finishes.
 
 Approve only when the findings list is empty. Style preferences beyond the skills are comments, not findings.
 
@@ -103,8 +103,8 @@ In the worktree, on the issue's branch:
 2. **Message.** Commit everything with a message shaped by the `pr` skill's sections, with no preamble or boilerplate:
    - subject `feat(<module>): <NN> <issue title>`;
    - **Summary:** the smallest tree or diff sketch that shows what changed;
-   - **Evidence:** the tests that cover the issue, and the `composer check` result;
+   - **Evidence:** the tests that cover the issue, and which check ran with its result;
    - **Merge Danger:** door and blast radius, one line each.
 
    Use the `GLOSSARY.md` terms.
-3. **Merge.** If the current branch moved since the worktree was created, run `git -C <worktree> rebase <current branch>` and then `composer check` in the worktree again. Then, in the main tree, run `git merge --ff-only <module>/<NN>`.
+3. **Merge.** If the current branch moved since the worktree was created, run `git -C <worktree> rebase <current branch>` and then the same check in the worktree again. Then, in the main tree, run `git merge --ff-only <module>/<NN>`.

@@ -15,13 +15,13 @@ You implement **one issue** in an isolated git worktree. A manager reviews your 
 
 ## Working rules
 
-- Work only inside your worktree path. Every PHP, Artisan and Composer command runs in the container through `.claude/skills/module-delivery/run.sh <worktree> "<command>"` (for example `run.sh <worktree> "php artisan make:test --phpunit FooTest"`, `run.sh <worktree> "composer check"`).
+- Work only inside your worktree path. Every PHP, Artisan and Composer command runs in the container through `.claude/skills/module-delivery/run.sh <worktree> "<command>"` (for example `run.sh <worktree> "php artisan make:test --phpunit FooTest"`, `run.sh <worktree> "composer check:module offers"`).
 - Build test-first for the classes `module-testing` lists. Behaviour comes from the spec; structure comes from the skills.
 - Stay inside the issue's scope. Leave seams the issue names for later tickets and build nothing from those tickets.
 - Leave committing to the manager, and leave the spec, discovery and other issues untouched.
 - When the spec or issue leaves a real choice open, take the smallest reading that satisfies the spec and log it as a deviation. When you cannot proceed without the user, stop and say so in your summary.
-- Between steps run `composer check:module <module>[,<module>...]` for the modules you touched (minutes, not the whole suite). Run the full `composer check` once at the end, before you write the log entry; only that one counts as **Check**. Never run two checks at once in your worktree.
-- If `composer check` fails three times on the same cause, stop and report the cause instead of trying a fourth fix.
+- Close the issue with the check `module-testing` requires ("Which check closes the work"). That is `composer check:module <module>[,<module>...]` over every module your diff touches. Only when the diff also touches files outside the module folders (`app/Core`, `app/Filament`, config, `tests/` outside `Modules`, and so on) is it the full `composer check`. Never run two checks at once in your worktree.
+- If the check fails three times on the same cause, stop and report the cause instead of trying a fourth fix.
 
 ## Log in the issue file
 
@@ -33,11 +33,11 @@ Append under `## Comments` in the issue file inside your worktree:
 - **Deviations:** <each departure from the issue or spec, and why> | none
 - **Seams left:** <what later tickets plug into> | none
 - **Open questions:** <for the manager or user> | none
-- **Check:** composer check <green | red: cause>
+- **Check:** <composer check:module <modules> | composer check> <green | red: cause>
 ```
 
 On a fix round, append a new `### Worker — fix <n>` entry rather than rewriting the old one.
 
 ## Done when
 
-Every "Done when" line of the issue holds, `composer check` is green in your worktree, and the log entry is written. Return at most 10 lines: what you built, deviations, open questions, and the check result.
+Every "Done when" line of the issue holds, the required check is green in your worktree, and the log entry is written. Return at most 10 lines: what you built, deviations, open questions, and the check result.

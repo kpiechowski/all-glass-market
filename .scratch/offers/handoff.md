@@ -4,7 +4,7 @@ You take over the Offers delivery at issue **10**. Run it with the `module-deliv
 
 ## Resume
 
-1. Read `delivery.md`. Catalogue 09 and Offers 01–09 are merged into branch `catalog`. No worktree is open.
+1. Read `delivery.md`. Catalogue 09 and Offers 01–09 are merged into branch `catalog`. No worktree is open. Baseline: the full `composer check` on `catalog` after 09 was green on 2026-11-22 (1586 tests).
 2. Dispatch the remaining issues one at a time in this order: 10 → 11 → 12 → 13 → 14. Each issue's `Blocked by` is met by the issues before it.
 3. Before each brief, read the Review notes in the Comments of the issues it builds on. They record the decisions and deviations that were accepted.
 
@@ -12,7 +12,7 @@ You take over the Offers delivery at issue **10**. Run it with the `module-deliv
 
 - **One worker at a time.** Dispatch the next issue only after the current one is merged or stopped.
 - **Every fix round goes to a fresh `module-worker`.** Brief it with the issue path, its Worker log and the numbered findings. Tell it to keep the uncommitted work and touch nothing else. If a fix worker is stopped mid-work, check `git diff` for what it already did and brief the next one with "finish or verify".
-- **Review relentlessly.** On a big issue, read every changed file, not only the diff stat. The user asked for this explicitly, because a worker with a full context does weaker work. Run `composer check` yourself.
+- **Review relentlessly.** On a big issue, read every changed file, not only the diff stat. The user asked for this explicitly, because a worker with a full context does weaker work. Run the required check yourself.
 - **Stop leftover background tasks.** A worker sometimes hands back while a background shell of its own is still running, and its notification then says "waiting on its own background work". Stop it with `TaskStop`. Also end every brief with "finish any background shell command before you hand back".
 - **The user may stop for the day.** Then stop the running worker, write the exact state (what is built, which findings are open, what the next brief says) into `delivery.md` "Next action", and resume from there on the next session.
 - **Talk to the user in Polish.** The issues and the code stay in English.
@@ -20,7 +20,11 @@ You take over the Offers delivery at issue **10**. Run it with the `module-deliv
 
 ## Practical notes
 
-- **Checks:** workers run `composer check:module <module>[,<module>...]` between steps (Offers: about 1.5 min) and the full `composer check` once at the end. Your review always runs the **full** `run.sh <worktree> "composer check"` (5–6 min, no time limit). Start it in the background with output to a scratchpad file and read the code meanwhile. Never run two checks at once in the same directory: `ScaffoldCommandsTest` writes a temporary module into `app/Modules`, and the other run fails on it. The details are in `module-testing`, under "Running".
+- **Checks (user, 2026-11-22):**
+  - Each issue closes with `composer check:module` over the modules its diff touches (Offers: about 1.5 min). The worker runs it, then you run it in your review.
+  - The full `composer check` (5–6 min) runs only when the diff leaves the module folders: `app/Core`, `app/Filament` (for example `PanelNavigation`), config, `tests/` outside `Modules`.
+  - It also runs at milestones: in the main tree before this run's final report, and before you write a handoff.
+  - The rule is in `module-testing`, under "Which check closes the work". Start it in the background with output to a scratchpad file and read the code meanwhile. Never run two checks at once in the same directory: `ScaffoldCommandsTest` writes a temporary module into `app/Modules`, and the other run fails on it. The details are in `module-testing`, under "Running".
 - Each worker copies the gitignored `public/build` into its worktree so the Vite-dependent tests run. That is expected; it is not a finding.
 - `worktree.sh remove` also deletes the branch.
 - Small cosmetic fixes (an injection instead of `app()`, a PHPDoc) the manager may make inline before committing. Re-run the affected tests and note it in the Review.

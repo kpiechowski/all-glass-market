@@ -44,7 +44,7 @@ The reasons behind the trade-offs are in `docs/adr/`.
 
 ## Definition of done
 
-Rules, entities and handlers are built test-first. A task is finished when `composer check` (pint, deptrac, phpunit) passes and the "Before you finish" list of every skill you loaded holds. While working, `composer check:module offers[,catalogue]` checks only the modules you touch; the full `composer check` still closes the task (`module-testing`).
+Rules, entities and handlers are built test-first. A task is finished when `composer check` (pint, deptrac, phpunit) passes and the "Before you finish" list of every skill you loaded holds. For a task inside modules, `composer check:module offers[,catalogue]` over the touched modules stands in for it. The full run is needed when the diff leaves the module folders, and at milestones (end of a run or module, a handoff, a single-issue run, a merge into `main`). See `module-testing`.
 
 ## Porting a module from V1
 
