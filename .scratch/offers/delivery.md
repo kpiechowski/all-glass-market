@@ -23,8 +23,11 @@
 | 12 deactivated-seller | resolved (846e3d3) | removed | 0 | approved |
 | 13 channel-announcements-and-advert-summary | resolved (3c1449a) | removed | 0 | approved |
 | 14 activity-chart | resolved (d6c85bd, fix 0935d36) | removed | 0 | approved |
+| 16 quality-audit-easy-fixes | resolved (9422fe1) | removed | 1 | approved |
 
 ## Next action
+
+2026-11-21: single-issue run for 16 (quality-audit easy fixes, A–F). No business behaviour change; anything that would change it goes to the user as an open question. Out of scope list untouched. Closes with full `composer check` in the main tree; remind the user of `dartisan migrate`. 16 merged (9422fe1) after 1 fix round (migration backfill test). Milestone `composer check` in the main tree on `catalog` green (1773 tests). Migration added: `2026_11_21_200000_add_open_sale_guard_and_indexes` — run `dartisan migrate`. Waiting on the user to confirm the user-visible effects listed in 16's review.
 
 2026-11-21: run 10–14 started (new manager, from handoff.md). 10 merged (68ab0d0; full check green, 1604 tests). 11 merged (40282c5, 1 fix round). 12 merged (846e3d3). 13 merged (3c1449a). 14 merged (d6c85bd); the chart was redone on Filament's ChartWidget (0935d36). All of 10–14 are resolved. The milestone `composer check` in the main tree on `catalog` is green (1695 tests). Run 10–14 added no migrations. Next: bonus issue 15 (`needs-info`), which needs the user's grilling first.
 
