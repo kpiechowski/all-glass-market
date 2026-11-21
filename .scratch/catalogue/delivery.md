@@ -20,8 +20,12 @@
 | 10 seeding-testowy-katalogu | resolved (c4aeda2) | removed | 0 | approved |
 | 09 offers-facing-pieces (picker) | resolved (48282f2) | removed | 0 | approved |
 | 11 glass-model-list-as-catalogue-cards | resolved (47ba482 + round 4, accepted 2026-11-15) | removed | 1 | approved |
+| 12 fix-real-defects-from-quality-audit | resolved (5e937b0) | removed | 1 | approved |
+| 13 glass-model-audit | resolved (02a8f56) | removed | 0 | approved |
 
 ## Next action
+
+2026-11-21: quality-audit run (user): codespace-quality 01 (merged 8829740, log `.scratch/codespace-quality/delivery.md`) → 12 → 13, one at a time. Checks (user, 2026-11-21): workers and reviews run only `composer check:module` on the touched modules; the full `composer check` runs once after 13. Issue 13: the worker proposes how Eurocodes/OEM codes show in the Glass model history; ask the user before accepting it. Issue 12 resolved and merged (5e937b0) after 1 fix round; no migrations, CSS change is a comment only (no build needed). Issue 13 dispatched: proposal for Eurocodes/OEM codes in the history first, then stop for the user. User chose option 1 (adapter reports Eurocode/OEM diffs via `ChangeRecorder::recordRelations()`, main Eurocode as relation `main_eurocode`, no Core/Audit change); deleted-record title gap left as for Vehicle (open). Issue 13 resolved and merged (02a8f56); no migrations. Run closed with the full `composer check` in the main tree: green (1716 passed, phpstan OK). Open for the user: Unmapped entries of 01, 12, 13 (see their Review notes); deleted Glass model/Vehicle entries without a title; module-boundaries baseline scope (45 entries, 5 modules).
 
 2026-11-20: issue 09 (Glass model picker) resolved and merged (48282f2) under the Offers run (`.scratch/offers/delivery.md`). No migrations; `npm run build` done.
 
