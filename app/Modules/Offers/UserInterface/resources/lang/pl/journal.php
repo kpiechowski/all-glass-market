@@ -23,6 +23,10 @@ return [
         'title' => 'Oferta :number została wycofana',
         'content' => 'Administrator wycofał Twoją ofertę :number. Możesz ją wznowić, jeśli nie zmieniano jej po zatwierdzeniu.',
     ],
+    'seller_deactivated' => [
+        'title' => 'Oferty zostały wycofane',
+        'content' => 'Twoje konto zostało dezaktywowane, więc system wycofał oferty (:count): aktywne, oczekujące i szkice. Oferty zarezerwowane pozostały bez zmian. Ponowna aktywacja konta nie przywraca ofert.',
+    ],
     'deleted' => [
         'title' => 'Oferta :number została usunięta',
         'content' => 'Administrator usunął Twoją ofertę :number. Nie widzisz jej już na liście.',

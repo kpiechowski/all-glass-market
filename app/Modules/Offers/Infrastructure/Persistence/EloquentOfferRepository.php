@@ -45,6 +45,11 @@ final class EloquentOfferRepository extends EloquentRepository implements OfferR
         return $this->query()->where('number', $number)->exists();
     }
 
+    public function idsOfOwner(int $ownerId): array
+    {
+        return $this->query()->where('owner_id', $ownerId)->orderBy('id')->pluck('id')->map(fn ($id): int => (int) $id)->all();
+    }
+
     public function pricedOffersOfOwner(int $ownerId): array
     {
         return array_map(

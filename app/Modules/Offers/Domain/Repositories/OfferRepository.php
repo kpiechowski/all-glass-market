@@ -14,6 +14,13 @@ interface OfferRepository extends Repository
     public function numberIsTaken(string $number): bool;
 
     /**
+     * FR-35: the ids of every Offer one owner has, in any status, the Trash included (the entity decides).
+     *
+     * @return list<int>
+     */
+    public function idsOfOwner(int $ownerId): array;
+
+    /**
      * FR-28: the Offers of one owner that have an entered price, in any status.
      *
      * @return list<array{id: int, grosze: int}>

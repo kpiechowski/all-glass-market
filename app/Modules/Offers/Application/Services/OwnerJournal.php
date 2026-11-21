@@ -76,6 +76,21 @@ final class OwnerJournal
         $this->write($actor, $offer, JournalSeverity::Info, 'returned');
     }
 
+    /** FR-34, FR-35: one entry for all of a deactivated seller's Offers the System withdrew, not one per Offer. */
+    public function withdrawnBecauseSellerDeactivated(Actor $actor, int $ownerId, int $count): void
+    {
+        $parameters = ['count' => (string) $count];
+
+        $this->journal->add(
+            $actor,
+            $ownerId,
+            self::KIND,
+            JournalSeverity::Warning,
+            __('offers::journal.seller_deactivated.title', $parameters),
+            __('offers::journal.seller_deactivated.content', $parameters),
+        );
+    }
+
     /** @param array<string, string> $parameters */
     private function write(Actor $actor, Offer $offer, JournalSeverity $severity, string $event, array $parameters = []): void
     {

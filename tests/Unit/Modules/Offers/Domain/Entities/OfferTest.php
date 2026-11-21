@@ -491,6 +491,38 @@ class OfferTest extends TestCase
         }
     }
 
+    public function test_a_deactivated_sellers_draft_pending_and_active_offers_are_withdrawn_by_the_system(): void
+    {
+        foreach ([OfferStatus::Draft, OfferStatus::Pending, OfferStatus::Active] as $status) {
+            $offer = $this->offerIn($status);
+
+            $offer->withdrawBecauseSellerDeactivated();
+
+            $this->assertSame(OfferStatus::Withdrawn, $offer->status(), $status->value);
+        }
+    }
+
+    public function test_a_deactivated_sellers_other_offers_stay_and_a_trashed_one_is_frozen(): void
+    {
+        foreach ([OfferStatus::Rejected, OfferStatus::Reserved, OfferStatus::Sold, OfferStatus::Withdrawn] as $status) {
+            $this->assertSame('offers::exceptions.cannot_be_withdrawn', $this->refusalKey(fn () => $this->offerIn($status)->withdrawBecauseSellerDeactivated()), $status->value);
+        }
+
+        $trashed = $this->offerIn(OfferStatus::Active);
+        $trashed->moveToTrash($this->now());
+        $this->assertSame('offers::exceptions.is_in_trash', $this->refusalKey(fn () => $trashed->withdrawBecauseSellerDeactivated()));
+    }
+
+    public function test_leaving_active_for_a_deactivated_seller_is_noticed(): void
+    {
+        $offer = $this->offerIn(OfferStatus::Active);
+        $offer->pullLeftActive();
+
+        $offer->withdrawBecauseSellerDeactivated();
+
+        $this->assertTrue($offer->pullLeftActive());
+    }
+
     public function test_an_unchanged_approved_withdrawn_offer_resumes_to_active_without_a_new_approval(): void
     {
         $offer = $this->approvedOffer(OfferStatus::Withdrawn);

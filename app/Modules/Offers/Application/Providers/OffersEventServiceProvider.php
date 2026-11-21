@@ -7,6 +7,7 @@ namespace App\Modules\Offers\Application\Providers;
 use App\Core\Abstracts\CoreEventServiceProvider;
 use App\Modules\Offers\Application\Listeners\AnnounceBuyersPricesOnAccountTypeChange;
 use App\Modules\Offers\Application\Listeners\OutdateInquiriesWhenOfferStopsBeingActive;
+use App\Modules\Offers\Application\Listeners\WithdrawOffersWhenSellerIsDeactivated;
 use App\Modules\Offers\Domain\Events\OfferStoppedBeingActive;
 use App\Modules\Offers\Infrastructure\Persistence\Models\InquiryModel;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
@@ -17,11 +18,13 @@ use App\Modules\Offers\Infrastructure\Persistence\Observers\OfferObserver;
 use App\Modules\Offers\Infrastructure\Persistence\Observers\ReservationObserver;
 use App\Modules\Offers\Infrastructure\Persistence\Observers\SaleObserver;
 use App\Modules\Users\Domain\Events\AccountTypeChanged;
+use App\Modules\Users\Domain\Events\UserDeactivated;
 
 class OffersEventServiceProvider extends CoreEventServiceProvider
 {
     protected $listen = [
         AccountTypeChanged::class => [AnnounceBuyersPricesOnAccountTypeChange::class],
+        UserDeactivated::class => [WithdrawOffersWhenSellerIsDeactivated::class],
         OfferStoppedBeingActive::class => [OutdateInquiriesWhenOfferStopsBeingActive::class],
     ];
 

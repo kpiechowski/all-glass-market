@@ -148,6 +148,15 @@ final class OfferDomainPolicy
         return ! $inTrash && in_array($status, [OfferStatus::Pending, OfferStatus::Rejected, OfferStatus::Active], true);
     }
 
+    /**
+     * FR-35, §7: the System alone withdraws a Draft, Pending or Active Offer outside the Trash when its seller is
+     * deactivated. Reserved, Sold, Rejected and Withdrawn Offers stay; the owner's own rule above is unchanged.
+     */
+    public static function canBeWithdrawnBecauseSellerDeactivated(OfferStatus $status, bool $inTrash): bool
+    {
+        return ! $inTrash && in_array($status, [OfferStatus::Draft, OfferStatus::Pending, OfferStatus::Active], true);
+    }
+
     /** FR-24: only a Withdrawn Offer outside the Trash is resumed. */
     public static function canBeResumed(OfferStatus $status, bool $inTrash): bool
     {

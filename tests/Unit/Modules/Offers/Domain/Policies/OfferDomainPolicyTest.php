@@ -196,6 +196,20 @@ class OfferDomainPolicyTest extends TestCase
         $this->assertFalse(OfferDomainPolicy::canBeWithdrawn(OfferStatus::Withdrawn, false));
     }
 
+    public function test_the_system_withdraws_draft_pending_and_active_offers_of_a_deactivated_seller_only(): void
+    {
+        foreach ([OfferStatus::Draft, OfferStatus::Pending, OfferStatus::Active] as $status) {
+            $this->assertTrue(OfferDomainPolicy::canBeWithdrawnBecauseSellerDeactivated($status, false), $status->value);
+            $this->assertFalse(OfferDomainPolicy::canBeWithdrawnBecauseSellerDeactivated($status, true), $status->value.' in the Trash');
+        }
+
+        foreach ([OfferStatus::Rejected, OfferStatus::Reserved, OfferStatus::Sold, OfferStatus::Withdrawn] as $status) {
+            $this->assertFalse(OfferDomainPolicy::canBeWithdrawnBecauseSellerDeactivated($status, false), $status->value);
+        }
+
+        $this->assertFalse(OfferDomainPolicy::canBeWithdrawn(OfferStatus::Draft, false), 'the owner still cannot withdraw a Draft');
+    }
+
     public function test_only_a_withdrawn_offer_outside_the_trash_can_be_resumed(): void
     {
         $this->assertTrue(OfferDomainPolicy::canBeResumed(OfferStatus::Withdrawn, false));

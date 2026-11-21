@@ -291,6 +291,21 @@ final class Offer
     }
 
     /**
+     * FR-35, WF-09: the System withdraws the Offer of a deactivated seller, a Draft included (which `withdraw()`
+     * refuses for the owner and admins). The handler checks that the Actor is the System.
+     */
+    public function withdrawBecauseSellerDeactivated(): void
+    {
+        $this->guardNotInTrash();
+
+        if (! OfferDomainPolicy::canBeWithdrawnBecauseSellerDeactivated($this->status, false)) {
+            throw OfferRefused::cannotBeWithdrawn();
+        }
+
+        $this->moveTo(OfferStatus::Withdrawn);
+    }
+
+    /**
      * FR-24, FR-13: "Wznów sprzedaż". An admin's own Offer resumes whenever it has a Glass model, as
      * sending would; any other Offer only when it was approved before and has not changed since (the
      * approval dates stay: nobody approved it again). Otherwise it must be edited and goes to Pending.
