@@ -13,7 +13,7 @@
 | 02 photos | resolved (8ea14a9) | removed | 0 | approved |
 | 03 approval | resolved (4db8d7f) | removed | 0 | approved |
 | 04 history-and-changes-since-approval | resolved (abdb77c) | removed | 1 | approved |
-| 05 prices-and-vat | in progress | .worktrees/offers-05 | 0 | — |
+| 05 prices-and-vat | resolved (16ce585) | removed | 0 | approved |
 | 06 withdraw-and-trash | waiting | — | — | — |
 | 07 reservations-and-sales | waiting | — | — | — |
 | 08 inquiries | waiting | — | — | — |
@@ -26,5 +26,4 @@
 
 ## Next action
 
-2026-11-21: Offers 04 merged (abdb77c) after 1 fix round. Migrations so far: `create_offers_table` (01), `add_photos_to_offers_table` (02), `add_approval_dates_to_offers_table` (03) — run `dartisan migrate`; public photos need `dartisan storage:link` once. Offers 05 dispatched in `.worktrees/offers-05`.
-Open for the user: admin picker keeps the "with withdrawn" toggle; rejection reason is stored only in the owner's Journal entry; hand-check the picker slide-over and photo uploads.
+2026-11-21: Offers 05 merged (16ce585). Milestone stop: the next manager starts from `.scratch/offers/handoff.md`, then dispatches 06. Migrations so far: `create_offers_table` (01), `add_photos_to_offers_table` (02), `add_approval_dates_to_offers_table` (03), `create_offer_settings_table` (05) — run `dartisan migrate`; public photos need `dartisan storage:link` once.
