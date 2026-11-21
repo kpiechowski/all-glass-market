@@ -10,6 +10,7 @@ use App\Modules\Catalogue\Domain\Enums\CataloguePermission;
 use App\Modules\Catalogue\Domain\Enums\Dictionary;
 use App\Modules\Catalogue\Domain\Enums\GlassShape;
 use App\Modules\Catalogue\Domain\Enums\Pictogram;
+use App\Modules\Catalogue\Domain\Exceptions\ThumbnailMappingRefused;
 use App\Modules\Catalogue\Domain\Repositories\DictionaryValueRepository;
 use App\Modules\Catalogue\Domain\Repositories\ThumbnailMappingRepository;
 use App\Modules\Catalogue\Domain\ValueObjects\FillColour;
@@ -38,7 +39,7 @@ final class SaveThumbnailSettingsCommandHandler
         foreach ($command->positions as $valueId => $position) {
             $this->apply($valueId, fn (Dictionary $dictionary): ?ThumbnailMapping => $position['shape'] === null
                 ? null
-                : ThumbnailMapping::forPosition($valueId, $dictionary, GlassShape::from($position['shape']), $position['mirrored']));
+                : ThumbnailMapping::forPosition($valueId, $dictionary, GlassShape::tryFrom($position['shape']) ?? throw ThumbnailMappingRefused::unknownShape(), $position['mirrored']));
         }
 
         foreach ($command->colours as $valueId => $colour) {
@@ -50,7 +51,7 @@ final class SaveThumbnailSettingsCommandHandler
         foreach ($command->equipment as $valueId => $pictogram) {
             $this->apply($valueId, fn (Dictionary $dictionary): ?ThumbnailMapping => $pictogram === null
                 ? null
-                : ThumbnailMapping::forEquipment($valueId, $dictionary, Pictogram::from($pictogram)));
+                : ThumbnailMapping::forEquipment($valueId, $dictionary, Pictogram::tryFrom($pictogram) ?? throw ThumbnailMappingRefused::unknownPictogram()));
         }
     }
 

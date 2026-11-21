@@ -46,6 +46,18 @@ class CreateDictionaryValueCommandHandlerTest extends TestCase
         $this->assertFalse($model->withdrawn);
     }
 
+    public function test_an_unknown_dictionary_is_refused(): void
+    {
+        $admin = UserModel::factory()->admin()->create();
+
+        try {
+            $this->send(Actor::user($admin->id), 'planets', 'Mars');
+            $this->fail('An unknown dictionary must be refused.');
+        } catch (DictionaryValueRefused $refusal) {
+            $this->assertSame('catalogue::exceptions.dictionary_value.unknown_dictionary', $refusal->translationKey);
+        }
+    }
+
     public function test_a_super_admin_may_create_too(): void
     {
         $superAdmin = UserModel::factory()->superAdmin()->create();

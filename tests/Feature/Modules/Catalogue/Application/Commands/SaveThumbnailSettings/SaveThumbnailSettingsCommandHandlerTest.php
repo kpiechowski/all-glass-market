@@ -94,6 +94,30 @@ class SaveThumbnailSettingsCommandHandlerTest extends TestCase
         $this->assertEquals($before, $glassModel->fresh()->updated_at);
     }
 
+    public function test_it_refuses_an_unknown_shape(): void
+    {
+        $position = DictionaryValueModelFactory::new()->of(Dictionary::Position)->create();
+
+        try {
+            $this->send($this->admin(), [$position->id => ['shape' => 'triangle', 'mirrored' => false]]);
+            $this->fail('An unknown shape must be refused.');
+        } catch (ThumbnailMappingRefused $refusal) {
+            $this->assertSame('catalogue::exceptions.thumbnail.unknown_shape', $refusal->translationKey);
+        }
+    }
+
+    public function test_it_refuses_an_unknown_pictogram(): void
+    {
+        $equipment = DictionaryValueModelFactory::new()->of(Dictionary::Equipment)->create();
+
+        try {
+            $this->send($this->admin(), [], [], [$equipment->id => 'rocket']);
+            $this->fail('An unknown pictogram must be refused.');
+        } catch (ThumbnailMappingRefused $refusal) {
+            $this->assertSame('catalogue::exceptions.thumbnail.unknown_pictogram', $refusal->translationKey);
+        }
+    }
+
     public function test_it_refuses_a_shape_for_a_colour_value(): void
     {
         $colour = DictionaryValueModelFactory::new()->of(Dictionary::Colour)->create();

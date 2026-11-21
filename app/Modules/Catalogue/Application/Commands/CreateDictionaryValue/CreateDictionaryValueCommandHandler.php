@@ -8,6 +8,7 @@ use App\Core\Contracts\Authorizer;
 use App\Modules\Catalogue\Domain\Entities\DictionaryValue;
 use App\Modules\Catalogue\Domain\Enums\CataloguePermission;
 use App\Modules\Catalogue\Domain\Enums\Dictionary;
+use App\Modules\Catalogue\Domain\Exceptions\DictionaryValueRefused;
 use App\Modules\Catalogue\Domain\Repositories\DictionaryValueRepository;
 use App\Modules\Catalogue\Domain\ValueObjects\DictionaryValueName;
 use Ecotone\Modelling\Attribute\CommandHandler;
@@ -25,7 +26,7 @@ final class CreateDictionaryValueCommandHandler
     {
         $this->authorizer->ensure($command->actor, CataloguePermission::Manage);
 
-        $dictionary = Dictionary::from($command->dictionary);
+        $dictionary = Dictionary::tryFrom($command->dictionary) ?? throw DictionaryValueRefused::unknownDictionary();
         $name = DictionaryValueName::from($command->name);
 
         $value = DictionaryValue::create(

@@ -61,6 +61,30 @@ class CreateGlassModelTest extends TestCase
         $this->assertSame(['1K0-845'], $model->oemCodes->pluck('code')->all());
     }
 
+    public function test_a_model_is_created_with_every_optional_field_empty(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $position = DictionaryValueModelFactory::new()->of(Dictionary::Position)->create();
+
+        Livewire::test(CreateGlassModel::class)
+            ->fillForm([
+                'main_eurocode' => '8613AGS',
+                'position_id' => $position->id,
+                'colour_id' => null,
+                'equipment_ids' => [],
+                'oem_codes' => [],
+                'further_eurocodes' => [],
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors()
+            ->assertRedirect();
+
+        $model = GlassModelModel::query()->with(['equipment', 'oemCodes'])->sole();
+        $this->assertNull($model->colour_id);
+        $this->assertSame([], $model->equipment->modelKeys());
+        $this->assertSame([], $model->oemCodes->modelKeys());
+    }
+
     public function test_the_position_is_required(): void
     {
         $this->actingAs(UserModel::factory()->admin()->create());

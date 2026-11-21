@@ -24,6 +24,7 @@ return [
     ],
 
     'dictionary_value' => [
+        'unknown_dictionary' => 'Nieznany słownik. Wybierz słownik z listy.',
         'name_is_blank' => 'Podaj nazwę wartości.',
         'name_is_too_long' => 'Nazwa może mieć najwyżej :max znaków. Skróć ją.',
         'name_is_taken' => 'W tym słowniku jest już wartość o takiej nazwie (wielkość liter nie ma znaczenia). Wybierz inną nazwę.',
@@ -50,6 +51,8 @@ return [
     'thumbnail' => [
         'fill_is_not_a_colour' => 'Kolor wypełnienia ma postać #rrggbb. Wybierz kolor z palety.',
         'opacity_is_out_of_range' => 'Krycie to liczba od 0 do 100. Popraw krycie.',
+        'unknown_shape' => 'Nieznany kształt szyby. Wybierz kształt z listy.',
+        'unknown_pictogram' => 'Nieznany piktogram. Wybierz piktogram z listy.',
         'wrong_dictionary' => 'To ustawienie nie pasuje do tej wartości słownika. Odśwież stronę i spróbuj ponownie.',
     ],
 ];

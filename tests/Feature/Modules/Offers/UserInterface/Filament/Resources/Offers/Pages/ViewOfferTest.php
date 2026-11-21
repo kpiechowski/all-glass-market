@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Modules\Offers\UserInterface\Filament\Resources\Offers\Pages;
 
+use App\Modules\Catalogue\Domain\Enums\GlassShape;
 use App\Modules\Catalogue\Infrastructure\Factories\GlassModelModelFactory;
 use App\Modules\Offers\Infrastructure\Factories\OfferModelFactory;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Pages\ViewOffer;
@@ -37,6 +38,18 @@ class ViewOfferTest extends TestCase
             ->assertSee('1234ACS')
             ->assertSee('Szyba w dobrym stanie')
             ->assertSee('Kupiona od Jana');
+    }
+
+    public function test_the_glass_model_summary_draws_the_thumbnail(): void
+    {
+        $owner = UserModel::factory()->create();
+        $this->actingAs($owner);
+        $glassModel = GlassModelModelFactory::new()->withMainEurocode('1234ACS')->create();
+        $offer = OfferModelFactory::new()->ownedBy($owner->id)->withGlassModel($glassModel->id)->create();
+
+        Livewire::test(ViewOffer::class, ['record' => $offer->getRouteKey()])
+            ->assertSeeHtml('glass-thumbnail__shape')
+            ->assertSeeHtml('d="'.GlassShape::Unknown->outline().'"');
     }
 
     public function test_a_withdrawn_glass_model_is_still_shown(): void

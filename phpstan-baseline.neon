@@ -661,18 +661,6 @@ parameters:
 			path: app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/GlassModelResource.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 1
-			path: app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Pages/CreateGlassModel.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between array\{''colour_id''\} and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Pages/CreateGlassModel.php
-
-		-
 			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelEurocodeModel\:\:\$code\.$#'
 			identifier: property.notFound
 			count: 1

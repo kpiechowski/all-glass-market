@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\Offers\UserInterface\Filament\Resources\Offers\Pages;
 
 use App\Modules\Catalogue\Domain\Enums\Dictionary;
+use App\Modules\Catalogue\Domain\Enums\GlassShape;
 use App\Modules\Catalogue\Infrastructure\Factories\DictionaryValueModelFactory;
 use App\Modules\Catalogue\Infrastructure\Factories\GlassModelModelFactory;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
@@ -95,6 +96,17 @@ class ListOffersTabsAndFiltersTest extends TestCase
         OfferModelFactory::new()->withGlassModel($model->id)->create();
 
         Livewire::test(ListOffers::class)->assertSee('8888AGN')->assertSee('Przód');
+    }
+
+    public function test_the_list_row_draws_the_thumbnail_of_its_glass_model(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $model = GlassModelModelFactory::new()->withMainEurocode('8888AGN')->create();
+        OfferModelFactory::new()->withGlassModel($model->id)->create();
+
+        Livewire::test(ListOffers::class)
+            ->assertSeeHtml('glass-thumbnail__shape')
+            ->assertSeeHtml('d="'.GlassShape::Unknown->outline().'"');
     }
 
     public function test_the_text_position_and_colour_filters_go_through_catalogues_search(): void

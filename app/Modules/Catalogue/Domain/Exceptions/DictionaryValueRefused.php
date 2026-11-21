@@ -9,6 +9,11 @@ use App\Modules\Catalogue\Domain\Contracts\DictionaryUse;
 
 final class DictionaryValueRefused extends DomainException
 {
+    public static function unknownDictionary(): self
+    {
+        return new self('catalogue::exceptions.dictionary_value.unknown_dictionary');
+    }
+
     public static function nameIsBlank(): self
     {
         return new self('catalogue::exceptions.dictionary_value.name_is_blank');

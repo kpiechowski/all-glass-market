@@ -26,7 +26,7 @@ class CreateGlassModel extends CreateRecord
             actor: CurrentActor::get(),
             mainEurocode: (string) $data['main_eurocode'],
             positionId: $data['position_id'] === null ? null : (int) $data['position_id'],
-            colourId: (['colour_id'] ?? null) === null ? null : (int) $data['colour_id'],
+            colourId: ($data['colour_id'] ?? null) === null ? null : (int) $data['colour_id'],
             equipmentIds: array_map(intval(...), $data['equipment_ids'] ?? []),
             oemCodes: array_values($data['oem_codes'] ?? []),
             furtherEurocodes: array_values($data['further_eurocodes'] ?? []),

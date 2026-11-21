@@ -7,6 +7,7 @@ namespace Tests\Feature\Modules\Catalogue\Application\ModuleApi;
 use App\Modules\Catalogue\Application\ModuleApi\GlassModelSummaries;
 use App\Modules\Catalogue\Application\ModuleApi\GlassModelSummary;
 use App\Modules\Catalogue\Domain\Enums\Dictionary;
+use App\Modules\Catalogue\Domain\Enums\GlassShape;
 use App\Modules\Catalogue\Infrastructure\Factories\DictionaryValueModelFactory;
 use App\Modules\Catalogue\Infrastructure\Factories\GlassModelEurocodeModelFactory;
 use App\Modules\Catalogue\Infrastructure\Factories\GlassModelModelFactory;
@@ -45,7 +46,7 @@ class GlassModelSummariesTest extends TestCase
         $this->assertSame(['Grzana', 'Kamera'], $summary->equipment);
         $this->assertSame(['Audi A4 B8'], $summary->vehicles);
         $this->assertFalse($summary->withdrawn);
-        $this->assertStringContainsString('<svg', $summary->thumbnail->svg);
+        $this->assertInstanceOf(GlassShape::class, $summary->thumbnail->shape);
         $this->assertCount(2, $summary->thumbnail->pictograms);
     }
 

@@ -12,6 +12,7 @@ use App\Modules\Catalogue\Infrastructure\Persistence\Models\GlassModelEurocodeMo
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\GlassModelModel;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\GlassModelOemCodeModel;
 use Illuminate\Database\Eloquent\Model;
+use UnexpectedValueException;
 
 /**
  * `toRow` holds the model's own columns; the parts saved with it (Eurocodes, OEM codes, equipment)
@@ -27,15 +28,18 @@ final class GlassModelMapper implements Mapper
         $model->loadMissing(['eurocodes', 'oemCodes', 'equipment', 'vehicles']);
 
         $eurocodes = $model->eurocodes->sortBy('id')->values();
+        $main = $eurocodes->firstWhere('is_main', true)
+            ?? throw new UnexpectedValueException("Glass model #{$model->id} has no main Eurocode.");
 
         return GlassModel::reconstitute(
             $model->id,
             $eurocodes->map(fn (GlassModelEurocodeModel $row): Eurocode => Eurocode::from($row->code))->all(),
-            Eurocode::from($eurocodes->firstWhere('is_main', true)->code),
+            Eurocode::from($main->code),
             $model->position_id,
             $model->colour_id,
             $model->equipment->pluck('id')->map(fn ($id): int => (int) $id)->all(),
-            $model->oemCodes->sortBy('id')->map(fn (GlassModelOemCodeModel $row): OemCode => OemCode::tryFrom($row->code))->values()->all(),
+            $model->oemCodes->sortBy('id')->map(fn (GlassModelOemCodeModel $row): OemCode => OemCode::tryFrom($row->code)
+                ?? throw new UnexpectedValueException("Glass model #{$model->id} has an invalid OEM code (row #{$row->id})."))->values()->all(),
             $model->withdrawn,
             $model->vehicles->pluck('id')->map(fn ($id): int => (int) $id)->sort()->values()->all(),
         );

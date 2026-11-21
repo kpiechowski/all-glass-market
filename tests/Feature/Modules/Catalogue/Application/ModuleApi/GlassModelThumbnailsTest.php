@@ -30,19 +30,19 @@ class GlassModelThumbnailsTest extends TestCase
 
         $thumbnail = app(GlassModelThumbnails::class)->for($position->id, $colour->id, [$equipment->id => 'Kamera cofania']);
 
-        $this->assertStringContainsString(GlassShape::Rear->outline(), $thumbnail->svg);
-        $this->assertStringContainsString('scale(-1 1)', $thumbnail->svg);
-        $this->assertStringContainsString('fill="#336699"', $thumbnail->svg);
+        $this->assertSame(GlassShape::Rear, $thumbnail->shape);
+        $this->assertTrue($thumbnail->mirrored);
+        $this->assertSame('#336699', $thumbnail->fill);
         $this->assertSame('Kamera cofania', $thumbnail->pictograms[0]['label']);
-        $this->assertStringContainsString(Pictogram::Camera->markup(), $thumbnail->pictograms[0]['svg']);
+        $this->assertSame(Pictogram::Camera, $thumbnail->pictograms[0]['pictogram']);
     }
 
     public function test_unmapped_values_get_the_defaults(): void
     {
         $thumbnail = app(GlassModelThumbnails::class)->for(null, null, [5 => 'Coś']);
 
-        $this->assertStringContainsString(GlassShape::Unknown->outline(), $thumbnail->svg);
-        $this->assertStringContainsString('fill="'.ThumbnailDrawingPolicy::CLEAR_FILL.'"', $thumbnail->svg);
-        $this->assertStringContainsString(Pictogram::Universal->markup(), $thumbnail->pictograms[0]['svg']);
+        $this->assertSame(GlassShape::Unknown, $thumbnail->shape);
+        $this->assertSame(ThumbnailDrawingPolicy::CLEAR_FILL, $thumbnail->fill);
+        $this->assertSame(Pictogram::Universal, $thumbnail->pictograms[0]['pictogram']);
     }
 }

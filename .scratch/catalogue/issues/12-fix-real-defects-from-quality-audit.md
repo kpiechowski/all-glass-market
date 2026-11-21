@@ -1,6 +1,6 @@
 # 12 - Fix real defects found by the quality audit
 
-Status: ready-for-agent
+Status: resolved
 
 Source: quality audit of the Catalogue module, 2026-11-21. Only defects that produce a wrong result or a crash; style findings are out of scope.
 
@@ -52,3 +52,18 @@ Source: quality audit of the Catalogue module, 2026-11-21. Only defects that pro
 - The diff touches Offers views and `module-layout`, so the full `composer check` closes this issue.
 
 ## Comments
+
+### Worker — 2026-11-21
+- **Built:** (1) `CreateGlassModel` now reads `$data['colour_id'] ?? null`; Livewire test with every optional field empty (red before: "value does not exist" refusal, colourId 0). (2) `SaveThumbnailSettingsCommandHandler` and `CreateDictionaryValueCommandHandler` use `tryFrom() ?? throw` with new `ThumbnailMappingRefused::unknownShape/unknownPictogram` and `DictionaryValueRefused::unknownDictionary`; keys in `pl/exceptions.php`; tests assert `translationKey` (red before: raw `ValueError`). (3) `GlassModelMapper` throws `UnexpectedValueException` naming `Glass model #id` for no main Eurocode or an invalid OEM code (red before: TypeError / null dereference). (4) `Thumbnail` DTO holds shape, mirrored, fill, opacity, pictograms (enum + label); `ThumbnailSvg` and its unit test removed; anonymous components `catalogue::glass-thumbnail`, `glass-shape`, `glass-pictogram` in `UserInterface/resources/views/components/` (auto-resolved by the module's view namespace, no registration needed); Catalogue cards, both Offers views and the settings-page previews use them; no `{!! !!}` for the thumbnail (the pictogram markup is shipped enum code only). `module-layout` row names the component as example. Baseline: removed both `CreateGlassModel.php` entries (strict comparison and `??` not nullable) and the `GlassModelThumbnails` entry of `CatalogueSettingsForm` in `tests/Architecture/baselines/module-boundaries.php` (no longer a ModuleApi call); no entries added.
+- **Deviations:** the mapper exception is a plain `UnexpectedValueException` (data corruption, not a user refusal, so no translation key). `GlassModelThumbnails::shapeSvg()/pictogramSvg()` removed; the settings form renders the components directly. The Offers views pass `:pictograms="false"` to keep their previous look (shape only).
+- **Unmapped:** Blade components `glass-shape` / `glass-pictogram` (private building blocks of the published `glass-thumbnail`, also used by Catalogue's settings page): placed next to it in `UserInterface/resources/views/components/`.
+- **Seams left:** none
+- **Open questions:** `composer check:module` first failed once with "Failed to load dumped Ecotone container" in the PHPStan workers (stale cache after deleting classes); clearing `storage/framework/cache/data/ecotone` fixed it. Pint `--dirty` does not work in the worktree container (no git there), so only the check's pint ran.
+- **Check:** composer check:module catalogue,offers green (the full `composer check` is left to the manager, as instructed; the issue text asks for it)
+
+### Worker — fix 1
+- Added Offers assertions that the thumbnail SVG is drawn (`glass-thumbnail__shape` plus the default shape outline): `ListOffersTabsAndFiltersTest::test_the_list_row_draws_the_thumbnail_of_its_glass_model` (list cell) and `ViewOfferTest::test_the_glass_model_summary_draws_the_thumbnail` (summary). Check: composer check:module catalogue,offers green (980 tests; pint import order fixed once).
+
+### Review — 2026-11-21
+- **Verdict:** approved after 1 fix round (round 1: Offers tests asserting the thumbnail SVG in the list cell and on the view page).
+- **Notes:** manager re-ran `composer check:module catalogue,offers` (green, 980 passed, phpstan OK); the full `composer check` runs once at the end of the run (user, 2026-11-21), not per ticket. Accepted deviations: the mapper's corrupt-data exception is a plain `UnexpectedValueException` naming the record (not a user refusal); `GlassModelThumbnails::shapeSvg()/pictogramSvg()` removed; Offers keeps the shape-only look (`:pictograms="false"`). `Thumbnail` now carries Catalogue's `GlassShape`/`Pictogram` enums (Domain/Enums are public surface). Baselines: both `CreateGlassModel.php` phpstan entries and the `CatalogueSettingsForm => GlassModelThumbnails` boundary entry removed. Unmapped (for the user): private sub-components `glass-shape`/`glass-pictogram` next to the published `glass-thumbnail`. Observed: PHPStan (Larastan boots the app) failed once on a stale Ecotone container cache after classes were deleted; clearing `storage/framework/cache/data/ecotone` fixed it.

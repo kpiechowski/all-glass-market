@@ -312,7 +312,7 @@
 
 /*
  * Thumbnail of a Glass model (FR-18): the glass and, under it, a row of equipment pictograms.
- * Markup: catalogue::filament.tables.glass-thumbnail. The same SVGs appear as previews in the
+ * Markup: <x-catalogue::glass-thumbnail>. The same SVGs appear as previews in the
  * catalogue settings selects (.glass-thumbnail-option).
  */
 .glass-thumbnail {

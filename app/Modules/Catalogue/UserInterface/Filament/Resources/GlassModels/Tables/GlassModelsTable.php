@@ -55,7 +55,7 @@ class GlassModelsTable
         return [
             GlassModelCardColumn::make()
                 ->offersLink($withLinks ? self::links(...) : null)
-                ->thumbnail(fn (GlassModelModel $record): Htmlable => view('catalogue::filament.tables.glass-thumbnail', [
+                ->thumbnail(fn (GlassModelModel $record): Htmlable => view('catalogue::components.glass-thumbnail', [
                     'thumbnail' => app(GlassModelThumbnails::class)->for(
                         $record->position_id,
                         $record->colour_id,

@@ -20,7 +20,6 @@ return [
     'app/Modules/Catalogue/Application/Commands/DeleteGlassModel/DeleteGlassModelCommandHandler.php => App\\Modules\\Catalogue\\Application\\ModuleApi\\GlassModelUsages',
     'app/Modules/Catalogue/UserInterface/Console/SeedCatalogueConsoleCommand.php => App\\Modules\\Catalogue\\Application\\ModuleApi\\CatalogueTestData',
     'app/Modules/Catalogue/UserInterface/Filament/GlassModelPicker/Actions/CreateGlassModelInPlaceAction.php => App\\Modules\\Catalogue\\Application\\ModuleApi\\EurocodeSuggestions',
-    'app/Modules/Catalogue/UserInterface/Filament/Pages/CatalogueSettings/Schemas/CatalogueSettingsForm.php => App\\Modules\\Catalogue\\Application\\ModuleApi\\GlassModelThumbnails',
     'app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Tables/GlassModelsTable.php => App\\Modules\\Catalogue\\Application\\ModuleApi\\GlassModelCardLink',
     'app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Tables/GlassModelsTable.php => App\\Modules\\Catalogue\\Application\\ModuleApi\\GlassModelLinks',
     'app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Tables/GlassModelsTable.php => App\\Modules\\Catalogue\\Application\\ModuleApi\\GlassModelThumbnails',

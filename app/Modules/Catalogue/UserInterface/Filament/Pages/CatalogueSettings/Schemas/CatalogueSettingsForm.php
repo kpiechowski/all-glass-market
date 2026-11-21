@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\Catalogue\UserInterface\Filament\Pages\CatalogueSettings\Schemas;
 
-use App\Modules\Catalogue\Application\ModuleApi\GlassModelThumbnails;
 use App\Modules\Catalogue\Domain\Enums\Dictionary;
 use App\Modules\Catalogue\Domain\Enums\GlassShape;
 use App\Modules\Catalogue\Domain\Enums\Pictogram;
+use App\Modules\Catalogue\Domain\Policies\ThumbnailDrawingPolicy;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\DictionaryValueModel;
 use App\Modules\Catalogue\Infrastructure\Persistence\Queries\DictionaryValueQueries;
 use Filament\Forms\Components\ColorPicker;
@@ -120,11 +120,10 @@ class CatalogueSettingsForm
     /** @return array<string, string> */
     private static function shapeOptions(): array
     {
-        $thumbnails = app(GlassModelThumbnails::class);
         $options = [];
 
         foreach (GlassShape::cases() as $shape) {
-            $options[$shape->value] = self::withPreview($thumbnails->shapeSvg($shape), $shape->getLabel(), 'shape');
+            $options[$shape->value] = self::withPreview(view('catalogue::components.glass-shape', ['shape' => $shape, 'fill' => ThumbnailDrawingPolicy::CLEAR_FILL, 'opacity' => ThumbnailDrawingPolicy::CLEAR_OPACITY])->render(), $shape->getLabel(), 'shape');
         }
 
         return $options;
@@ -133,11 +132,10 @@ class CatalogueSettingsForm
     /** @return array<string, string> */
     private static function pictogramOptions(): array
     {
-        $thumbnails = app(GlassModelThumbnails::class);
         $options = [];
 
         foreach (Pictogram::cases() as $pictogram) {
-            $options[$pictogram->value] = self::withPreview($thumbnails->pictogramSvg($pictogram), $pictogram->getLabel(), 'pictogram');
+            $options[$pictogram->value] = self::withPreview(view('catalogue::components.glass-pictogram', ['pictogram' => $pictogram])->render(), $pictogram->getLabel(), 'pictogram');
         }
 
         return $options;

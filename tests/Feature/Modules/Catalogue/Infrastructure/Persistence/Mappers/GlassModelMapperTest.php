@@ -15,7 +15,9 @@ use App\Modules\Catalogue\Infrastructure\Factories\GlassModelOemCodeModelFactory
 use App\Modules\Catalogue\Infrastructure\Factories\VehicleModelFactory;
 use App\Modules\Catalogue\Infrastructure\Persistence\Mappers\GlassModelMapper;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
+use UnexpectedValueException;
 
 class GlassModelMapperTest extends TestCase
 {
@@ -50,5 +52,27 @@ class GlassModelMapperTest extends TestCase
         );
         $this->assertSame(['8613AGS' => true, '8613XYZ' => false], $mapper->eurocodeRows($entity));
         $this->assertSame(['1K0845' => '1K0-845'], $mapper->oemCodeRows($entity));
+    }
+
+    public function test_a_row_without_a_main_eurocode_fails_naming_the_record(): void
+    {
+        $model = GlassModelModelFactory::new()->withMainEurocode('8613AGS')->create();
+        DB::table('catalogue_glass_model_eurocodes')->where('glass_model_id', $model->id)->update(['is_main' => false]);
+
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('#'.$model->id);
+
+        (new GlassModelMapper)->toEntity($model->fresh());
+    }
+
+    public function test_a_row_with_an_invalid_oem_code_fails_naming_the_record(): void
+    {
+        $model = GlassModelModelFactory::new()->withMainEurocode('8613AGS')->create();
+        GlassModelOemCodeModelFactory::new()->create(['glass_model_id' => $model->id, 'code' => '   ']);
+
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('#'.$model->id);
+
+        (new GlassModelMapper)->toEntity($model->fresh());
     }
 }

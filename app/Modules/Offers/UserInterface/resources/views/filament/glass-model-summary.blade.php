@@ -7,9 +7,7 @@
     <p class="text-sm text-gray-500">{{ __('offers::resources.offer.glass_model.missing') }}</p>
 @else
     <div class="flex flex-wrap items-start gap-4">
-        <div class="glass-thumbnail">
-            {!! $summary->thumbnail->svg !!}
-        </div>
+        <x-catalogue::glass-thumbnail :thumbnail="$summary->thumbnail" :pictograms="false" />
 
         <dl class="grid gap-1 text-sm">
             <div class="flex flex-wrap items-center gap-2">

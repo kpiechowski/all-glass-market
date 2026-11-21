@@ -7,7 +7,7 @@
 
 <div class="glass-cell">
     @if ($summary !== null)
-        <div class="glass-cell__thumbnail glass-thumbnail">{!! $summary->thumbnail->svg !!}</div>
+        <x-catalogue::glass-thumbnail :thumbnail="$summary->thumbnail" :pictograms="false" class="glass-cell__thumbnail" />
         <div class="glass-cell__text">
             <span class="glass-cell__code">{{ $summary->mainEurocode }}</span>
             <span class="glass-cell__detail">{{ $summary->position ?? '—' }}@if ($summary->colour) · {{ $summary->colour }}@endif</span>

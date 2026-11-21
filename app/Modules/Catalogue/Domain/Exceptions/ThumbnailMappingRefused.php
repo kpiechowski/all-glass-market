@@ -18,6 +18,16 @@ final class ThumbnailMappingRefused extends DomainException
         return new self('catalogue::exceptions.thumbnail.opacity_is_out_of_range');
     }
 
+    public static function unknownShape(): self
+    {
+        return new self('catalogue::exceptions.thumbnail.unknown_shape');
+    }
+
+    public static function unknownPictogram(): self
+    {
+        return new self('catalogue::exceptions.thumbnail.unknown_pictogram');
+    }
+
     public static function wrongDictionary(): self
     {
         return new self('catalogue::exceptions.thumbnail.wrong_dictionary');
