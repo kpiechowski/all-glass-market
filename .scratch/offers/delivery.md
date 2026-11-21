@@ -14,7 +14,7 @@
 | 03 approval | resolved (4db8d7f) | removed | 0 | approved |
 | 04 history-and-changes-since-approval | resolved (abdb77c) | removed | 1 | approved |
 | 05 prices-and-vat | resolved (16ce585) | removed | 0 | approved |
-| 06 withdraw-and-trash | waiting | — | — | — |
+| 06 withdraw-and-trash | resolved (959f1e0) | removed | 1 | approved |
 | 07 reservations-and-sales | waiting | — | — | — |
 | 08 inquiries | waiting | — | — | — |
 | 09 duplicate-and-bulk-actions | waiting | — | — | — |
@@ -26,4 +26,4 @@
 
 ## Next action
 
-2026-11-21: Offers 05 merged (16ce585). Milestone stop: the next manager starts from `.scratch/offers/handoff.md`, then dispatches 06. Migrations so far: `create_offers_table` (01), `add_photos_to_offers_table` (02), `add_approval_dates_to_offers_table` (03), `create_offer_settings_table` (05) — run `dartisan migrate`; public photos need `dartisan storage:link` once.
+2026-11-22: Offers 06 merged (959f1e0). Next: dispatch 07 (reservations-and-sales). Migrations so far: `create_offers_table` (01), `add_photos_to_offers_table` (02), `add_approval_dates_to_offers_table` (03), `create_offer_settings_table` (05), `add_withdrawal_and_trash_to_offers_table` (06) — run `dartisan migrate`; public photos need `dartisan storage:link` once.
