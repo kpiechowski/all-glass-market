@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Catalogue\Infrastructure\Persistence;
 
 use App\Core\Abstracts\EloquentRepository;
+use App\Core\Infrastructure\Persistence\ChangeRecorder;
 use App\Core\Infrastructure\Persistence\ReadOnlyModel;
 use App\Modules\Catalogue\Domain\Entities\GlassModel;
 use App\Modules\Catalogue\Domain\Enums\Dictionary;
@@ -14,12 +15,15 @@ use App\Modules\Catalogue\Domain\ValueObjects\EurocodeHolder;
 use App\Modules\Catalogue\Infrastructure\Persistence\Mappers\GlassModelMapper;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\GlassModelEurocodeModel;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\GlassModelModel;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /** @extends EloquentRepository<GlassModel> */
 final class EloquentGlassModelRepository extends EloquentRepository implements GlassModelRepository
 {
-    public function __construct(private readonly GlassModelMapper $glassModelMapper)
-    {
+    public function __construct(
+        private readonly GlassModelMapper $glassModelMapper,
+        private readonly ChangeRecorder $recorder,
+    ) {
         parent::__construct(GlassModelModel::class, $glassModelMapper);
     }
 
@@ -84,63 +88,96 @@ final class EloquentGlassModelRepository extends EloquentRepository implements G
             ->all();
     }
 
-    /** @return bool whether any part changed */
+    /**
+     * Eurocodes and OEM codes are child rows, written here and not seen by any observer, so their diff is
+     * reported on the Glass model as relation changes; equipment and fitment go through `syncRelation()`.
+     *
+     * @return bool whether any part changed
+     */
     private function syncParts(int $id, GlassModel $entity): bool
     {
         $model = GlassModelModel::query()->findOrFail($id);
 
-        return ReadOnlyModel::writing(function () use ($model, $entity): bool {
-            $changed = $this->syncEurocodes($model, $entity);
-            $changed = $this->syncOemCodes($model, $entity) || $changed;
+        return ReadOnlyModel::writing(function () use ($id, $model, $entity): bool {
+            $relationChanges = $this->syncEurocodes($model, $entity) + $this->syncOemCodes($model, $entity);
 
-            $equipment = $model->equipment()->sync($entity->equipmentIds());
+            if ($relationChanges !== []) {
+                $this->recorder->recordRelations($model, $relationChanges);
+            }
 
-            $vehicles = $model->vehicles()->sync($entity->vehicleIds());
+            $equipmentChanged = $this->pivotChanged($model->equipment(), $entity->equipmentIds());
+            $vehiclesChanged = $this->pivotChanged($model->vehicles(), $entity->vehicleIds());
 
-            return $changed
-                || $vehicles['attached'] !== [] || $vehicles['detached'] !== []
-                || $equipment['attached'] !== [] || $equipment['detached'] !== [];
+            $this->syncRelation($id, 'equipment', $entity->equipmentIds());
+            $this->syncRelation($id, 'vehicles', $entity->vehicleIds());
+
+            return $relationChanges !== [] || $equipmentChanged || $vehiclesChanged;
         });
     }
 
-    private function syncEurocodes(GlassModelModel $model, GlassModel $entity): bool
+    /**
+     * @param  BelongsToMany<*, GlassModelModel>  $relation
+     * @param  list<int>  $wantedIds
+     */
+    private function pivotChanged(BelongsToMany $relation, array $wantedIds): bool
+    {
+        $current = $relation->pluck($relation->getRelated()->getQualifiedKeyName())->map(fn ($key): int => (int) $key)->sort()->values()->all();
+        sort($wantedIds);
+
+        return $current !== $wantedIds;
+    }
+
+    /** @return array<string, array{added: list<string>, removed: list<string>}> relation changes, empty when nothing changed */
+    private function syncEurocodes(GlassModelModel $model, GlassModel $entity): array
     {
         $wanted = $this->glassModelMapper->eurocodeRows($entity);
-        $changed = false;
+        $oldMain = $model->eurocodes()->where('is_main', true)->value('code');
+        $added = [];
+        $removed = [];
 
         foreach ($model->eurocodes()->get() as $row) {
             if (! array_key_exists($row->code, $wanted)) {
                 $row->delete();
-                $changed = true;
+                $removed[] = (string) $row->getAttribute('code');
             }
         }
 
         foreach ($wanted as $code => $isMain) {
             $row = $model->eurocodes()->firstOrNew(['code' => (string) $code]);
+            $isNew = ! $row->exists;
             $row->is_main = $isMain;
 
             if ($row->isDirty()) {
                 $row->save();
-                $changed = true;
+            }
+
+            if ($isNew) {
+                $added[] = (string) $code;
             }
         }
 
-        return $changed;
+        $newMain = $entity->mainEurocode()->value;
+
+        return $this->relationDiff('eurocodes', $added, $removed)
+            + ($oldMain !== null && $oldMain !== $newMain ? $this->relationDiff('main_eurocode', [$newMain], [(string) $oldMain]) : []);
     }
 
     /**
      * A digits-only key ("896028196") is an int key in `$wanted` (PHP casts numeric-string array keys)
      * but a string from the database, so keys are matched by array lookup, never by strict comparison.
+     *
+     * @return array<string, array{added: list<string>, removed: list<string>}>
      */
-    private function syncOemCodes(GlassModelModel $model, GlassModel $entity): bool
+    private function syncOemCodes(GlassModelModel $model, GlassModel $entity): array
     {
         $wanted = $this->glassModelMapper->oemCodeRows($entity);
-        $changed = false;
+        $added = [];
+        $removed = [];
 
         foreach ($model->oemCodes()->get() as $row) {
             if (! array_key_exists($row->code_key, $wanted) || $wanted[$row->code_key] !== $row->code) {
                 $row->delete();
-                $changed = true;
+                $removed[] = (string) $row->getAttribute('code');
             }
         }
 
@@ -149,10 +186,20 @@ final class EloquentGlassModelRepository extends EloquentRepository implements G
         foreach ($wanted as $key => $code) {
             if (! isset($kept[$key])) {
                 $model->oemCodes()->create(['code' => $code, 'code_key' => (string) $key]);
-                $changed = true;
+                $added[] = (string) $code;
             }
         }
 
-        return $changed;
+        return $this->relationDiff('oem_codes', $added, $removed);
+    }
+
+    /**
+     * @param  list<string>  $added
+     * @param  list<string>  $removed
+     * @return array<string, array{added: list<string>, removed: list<string>}>
+     */
+    private function relationDiff(string $relation, array $added, array $removed): array
+    {
+        return $added === [] && $removed === [] ? [] : [$relation => ['added' => $added, 'removed' => $removed]];
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels;
 
 use App\Core\UserInterface\CurrentActor;
+use App\Modules\Audit\UserInterface\Filament\RelationManagers\RecordHistoryRelationManager;
 use App\Modules\Catalogue\Domain\Enums\CataloguePermission;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\GlassModelModel;
 use App\Modules\Catalogue\Infrastructure\Persistence\Queries\GlassModelQueries;
@@ -94,6 +95,7 @@ class GlassModelResource extends Resource
     {
         return [
             FittedVehiclesRelationManager::class,
+            RecordHistoryRelationManager::make(['recordType' => 'catalogue.glass_model']),
         ];
     }
 

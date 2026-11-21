@@ -7,6 +7,7 @@ namespace App\Modules\Catalogue;
 use App\Core\Providers\ModuleServiceProvider;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecords;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecordType;
+use App\Modules\Audit\Application\ModuleApi\TrackedRelation;
 use App\Modules\Audit\Application\ModuleApi\ValuePresenter;
 use App\Modules\Catalogue\Application\ModuleApi\DictionaryValueUsages;
 use App\Modules\Catalogue\Application\ModuleApi\EurocodeSuggestions;
@@ -33,6 +34,7 @@ use App\Modules\Catalogue\Infrastructure\Persistence\EloquentThumbnailMappingRep
 use App\Modules\Catalogue\Infrastructure\Persistence\EloquentVehicleRepository;
 use App\Modules\Catalogue\Infrastructure\Persistence\GlassModelDictionaryValueUsage;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\DictionaryValueModel;
+use App\Modules\Catalogue\Infrastructure\Persistence\Models\GlassModelModel;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\VehicleModel;
 use App\Modules\Catalogue\Infrastructure\Persistence\VehicleDictionaryUsage;
 use App\Modules\Catalogue\Infrastructure\Seeders\CatalogueTestDataSeeder;
@@ -40,6 +42,7 @@ use App\Modules\Catalogue\UserInterface\Console\SeedCatalogueConsoleCommand;
 use App\Modules\Catalogue\UserInterface\Filament\GlassModelPicker\GlassModelPicker;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\DictionaryValueResource;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\DictionaryValues\Support\DictionaryValueViewSections;
+use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\GlassModelResource;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Support\GlassModelViewSections;
 use App\Modules\Catalogue\UserInterface\Filament\Resources\Vehicles\VehicleResource;
 use App\Modules\Users\Application\ModuleApi\RoleRegistry;
@@ -52,6 +55,8 @@ class CatalogueModuleServiceProvider extends ModuleServiceProvider
     private const string AUDIT_KEY = 'catalogue.dictionary_value';
 
     private const string VEHICLE_AUDIT_KEY = 'catalogue.vehicle';
+
+    private const string GLASS_MODEL_AUDIT_KEY = 'catalogue.glass_model';
 
     protected bool $loadsTranslations = true;
 
@@ -98,6 +103,7 @@ class CatalogueModuleServiceProvider extends ModuleServiceProvider
         $this->declarePermissions($this->app->make(RoleRegistry::class));
         $this->registerAuditableRecords($this->app->make(AuditableRecords::class));
         $this->registerVehicleAuditableRecord($this->app->make(AuditableRecords::class));
+        $this->registerGlassModelAuditableRecord($this->app->make(AuditableRecords::class));
         $this->registerDictionaryUsages($this->app->make(DictionaryValueUsages::class));
     }
 
@@ -158,6 +164,35 @@ class CatalogueModuleServiceProvider extends ModuleServiceProvider
             valuePresenters: [
                 'make_id' => ValuePresenter::reference(DictionaryValueModel::class, 'name'),
                 'body_id' => ValuePresenter::reference(DictionaryValueModel::class, 'name'),
+            ],
+        ));
+    }
+
+    /** Title is the main Eurocode (RULE-02). Eurocodes and OEM codes are child rows reported as relations of the Glass model by its adapter. */
+    private function registerGlassModelAuditableRecord(AuditableRecords $records): void
+    {
+        $records->register(new AuditableRecordType(
+            key: self::GLASS_MODEL_AUDIT_KEY,
+            modelClass: GlassModelModel::class,
+            name: 'catalogue::audit.glass_model.type',
+            title: fn (GlassModelModel $model): string => (string) ($model->eurocodes()->where('is_main', true)->value('code') ?? '#'.$model->id),
+            url: fn (GlassModelModel $model): string => GlassModelResource::getUrl('view', ['record' => $model]),
+            fieldLabels: [
+                'position_id' => 'catalogue::audit.glass_model.fields.position',
+                'colour_id' => 'catalogue::audit.glass_model.fields.colour',
+                'withdrawn' => 'catalogue::audit.glass_model.fields.withdrawn',
+            ],
+            valuePresenters: [
+                'position_id' => ValuePresenter::reference(DictionaryValueModel::class, 'name'),
+                'colour_id' => ValuePresenter::reference(DictionaryValueModel::class, 'name'),
+                'withdrawn' => ValuePresenter::boolean(),
+            ],
+            trackedRelations: [
+                'eurocodes' => new TrackedRelation('catalogue::audit.glass_model.relations.eurocodes', ValuePresenter::plain()),
+                'main_eurocode' => new TrackedRelation('catalogue::audit.glass_model.relations.main_eurocode', ValuePresenter::plain()),
+                'oem_codes' => new TrackedRelation('catalogue::audit.glass_model.relations.oem_codes', ValuePresenter::plain()),
+                'equipment' => new TrackedRelation('catalogue::audit.glass_model.relations.equipment', ValuePresenter::reference(DictionaryValueModel::class, 'name')),
+                'vehicles' => new TrackedRelation('catalogue::audit.glass_model.relations.vehicles', ValuePresenter::reference(VehicleModel::class, 'name')),
             ],
         ));
     }

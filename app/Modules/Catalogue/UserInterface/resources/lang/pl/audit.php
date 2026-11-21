@@ -27,4 +27,22 @@ return [
             'argic_code' => 'Kod pojazdu ARGIC',
         ],
     ],
+
+    'glass_model' => [
+        'type' => 'Model szkła',
+
+        'fields' => [
+            'position' => 'Rodzaj szyby',
+            'colour' => 'Kolor',
+            'withdrawn' => 'Wycofany',
+        ],
+
+        'relations' => [
+            'eurocodes' => 'Eurokody',
+            'main_eurocode' => 'Eurokod główny',
+            'oem_codes' => 'Kody OEM',
+            'equipment' => 'Wyposażenie',
+            'vehicles' => 'Dopasowane pojazdy',
+        ],
+    ],
 ];

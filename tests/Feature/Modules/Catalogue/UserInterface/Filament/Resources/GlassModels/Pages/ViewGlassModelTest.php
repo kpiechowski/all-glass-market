@@ -172,4 +172,14 @@ class ViewGlassModelTest extends TestCase
     {
         return TestAction::make($name)->schemaComponent('identity', 'infolist');
     }
+
+    public function test_the_page_offers_the_details_and_the_history_tabs(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $model = GlassModelModelFactory::new()->create();
+
+        Livewire::test(ViewGlassModel::class, ['record' => $model->getKey()])
+            ->assertSee(__('catalogue::resources.glass_model.tabs.details'))
+            ->assertSee('Historia');
+    }
 }
