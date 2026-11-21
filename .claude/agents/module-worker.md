@@ -31,6 +31,7 @@ Append under `## Comments` in the issue file inside your worktree:
 ### Worker — <YYYY-MM-DD>
 - **Built:** <what now exists, in spec terms (FR/WF/RULE ids)>
 - **Deviations:** <each departure from the issue or spec, and why> | none
+- **Unmapped:** <each class or flow no skill rule covers: what, where, which pattern you followed (`module-layout`, Unmapped)> | none
 - **Seams left:** <what later tickets plug into> | none
 - **Open questions:** <for the manager or user> | none
 - **Check:** <composer check:module <modules> | composer check> <green | red: cause>

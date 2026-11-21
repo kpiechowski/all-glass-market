@@ -54,13 +54,17 @@ Show or hide with `visible()`, combining the permission and the domain rule:
 
 The policy is the same pure method the entity calls (`module-cqrs`). Visibility is convenience; the handler checks again. Laravel Policies are not used.
 
+A `visible()` that judges the record's fields (`! $record->withdrawn`, `$record->eurocodes->count() > 1`) calls a `{X}DomainPolicy` method. When the policy or the method does not exist yet, create it and make the entity call it too, so the UI and the entity share one rule.
+
 ## Reading
 
 ```php
 ->query(fn (OfferQueries $offers): Builder => $offers->activeForSeller(CurrentActor::get()))
 ```
 
-Tables, resources (`getEloquentQuery()`) and widgets start from a named `{X}Queries` method; Filament layers its sorting, search and filters on top. Tabs use one `{X}Queries` method each.
+Tables, resources (`getEloquentQuery()`), relation managers, widgets and option lists start from a named `{X}Queries` method; Filament layers its sorting, search and filters on top. Tabs use one `{X}Queries` method each. Fetching the record a page just created (`OfferModel::findOrFail($id)`) needs no query method.
+
+An own module's value object may format or normalise input in the UI (`Eurocode::normalise()`); entities and repositories stay out of it.
 
 ## Split by structure
 
@@ -71,12 +75,15 @@ UserInterface/Filament/Resources/Offers/
   Schemas/                 OfferForm, OfferInfolist, form sections
   Tables/                  OffersTable, OffersTableColumns, OffersTableFilters
   Actions/                 ReserveOfferAction …
+  RelationManagers/        relation managers this resource alone lists
+  Support/                 helpers of this resource that are not schema, table or action:
+                           form data → command arguments, display formatting, option lists
 ```
 
 | Piece | Rule |
 |---|---|
 | `{X}Table::configure()` | query, default sort, pagination, toggles, record and bulk actions |
-| Columns | never inline in `configure()`: a private `columns(): array` method of `{X}Table`; a separate `{X}TableColumns::make(): array` when the list passes ~10 columns (card and toggleable ones count) or carries composite-column logic |
+| Columns | never inline in `configure()` or a relation manager's `table()`: a private `columns(): array` method; a separate `{X}TableColumns::make(): array` when the list passes ~10 columns (card and toggleable ones count) or carries composite-column logic |
 | Filters | always their own class `{X}TableFilters::make(): array` |
 | Form, infolist | always their own class: `{X}Form::configure()`, `{X}Infolist::configure()` |
 | Form section | own class when it has more than ~8 fields or is used in two places |
@@ -95,7 +102,7 @@ public static function configure(Schema $schema): Schema
 }
 ```
 
-Widgets go in `Filament/Widgets/`, clusters in `Filament/Clusters/`, relation managers in `Filament/RelationManagers/`. `DiscoverModuleFilament` registers everything under `UserInterface/Filament/`; the panel provider lists nothing by hand except sidebar entries (`admin-ui-design`, Navigation).
+Widgets go in `Filament/Widgets/`, clusters in `Filament/Clusters/`. A relation manager that one resource lists sits in that resource's `RelationManagers/`; one that other resources or modules list sits in `Filament/RelationManagers/` (Audit's `RecordHistoryRelationManager`). `DiscoverModuleFilament` registers everything under `UserInterface/Filament/`; the panel provider lists nothing by hand except sidebar entries (`admin-ui-design`, Navigation).
 
 Panel-wide Filament configuration lives in `app/Filament/`, one class per concern, and `AdminPanelProvider` (`app/Filament/AdminPanelProvider.php`) only wires the classes together:
 
@@ -124,6 +131,12 @@ Every string comes from `UserInterface/resources/lang/pl/` under the module name
 | `enums.php` | enum labels and descriptions | `offers::enums.offer_status.active` |
 | `exceptions.php` | domain exception messages | `offers::exceptions.cannot_be_activated` |
 | `mail.php`, `notifications.php` | mails and notifications | `offers::notifications.reserved.title` |
+| `widgets.php` | dashboard widgets | `offers::widgets.reservations.heading` |
+| `audit.php` | labels of the module's `AuditableRecordType`s and their fields | `catalogue::audit.vehicle.label` |
+| `uses.php` | place labels for usage contracts (`DictionaryValueUsage`, `GlassModelUsage`) | `catalogue::uses.vehicles` |
+| `console.php` | Artisan command output | `catalogue::console.seed.done` |
+
+Another area of the module gets its own file named after it in snake_case (`journal.php`, `impersonation.php`).
 
 Generic words ("Save", "Active") come from Filament's own translations or `core::common`.
 
@@ -148,7 +161,8 @@ Use `search-docs` for any API detail. Generate files with `dartisan make:filamen
 
 - Every create, update, delete and custom action sends a command through `CommandSender`.
 - No field saves a relation or media by itself.
-- Every `visible()` on a guarded action uses `CurrentActor::can()` and, where a rule applies, the domain policy.
+- Every `visible()` on a guarded action uses `CurrentActor::can()`, and every condition on record fields is a domain policy method.
+- Every optional field left empty reaches the command as `null`, and the Livewire create test proves it (`module-testing`).
 - Every class respects the split table, and `configure()` reads as an outline.
 - Every user-facing string is a translation key in the right file.
 - No Filament-only configuration is registered in `CoreServiceProvider` or a module service provider; panel-wide configuration sits in its own class under `app/Filament/`.

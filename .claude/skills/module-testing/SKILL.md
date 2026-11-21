@@ -19,7 +19,8 @@ Tests are how you prove your work. Rules and write paths are built **test-first*
 | `{X}Queries` method | same: includes and excludes | first | Feature |
 | Command handler | through the bus: happy path, every refusal, event emitted, unauthorized actor rejected | first | Feature |
 | Listener | dispatch the event, assert the reaction | first | Feature |
-| Filament resource | one Livewire test each for create, edit and delete, proving the write lands through the command | after | Feature |
+| Observer | a change through the repository records one `RecordChanged` with the expected kind and fields; a save without change records none | first | Feature |
+| Filament resource | one Livewire test each for create, edit and delete, proving the write lands through the command; create once with every optional field empty | after | Feature |
 
 Leave out tests that restate declarations: columns existing, enum cases, getters, casts, framework behaviour.
 
@@ -56,7 +57,18 @@ public function test_it_refuses_an_offer_without_a_price(): void
 }
 ```
 
-The refusal is the rule, so it always gets its own test. Use `Event::fake([OfferActivated::class])` when the event is part of the intent. Arrange state with model factories (the Core base factory opens the write scope); resolve ports, not adapters, so the binding is tested too.
+The refusal is the rule, so it always gets its own test, and the test names **which** refusal: one exception class often carries many reasons, so assert its `translationKey` along with the class.
+
+```php
+try {
+    app(CommandBus::class)->send(new RemoveEurocodeCommand(Actor::system('test'), $model->id, $mainCode));
+    $this->fail('Expected a refusal.');
+} catch (GlassModelRefused $refusal) {
+    $this->assertSame('catalogue::exceptions.glass_model.main_eurocode', $refusal->translationKey);
+}
+```
+
+A Livewire test of a refusal asserts the notification's title, not only that one appeared. Use `Event::fake([OfferActivated::class])` when the event is part of the intent. Arrange state with model factories (the Core base factory opens the write scope); resolve ports, not adapters, so the binding is tested too.
 
 ## Fakes
 
@@ -88,5 +100,5 @@ Never run two checks at once in the same directory: `ScaffoldCommandsTest` write
 ## Before you finish
 
 - Every class in the "first" rows got its test before its code, and you saw that test fail first.
-- Every handler test covers each refusal, and every query test proves exclusion.
+- Every handler test covers each refusal and asserts its translation key, and every query test proves exclusion.
 - The check that "Which check closes the work" requires passes: `check:module` over the touched modules, or the full `composer check` when the diff leaves the module folders or at a milestone. Report which one you ran and its result, including failures, as it is.

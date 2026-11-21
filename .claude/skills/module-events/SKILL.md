@@ -45,6 +45,8 @@ Choose the channel by what the caller needs:
 
 ## Observers and audit
 
+A model is audited when the issue or the user asks for it: then it gets an observer, an `AuditableRecordType` registered in the module provider, and the history tab on its view page. Audit is added as its own step, so a worker who sees an unaudited model leaves it as is and names it under **Open questions** in the issue log.
+
 The repository adapter saves through Eloquent inside the write scope, so model observers fire. An observer is **thin**: it calls Core's `ChangeRecorder` from `created`, `updated`, `deleted` and (for soft-deleting models) `restored`, and does nothing else. `ChangeRecorder` emits the generic Core event `RecordChanged`: model class, id, **kind** (`ChangeKind`: Created, Changed, Deleted, Restored), field changes (raw old and new values), relation changes (raw ids added and removed per relation) and the **Actor** of the command being handled. The Audit module listens to `RecordChanged` to build the change log, without knowing which modules exist.
 
 **The Actor** comes from the command bus, which holds the current command's `Actor` (`public Actor $actor` on the command) for the length of the command. A nested command applies its own Actor and the outer one returns after it. A change recorded with no command being handled throws `NoCurrentActorException`; there is no fallback System actor. In tests, wrap writes in `app(ActorStack::class)->run($actor, ...)`. Impersonation needs nothing special: the Actor is recorded as the command carries it.

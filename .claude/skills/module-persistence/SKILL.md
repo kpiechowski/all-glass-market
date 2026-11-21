@@ -65,6 +65,18 @@ interface OfferRepository extends Repository
 
 `Core\Contracts\Repository` gives every port `get(int $id)` (throws when missing), `find(int $id): ?X`, `add(X): int`, `save(X): void`, `remove(X): void`. Module ports add methods named in domain language (`pendingReview`, not `whereStatusNull`), returning entities, ids or scalars, never a `Builder` or a model.
 
+## Read ports
+
+A read that is not "load one aggregate to change it" (a search, facts for a `ModuleApi` read or a decision) gets its own port beside the repositories:
+
+| Piece | Place |
+|---|---|
+| Port | `Domain/Repositories/{X}Reader` or `{X}Search`, a plain interface (it does not extend `Repository`) |
+| What it returns | `Domain/ReadModels/{X}`: `final readonly`, ids and values only |
+| Adapter | `Infrastructure/Persistence/Eloquent{X}Reader` / `Eloquent{X}Search`, bound in the module provider |
+
+Query technique stays in the adapter: LIKE escaping, wildcards, column names. A search input that needs normalising uses the value object's own method (`Eurocode::normalise()`), so the rule exists once. A `ModuleApi` read maps the read model to its own DTO, so other modules never depend on the read model.
+
 ## Model
 
 ```php
@@ -145,7 +157,8 @@ No interface, since an interface returning an Eloquent `Builder` abstracts nothi
 ## Before you finish
 
 - Every entity is plain PHP and changes state only through behaviour methods.
-- Every port returns entities, ids or scalars.
+- Every port returns entities, ids or scalars; every read port returns read models from `Domain/ReadModels/`.
+- Every mapper only translates: no queries or `load()`, and a row that cannot become a valid entity raises an exception naming the record id.
 - Every model extends `ReadOnlyModel`, has a factory, and is written only by its adapter.
 - Every display read is a named `{X}Queries` method.
 - Mapper, port methods and `{X}Queries` methods have tests written first, and the mapper's covers the round-trip (`module-testing`).

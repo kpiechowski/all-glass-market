@@ -69,6 +69,10 @@ Run every check yourself; a worker's "green" is a claim, not evidence.
    - every FR, RULE or WF the issue cites behaves as the spec says, refusals included;
    - each such behaviour has a test, and test-first classes follow `module-testing`;
    - the layer rules in `CLAUDE.md` and the skills hold: no repository in Filament, no business logic in UI, and every write goes through a command carrying the Actor;
+   - every `if` that throws a refusal sits in an entity or a domain policy, also in handlers and `Application/Services/`; every `visible()` condition on record fields calls a domain policy;
+   - nothing inside the module imports its own `ModuleApi` except its providers, and `Domain/Contracts/` holds only interfaces another module implements, with their types;
+   - every refusal test asserts the translation key, and the Livewire create test covers empty optional fields;
+   - each **Unmapped:** entry follows the nearest pattern of the skills; list it in your review notes for the user, who decides whether it becomes a skill rule;
    - nothing outside the issue's scope was built, and the seams the issue names exist;
    - each logged deviation is justified by the spec or decisions. A deviation that changes behaviour the user decided goes to the user, not to the worker.
 4. The check `module-testing` requires must be green, run by you in the worktree. Normally that is `run.sh <worktree> "composer check:module <modules the diff touches>"`. It is the full `composer check` when the diff leaves the module folders (`git -C <worktree> status --short` shows the paths). The milestone run happens once, in the main tree, at step 5. Start it in the background with its output in a scratchpad file, read the code meanwhile, and edit nothing in the worktree until it finishes.

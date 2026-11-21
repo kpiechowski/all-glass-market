@@ -42,6 +42,8 @@ Load the matching skill **before** writing code for that step:
 
 The reasons behind the trade-offs are in `docs/adr/`.
 
+**Unmapped:** a class or flow that no skill rule covers and no sibling in the codebase shows follows the nearest pattern of the skills, keeps the layer dependencies above, and is logged under **Unmapped:** in the issue (`module-layout`, Unmapped).
+
 ## Definition of done
 
 Rules, entities and handlers are built test-first. A task is finished when `composer check` (pint, deptrac, phpunit) passes and the "Before you finish" list of every skill you loaded holds. For a task inside modules, `composer check:module offers[,catalogue]` over the touched modules stands in for it. The full run is needed when the diff leaves the module folders, and at milestones (end of a run or module, a handoff, a single-issue run, a merge into `main`). See `module-testing`.
