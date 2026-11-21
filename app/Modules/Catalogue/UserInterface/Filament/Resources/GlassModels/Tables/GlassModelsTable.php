@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\Catalogue\UserInterface\Filament\Resources\GlassModels\Tables;
 
 use App\Core\UserInterface\Filament\Tables\TableEmptyState;
+use App\Modules\Catalogue\Application\ModuleApi\GlassModelCardLink;
+use App\Modules\Catalogue\Application\ModuleApi\GlassModelLinks;
 use App\Modules\Catalogue\Application\ModuleApi\GlassModelThumbnails;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\GlassModelModel;
 use App\Modules\Catalogue\Infrastructure\Persistence\Queries\GlassModelQueries;
@@ -15,6 +17,8 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
+use WeakMap;
 
 /**
  * Template A (list), with the card layout of D-53: one full-width card per Glass model so results
@@ -46,10 +50,11 @@ class GlassModelsTable
     }
 
     /** The card column, shared with the Glass model picker (FR-19), which lists the same cards. @return array<mixed> */
-    public static function columns(): array
+    public static function columns(bool $withLinks = true): array
     {
         return [
             GlassModelCardColumn::make()
+                ->offersLink($withLinks ? self::links(...) : null)
                 ->thumbnail(fn (GlassModelModel $record): Htmlable => view('catalogue::filament.tables.glass-thumbnail', [
                     'thumbnail' => app(GlassModelThumbnails::class)->for(
                         $record->position_id,
@@ -58,6 +63,24 @@ class GlassModelsTable
                     ),
                 ])),
         ];
+    }
+
+    /**
+     * The links other modules add to a card ("N ofert"), read once for the whole page. Kept per table
+     * component, which lives for one render, so the next render reads afresh.
+     */
+    private static function links(GlassModelModel $record, HasTable $livewire): ?Htmlable
+    {
+        static $pages = null;
+        $pages ??= new WeakMap;
+        $pages[$livewire] ??= app(GlassModelLinks::class)->ofMany(array_map('intval', $livewire->getTableRecords()->modelKeys()));
+
+        $links = array_map(
+            fn (GlassModelCardLink $link): string => '<a href="'.e($link->url).'" class="fi-link" x-on:click.stop>'.e($link->label).'</a>',
+            $pages[$livewire][(int) $record->getKey()] ?? [],
+        );
+
+        return $links === [] ? null : new HtmlString(implode(' · ', $links));
     }
 
     /** FR-05: withdrawn models are listed only while the toggle is on. */

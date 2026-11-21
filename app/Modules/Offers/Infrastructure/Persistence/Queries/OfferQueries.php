@@ -58,6 +58,26 @@ final class OfferQueries
     }
 
     /**
+     * Catalogue's "N ofert": how many Offers of the query refer to each of the Glass models.
+     *
+     * @param  Builder<OfferModel>  $query
+     * @param  list<int>  $glassModelIds
+     * @return array<int, int> by Glass model id; a model without Offers is left out
+     */
+    public function countByGlassModel(Builder $query, array $glassModelIds): array
+    {
+        return $query
+            ->whereIn('offers.glass_model_id', $glassModelIds)
+            ->selectRaw('offers.glass_model_id as glass_model_id, count(*) as offers_count')
+            ->groupBy('offers.glass_model_id')
+            ->reorder()
+            ->toBase()
+            ->pluck('offers_count', 'glass_model_id')
+            ->map(fn (mixed $count): int => (int) $count)
+            ->all();
+    }
+
+    /**
      * FR-25: the admin's Trash tab.
      *
      * @param  Builder<OfferModel>  $query

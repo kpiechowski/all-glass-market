@@ -13,7 +13,7 @@ class GlassModelUsagesTest extends TestCase
 {
     public function test_nothing_registered_means_nothing_uses_the_model(): void
     {
-        $this->assertSame([], app(GlassModelUsages::class)->of(1));
+        $this->assertSame([], (new GlassModelUsages)->of(1));
     }
 
     public function test_it_collects_the_uses_of_registered_usages_and_skips_empty_ones(): void

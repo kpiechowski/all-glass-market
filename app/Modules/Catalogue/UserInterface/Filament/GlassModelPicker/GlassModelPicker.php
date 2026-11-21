@@ -102,7 +102,7 @@ class GlassModelPicker extends Component implements HasActions, HasSchemas, HasT
             ->query(fn (): Builder => $this->markableModels())
             ->columns(array_map(
                 fn ($card) => $card->action(fn (GlassModelModel $record) => $this->mark((int) $record->getKey())),
-                GlassModelsTable::columns(),
+                GlassModelsTable::columns(withLinks: false),
             ))
             ->filters(GlassModelsTableFilters::make(withWithdrawnToggle: $admin))
             ->modifyQueryUsing(fn (Builder $query): Builder => $admin && $this->asksForWithdrawn() ? $query : app(GlassModelQueries::class)->onlyActive($query))

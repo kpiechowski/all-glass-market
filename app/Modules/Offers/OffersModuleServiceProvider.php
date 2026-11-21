@@ -8,7 +8,10 @@ use App\Core\Providers\ModuleServiceProvider;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecords;
 use App\Modules\Audit\Application\ModuleApi\AuditableRecordType;
 use App\Modules\Audit\Application\ModuleApi\ValuePresenter;
+use App\Modules\Catalogue\Application\ModuleApi\DictionaryValueUsages;
+use App\Modules\Catalogue\Application\ModuleApi\GlassModelLinks;
 use App\Modules\Catalogue\Application\ModuleApi\GlassModelSummaries;
+use App\Modules\Catalogue\Application\ModuleApi\GlassModelUsages;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\DictionaryValueModel;
 use App\Modules\Offers\Application\ModuleApi\BuyersPrices;
 use App\Modules\Offers\Application\Providers\OfferJournalSubject;
@@ -35,8 +38,11 @@ use App\Modules\Offers\Infrastructure\Persistence\Models\InquiryModel;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use App\Modules\Offers\Infrastructure\Persistence\Models\ReservationModel;
 use App\Modules\Offers\Infrastructure\Persistence\Models\SaleModel;
+use App\Modules\Offers\Infrastructure\Persistence\OfferGlassModelUsage;
+use App\Modules\Offers\Infrastructure\Persistence\OfferProducerUsage;
 use App\Modules\Offers\Infrastructure\Persistence\StorageOfferPhotoStorage;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferGlassModelLinks;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferListGlass;
 use App\Modules\Offers\UserInterface\Http\Controllers\PrivatePhotoController;
 use App\Modules\Users\Application\ModuleApi\JournalSubjects;
@@ -79,7 +85,16 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
         $this->registerRoutes();
         $this->declarePermissions($this->app->make(RoleRegistry::class));
         $this->registerAuditableRecords($this->app->make(AuditableRecords::class));
+        $this->registerCatalogueSeams();
         $this->app->make(JournalSubjects::class)->register(OwnerJournal::KIND, new OfferJournalSubject);
+    }
+
+    /** FR-25: Catalogue keeps knowing nothing of Offers; Offers tells it where its Glass models and producers are used, and what to link on a card. */
+    private function registerCatalogueSeams(): void
+    {
+        $this->app->make(GlassModelUsages::class)->register(new OfferGlassModelUsage);
+        $this->app->make(DictionaryValueUsages::class)->register(new OfferProducerUsage);
+        $this->app->make(GlassModelLinks::class)->register($this->app->make(OfferGlassModelLinks::class));
     }
 
     /** FR-05: the only way to a private photo is this route; it checks the viewer itself. */

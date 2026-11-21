@@ -10,6 +10,7 @@ use App\Modules\Audit\Application\ModuleApi\AuditableRecordType;
 use App\Modules\Audit\Application\ModuleApi\ValuePresenter;
 use App\Modules\Catalogue\Application\ModuleApi\DictionaryValueUsages;
 use App\Modules\Catalogue\Application\ModuleApi\EurocodeSuggestions;
+use App\Modules\Catalogue\Application\ModuleApi\GlassModelLinks;
 use App\Modules\Catalogue\Application\ModuleApi\GlassModelThumbnails;
 use App\Modules\Catalogue\Application\ModuleApi\GlassModelUsages;
 use App\Modules\Catalogue\Application\Providers\CatalogueEventServiceProvider;
@@ -79,6 +80,7 @@ class CatalogueModuleServiceProvider extends ModuleServiceProvider
         $this->app->singleton(DictionaryValueViewSections::class);
         $this->app->scoped(GlassModelThumbnails::class);
         $this->app->singleton(GlassModelUsages::class);
+        $this->app->singleton(GlassModelLinks::class);
         $this->app->singleton(GlassModelViewSections::class);
         $this->app->singleton(EurocodeSuggestions::class);
     }

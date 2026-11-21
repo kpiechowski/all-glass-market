@@ -13,8 +13,8 @@ use Illuminate\Contracts\Support\Htmlable;
  * fixed widths so rows line up. The only column of the list; it shows at every width.
  * Styles: components/glass-card.css.
  *
- * Two slots stay empty until their tickets fill them: `thumbnail()` (07, with the equipment
- * pictograms) and `offersLink()` (09, the "N offers" link). Each takes a closure with `$record`
+ * Two slots: `thumbnail()` (the equipment pictograms) and `offersLink()` (the links other modules
+ * add, "N ofert", through `GlassModelLinks`). Each takes a closure with `$record`
  * returning Htmlable or null; a slot that returns nothing is not drawn.
  */
 class GlassModelCardColumn extends ViewColumn

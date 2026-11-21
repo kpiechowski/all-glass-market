@@ -9,6 +9,7 @@ return [
 
     'offer' => [
         'label' => 'Oferta',
+        'glass_model_link' => '{1} :count oferta|[2,4] :count oferty|[5,*] :count ofert',
         'plural_label' => 'Oferty',
         'buyers_price_meta' => 'dla kupującego :price zł',
         'mine' => 'Moje oferty',
