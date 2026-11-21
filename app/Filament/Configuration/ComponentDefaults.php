@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Configuration;
 
+use App\Filament\Forms\SelectDefaults;
 use App\Filament\Tables\TableDefaults;
+use Filament\Forms\Components\Select;
 use Filament\Tables\Table;
 
 /**
@@ -17,5 +19,7 @@ final class ComponentDefaults
     public static function apply(): void
     {
         Table::configureUsing(TableDefaults::apply(...));
+
+        Select::configureUsing(SelectDefaults::apply(...));
     }
 }
