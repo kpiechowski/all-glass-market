@@ -20,7 +20,7 @@ You take over the Offers delivery at issue **10**. Run it with the `module-deliv
 
 ## Practical notes
 
-- **The test suite takes longer than 300 s.** Run `run.sh <worktree> "COMPOSER_PROCESS_TIMEOUT=0 composer check"`, or composer kills it. Start it in the background with output to a scratchpad file, then read the code while it runs. Do not edit the worktree until it finishes.
+- **Checks:** workers run `composer check:module <module>[,<module>...]` between steps (Offers: about 1.5 min) and the full `composer check` once at the end. Your review always runs the **full** `run.sh <worktree> "composer check"` (5–6 min, no time limit). Start it in the background with output to a scratchpad file and read the code meanwhile. Never run two checks at once in the same directory: `ScaffoldCommandsTest` writes a temporary module into `app/Modules`, and the other run fails on it. The details are in `module-testing`, under "Running".
 - Each worker copies the gitignored `public/build` into its worktree so the Vite-dependent tests run. That is expected; it is not a finding.
 - `worktree.sh remove` also deletes the branch.
 - Small cosmetic fixes (an injection instead of `app()`, a PHPDoc) the manager may make inline before committing. Re-run the affected tests and note it in the Review.

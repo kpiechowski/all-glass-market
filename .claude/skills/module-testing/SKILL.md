@@ -65,12 +65,18 @@ Default to real adapters and the in-memory database. Substitute a fake for an ex
 ## Running
 
 ```bash
-dartisan test --compact --filter=ActivateOffer   # while working
-composer check                                   # pint, deptrac, test presence, full phpunit
+dartisan test --compact --filter=ActivateOffer   # while working: one class or test
+composer check:module offers                     # after a step: pint + phpunit for the module(s), deptrac + architecture tests for all
+composer check:module offers,catalogue           # several modules, comma-separated
+composer check                                   # once, to finish: pint, deptrac, test presence, full phpunit
 ```
+
+`check:module` takes a few minutes less than the full run (Offers: about 1.5 min against 5–6). It does not prove the task is done: a change in one module can break another module's tests, so the full `composer check` still closes every task. Neither has a time limit.
+
+Never run two checks at once in the same directory: `ScaffoldCommandsTest` writes a temporary module into `app/Modules`, and the other run fails on it. Separate worktrees are fine.
 
 ## Before you finish
 
 - Every class in the "first" rows got its test before its code, and you saw that test fail first.
 - Every handler test covers each refusal, and every query test proves exclusion.
-- `composer check` passes. Report its result, including failures, as it is.
+- The full `composer check` passes (not only `check:module`). Report its result, including failures, as it is.

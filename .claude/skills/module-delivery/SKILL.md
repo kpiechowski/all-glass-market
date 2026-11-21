@@ -71,7 +71,7 @@ Run every check yourself; a worker's "green" is a claim, not evidence.
    - the layer rules in `CLAUDE.md` and the skills hold: no repository in Filament, no business logic in UI, and every write goes through a command carrying the Actor;
    - nothing outside the issue's scope was built, and the seams the issue names exist;
    - each logged deviation is justified by the spec or decisions. A deviation that changes behaviour the user decided goes to the user, not to the worker.
-4. `run.sh <worktree> "composer check"` must be green.
+4. `run.sh <worktree> "composer check"` (the full check, not `check:module`) must be green. It takes several minutes: start it in the background with its output in a scratchpad file, read the code meanwhile, and edit nothing in the worktree until it finishes.
 
 Approve only when the findings list is empty. Style preferences beyond the skills are comments, not findings.
 

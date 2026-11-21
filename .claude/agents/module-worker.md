@@ -20,6 +20,7 @@ You implement **one issue** in an isolated git worktree. A manager reviews your 
 - Stay inside the issue's scope. Leave seams the issue names for later tickets and build nothing from those tickets.
 - Leave committing to the manager, and leave the spec, discovery and other issues untouched.
 - When the spec or issue leaves a real choice open, take the smallest reading that satisfies the spec and log it as a deviation. When you cannot proceed without the user, stop and say so in your summary.
+- Between steps run `composer check:module <module>[,<module>...]` for the modules you touched (minutes, not the whole suite). Run the full `composer check` once at the end, before you write the log entry; only that one counts as **Check**. Never run two checks at once in your worktree.
 - If `composer check` fails three times on the same cause, stop and report the cause instead of trying a fourth fix.
 
 ## Log in the issue file
