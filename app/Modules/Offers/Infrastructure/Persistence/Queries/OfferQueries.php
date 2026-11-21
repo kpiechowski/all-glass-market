@@ -8,6 +8,7 @@ use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Enums\OwnerAccountType;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use App\Modules\Offers\Infrastructure\Persistence\Models\SaleModel;
+use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -123,6 +124,67 @@ final class OfferQueries
             ->whereBetween('sold_at', [$now->copy()->startOfMonth(), $now->copy()->endOfMonth()])
             ->whereHas('offer', fn (Builder $offers) => $offers->where('owner_id', $ownerId))
             ->count();
+    }
+
+    /**
+     * FR-36: the last twelve months up to and including the month of `$now`, oldest first, each with the Offers
+     * first approved that month ("added") and the Sales made that month ("sold", returned ones left out). An
+     * Offer in the Trash counts in neither line, and neither does its Sale. `$ownerId` narrows both to one seller.
+     * Two grouped reads, whatever the window; a month with nothing is filled with zeros.
+     *
+     * @return list<array{month: string, added: int, sold: int}> `month` is `Y-m`
+     */
+    public function monthlyActivity(CarbonInterface $now, ?int $ownerId = null): array
+    {
+        $first = $now->copy()->startOfMonth()->subMonths(11);
+        $window = [$first, $now->copy()->endOfMonth()];
+
+        $added = $this->outsideTrash(OfferModel::query())
+            ->when($ownerId !== null, fn (Builder $offers) => $offers->where('owner_id', $ownerId))
+            ->whereBetween('first_approved_at', $window)
+            ->selectRaw($this->monthSql('first_approved_at').' as month, count(*) as total')
+            ->groupBy('month')
+            ->pluck('total', 'month');
+
+        $sold = SaleModel::query()
+            ->whereNull('returned_at')
+            ->whereBetween('sold_at', $window)
+            ->whereHas('offer', fn (Builder $offers) => $this->outsideTrash($offers)
+                ->when($ownerId !== null, fn (Builder $query) => $query->where('owner_id', $ownerId)))
+            ->selectRaw($this->monthSql('sold_at').' as month, count(*) as total')
+            ->groupBy('month')
+            ->pluck('total', 'month');
+
+        $months = [];
+
+        for ($offset = 0; $offset < 12; $offset++) {
+            $key = $first->copy()->addMonths($offset)->format('Y-m');
+            $months[] = ['month' => $key, 'added' => (int) ($added[$key] ?? 0), 'sold' => (int) ($sold[$key] ?? 0)];
+        }
+
+        return $months;
+    }
+
+    /**
+     * Sellers that own at least one Offer, by name: the options of the admin's chart filter.
+     *
+     * @return array<int, string> by user id
+     */
+    public function sellersWithOffers(): array
+    {
+        return UserModel::query()
+            ->whereIn('id', OfferModel::query()->select('owner_id'))
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->all();
+    }
+
+    /** `Y-m` of a datetime column on MySQL and SQLite alike. */
+    private function monthSql(string $column): string
+    {
+        return OfferModel::query()->getConnection()->getDriverName() === 'sqlite'
+            ? "strftime('%Y-%m', {$column})"
+            : "DATE_FORMAT({$column}, '%Y-%m')";
     }
 
     /**

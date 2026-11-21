@@ -11,6 +11,7 @@ use App\Modules\Offers\Infrastructure\Persistence\Queries\OfferQueries;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferListGlass;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferListTabs;
+use App\Modules\Offers\UserInterface\Filament\Widgets\OfferActivityChart;
 use App\Modules\Offers\UserInterface\Filament\Widgets\OfferStatCards;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -32,10 +33,10 @@ class ListOffers extends ListRecords
         ];
     }
 
-    /** FR-32: a seller's own counts sit above "Moje oferty"; an admin's list has none. */
+    /** FR-32, FR-37: a seller's own counts and the activity chart sit above "Moje oferty"; an admin has the chart alone, above "Wszystkie oferty". */
     protected function getHeaderWidgets(): array
     {
-        return CurrentActor::can(OffersPermission::ManageAll) ? [] : [OfferStatCards::class];
+        return CurrentActor::can(OffersPermission::ManageAll) ? [OfferActivityChart::class] : [OfferStatCards::class, OfferActivityChart::class];
     }
 
     public function getHeaderWidgetsColumns(): int|array

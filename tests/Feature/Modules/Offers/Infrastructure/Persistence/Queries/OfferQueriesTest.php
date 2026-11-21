@@ -13,6 +13,7 @@ use App\Modules\Offers\Infrastructure\Factories\SaleModelFactory;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use App\Modules\Offers\Infrastructure\Persistence\Queries\OfferQueries;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -176,5 +177,121 @@ class OfferQueriesTest extends TestCase
 
         $this->assertEqualsCanonicalizing([$five->id, $new->id], $queries->withDisplayedStars(OfferModel::query(), 5)->pluck('id')->all());
         $this->assertSame([$four->id], $queries->withDisplayedStars(OfferModel::query(), 4)->pluck('id')->all());
+    }
+
+    private function approvedAt(CarbonImmutable $at, ?int $ownerId = null, bool $trashed = false): OfferModel
+    {
+        $factory = OfferModelFactory::new();
+        $factory = $ownerId === null ? $factory : $factory->ownedBy($ownerId);
+        $factory = $trashed ? $factory->inTrash() : $factory;
+
+        return $factory->create(['first_approved_at' => $at]);
+    }
+
+    public function test_the_monthly_activity_has_twelve_months_with_zeros_where_nothing_happened(): void
+    {
+        $now = CarbonImmutable::parse('2026-11-21 12:00:00');
+
+        $months = (new OfferQueries)->monthlyActivity($now);
+
+        $this->assertCount(12, $months);
+        $this->assertSame('2025-12', $months[0]['month']);
+        $this->assertSame('2026-11', $months[11]['month']);
+        foreach ($months as $month) {
+            $this->assertSame(0, $month['added']);
+            $this->assertSame(0, $month['sold']);
+        }
+    }
+
+    public function test_the_monthly_activity_counts_offers_by_first_approval_and_sales_by_sold_at(): void
+    {
+        $now = CarbonImmutable::parse('2026-11-21 12:00:00');
+        $this->approvedAt(CarbonImmutable::parse('2026-11-01 00:00:00'));
+        $this->approvedAt(CarbonImmutable::parse('2026-11-30 23:59:59'));
+        $this->approvedAt(CarbonImmutable::parse('2026-08-15 10:00:00'));
+        $offer = OfferModelFactory::new()->create();
+        SaleModelFactory::new()->forOffer($offer->id)->create(['sold_at' => '2026-11-05 09:00:00']);
+        SaleModelFactory::new()->forOffer($offer->id)->create(['sold_at' => '2026-09-05 09:00:00']);
+
+        $months = collect((new OfferQueries)->monthlyActivity($now))->keyBy('month');
+
+        $this->assertSame(2, $months['2026-11']['added']);
+        $this->assertSame(1, $months['2026-08']['added']);
+        $this->assertSame(0, $months['2026-10']['added']);
+        $this->assertSame(1, $months['2026-11']['sold']);
+        $this->assertSame(1, $months['2026-09']['sold']);
+        $this->assertSame(0, $months['2026-10']['sold']);
+    }
+
+    public function test_the_monthly_activity_window_includes_its_first_and_last_instants_and_nothing_outside(): void
+    {
+        $now = CarbonImmutable::parse('2026-11-21 12:00:00');
+        $this->approvedAt(CarbonImmutable::parse('2025-12-01 00:00:00'));
+        $this->approvedAt(CarbonImmutable::parse('2025-11-30 23:59:59'));
+        $this->approvedAt(CarbonImmutable::parse('2026-12-01 00:00:00'));
+        $offer = OfferModelFactory::new()->create();
+        SaleModelFactory::new()->forOffer($offer->id)->create(['sold_at' => '2025-12-01 00:00:00']);
+        SaleModelFactory::new()->forOffer($offer->id)->create(['sold_at' => '2025-11-30 23:59:59']);
+        SaleModelFactory::new()->forOffer($offer->id)->create(['sold_at' => '2026-12-01 00:00:00']);
+
+        $months = (new OfferQueries)->monthlyActivity($now);
+
+        $this->assertSame(1, array_sum(array_column($months, 'added')));
+        $this->assertSame(1, array_sum(array_column($months, 'sold')));
+        $this->assertSame(1, $months[0]['added']);
+        $this->assertSame(1, $months[0]['sold']);
+    }
+
+    public function test_a_returned_sale_is_not_counted_as_sold(): void
+    {
+        $now = CarbonImmutable::parse('2026-11-21 12:00:00');
+        $seller = UserModel::factory()->create();
+        $offer = OfferModelFactory::new()->ownedBy($seller->id)->create();
+        SaleModelFactory::new()->forOffer($offer->id)->returned($seller->id)->create(['sold_at' => '2026-11-03 09:00:00']);
+        SaleModelFactory::new()->forOffer($offer->id)->create(['sold_at' => '2026-11-04 09:00:00']);
+
+        $this->assertSame(1, (new OfferQueries)->monthlyActivity($now)[11]['sold']);
+    }
+
+    public function test_an_offer_in_the_trash_counts_in_neither_line_and_nor_does_its_sale(): void
+    {
+        $now = CarbonImmutable::parse('2026-11-21 12:00:00');
+        $this->approvedAt(CarbonImmutable::parse('2026-11-02 10:00:00'), trashed: true);
+        $trashed = OfferModelFactory::new()->inTrash()->create();
+        SaleModelFactory::new()->forOffer($trashed->id)->create(['sold_at' => '2026-11-04 09:00:00']);
+
+        $this->assertSame(['added' => 0, 'sold' => 0], array_intersect_key((new OfferQueries)->monthlyActivity($now)[11], ['added' => 0, 'sold' => 0]));
+    }
+
+    public function test_the_monthly_activity_can_be_scoped_to_one_seller(): void
+    {
+        $now = CarbonImmutable::parse('2026-11-21 12:00:00');
+        $mine = UserModel::factory()->create();
+        $other = UserModel::factory()->create();
+        $this->approvedAt(CarbonImmutable::parse('2026-11-02 10:00:00'), $mine->id);
+        $this->approvedAt(CarbonImmutable::parse('2026-11-02 10:00:00'), $other->id);
+        $this->approvedAt(CarbonImmutable::parse('2026-11-02 10:00:00'), $other->id);
+        $myOffer = OfferModelFactory::new()->ownedBy($mine->id)->create();
+        $otherOffer = OfferModelFactory::new()->ownedBy($other->id)->create();
+        SaleModelFactory::new()->forOffer($myOffer->id)->create(['sold_at' => '2026-11-04 09:00:00']);
+        SaleModelFactory::new()->forOffer($otherOffer->id)->count(3)->create(['sold_at' => '2026-11-04 09:00:00']);
+
+        $queries = new OfferQueries;
+
+        $this->assertSame(1, $queries->monthlyActivity($now, $mine->id)[11]['added']);
+        $this->assertSame(1, $queries->monthlyActivity($now, $mine->id)[11]['sold']);
+        $this->assertSame(3, $queries->monthlyActivity($now)[11]['added']);
+        $this->assertSame(4, $queries->monthlyActivity($now)[11]['sold']);
+    }
+
+    public function test_sellers_with_offers_lists_each_owner_once_by_name(): void
+    {
+        $zed = UserModel::factory()->create(['name' => 'Zed']);
+        $ann = UserModel::factory()->create(['name' => 'Ann']);
+        UserModel::factory()->create(['name' => 'Nobody']);
+        OfferModelFactory::new()->ownedBy($zed->id)->count(2)->create();
+        OfferModelFactory::new()->ownedBy($ann->id)->create();
+
+        $this->assertSame([$ann->id => 'Ann', $zed->id => 'Zed'], (new OfferQueries)->sellersWithOffers());
     }
 }
