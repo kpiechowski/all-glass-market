@@ -9,7 +9,6 @@ use App\Modules\Audit\Application\ModuleApi\RecordChangesAfter;
 use App\Modules\Catalogue\Application\ModuleApi\GlassModelSummaries;
 use App\Modules\Offers\Application\ModuleApi\BuyersPrices;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
-use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use App\Modules\Offers\Infrastructure\Persistence\Models\SaleModel;
@@ -52,8 +51,7 @@ class OfferInfolist
     {
         return Section::make(__('offers::resources.offer.sections.changes_since_approval'))
             ->visible(fn (OfferModel $record): bool => CurrentActor::can(OffersPermission::ManageAll)
-                && $record->status === OfferStatus::Pending
-                && $record->last_approved_at !== null)
+                && OfferDomainPolicy::changesSinceApprovalApply($record->status, $record->last_approved_at !== null))
             ->schema([
                 View::make('offers::filament.changes-since-approval')
                     ->viewData(fn (OfferModel $record): array => [
@@ -224,7 +222,7 @@ class OfferInfolist
 
     private static function ownerOrAdmin(OfferModel $record): bool
     {
-        return OfferDomainPolicy::canBeSeenBy($record->owner_id, (int) auth()->id(), CurrentActor::can(OffersPermission::ManageAll));
+        return OfferDomainPolicy::canBeSeenBy($record->owner_id, (int) CurrentActor::get()->id, CurrentActor::can(OffersPermission::ManageAll));
     }
 
     private static function notesSection(): Section

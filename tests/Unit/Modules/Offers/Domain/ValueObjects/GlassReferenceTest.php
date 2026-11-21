@@ -49,8 +49,11 @@ class GlassReferenceTest extends TestCase
 
     public function test_a_hint_over_the_limit_is_refused(): void
     {
-        $this->expectException(OfferRefused::class);
-
-        GlassReference::from(null, str_repeat('a', 256));
+        try {
+            GlassReference::from(null, str_repeat('a', 256));
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.hint_is_too_long', $refusal->translationKey);
+        }
     }
 }

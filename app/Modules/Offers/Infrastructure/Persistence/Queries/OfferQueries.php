@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Offers\Infrastructure\Persistence\Queries;
 
+use App\Modules\Offers\Domain\Enums\OfferCondition;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Enums\OwnerAccountType;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
@@ -26,6 +27,12 @@ final class OfferQueries
         return OfferModel::query()
             ->with(['owner', 'producer', 'currentReservation'])
             ->when(! $managesAll, fn (Builder $query) => $this->outsideTrash($query)->where('owner_id', $userId));
+    }
+
+    /** One Offer by id for a read outside the lists (the private photo route); the caller checks who may see it. */
+    public function find(int $id): ?OfferModel
+    {
+        return OfferModel::query()->find($id);
     }
 
     /**
@@ -257,6 +264,6 @@ final class OfferQueries
     {
         return $query->where(fn (Builder $offers) => $offers
             ->where('offers.rating', $stars)
-            ->when($stars === 5, fn (Builder $offers) => $offers->orWhere('offers.condition', 'new')));
+            ->when($stars === 5, fn (Builder $offers) => $offers->orWhere('offers.condition', OfferCondition::New->value)));
     }
 }

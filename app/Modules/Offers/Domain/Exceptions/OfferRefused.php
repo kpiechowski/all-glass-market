@@ -74,6 +74,11 @@ final class OfferRefused extends DomainException
         return new self('offers::exceptions.not_yours');
     }
 
+    public static function ownerAccountTypeIsUnknown(): self
+    {
+        return new self('offers::exceptions.owner_account_type_is_unknown');
+    }
+
     public static function tooManyPublicPhotos(int $max): self
     {
         return new self('offers::exceptions.too_many_public_photos', ['max' => $max]);

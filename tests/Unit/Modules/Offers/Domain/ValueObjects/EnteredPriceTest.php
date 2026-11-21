@@ -18,8 +18,11 @@ class EnteredPriceTest extends TestCase
 
     public function test_a_negative_price_is_refused(): void
     {
-        $this->expectException(OfferRefused::class);
-
-        EnteredPrice::fromGrosze(-1);
+        try {
+            EnteredPrice::fromGrosze(-1);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.price_is_invalid', $refusal->translationKey);
+        }
     }
 }

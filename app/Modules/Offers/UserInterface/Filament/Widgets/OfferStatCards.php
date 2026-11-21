@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Offers\UserInterface\Filament\Widgets;
 
+use App\Core\UserInterface\CurrentActor;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Infrastructure\Persistence\Queries\OfferQueries;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
@@ -26,7 +27,7 @@ class OfferStatCards extends Widget
     /** @return array<string, mixed> */
     protected function getViewData(): array
     {
-        $userId = (int) auth()->id();
+        $userId = (int) CurrentActor::get()->id;
         $queries = app(OfferQueries::class);
         $counts = $queries->countsByStatusOf($userId);
 

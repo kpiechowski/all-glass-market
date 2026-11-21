@@ -7,7 +7,6 @@ namespace App\Modules\Offers\Application\Commands\SendOfferForApproval;
 use App\Core\Contracts\Authorizer;
 use App\Core\Exceptions\AuthorizationException;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
-use App\Modules\Offers\Domain\Exceptions\OfferRefused;
 use App\Modules\Offers\Domain\Repositories\OfferRepository;
 use Carbon\CarbonImmutable;
 use Ecotone\Modelling\Attribute\CommandHandler;
@@ -28,9 +27,7 @@ final class SendOfferForApprovalCommandHandler
 
         $offer = $this->offers->get($command->offerId);
 
-        if ($offer->ownerId() !== $userId) {
-            throw OfferRefused::notYours();
-        }
+        $offer->ensureOwnedBy($userId);
 
         $offer->send($this->authorizer->can($command->actor, OffersPermission::ManageAll), CarbonImmutable::now());
         $this->offers->save($offer);

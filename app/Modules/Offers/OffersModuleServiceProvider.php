@@ -207,6 +207,7 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
             name: 'offers::audit.sale.type',
             title: fn (SaleModel $sale): string => __('offers::audit.sale.title', ['number' => $sale->offer->number]),
             url: fn (SaleModel $sale): string => OfferResource::getUrl('view', ['record' => $sale->offer_id]),
+            excludedFields: ['is_open'],
             fieldLabels: [
                 'offer_id' => 'offers::audit.sale.fields.offer',
                 'channel' => 'offers::audit.sale.fields.channel',

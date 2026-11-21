@@ -60,9 +60,12 @@ class ChangeVatRateCommandHandlerTest extends TestCase
     {
         $superAdmin = UserModel::factory()->superAdmin()->create();
 
-        $this->expectException(OfferRefused::class);
-
-        $this->change(Actor::user($superAdmin->id), 10001);
+        try {
+            $this->change(Actor::user($superAdmin->id), 10001);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.vat_rate_is_invalid', $refusal->translationKey);
+        }
     }
 
     public function test_every_private_owners_priced_offer_is_announced_and_company_owners_are_not(): void

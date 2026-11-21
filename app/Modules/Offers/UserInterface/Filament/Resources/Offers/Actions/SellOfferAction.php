@@ -42,7 +42,7 @@ final class SellOfferAction
                     ->numeric()
                     ->minValue(0.01)
                     ->required()
-                    ->suffix('zł'),
+                    ->suffix(__('offers::resources.offer.currency')),
             ])
             ->visible(fn (OfferModel $record): bool => OfferActionVisibility::canSell($record))
             ->action(function (OfferModel $record, array $data): void {

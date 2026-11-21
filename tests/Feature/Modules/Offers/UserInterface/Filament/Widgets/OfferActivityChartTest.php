@@ -46,7 +46,11 @@ class OfferActivityChartTest extends TestCase
     private function sellOffer(int $ownerId, int $sales): void
     {
         $offer = OfferModelFactory::new()->ownedBy($ownerId)->create(['first_approved_at' => now()->subDay()]);
-        SaleModelFactory::new()->forOffer($offer->id)->count($sales)->create(['sold_at' => now()->subDay()]);
+        SaleModelFactory::new()->forOffer($offer->id)->create(['sold_at' => now()->subDay()]);
+
+        for ($sale = 1; $sale < $sales; $sale++) {
+            SaleModelFactory::new()->forOffer(OfferModelFactory::new()->ownedBy($ownerId)->create()->id)->create(['sold_at' => now()->subDay()]);
+        }
     }
 
     public function test_a_seller_sees_the_chart_under_the_stat_cards_with_own_numbers_only(): void

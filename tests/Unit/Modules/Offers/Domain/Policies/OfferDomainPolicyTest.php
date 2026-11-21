@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Modules\Offers\Domain\Policies;
 
+use App\Modules\Offers\Domain\Enums\InquiryState;
 use App\Modules\Offers\Domain\Enums\OfferCondition;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
@@ -298,5 +299,70 @@ class OfferDomainPolicyTest extends TestCase
         $this->assertFalse(OfferDomainPolicy::glassModelCanBeChanged(true));
         $this->assertTrue(OfferDomainPolicy::canBeDuplicated(false));
         $this->assertFalse(OfferDomainPolicy::canBeDuplicated(true));
+    }
+
+    public function test_an_offer_is_owned_by_its_owner_only(): void
+    {
+        $this->assertTrue(OfferDomainPolicy::isOwnedBy(5, 5));
+        $this->assertFalse(OfferDomainPolicy::isOwnedBy(5, 9));
+        $this->assertFalse(OfferDomainPolicy::isOwnedBy(5, null));
+    }
+
+    public function test_an_inquiry_awaits_reading_only_while_sent(): void
+    {
+        $this->assertTrue(OfferDomainPolicy::inquiryAwaitsReading(InquiryState::Sent));
+        $this->assertFalse(OfferDomainPolicy::inquiryAwaitsReading(InquiryState::Read));
+        $this->assertFalse(OfferDomainPolicy::inquiryAwaitsReading(InquiryState::Accepted));
+    }
+
+    public function test_an_admins_own_offer_with_a_glass_model_goes_live_without_review(): void
+    {
+        $this->assertTrue(OfferDomainPolicy::goesLiveWithoutReview(true, true));
+        $this->assertFalse(OfferDomainPolicy::goesLiveWithoutReview(true, false));
+        $this->assertFalse(OfferDomainPolicy::goesLiveWithoutReview(false, true));
+    }
+
+    public function test_approval_needs_a_glass_model_choice_when_it_applies_and_there_is_none(): void
+    {
+        $this->assertTrue(OfferDomainPolicy::approvalNeedsGlassModelChoice(OfferStatus::Pending, false));
+        $this->assertTrue(OfferDomainPolicy::approvalNeedsGlassModelChoice(OfferStatus::Rejected, false));
+        $this->assertFalse(OfferDomainPolicy::approvalNeedsGlassModelChoice(OfferStatus::Pending, true));
+        $this->assertFalse(OfferDomainPolicy::approvalNeedsGlassModelChoice(OfferStatus::Active, false));
+    }
+
+    public function test_only_a_reserved_offer_has_a_current_reservation(): void
+    {
+        $this->assertTrue(OfferDomainPolicy::isReserved(OfferStatus::Reserved));
+        $this->assertFalse(OfferDomainPolicy::isReserved(OfferStatus::Active));
+    }
+
+    public function test_an_offer_is_in_the_trash_once_it_has_a_trash_date(): void
+    {
+        $this->assertTrue(OfferDomainPolicy::isInTrash(new \DateTimeImmutable));
+        $this->assertFalse(OfferDomainPolicy::isInTrash(null));
+    }
+
+    public function test_an_offer_is_edited_outside_the_trash_by_an_admin_or_by_a_seller_unless_reserved_or_sold(): void
+    {
+        $this->assertTrue(OfferDomainPolicy::canBeEditedBy(OfferStatus::Reserved, false, true));
+        $this->assertFalse(OfferDomainPolicy::canBeEditedBy(OfferStatus::Reserved, false, false));
+        $this->assertFalse(OfferDomainPolicy::canBeEditedBy(OfferStatus::Sold, false, false));
+        $this->assertTrue(OfferDomainPolicy::canBeEditedBy(OfferStatus::Active, false, false));
+        $this->assertFalse(OfferDomainPolicy::canBeEditedBy(OfferStatus::Active, true, true));
+    }
+
+    public function test_changes_since_approval_apply_to_a_pending_offer_approved_before(): void
+    {
+        $this->assertTrue(OfferDomainPolicy::changesSinceApprovalApply(OfferStatus::Pending, true));
+        $this->assertFalse(OfferDomainPolicy::changesSinceApprovalApply(OfferStatus::Pending, false));
+        $this->assertFalse(OfferDomainPolicy::changesSinceApprovalApply(OfferStatus::Active, true));
+    }
+
+    public function test_an_inquiry_is_received_by_an_active_offer_outside_the_trash_only(): void
+    {
+        $this->assertTrue(OfferDomainPolicy::canReceiveInquiry(OfferStatus::Active, false));
+        $this->assertFalse(OfferDomainPolicy::canReceiveInquiry(OfferStatus::Active, true));
+        $this->assertFalse(OfferDomainPolicy::canReceiveInquiry(OfferStatus::Reserved, false));
+        $this->assertFalse(OfferDomainPolicy::canReceiveInquiry(OfferStatus::Pending, false));
     }
 }

@@ -6,10 +6,12 @@ namespace App\Modules\Offers\Infrastructure\Persistence\Mappers;
 
 use App\Core\Contracts\Mapper;
 use App\Modules\Offers\Domain\Entities\Sale;
+use App\Modules\Offers\Domain\Exceptions\OfferRefused;
 use App\Modules\Offers\Domain\ValueObjects\EnteredPrice;
 use App\Modules\Offers\Domain\ValueObjects\VatRate;
 use App\Modules\Offers\Infrastructure\Persistence\Models\SaleModel;
 use Illuminate\Database\Eloquent\Model;
+use UnexpectedValueException;
 
 /** @implements Mapper<Sale> */
 final class SaleMapper implements Mapper
@@ -17,20 +19,24 @@ final class SaleMapper implements Mapper
     public function toEntity(Model $model): Sale
     {
         /** @var SaleModel $model */
-        return Sale::reconstitute(
-            $model->id,
-            $model->offer_id,
-            $model->channel,
-            $model->sale_price_grosze,
-            EnteredPrice::fromGrosze($model->entered_price_grosze),
-            VatRate::fromBasisPoints($model->vat_rate_basis_points),
-            $model->buyers_price_grosze,
-            $model->marked_by_id,
-            $model->sold_at,
-            $model->returned_at,
-            $model->return_reason,
-            $model->returned_by_id,
-        );
+        try {
+            return Sale::reconstitute(
+                $model->id,
+                $model->offer_id,
+                $model->channel,
+                $model->sale_price_grosze,
+                EnteredPrice::fromGrosze($model->entered_price_grosze),
+                VatRate::fromBasisPoints($model->vat_rate_basis_points),
+                $model->buyers_price_grosze,
+                $model->marked_by_id,
+                $model->sold_at,
+                $model->returned_at,
+                $model->return_reason,
+                $model->returned_by_id,
+            );
+        } catch (OfferRefused $refusal) {
+            throw new UnexpectedValueException("Sale #{$model->id} cannot be read: {$refusal->translationKey}.", 0, $refusal);
+        }
     }
 
     /** @return array<string, mixed> */
@@ -48,6 +54,7 @@ final class SaleMapper implements Mapper
             'returned_at' => $entity->returnedAt(),
             'return_reason' => $entity->returnReason(),
             'returned_by_id' => $entity->returnedById(),
+            'is_open' => $entity->returnedAt() === null ? true : null,
         ];
     }
 }

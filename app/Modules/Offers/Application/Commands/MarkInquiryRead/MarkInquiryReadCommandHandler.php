@@ -7,7 +7,6 @@ namespace App\Modules\Offers\Application\Commands\MarkInquiryRead;
 use App\Core\Contracts\Authorizer;
 use App\Core\Exceptions\AuthorizationException;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
-use App\Modules\Offers\Domain\Exceptions\OfferRefused;
 use App\Modules\Offers\Domain\Repositories\InquiryRepository;
 use App\Modules\Offers\Domain\Repositories\OfferRepository;
 use Carbon\CarbonImmutable;
@@ -30,9 +29,7 @@ final class MarkInquiryReadCommandHandler
 
         $inquiry = $this->inquiries->get($command->inquiryId);
 
-        if ($this->offers->get($inquiry->offerId())->ownerId() !== $userId) {
-            throw OfferRefused::notYours();
-        }
+        $this->offers->get($inquiry->offerId())->ensureOwnedBy($userId);
 
         $inquiry->markRead(CarbonImmutable::now());
         $this->inquiries->save($inquiry);

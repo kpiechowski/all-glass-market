@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Modules\Offers\Domain\Policies;
 
+use App\Modules\Offers\Domain\Enums\InquiryState;
 use App\Modules\Offers\Domain\Enums\OfferCondition;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\ValueObjects\OfferContent;
 use App\Modules\Offers\Domain\ValueObjects\OfferPhotos;
+use DateTimeInterface;
 
 final class OfferDomainPolicy
 {
@@ -39,6 +41,54 @@ final class OfferDomainPolicy
     public static function displayedStars(?OfferCondition $condition, ?int $rating): ?int
     {
         return $condition === OfferCondition::New ? 5 : $rating;
+    }
+
+    /** RULE-11: an Offer is the owner's alone to send, answer Inquiries about and sell as owner. */
+    public static function isOwnedBy(int $ownerId, ?int $actorId): bool
+    {
+        return $actorId !== null && $ownerId === $actorId;
+    }
+
+    /** FR-22: only a Sent Inquiry still waits to be opened by the owner. */
+    public static function inquiryAwaitsReading(InquiryState $state): bool
+    {
+        return $state === InquiryState::Sent;
+    }
+
+    /** FR-13: an admin's own Offer with a Glass model goes live on sending or resuming, without review. */
+    public static function goesLiveWithoutReview(bool $ownerIsAdmin, bool $hasGlassModel): bool
+    {
+        return $ownerIsAdmin && $hasGlassModel;
+    }
+
+    /** FR-10: an approvable Offer without a Glass model needs one chosen or created first. */
+    public static function approvalNeedsGlassModelChoice(OfferStatus $status, bool $hasGlassModel): bool
+    {
+        return self::approvalApplies($status) && ! $hasGlassModel;
+    }
+
+    /** FR-16: an Offer has a current Reservation exactly while it is Reserved. */
+    public static function isReserved(OfferStatus $status): bool
+    {
+        return $status === OfferStatus::Reserved;
+    }
+
+    /** FR-25: an Offer is in the Trash once it carries a trash date. */
+    public static function isInTrash(?DateTimeInterface $trashedAt): bool
+    {
+        return $trashedAt !== null;
+    }
+
+    /** RULE-06, FR-08, FR-25: nothing in the Trash is edited; a seller does not edit a Reserved or Sold Offer, an admin does. */
+    public static function canBeEditedBy(OfferStatus $status, bool $inTrash, bool $editorIsAdmin): bool
+    {
+        return ! $inTrash && ($editorIsAdmin || self::canBeEditedBySeller($status));
+    }
+
+    /** FR-12: a Pending Offer approved before shows what changed since that approval. */
+    public static function changesSinceApprovalApply(OfferStatus $status, bool $approvedBefore): bool
+    {
+        return $status === OfferStatus::Pending && $approvedBefore;
     }
 
     /** RULE-11, FR-05: a seller sees only their own Offers and private notes; whoever manages all Offers sees every one. */

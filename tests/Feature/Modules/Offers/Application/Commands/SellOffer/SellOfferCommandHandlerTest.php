@@ -19,6 +19,8 @@ use App\Modules\Offers\Infrastructure\Factories\ReservationModelFactory;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use App\Modules\Offers\Infrastructure\Persistence\Models\ReservationModel;
 use App\Modules\Offers\Infrastructure\Persistence\Models\SaleModel;
+use App\Modules\Users\Application\ModuleApi\AccountTypes;
+use App\Modules\Users\Domain\Repositories\UserRepository;
 use App\Modules\Users\Infrastructure\Persistence\Models\JournalEntryModel;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Ecotone\Modelling\CommandBus;
@@ -218,5 +220,20 @@ class SellOfferCommandHandlerTest extends TestCase
         $this->refusalKey(fn () => $this->sell(Actor::user($owner->id), $offer->id));
 
         $this->assertSame(0, ChangeModel::query()->count());
+    }
+
+    public function test_an_unknown_account_type_of_the_owner_is_a_refusal_and_nothing_is_sold(): void
+    {
+        $owner = UserModel::factory()->create();
+        $offer = OfferModelFactory::new()->sendable()->priced(15000)->status(OfferStatus::Active)->ownedBy($owner->id)->create();
+        $users = \Mockery::mock(UserRepository::class);
+        $users->shouldReceive('accountTypesOf')->andReturn([$owner->id => 'mystery']);
+        $this->app->instance(AccountTypes::class, new AccountTypes($users));
+
+        $key = $this->refusalKey(fn () => $this->sell(Actor::user($owner->id), $offer->id));
+
+        $this->assertSame('offers::exceptions.owner_account_type_is_unknown', $key);
+        $this->assertSame(OfferStatus::Active, $offer->fresh()->status);
+        $this->assertSame(0, SaleModel::query()->count());
     }
 }

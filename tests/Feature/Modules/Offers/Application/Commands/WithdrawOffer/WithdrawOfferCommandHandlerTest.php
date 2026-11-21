@@ -92,9 +92,12 @@ class WithdrawOfferCommandHandlerTest extends TestCase
         $admin = UserModel::factory()->admin()->create();
         $offer = OfferModelFactory::new()->pending()->inTrash()->create();
 
-        $this->expectException(OfferRefused::class);
-
-        $this->withdraw(Actor::user($admin->id), $offer->id);
+        try {
+            $this->withdraw(Actor::user($admin->id), $offer->id);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.is_in_trash', $refusal->translationKey);
+        }
     }
 
     public function test_a_system_actor_without_a_person_is_rejected(): void

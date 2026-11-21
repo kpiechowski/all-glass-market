@@ -42,7 +42,7 @@ class InquiryResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return app(InquiryQueries::class)->visibleTo((int) auth()->id(), CurrentActor::can(OffersPermission::ManageAll));
+        return app(InquiryQueries::class)->visibleTo((int) CurrentActor::get()->id, CurrentActor::can(OffersPermission::ManageAll));
     }
 
     public static function canViewAny(): bool

@@ -28,8 +28,11 @@ class RatingTest extends TestCase
     #[DataProvider('outOfRange')]
     public function test_anything_else_is_refused(int $stars): void
     {
-        $this->expectException(OfferRefused::class);
-
-        Rating::from($stars);
+        try {
+            Rating::from($stars);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.rating_is_invalid', $refusal->translationKey);
+        }
     }
 }

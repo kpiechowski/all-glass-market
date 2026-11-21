@@ -30,9 +30,13 @@ final class Inquiry
         private ?CarbonImmutable $answeredAt,
     ) {}
 
-    /** The handler has checked that the Offer is Active and who sends. */
-    public static function send(int $offerId, int $senderId, ?SaleChannel $channel, string $note, CarbonImmutable $now): self
+    /** The handler has checked who sends and says whether the Offer can receive an Inquiry (FR-21). */
+    public static function send(int $offerId, int $senderId, ?SaleChannel $channel, string $note, CarbonImmutable $now, bool $offerCanReceiveInquiry): self
     {
+        if (! $offerCanReceiveInquiry) {
+            throw OfferRefused::offerCannotReceiveInquiry();
+        }
+
         $note = trim($note);
 
         if ($note === '') {
@@ -64,7 +68,7 @@ final class Inquiry
     /** FR-22: opening it marks it read; opening it again, or after it is closed, changes nothing. */
     public function markRead(CarbonImmutable $now): void
     {
-        if ($this->state !== InquiryState::Sent) {
+        if (! OfferDomainPolicy::inquiryAwaitsReading($this->state)) {
             return;
         }
 

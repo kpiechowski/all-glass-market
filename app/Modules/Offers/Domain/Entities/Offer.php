@@ -89,7 +89,7 @@ final class Offer
 
         $this->guardCompleteForSending($this->content, $this->photos);
 
-        if ($ownerIsAdmin && $this->content->glass->glassModelId !== null) {
+        if (OfferDomainPolicy::goesLiveWithoutReview($ownerIsAdmin, $this->content->glass->glassModelId !== null)) {
             $this->activate($now);
 
             return;
@@ -120,7 +120,7 @@ final class Offer
             $glass = GlassReference::from($chosenGlassModelId, null);
         }
 
-        if (! OfferDomainPolicy::canBeApproved($this->status, $glass->glassModelId !== null)) {
+        if (OfferDomainPolicy::approvalNeedsGlassModelChoice($this->status, $glass->glassModelId !== null)) {
             throw OfferRefused::glassModelRequired();
         }
 
@@ -167,7 +167,7 @@ final class Offer
     ): bool {
         $this->guardNotInTrash();
 
-        if (! $editorIsAdmin && ! OfferDomainPolicy::canBeEditedBySeller($this->status)) {
+        if (! OfferDomainPolicy::canBeEditedBy($this->status, false, $editorIsAdmin)) {
             throw OfferRefused::cannotBeEditedWhileReservedOrSold();
         }
 
@@ -363,7 +363,7 @@ final class Offer
             throw OfferRefused::cannotBeResumed();
         }
 
-        if ($ownerIsAdmin && $this->content->glass->glassModelId !== null) {
+        if (OfferDomainPolicy::goesLiveWithoutReview($ownerIsAdmin, $this->content->glass->glassModelId !== null)) {
             $this->activate($now);
 
             return;
@@ -529,6 +529,14 @@ final class Offer
         return $this->number;
     }
 
+    /** RULE-11: refuses anyone but the owner. */
+    public function ensureOwnedBy(int $actorId): void
+    {
+        if (! OfferDomainPolicy::isOwnedBy($this->ownerId, $actorId)) {
+            throw OfferRefused::notYours();
+        }
+    }
+
     public function ownerId(): int
     {
         return $this->ownerId;
@@ -567,7 +575,7 @@ final class Offer
 
     public function isInTrash(): bool
     {
-        return $this->trashedAt !== null;
+        return OfferDomainPolicy::isInTrash($this->trashedAt);
     }
 
     public function trashedAt(): ?CarbonImmutable

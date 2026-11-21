@@ -46,16 +46,22 @@ class OfferContentTest extends TestCase
 
     public function test_a_rating_without_a_condition_is_refused(): void
     {
-        $this->expectException(OfferRefused::class);
-
-        $this->content(null, Rating::from(3));
+        try {
+            $this->content(null, Rating::from(3));
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.rating_needs_condition', $refusal->translationKey);
+        }
     }
 
     public function test_a_year_outside_the_plausible_range_is_refused(): void
     {
-        $this->expectException(OfferRefused::class);
-
-        $this->content(null, null, 1800);
+        try {
+            $this->content(null, null, 1800);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.year_is_invalid', $refusal->translationKey);
+        }
     }
 
     public function test_the_price_is_kept(): void

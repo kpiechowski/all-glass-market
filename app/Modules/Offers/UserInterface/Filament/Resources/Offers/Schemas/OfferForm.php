@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Offers\UserInterface\Filament\Resources\Offers\Schemas;
 
+use App\Core\UserInterface\CurrentActor;
 use App\Modules\Catalogue\Application\ModuleApi\CatalogueDictionaries;
 use App\Modules\Catalogue\Application\ModuleApi\GlassModelSummaries;
 use App\Modules\Offers\Domain\Enums\OfferCondition;
@@ -177,7 +178,7 @@ class OfferForm
         return Section::make(__('offers::resources.offer.sections.photos'))
             ->description(__('offers::resources.offer.descriptions.photos'))
             ->schema([
-                self::photoUpload('public_photos', 'public', 'public', fn (): string => OfferDomainPolicy::publicPhotoDirectory((int) auth()->id())),
+                self::photoUpload('public_photos', 'public', 'public', fn (): string => OfferDomainPolicy::publicPhotoDirectory((int) CurrentActor::get()->id)),
             ]);
     }
 
@@ -187,7 +188,7 @@ class OfferForm
         return Section::make(__('offers::resources.offer.sections.private_photos'))
             ->description(__('offers::resources.offer.descriptions.private_photos'))
             ->schema([
-                self::photoUpload('private_photos', 'local', 'private', fn (): string => OfferDomainPolicy::privatePhotoDirectory((int) auth()->id())),
+                self::photoUpload('private_photos', 'local', 'private', fn (): string => OfferDomainPolicy::privatePhotoDirectory((int) CurrentActor::get()->id)),
             ]);
     }
 
@@ -218,10 +219,11 @@ class OfferForm
             ->schema([
                 TextInput::make('price')
                     ->label(__('offers::resources.offer.fields.price'))
+                    ->hiddenLabel()
                     ->helperText(__('offers::resources.offer.helpers.price'))
                     ->numeric()
                     ->minValue(0)
-                    ->suffix('zł'),
+                    ->suffix(__('offers::resources.offer.currency')),
             ]);
     }
 }

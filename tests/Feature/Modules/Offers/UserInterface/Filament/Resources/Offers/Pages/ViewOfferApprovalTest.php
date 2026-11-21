@@ -51,7 +51,12 @@ class ViewOfferApprovalTest extends TestCase
         $this->actingAs($owner);
         $offer = OfferModelFactory::new()->ownedBy($owner->id)->create();
 
-        $this->openOffer($offer)->callAction('sendForApproval')->assertNotified();
+        $this->openOffer($offer)->callAction('sendForApproval')->assertNotified(__('offers::exceptions.missing_for_sending', ['fields' => implode(', ', [
+            __('offers::exceptions.sending_fields.glass'),
+            __('offers::exceptions.sending_fields.price'),
+            __('offers::exceptions.sending_fields.condition'),
+            __('offers::exceptions.sending_fields.public_photos'),
+        ])]));
 
         $this->assertSame(OfferStatus::Draft, $offer->fresh()->status);
     }

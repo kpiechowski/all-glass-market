@@ -40,15 +40,21 @@ class PriceChangeTest extends TestCase
 
     public function test_a_fixed_price_below_one_zloty_is_refused(): void
     {
-        $this->expectException(OfferRefused::class);
-
-        PriceChange::from('fixed', 99);
+        try {
+            PriceChange::from('fixed', 99);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.price_change_is_invalid', $refusal->translationKey);
+        }
     }
 
     public function test_an_unknown_kind_is_refused(): void
     {
-        $this->expectException(OfferRefused::class);
-
-        PriceChange::from('double', 2);
+        try {
+            PriceChange::from('double', 2);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.price_change_is_invalid', $refusal->translationKey);
+        }
     }
 }

@@ -32,7 +32,7 @@ class EloquentInquiryRepositoryTest extends TestCase
         $admin = UserModel::factory()->admin()->create();
         $repository = app(InquiryRepository::class);
 
-        $id = $this->inWrite(fn () => $repository->add(Inquiry::send($offer->id, $admin->id, null, 'Notatka', CarbonImmutable::now())));
+        $id = $this->inWrite(fn () => $repository->add(Inquiry::send($offer->id, $admin->id, null, 'Notatka', CarbonImmutable::now(), true)));
         $inquiry = $repository->get($id);
         $inquiry->reject(CarbonImmutable::now());
         $this->inWrite(fn () => $repository->save($inquiry));

@@ -37,8 +37,11 @@ class OfferNumberTest extends TestCase
     #[DataProvider('malformed')]
     public function test_a_malformed_number_is_refused(string $number): void
     {
-        $this->expectException(OfferRefused::class);
-
-        OfferNumber::from($number);
+        try {
+            OfferNumber::from($number);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.number_is_invalid', $refusal->translationKey);
+        }
     }
 }

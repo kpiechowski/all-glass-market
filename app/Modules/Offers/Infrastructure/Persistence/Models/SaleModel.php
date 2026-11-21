@@ -11,7 +11,7 @@ use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/** Read-only model of a Sale (FR-18); prices in grosze, the VAT rate in basis points, all as at the moment of sale (RULE-09). */
+/** Read-only model of a Sale (FR-18); `is_open` is 1 while it is not returned, null after, so the database allows one unreturned Sale per Offer; prices in grosze, the VAT rate in basis points, all as at the moment of sale (RULE-09). */
 final class SaleModel extends ReadOnlyModel
 {
     /** @use HasFactory<SaleModelFactory> */
@@ -42,6 +42,7 @@ final class SaleModel extends ReadOnlyModel
             'sold_at' => 'immutable_datetime',
             'returned_at' => 'immutable_datetime',
             'returned_by_id' => 'integer',
+            'is_open' => 'boolean',
         ];
     }
 

@@ -1287,18 +1287,6 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$glass_model_id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Support/OfferGlassLabel.php
-
-		-
-			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$identification_hint\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Support/OfferGlassLabel.php
-
-		-
-			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$glass_model_id\.$#'
-			identifier: property.notFound
 			count: 3
 			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Support/OfferListGlass.php
 
@@ -1324,25 +1312,25 @@ parameters:
 			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$number\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Tables/OffersTable.php
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Tables/OffersTableColumns.php
 
 		-
 			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$owner_id\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Tables/OffersTable.php
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Tables/OffersTableColumns.php
 
 		-
 			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$price_grosze\.$#'
 			identifier: property.notFound
 			count: 3
-			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Tables/OffersTable.php
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Tables/OffersTableColumns.php
 
 		-
 			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$status\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Tables/OffersTable.php
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Tables/OffersTableColumns.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>mainEurocode" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'

@@ -22,7 +22,7 @@ class InquiryTest extends TestCase
 
     private function inquiry(string $note = 'Pan Kowalski, tel. 500'): Inquiry
     {
-        return Inquiry::send(4, 11, SaleChannel::Olx, $note, $this->now());
+        return Inquiry::send(4, 11, SaleChannel::Olx, $note, $this->now(), true);
     }
 
     private function refusalKey(callable $action): string
@@ -52,7 +52,7 @@ class InquiryTest extends TestCase
 
     public function test_the_channel_is_optional(): void
     {
-        $this->assertNull(Inquiry::send(4, 11, null, 'Notatka', $this->now())->channel());
+        $this->assertNull(Inquiry::send(4, 11, null, 'Notatka', $this->now(), true)->channel());
     }
 
     public function test_a_blank_or_too_long_note_is_refused(): void
@@ -125,5 +125,21 @@ class InquiryTest extends TestCase
 
         $this->assertSame(9, $from->inquiryId());
         $this->assertNull($plain->inquiryId());
+    }
+
+    public function test_marking_read_twice_keeps_the_first_read_time(): void
+    {
+        $inquiry = $this->inquiry();
+        $inquiry->markRead($this->now());
+        $inquiry->markRead($this->now()->addHour());
+
+        $this->assertTrue($inquiry->readAt()->equalTo($this->now()));
+    }
+
+    public function test_an_inquiry_about_an_offer_that_cannot_receive_one_is_refused(): void
+    {
+        $key = $this->refusalKey(fn () => Inquiry::send(4, 11, null, 'Notatka', $this->now(), false));
+
+        $this->assertSame('offers::exceptions.offer_cannot_receive_inquiry', $key);
     }
 }

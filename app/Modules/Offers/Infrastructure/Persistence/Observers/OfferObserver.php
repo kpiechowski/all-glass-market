@@ -34,10 +34,4 @@ final class OfferObserver
     {
         $this->recorder->record($model, ChangeKind::Deleted);
     }
-
-    /** Only for models that use SoftDeletes. */
-    public function restored(OfferModel $model): void
-    {
-        $this->recorder->record($model, ChangeKind::Restored);
-    }
 }

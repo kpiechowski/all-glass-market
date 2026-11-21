@@ -7,6 +7,7 @@ namespace App\Modules\Offers\Application\Commands\ApproveOffers;
 use App\Core\Contracts\Authorizer;
 use App\Modules\Offers\Application\Services\OwnerJournal;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
+use App\Modules\Offers\Domain\Exceptions\OfferRefused;
 use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
 use App\Modules\Offers\Domain\Repositories\OfferRepository;
 use Carbon\CarbonImmutable;
@@ -40,7 +41,14 @@ final class ApproveOffersCommandHandler
                 continue;
             }
 
-            $offer->approve($now);
+            try {
+                $offer->approve($now);
+            } catch (OfferRefused) {
+                $skipped++;
+
+                continue;
+            }
+
             $this->offers->save($offer);
             $this->journal->approved($command->actor, $offer);
             $approved++;

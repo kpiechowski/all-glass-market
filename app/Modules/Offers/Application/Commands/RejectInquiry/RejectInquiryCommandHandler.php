@@ -8,7 +8,6 @@ use App\Core\Contracts\Authorizer;
 use App\Core\Exceptions\AuthorizationException;
 use App\Modules\Offers\Application\Services\InquirySenderJournal;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
-use App\Modules\Offers\Domain\Exceptions\OfferRefused;
 use App\Modules\Offers\Domain\Repositories\InquiryRepository;
 use App\Modules\Offers\Domain\Repositories\OfferRepository;
 use Carbon\CarbonImmutable;
@@ -33,9 +32,7 @@ final class RejectInquiryCommandHandler
         $inquiry = $this->inquiries->get($command->inquiryId);
         $offer = $this->offers->get($inquiry->offerId());
 
-        if ($offer->ownerId() !== $userId) {
-            throw OfferRefused::notYours();
-        }
+        $offer->ensureOwnedBy($userId);
 
         $inquiry->reject(CarbonImmutable::now());
         $this->inquiries->save($inquiry);

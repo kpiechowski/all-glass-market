@@ -51,7 +51,7 @@ class OfferResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return app(OfferQueries::class)->visibleTo((int) auth()->id(), self::managesAll());
+        return app(OfferQueries::class)->visibleTo((int) CurrentActor::get()->id, self::managesAll());
     }
 
     public static function canViewAny(): bool
@@ -72,8 +72,11 @@ class OfferResource extends Resource
     /** FR-25: an Offer in the Trash is frozen until restored. RULE-06: a seller does not edit a Reserved or Sold Offer. */
     public static function canEdit(Model $record): bool
     {
-        return self::canViewAny() && self::isVisibleTo($record) && $record->getAttribute('trashed_at') === null
-            && (self::managesAll() || OfferDomainPolicy::canBeEditedBySeller($record->getAttribute('status')));
+        return self::canViewAny() && self::isVisibleTo($record) && OfferDomainPolicy::canBeEditedBy(
+            $record->getAttribute('status'),
+            OfferDomainPolicy::isInTrash($record->getAttribute('trashed_at')),
+            self::managesAll(),
+        );
     }
 
     public static function canDelete(Model $record): bool
@@ -126,6 +129,6 @@ class OfferResource extends Resource
 
     private static function isVisibleTo(Model $record): bool
     {
-        return OfferDomainPolicy::canBeSeenBy((int) $record->getAttribute('owner_id'), (int) auth()->id(), self::managesAll());
+        return OfferDomainPolicy::canBeSeenBy((int) $record->getAttribute('owner_id'), (int) CurrentActor::get()->id, self::managesAll());
     }
 }

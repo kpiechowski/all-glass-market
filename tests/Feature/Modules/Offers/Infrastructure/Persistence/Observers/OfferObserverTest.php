@@ -72,4 +72,14 @@ class OfferObserverTest extends TestCase
 
         ReadOnlyModel::writing(fn () => OfferModel::create(OfferModelFactory::new()->raw()));
     }
+
+    public function test_a_save_without_change_records_nothing(): void
+    {
+        $model = $this->asActor(Actor::user(1), fn () => OfferModelFactory::new()->create());
+        Event::fake([RecordChanged::class]);
+
+        $this->asActor(Actor::user(1), fn () => $model->fresh()->save());
+
+        Event::assertNotDispatched(RecordChanged::class);
+    }
 }

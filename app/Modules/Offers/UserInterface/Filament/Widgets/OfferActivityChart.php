@@ -91,7 +91,7 @@ class OfferActivityChart extends ChartWidget
     private function ownerId(): ?int
     {
         if (! CurrentActor::can(OffersPermission::ManageAll)) {
-            return (int) auth()->id();
+            return (int) CurrentActor::get()->id;
         }
 
         $sellerId = (int) $this->filter;

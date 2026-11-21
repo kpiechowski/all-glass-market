@@ -50,7 +50,7 @@ final class ChangePriceOffersBulkAction
                 TextInput::make('value')
                     ->label(__('offers::resources.offer.fields.price_change_value'))
                     ->helperText(fn (Get $get): string => __('offers::resources.offer.helpers.price_change_'.$get('kind')))
-                    ->suffix(fn (Get $get): string => $get('kind') === PriceChangeKind::Percent->value ? '%' : 'zł')
+                    ->suffix(fn (Get $get): string => $get('kind') === PriceChangeKind::Percent->value ? '%' : __('offers::resources.offer.currency'))
                     ->numeric()
                     ->step(0.01)
                     ->minValue(fn (Get $get): ?int => $get('kind') === PriceChangeKind::Fixed->value ? 1 : null)

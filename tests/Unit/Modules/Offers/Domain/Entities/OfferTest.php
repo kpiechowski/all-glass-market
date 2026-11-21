@@ -76,9 +76,12 @@ class OfferTest extends TestCase
     {
         $offer = Offer::reconstitute(3, OfferNumber::from('AG00000001'), 11, OfferStatus::Draft, $this->content(glassModelId: 5), OfferPhotos::none());
 
-        $this->expectException(OfferRefused::class);
-
-        $offer->edit($this->content(glassModelId: 6), $offer->photos(), 11, false, false, true);
+        try {
+            $offer->edit($this->content(glassModelId: 6), $offer->photos(), 11, false, false, true);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.glass_model_cannot_be_picked', $refusal->translationKey);
+        }
     }
 
     public function test_a_producer_that_cannot_be_picked_is_refused_for_a_new_choice_but_kept_when_unchanged(): void
@@ -88,8 +91,12 @@ class OfferTest extends TestCase
         $offer->edit($this->content(producerId: 8), $offer->photos(), 11, false, true, false);
         $this->assertSame(8, $offer->content()->producerId);
 
-        $this->expectException(OfferRefused::class);
-        $offer->edit($this->content(producerId: 9), $offer->photos(), 11, false, true, false);
+        try {
+            $offer->edit($this->content(producerId: 9), $offer->photos(), 11, false, true, false);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.producer_cannot_be_picked', $refusal->translationKey);
+        }
     }
 
     public function test_a_new_draft_has_no_photos(): void
@@ -121,18 +128,24 @@ class OfferTest extends TestCase
     {
         $offer = $this->draft();
 
-        $this->expectException(OfferRefused::class);
-
-        $offer->arrangePhotos(OfferPhotos::from([], ['offers/private/12/secret.jpg']), 11);
+        try {
+            $offer->arrangePhotos(OfferPhotos::from([], ['offers/private/12/secret.jpg']), 11);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.photo_is_invalid', $refusal->translationKey);
+        }
     }
 
     public function test_a_private_path_cannot_be_added_as_a_public_photo(): void
     {
         $offer = $this->draft();
 
-        $this->expectException(OfferRefused::class);
-
-        $offer->arrangePhotos(OfferPhotos::from(['offers/private/11/x.jpg'], []), 11);
+        try {
+            $offer->arrangePhotos(OfferPhotos::from(['offers/private/11/x.jpg'], []), 11);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.photo_is_invalid', $refusal->translationKey);
+        }
     }
 
     private const string PHOTO = 'offers/public/11/a.jpg';
@@ -984,5 +997,14 @@ class OfferTest extends TestCase
         $notes = OfferContent::from(GlassReference::from(5, null), null, 2020, OfferCondition::New, null, 'Opis', 'Inna notatka', EnteredPrice::fromGrosze(100));
         $offer->edit($notes, $photos, 11, true, true, true);
         $this->assertSame([], $offer->pullAnnouncements());
+    }
+
+    public function test_it_refuses_an_actor_who_is_not_the_owner(): void
+    {
+        $offer = $this->offerIn(OfferStatus::Draft);
+
+        $offer->ensureOwnedBy(11);
+
+        $this->assertSame('offers::exceptions.not_yours', $this->refusalKey(fn () => $offer->ensureOwnedBy(12)));
     }
 }

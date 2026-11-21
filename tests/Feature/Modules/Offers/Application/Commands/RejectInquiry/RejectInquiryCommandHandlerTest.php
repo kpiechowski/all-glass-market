@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\Offers\Application\Commands\RejectInquiry;
 
 use App\Core\Domain\Actor;
+use App\Core\Exceptions\AuthorizationException;
 use App\Modules\Offers\Application\Commands\RejectInquiry\RejectInquiryCommand;
 use App\Modules\Offers\Domain\Enums\InquiryState;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
@@ -63,8 +64,24 @@ class RejectInquiryCommandHandlerTest extends TestCase
         $inquiry = InquiryModelFactory::new()->forOffer($offer->id)->create();
         $stranger = UserModel::factory()->create();
 
-        $this->expectException(OfferRefused::class);
+        try {
+            $this->reject(Actor::user($stranger->id), $inquiry->id);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.not_yours', $refusal->translationKey);
+        }
+    }
 
-        $this->reject(Actor::user($stranger->id), $inquiry->id);
+    public function test_an_actor_without_a_person_is_rejected_and_nothing_changes(): void
+    {
+        $offer = OfferModelFactory::new()->sendable()->status(OfferStatus::Active)->create();
+        $inquiry = InquiryModelFactory::new()->forOffer($offer->id)->create();
+
+        try {
+            $this->reject(Actor::system('test'), $inquiry->id);
+            $this->fail('Expected an authorization failure.');
+        } catch (AuthorizationException) {
+            $this->assertSame(InquiryState::Sent, $inquiry->fresh()->state);
+        }
     }
 }

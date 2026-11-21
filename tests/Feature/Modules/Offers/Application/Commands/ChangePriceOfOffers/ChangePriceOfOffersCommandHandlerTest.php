@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\Offers\Application\Commands\ChangePriceOfOffers;
 
 use App\Core\Domain\Actor;
+use App\Core\Exceptions\AuthorizationException;
 use App\Modules\Offers\Application\Commands\ChangePriceOfOffers\ChangePriceOfOffersCommand;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Exceptions\OfferRefused;
@@ -76,9 +77,12 @@ class ChangePriceOfOffersCommandHandlerTest extends TestCase
         $this->assertSame(['done' => 1, 'skipped' => 0], $this->change($seller, [$offer->id], 'fixed', 29900));
         $this->assertSame(29900, $offer->fresh()->price_grosze);
 
-        $this->expectException(OfferRefused::class);
-
-        $this->change($seller, [$offer->id], 'fixed', 50);
+        try {
+            $this->change($seller, [$offer->id], 'fixed', 50);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.price_change_is_invalid', $refusal->translationKey);
+        }
     }
 
     public function test_an_admin_changes_any_offer_and_a_foreign_owner_is_told(): void
@@ -94,5 +98,17 @@ class ChangePriceOfOffersCommandHandlerTest extends TestCase
         $this->assertSame(OfferStatus::Active, $foreign->fresh()->status);
         $this->assertSame(1, JournalEntryModel::query()->count());
         $this->assertSame($foreign->owner_id, JournalEntryModel::query()->sole()->user_id);
+    }
+
+    public function test_an_actor_without_a_person_is_rejected_and_no_price_changes(): void
+    {
+        $offer = OfferModelFactory::new()->sendable()->status(OfferStatus::Active)->priced(10000)->create();
+
+        try {
+            app(CommandBus::class)->send(new ChangePriceOfOffersCommand(Actor::system('test'), [$offer->id], 'amount', 500));
+            $this->fail('Expected an authorization failure.');
+        } catch (AuthorizationException) {
+            $this->assertSame(10000, $offer->fresh()->price_grosze);
+        }
     }
 }

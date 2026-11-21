@@ -7,7 +7,7 @@ namespace App\Modules\Offers\UserInterface\Http\Controllers;
 use App\Core\UserInterface\CurrentActor;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
 use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
-use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
+use App\Modules\Offers\Infrastructure\Persistence\Queries\OfferQueries;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -22,11 +22,11 @@ final class PrivatePhotoController
 
     public function __invoke(int $offer, int $position): Response
     {
-        $model = OfferModel::query()->find($offer);
+        $model = app(OfferQueries::class)->find($offer);
 
         abort_if($model === null || ! OfferDomainPolicy::canBeSeenBy(
             $model->owner_id,
-            (int) auth()->id(),
+            (int) CurrentActor::get()->id,
             CurrentActor::can(OffersPermission::ManageAll),
         ), 404);
 

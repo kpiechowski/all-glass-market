@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\Offers\Application\Commands\UpdateOffer;
 
 use App\Core\Domain\Actor;
+use App\Core\Exceptions\AuthorizationException;
 use App\Modules\Catalogue\Domain\Enums\Dictionary;
 use App\Modules\Catalogue\Infrastructure\Factories\DictionaryValueModelFactory;
 use App\Modules\Catalogue\Infrastructure\Factories\GlassModelModelFactory;
@@ -356,6 +357,19 @@ class UpdateOfferCommandHandlerTest extends TestCase
 
             $this->assertSame('nowe', $offer->fresh()->identification_hint);
             $this->assertSame($status, $offer->fresh()->status);
+        }
+    }
+
+    public function test_an_actor_without_a_person_is_rejected_and_the_offer_is_untouched(): void
+    {
+        $offer = OfferModelFactory::new()->sendable()->create();
+        $before = $offer->fresh()->description;
+
+        try {
+            $this->send(Actor::system('test'), $offer->id);
+            $this->fail('Expected an authorization failure.');
+        } catch (AuthorizationException) {
+            $this->assertSame($before, $offer->fresh()->description);
         }
     }
 }

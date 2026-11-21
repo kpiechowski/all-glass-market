@@ -6,6 +6,7 @@ namespace App\Modules\Offers\Infrastructure\Persistence\Mappers;
 
 use App\Core\Contracts\Mapper;
 use App\Modules\Offers\Domain\Entities\Offer;
+use App\Modules\Offers\Domain\Exceptions\OfferRefused;
 use App\Modules\Offers\Domain\ValueObjects\EnteredPrice;
 use App\Modules\Offers\Domain\ValueObjects\GlassReference;
 use App\Modules\Offers\Domain\ValueObjects\OfferContent;
@@ -14,6 +15,7 @@ use App\Modules\Offers\Domain\ValueObjects\OfferPhotos;
 use App\Modules\Offers\Domain\ValueObjects\Rating;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use Illuminate\Database\Eloquent\Model;
+use UnexpectedValueException;
 
 /** @implements Mapper<Offer> */
 final class OfferMapper implements Mapper
@@ -21,27 +23,31 @@ final class OfferMapper implements Mapper
     public function toEntity(Model $model): Offer
     {
         /** @var OfferModel $model */
-        return Offer::reconstitute(
-            $model->id,
-            OfferNumber::from($model->number),
-            $model->owner_id,
-            $model->status,
-            OfferContent::from(
-                GlassReference::from($model->glass_model_id, $model->identification_hint),
-                $model->producer_id,
-                $model->year,
-                $model->condition,
-                $model->rating === null ? null : Rating::from($model->rating),
-                $model->description,
-                $model->private_notes,
-                $model->price_grosze === null ? null : EnteredPrice::fromGrosze($model->price_grosze),
-            ),
-            OfferPhotos::from($model->public_photos ?? [], $model->private_photos ?? []),
-            $model->first_approved_at,
-            $model->last_approved_at,
-            $model->changed_since_approval,
-            $model->trashed_at,
-        );
+        try {
+            return Offer::reconstitute(
+                $model->id,
+                OfferNumber::from($model->number),
+                $model->owner_id,
+                $model->status,
+                OfferContent::from(
+                    GlassReference::from($model->glass_model_id, $model->identification_hint),
+                    $model->producer_id,
+                    $model->year,
+                    $model->condition,
+                    $model->rating === null ? null : Rating::from($model->rating),
+                    $model->description,
+                    $model->private_notes,
+                    $model->price_grosze === null ? null : EnteredPrice::fromGrosze($model->price_grosze),
+                ),
+                OfferPhotos::from($model->public_photos ?? [], $model->private_photos ?? []),
+                $model->first_approved_at,
+                $model->last_approved_at,
+                $model->changed_since_approval,
+                $model->trashed_at,
+            );
+        } catch (OfferRefused $refusal) {
+            throw new UnexpectedValueException("Offer #{$model->id} cannot be read: {$refusal->translationKey}.", 0, $refusal);
+        }
     }
 
     /** @return array<string, mixed> */

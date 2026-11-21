@@ -114,9 +114,12 @@ class SendOfferForApprovalCommandHandlerTest extends TestCase
         $owner = UserModel::factory()->create();
         $offer = OfferModelFactory::new()->pending()->ownedBy($owner->id)->create();
 
-        $this->expectException(OfferRefused::class);
-
-        $this->send(Actor::user($owner->id), $offer->id);
+        try {
+            $this->send(Actor::user($owner->id), $offer->id);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.cannot_be_sent', $refusal->translationKey);
+        }
     }
 
     public function test_a_system_actor_without_a_person_is_rejected(): void

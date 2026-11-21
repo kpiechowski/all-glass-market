@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\Offers\Application\Commands\DuplicateOffer;
 
 use App\Core\Domain\Actor;
+use App\Core\Exceptions\AuthorizationException;
 use App\Modules\Catalogue\Infrastructure\Factories\GlassModelModelFactory;
 use App\Modules\Offers\Application\Commands\DuplicateOffer\DuplicateOfferCommand;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
@@ -87,8 +88,23 @@ class DuplicateOfferCommandHandlerTest extends TestCase
         $seller = UserModel::factory()->create();
         $source = OfferModelFactory::new()->pending()->ownedBy($seller->id)->inTrash()->create();
 
-        $this->expectException(OfferRefused::class);
+        try {
+            $this->duplicate(Actor::user($seller->id), $source->id);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.is_in_trash', $refusal->translationKey);
+        }
+    }
 
-        $this->duplicate(Actor::user($seller->id), $source->id);
+    public function test_an_actor_without_a_person_is_rejected_and_nothing_is_copied(): void
+    {
+        $source = OfferModelFactory::new()->pending()->create();
+
+        try {
+            $this->duplicate(Actor::system('test'), $source->id);
+            $this->fail('Expected an authorization failure.');
+        } catch (AuthorizationException) {
+            $this->assertSame(1, OfferModel::query()->count());
+        }
     }
 }

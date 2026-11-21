@@ -12,6 +12,7 @@ use App\Modules\Offers\Application\ModuleApi\BuyersPrices;
 use App\Modules\Offers\Domain\Enums\OfferCondition;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
 use App\Modules\Offers\Infrastructure\Persistence\Queries\OfferQueries;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferFormData;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
@@ -144,9 +145,8 @@ final class OffersTableFilters
     {
         return SelectFilter::make('owner_id')
             ->label(__('offers::resources.offer.filters.owner'))
-            ->relationship('owner', 'name')
+            ->options(fn (): array => app(OfferQueries::class)->sellersWithOffers())
             ->searchable()
-            ->preload()
             ->visible(fn (): bool => CurrentActor::can(OffersPermission::ManageAll));
     }
 
@@ -197,8 +197,8 @@ final class OffersTableFilters
                 ]),
             ])
             ->query(function (Builder $query, array $data): Builder {
-                $from = self::grosze($data['from'] ?? null);
-                $to = self::grosze($data['to'] ?? null);
+                $from = OfferFormData::grosze($data['from'] ?? null);
+                $to = OfferFormData::grosze($data['to'] ?? null);
 
                 if ($from === null && $to === null) {
                     return $query;
@@ -210,10 +210,5 @@ final class OffersTableFilters
                 filled($data['from'] ?? null) ? __('offers::resources.offer.filters.price_indicator_from', ['price' => $data['from']]) : null,
                 filled($data['to'] ?? null) ? __('offers::resources.offer.filters.price_indicator_to', ['price' => $data['to']]) : null,
             ])));
-    }
-
-    private static function grosze(mixed $zloty): ?int
-    {
-        return filled($zloty) ? (int) round((float) $zloty * 100) : null;
     }
 }

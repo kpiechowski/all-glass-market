@@ -11,6 +11,7 @@ use App\Modules\Offers\Infrastructure\Factories\OfferModelFactory;
 use App\Modules\Offers\Infrastructure\Factories\SaleModelFactory;
 use App\Modules\Offers\Infrastructure\Persistence\Models\SaleModel;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -48,12 +49,34 @@ class EloquentSaleRepositoryTest extends TestCase
     {
         $offer = OfferModelFactory::new()->create();
         $other = OfferModelFactory::new()->create();
-        SaleModelFactory::new()->forOffer($offer->id)->create();
+        $admin = UserModel::factory()->admin()->create();
+        SaleModelFactory::new()->forOffer($offer->id)->returned($admin->id)->create();
         SaleModelFactory::new()->forOffer($offer->id)->create();
         $kept = SaleModelFactory::new()->forOffer($other->id)->create();
 
         app(ActorStack::class)->run(Actor::user(1), fn () => $this->repository()->removeAllOfOffer($offer->id));
 
         $this->assertSame([$kept->id], SaleModel::query()->pluck('id')->all());
+    }
+
+    public function test_the_database_refuses_a_second_unreturned_sale_of_one_offer(): void
+    {
+        $offer = OfferModelFactory::new()->create();
+        SaleModelFactory::new()->forOffer($offer->id)->create();
+
+        $this->expectException(QueryException::class);
+
+        SaleModelFactory::new()->forOffer($offer->id)->create();
+    }
+
+    public function test_the_database_allows_a_new_sale_after_the_earlier_one_was_returned(): void
+    {
+        $offer = OfferModelFactory::new()->create();
+        $admin = UserModel::factory()->admin()->create();
+        SaleModelFactory::new()->forOffer($offer->id)->returned($admin->id)->create();
+        SaleModelFactory::new()->forOffer($offer->id)->returned($admin->id)->create();
+        SaleModelFactory::new()->forOffer($offer->id)->create();
+
+        $this->assertSame(3, SaleModel::query()->where('offer_id', $offer->id)->count());
     }
 }

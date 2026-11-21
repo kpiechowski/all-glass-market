@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\Offers\Application\Commands\WithdrawOffers;
 
 use App\Core\Domain\Actor;
+use App\Core\Exceptions\AuthorizationException;
 use App\Modules\Offers\Application\Commands\WithdrawOffers\WithdrawOffersCommand;
 use App\Modules\Offers\Domain\Enums\InquiryState;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
@@ -77,5 +78,17 @@ class WithdrawOffersCommandHandlerTest extends TestCase
 
         $this->assertSame(InquiryState::Outdated, $firstInquiry->fresh()->state);
         $this->assertSame(InquiryState::Outdated, $secondInquiry->fresh()->state);
+    }
+
+    public function test_an_actor_without_a_person_is_rejected_and_nothing_is_withdrawn(): void
+    {
+        $offer = OfferModelFactory::new()->pending()->create();
+
+        try {
+            app(CommandBus::class)->send(new WithdrawOffersCommand(Actor::system('test'), [$offer->id]));
+            $this->fail('Expected an authorization failure.');
+        } catch (AuthorizationException) {
+            $this->assertSame(OfferStatus::Pending, $offer->fresh()->status);
+        }
     }
 }

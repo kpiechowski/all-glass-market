@@ -94,7 +94,8 @@ class CreateOfferTest extends TestCase
 
         Livewire::test(CreateOffer::class)
             ->fillForm(['glass_model_id' => $withdrawn->id])
-            ->call('create');
+            ->call('create')
+            ->assertNotified(__('offers::exceptions.glass_model_cannot_be_picked'));
 
         $this->assertSame(0, OfferModel::count());
     }
@@ -110,5 +111,27 @@ class CreateOfferTest extends TestCase
             ->assertSchemaStateSet(['glass_model_id' => $glassModel->id, 'identification_hint' => null])
             ->callAction(TestAction::make('unknownGlassModel')->schemaComponent('glass'))
             ->assertSchemaStateSet(['glass_model_id' => null, 'unknown_model' => true]);
+    }
+
+    public function test_a_draft_is_created_with_every_optional_field_empty(): void
+    {
+        $seller = UserModel::factory()->create();
+        $this->actingAs($seller);
+
+        Livewire::test(CreateOffer::class)
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $offer = OfferModel::firstOrFail();
+        $this->assertSame(OfferStatus::Draft, $offer->status);
+        $this->assertNull($offer->glass_model_id);
+        $this->assertNull($offer->identification_hint);
+        $this->assertNull($offer->producer_id);
+        $this->assertNull($offer->year);
+        $this->assertNull($offer->condition);
+        $this->assertNull($offer->rating);
+        $this->assertNull($offer->description);
+        $this->assertNull($offer->private_notes);
+        $this->assertNull($offer->price_grosze);
     }
 }

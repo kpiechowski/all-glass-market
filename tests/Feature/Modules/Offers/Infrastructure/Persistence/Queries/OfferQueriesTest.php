@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Modules\Offers\Infrastructure\Persistence\Queries;
 
+use App\Modules\Catalogue\Infrastructure\Factories\GlassModelModelFactory;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Enums\OwnerAccountType;
 use App\Modules\Offers\Domain\Policies\BuyersPricePolicy;
@@ -158,9 +159,9 @@ class OfferQueriesTest extends TestCase
         $now = now()->setDate(2026, 11, 15)->setTime(12, 0);
         $own = OfferModelFactory::new()->ownedBy($seller->id)->status(OfferStatus::Sold)->create();
         $counted = SaleModelFactory::new()->forOffer($own->id)->create(['sold_at' => $now->copy()->startOfMonth()]);
-        SaleModelFactory::new()->forOffer($own->id)->create(['sold_at' => $now->copy()->endOfMonth()]);
-        SaleModelFactory::new()->forOffer($own->id)->create(['sold_at' => $now->copy()->subMonth()->endOfMonth()]);
-        SaleModelFactory::new()->forOffer($own->id)->create(['sold_at' => $now->copy()->addMonth()->startOfMonth()]);
+        SaleModelFactory::new()->forOffer(OfferModelFactory::new()->ownedBy($seller->id)->create()->id)->create(['sold_at' => $now->copy()->endOfMonth()]);
+        SaleModelFactory::new()->forOffer(OfferModelFactory::new()->ownedBy($seller->id)->create()->id)->create(['sold_at' => $now->copy()->subMonth()->endOfMonth()]);
+        SaleModelFactory::new()->forOffer(OfferModelFactory::new()->ownedBy($seller->id)->create()->id)->create(['sold_at' => $now->copy()->addMonth()->startOfMonth()]);
         SaleModelFactory::new()->forOffer($own->id)->returned($seller->id)->create(['sold_at' => $now]);
         SaleModelFactory::new()->forOffer(OfferModelFactory::new()->create()->id)->create(['sold_at' => $now]);
 
@@ -211,7 +212,7 @@ class OfferQueriesTest extends TestCase
         $this->approvedAt(CarbonImmutable::parse('2026-08-15 10:00:00'));
         $offer = OfferModelFactory::new()->create();
         SaleModelFactory::new()->forOffer($offer->id)->create(['sold_at' => '2026-11-05 09:00:00']);
-        SaleModelFactory::new()->forOffer($offer->id)->create(['sold_at' => '2026-09-05 09:00:00']);
+        SaleModelFactory::new()->forOffer(OfferModelFactory::new()->create()->id)->create(['sold_at' => '2026-09-05 09:00:00']);
 
         $months = collect((new OfferQueries)->monthlyActivity($now))->keyBy('month');
 
@@ -231,8 +232,8 @@ class OfferQueriesTest extends TestCase
         $this->approvedAt(CarbonImmutable::parse('2026-12-01 00:00:00'));
         $offer = OfferModelFactory::new()->create();
         SaleModelFactory::new()->forOffer($offer->id)->create(['sold_at' => '2025-12-01 00:00:00']);
-        SaleModelFactory::new()->forOffer($offer->id)->create(['sold_at' => '2025-11-30 23:59:59']);
-        SaleModelFactory::new()->forOffer($offer->id)->create(['sold_at' => '2026-12-01 00:00:00']);
+        SaleModelFactory::new()->forOffer(OfferModelFactory::new()->create()->id)->create(['sold_at' => '2025-11-30 23:59:59']);
+        SaleModelFactory::new()->forOffer(OfferModelFactory::new()->create()->id)->create(['sold_at' => '2026-12-01 00:00:00']);
 
         $months = (new OfferQueries)->monthlyActivity($now);
 
@@ -272,9 +273,10 @@ class OfferQueriesTest extends TestCase
         $this->approvedAt(CarbonImmutable::parse('2026-11-02 10:00:00'), $other->id);
         $this->approvedAt(CarbonImmutable::parse('2026-11-02 10:00:00'), $other->id);
         $myOffer = OfferModelFactory::new()->ownedBy($mine->id)->create();
-        $otherOffer = OfferModelFactory::new()->ownedBy($other->id)->create();
         SaleModelFactory::new()->forOffer($myOffer->id)->create(['sold_at' => '2026-11-04 09:00:00']);
-        SaleModelFactory::new()->forOffer($otherOffer->id)->count(3)->create(['sold_at' => '2026-11-04 09:00:00']);
+        foreach (range(1, 3) as $ignored) {
+            SaleModelFactory::new()->forOffer(OfferModelFactory::new()->ownedBy($other->id)->create()->id)->create(['sold_at' => '2026-11-04 09:00:00']);
+        }
 
         $queries = new OfferQueries;
 
@@ -293,5 +295,63 @@ class OfferQueriesTest extends TestCase
         OfferModelFactory::new()->ownedBy($ann->id)->create();
 
         $this->assertSame([$ann->id => 'Ann', $zed->id => 'Zed'], (new OfferQueries)->sellersWithOffers());
+    }
+
+    public function test_it_counts_offers_by_glass_model_for_the_asked_models_only(): void
+    {
+        $first = GlassModelModelFactory::new()->create();
+        $second = GlassModelModelFactory::new()->create();
+        $unasked = GlassModelModelFactory::new()->create();
+        OfferModelFactory::new()->count(2)->withGlassModel($first->id)->create();
+        OfferModelFactory::new()->withGlassModel($second->id)->create();
+        OfferModelFactory::new()->withGlassModel($unasked->id)->create();
+        OfferModelFactory::new()->create();
+
+        $counts = (new OfferQueries)->countByGlassModel(OfferModel::query(), [$first->id, $second->id, 999999]);
+
+        $this->assertSame([$first->id => 2, $second->id => 1], $counts);
+    }
+
+    public function test_only_status_keeps_the_status_outside_the_trash(): void
+    {
+        $active = OfferModelFactory::new()->status(OfferStatus::Active)->create();
+        OfferModelFactory::new()->status(OfferStatus::Active)->inTrash()->create();
+        OfferModelFactory::new()->pending()->create();
+
+        $ids = (new OfferQueries)->onlyStatus(OfferModel::query(), OfferStatus::Active)->pluck('id')->all();
+
+        $this->assertSame([$active->id], $ids);
+    }
+
+    public function test_of_glass_models_keeps_offers_of_those_models_only(): void
+    {
+        $model = GlassModelModelFactory::new()->create();
+        $other = GlassModelModelFactory::new()->create();
+        $mine = OfferModelFactory::new()->withGlassModel($model->id)->create();
+        OfferModelFactory::new()->withGlassModel($other->id)->create();
+        OfferModelFactory::new()->create();
+
+        $ids = (new OfferQueries)->ofGlassModels(OfferModel::query(), [$model->id])->pluck('id')->all();
+
+        $this->assertSame([$mine->id], $ids);
+    }
+
+    public function test_without_glass_model_keeps_offers_that_have_none(): void
+    {
+        $model = GlassModelModelFactory::new()->create();
+        $bare = OfferModelFactory::new()->withHint('OEM 1')->create();
+        OfferModelFactory::new()->withGlassModel($model->id)->create();
+
+        $ids = (new OfferQueries)->withoutGlassModel(OfferModel::query())->pluck('id')->all();
+
+        $this->assertSame([$bare->id], $ids);
+    }
+
+    public function test_find_returns_the_offer_or_nothing(): void
+    {
+        $offer = OfferModelFactory::new()->create();
+
+        $this->assertSame($offer->id, (new OfferQueries)->find($offer->id)?->id);
+        $this->assertNull((new OfferQueries)->find(999999));
     }
 }

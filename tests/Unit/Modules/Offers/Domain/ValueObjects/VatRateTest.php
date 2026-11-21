@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Modules\Offers\Domain\ValueObjects;
 
-use App\Core\Exceptions\DomainException;
+use App\Modules\Offers\Domain\Exceptions\OfferRefused;
 use App\Modules\Offers\Domain\ValueObjects\VatRate;
 use PHPUnit\Framework\TestCase;
 
@@ -24,13 +24,21 @@ class VatRateTest extends TestCase
 
     public function test_a_negative_rate_or_one_above_a_hundred_percent_is_refused(): void
     {
-        $this->expectException(DomainException::class);
-        VatRate::fromBasisPoints(-1);
+        try {
+            VatRate::fromBasisPoints(-1);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.vat_rate_is_invalid', $refusal->translationKey);
+        }
     }
 
     public function test_a_rate_above_a_hundred_percent_is_refused(): void
     {
-        $this->expectException(DomainException::class);
-        VatRate::fromBasisPoints(10001);
+        try {
+            VatRate::fromBasisPoints(10001);
+            $this->fail('Expected a refusal.');
+        } catch (OfferRefused $refusal) {
+            $this->assertSame('offers::exceptions.vat_rate_is_invalid', $refusal->translationKey);
+        }
     }
 }

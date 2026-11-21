@@ -39,7 +39,7 @@ class ReservationResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return app(ReservationQueries::class)->currentVisibleTo((int) auth()->id(), CurrentActor::can(OffersPermission::ManageAll));
+        return app(ReservationQueries::class)->currentVisibleTo((int) CurrentActor::get()->id, CurrentActor::can(OffersPermission::ManageAll));
     }
 
     public static function canViewAny(): bool

@@ -18,6 +18,7 @@ return [
     'too_many_public_photos' => 'Oferta może mieć najwyżej :max zdjęć publicznych.',
     'too_many_private_photos' => 'Oferta może mieć najwyżej :max zdjęć prywatnych.',
     'photo_is_invalid' => 'Nie można użyć tego zdjęcia. Dodaj je ponownie.',
+    'owner_account_type_is_unknown' => 'Nie można ustalić typu konta właściciela oferty, więc nie da się wyliczyć ceny dla kupującego.',
     'not_yours' => 'Nie masz dostępu do tej oferty.',
     'missing_for_sending' => 'Nie można wysłać oferty do zatwierdzenia. Uzupełnij: :fields.',
     'sending_fields' => [

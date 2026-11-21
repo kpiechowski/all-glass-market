@@ -28,7 +28,7 @@ return [
     'app/Modules/Offers/UserInterface/Filament/Resources/Offers/Actions/SellOfferAction.php => App\\Modules\\Offers\\Application\\ModuleApi\\BuyersPrices',
     'app/Modules/Offers/UserInterface/Filament/Resources/Offers/Pages/ListOffers.php => App\\Modules\\Offers\\Application\\ModuleApi\\BuyersPrices',
     'app/Modules/Offers/UserInterface/Filament/Resources/Offers/Schemas/OfferInfolist.php => App\\Modules\\Offers\\Application\\ModuleApi\\BuyersPrices',
-    'app/Modules/Offers/UserInterface/Filament/Resources/Offers/Tables/OffersTable.php => App\\Modules\\Offers\\Application\\ModuleApi\\BuyersPrices',
+    'app/Modules/Offers/UserInterface/Filament/Resources/Offers/Tables/OffersTableColumns.php => App\\Modules\\Offers\\Application\\ModuleApi\\BuyersPrices',
     'app/Modules/Offers/UserInterface/Filament/Resources/Offers/Tables/OffersTableFilters.php => App\\Modules\\Offers\\Application\\ModuleApi\\BuyersPrices',
     // Preferences
     'app/Modules/Preferences/UserInterface/Filament/Widgets/QuickAccessWidget.php => App\\Modules\\Preferences\\Application\\ModuleApi\\QuickAccess',

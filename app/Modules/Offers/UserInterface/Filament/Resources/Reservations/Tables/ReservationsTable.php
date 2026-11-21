@@ -8,7 +8,7 @@ use App\Core\UserInterface\Filament\Tables\Columns\RecordCardColumn;
 use App\Core\UserInterface\Filament\Tables\TableEmptyState;
 use App\Modules\Offers\Infrastructure\Persistence\Models\ReservationModel;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
-use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferGlassLabel;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferListGlass;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -43,7 +43,7 @@ class ReservationsTable
 
             TextColumn::make('offer.number')
                 ->label(__('offers::resources.reservation.fields.offer'))
-                ->description(fn (ReservationModel $record): ?string => OfferGlassLabel::of($record->offer))
+                ->description(fn (ReservationModel $record): ?string => app(OfferListGlass::class)->label($record->offer))
                 ->sortable()
                 ->visibleFrom('md'),
 

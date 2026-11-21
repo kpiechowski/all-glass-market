@@ -39,11 +39,14 @@ final class SendInquiryCommandHandler
 
         $offer = $this->offers->get($command->offerId);
 
-        if (! OfferDomainPolicy::canReceiveInquiry($offer->status(), $offer->isInTrash())) {
-            throw OfferRefused::offerCannotReceiveInquiry();
-        }
-
-        $this->inquiries->add(Inquiry::send($command->offerId, $senderId, $channel, $command->note, CarbonImmutable::now()));
+        $this->inquiries->add(Inquiry::send(
+            $command->offerId,
+            $senderId,
+            $channel,
+            $command->note,
+            CarbonImmutable::now(),
+            OfferDomainPolicy::canReceiveInquiry($offer->status(), $offer->isInTrash()),
+        ));
 
         $this->journal->inquirySent($command->actor, $offer);
     }

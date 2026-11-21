@@ -11,15 +11,15 @@
             <li>
                 <span class="font-medium">{{ $line->label }}:</span>
                 @if ($line->old !== null || $line->new !== null)
-                    @include('audit::partials.value', ['value' => $line->old])
+                    <x-audit::value :value="$line->old" />
                     &rarr;
-                    @include('audit::partials.value', ['value' => $line->new])
+                    <x-audit::value :value="$line->new" />
                 @else
                     @foreach ($line->added as $value)
-                        + @include('audit::partials.value', ['value' => $value])
+                        + <x-audit::value :value="$value" />
                     @endforeach
                     @foreach ($line->removed as $value)
-                        &minus; @include('audit::partials.value', ['value' => $value])
+                        &minus; <x-audit::value :value="$value" />
                     @endforeach
                 @endif
             </li>

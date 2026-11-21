@@ -18,6 +18,7 @@ use App\Modules\Offers\Infrastructure\Persistence\Mappers\OfferMapper;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use UnexpectedValueException;
 
 class OfferMapperTest extends TestCase
 {
@@ -85,5 +86,15 @@ class OfferMapperTest extends TestCase
         $model = OfferModelFactory::new()->make(['id' => 10] + $mapper->toRow($entity));
 
         $this->assertEquals($entity, $mapper->toEntity($model));
+    }
+
+    public function test_a_row_that_cannot_become_a_valid_entity_is_refused_naming_the_record(): void
+    {
+        $model = OfferModelFactory::new()->make(['id' => 41, 'number' => 'not-a-number']);
+
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('#41');
+
+        (new OfferMapper)->toEntity($model);
     }
 }

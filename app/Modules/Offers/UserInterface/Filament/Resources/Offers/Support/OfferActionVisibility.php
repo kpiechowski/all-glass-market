@@ -23,7 +23,7 @@ final class OfferActionVisibility
     {
         return ! self::isInTrash($offer)
             && OfferDomainPolicy::canBeSent($offer->status)
-            && $offer->owner_id === (int) auth()->id()
+            && OfferDomainPolicy::isOwnedBy($offer->owner_id, CurrentActor::get()->id)
             && ! (self::managesAll() && OfferDomainPolicy::approvalApplies($offer->status));
     }
 
@@ -35,7 +35,7 @@ final class OfferActionVisibility
     /** FR-10: no Glass model yet, so approving starts with choosing or creating one. */
     public static function canApproveWithGlassModel(OfferModel $offer): bool
     {
-        return ! self::isInTrash($offer) && self::managesAll() && OfferDomainPolicy::approvalApplies($offer->status) && $offer->glass_model_id === null;
+        return ! self::isInTrash($offer) && self::managesAll() && OfferDomainPolicy::approvalNeedsGlassModelChoice($offer->status, $offer->glass_model_id !== null);
     }
 
     public static function canReject(OfferModel $offer): bool
@@ -46,7 +46,7 @@ final class OfferActionVisibility
     /** FR-24: whoever sees the Offer (its owner, or an admin) may withdraw it. */
     public static function canWithdraw(OfferModel $offer): bool
     {
-        return OfferDomainPolicy::canBeWithdrawn($offer->status, self::isInTrash($offer));
+        return self::canCreate() && OfferDomainPolicy::canBeWithdrawn($offer->status, self::isInTrash($offer));
     }
 
     /**
@@ -55,12 +55,12 @@ final class OfferActionVisibility
      */
     public static function canResume(OfferModel $offer): bool
     {
-        if (! OfferDomainPolicy::canBeResumed($offer->status, self::isInTrash($offer))) {
+        if (! self::canCreate() || ! OfferDomainPolicy::canBeResumed($offer->status, self::isInTrash($offer))) {
             return false;
         }
 
         return OfferDomainPolicy::resumesWithoutApproval($offer->last_approved_at !== null, $offer->changed_since_approval)
-            || ($offer->glass_model_id !== null && self::ownerManagesAll($offer));
+            || OfferDomainPolicy::goesLiveWithoutReview(self::ownerManagesAll($offer), $offer->glass_model_id !== null);
     }
 
     /** FR-14: only an admin changes the Glass model, in any status outside the Trash. */
@@ -72,7 +72,7 @@ final class OfferActionVisibility
     /** FR-27: whoever sees the Offer (its owner, or an admin) duplicates it, unless it is in the Trash. */
     public static function canDuplicate(OfferModel $offer): bool
     {
-        return OfferDomainPolicy::canBeDuplicated(self::isInTrash($offer));
+        return self::canCreate() && OfferDomainPolicy::canBeDuplicated(self::isInTrash($offer));
     }
 
     /** FR-25: only an admin deletes. */
@@ -94,7 +94,7 @@ final class OfferActionVisibility
     /** FR-16: whoever sees an Active Offer may reserve it. */
     public static function canReserve(OfferModel $offer): bool
     {
-        return OfferDomainPolicy::canBeReserved($offer->status, self::isInTrash($offer));
+        return self::canCreate() && OfferDomainPolicy::canBeReserved($offer->status, self::isInTrash($offer));
     }
 
     /** FR-21: only an admin sends an Inquiry, and only about an Active Offer. */
@@ -106,13 +106,13 @@ final class OfferActionVisibility
     /** FR-17, RULE-05: an admin's Reservation is visible but locked for its seller. */
     public static function canRelease(OfferModel $offer): bool
     {
-        return OfferDomainPolicy::canBeReleased($offer->status, self::isInTrash($offer)) && self::reservationIsOpenToMe($offer);
+        return self::canCreate() && OfferDomainPolicy::canBeReleased($offer->status, self::isInTrash($offer)) && self::reservationIsOpenToMe($offer);
     }
 
     /** FR-18: Active or Reserved, the seller not over an admin's Reservation. */
     public static function canSell(OfferModel $offer): bool
     {
-        return OfferDomainPolicy::canBeSold($offer->status, self::isInTrash($offer)) && self::reservationIsOpenToMe($offer);
+        return self::canCreate() && OfferDomainPolicy::canBeSold($offer->status, self::isInTrash($offer)) && self::reservationIsOpenToMe($offer);
     }
 
     /** FR-19: only an admin returns a Sale. */
@@ -124,7 +124,7 @@ final class OfferActionVisibility
     /** Whether the Offer's current Reservation, if any, is locked for the logged-in user. */
     public static function reservationIsLocked(OfferModel $offer): bool
     {
-        return $offer->status === OfferStatus::Reserved && ! self::reservationIsOpenToMe($offer);
+        return OfferDomainPolicy::isReserved($offer->status) && ! self::reservationIsOpenToMe($offer);
     }
 
     /**
@@ -151,7 +151,7 @@ final class OfferActionVisibility
 
     public static function isInTrash(OfferModel $offer): bool
     {
-        return $offer->trashed_at !== null;
+        return OfferDomainPolicy::isInTrash($offer->trashed_at);
     }
 
     /** The page has a primary action of its own, so Edit steps back to secondary. */
@@ -164,6 +164,11 @@ final class OfferActionVisibility
     private static function ownerManagesAll(OfferModel $offer): bool
     {
         return app(Authorizer::class)->can(Actor::user($offer->owner_id), OffersPermission::ManageAll);
+    }
+
+    private static function canCreate(): bool
+    {
+        return CurrentActor::can(OffersPermission::Create);
     }
 
     private static function managesAll(): bool

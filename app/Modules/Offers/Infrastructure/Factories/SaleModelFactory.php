@@ -29,6 +29,7 @@ final class SaleModelFactory extends ModelFactory
             'returned_at' => null,
             'return_reason' => null,
             'returned_by_id' => null,
+            'is_open' => true,
         ];
     }
 
@@ -39,6 +40,6 @@ final class SaleModelFactory extends ModelFactory
 
     public function returned(int $byId, string $reason = 'Klient zrezygnował'): static
     {
-        return $this->state(fn (): array => ['returned_at' => now(), 'return_reason' => $reason, 'returned_by_id' => $byId]);
+        return $this->state(fn (): array => ['returned_at' => now(), 'return_reason' => $reason, 'returned_by_id' => $byId, 'is_open' => null]);
     }
 }

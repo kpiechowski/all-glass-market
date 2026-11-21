@@ -36,6 +36,17 @@ class ViewOffer extends ViewRecord
 {
     protected static string $resource = OfferResource::class;
 
+    /** No lone details tab when the user sees no relation manager. */
+    public function hasCombinedRelationManagerTabsWithContent(): bool
+    {
+        return $this->getCachedRelationManagers() !== [];
+    }
+
+    public function getContentTabLabel(): ?string
+    {
+        return __('offers::resources.offer.tabs.details');
+    }
+
     protected function getHeaderActions(): array
     {
         return [

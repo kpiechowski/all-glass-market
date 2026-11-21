@@ -39,6 +39,11 @@ class ViewOfferHistoryTest extends TestCase
         return Livewire::test(ViewOffer::class, ['record' => $offer->getRouteKey()]);
     }
 
+    private function openHistoryTab(OfferModel $offer): Testable
+    {
+        return Livewire::withQueryParams(['relation' => '0'])->test(ViewOffer::class, ['record' => $offer->getRouteKey()]);
+    }
+
     /** Approved once, then the seller changes the Glass model and the description: Pending again. */
     private function approvedThenEditedBySeller(UserModel $owner, UserModel $admin): OfferModel
     {
@@ -137,6 +142,29 @@ class ViewOfferHistoryTest extends TestCase
         $offer = OfferModelFactory::new()->create();
         $this->actingAs($admin);
 
-        $this->open($offer)->assertSeeLivewire(RecordHistoryRelationManager::class);
+        $this->openHistoryTab($offer)->assertSeeLivewire(RecordHistoryRelationManager::class);
+    }
+
+    public function test_the_infolist_is_tab_one_and_the_history_tab_follows_for_an_admin(): void
+    {
+        $admin = UserModel::factory()->admin()->create();
+        $offer = OfferModelFactory::new()->create();
+        $this->actingAs($admin);
+
+        $this->open($offer)
+            ->assertSee(__('offers::resources.offer.tabs.details'))
+            ->assertSee(__('audit::resources.record_history.title'))
+            ->assertDontSeeLivewire(RecordHistoryRelationManager::class);
+
+        $this->openHistoryTab($offer)->assertSeeLivewire(RecordHistoryRelationManager::class);
+    }
+
+    public function test_a_seller_without_the_history_tab_gets_no_lone_details_tab(): void
+    {
+        $owner = UserModel::factory()->create();
+        $offer = OfferModelFactory::new()->ownedBy($owner->id)->create();
+        $this->actingAs($owner);
+
+        $this->open($offer)->assertDontSee(__('offers::resources.offer.tabs.details'));
     }
 }

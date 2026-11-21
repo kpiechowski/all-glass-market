@@ -65,7 +65,7 @@ final class SellOfferCommandHandler
         $rate = $this->vatRate->current();
         $buyersPrice = BuyersPricePolicy::buyersPriceGrosze(
             $enteredPrice->grosze,
-            OwnerAccountType::from((string) $this->accountTypes->of($offer->ownerId())),
+            OwnerAccountType::tryFrom((string) $this->accountTypes->of($offer->ownerId())) ?? throw OfferRefused::ownerAccountTypeIsUnknown(),
             $rate,
         );
 

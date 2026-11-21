@@ -32,8 +32,7 @@ enum InquiryState: string implements HasColor, HasLabel
     {
         return match ($this) {
             self::Sent, self::Read => 'warning',
-            self::Accepted => 'success',
-            self::Rejected, self::Outdated => 'gray',
+            self::Accepted, self::Rejected, self::Outdated => 'gray',
         };
     }
 }

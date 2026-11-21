@@ -25,7 +25,7 @@ final class EloquentSaleRepository extends EloquentRepository implements SaleRep
 
     public function findCurrentForOffer(int $offerId): ?Sale
     {
-        $model = $this->query()->where('offer_id', $offerId)->whereNull('returned_at')->latest('id')->first();
+        $model = $this->query()->where('offer_id', $offerId)->where('is_open', true)->first();
 
         return $model === null ? null : $this->saleMapper->toEntity($model);
     }

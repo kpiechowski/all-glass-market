@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\Offers\Application\Commands\MarkInquiryRead;
 
 use App\Core\Domain\Actor;
+use App\Core\Exceptions\AuthorizationException;
 use App\Modules\Offers\Application\Commands\MarkInquiryRead\MarkInquiryReadCommand;
 use App\Modules\Offers\Domain\Enums\InquiryState;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
@@ -59,5 +60,18 @@ class MarkInquiryReadCommandHandlerTest extends TestCase
         }
 
         $this->assertSame(InquiryState::Sent, $inquiry->fresh()->state);
+    }
+
+    public function test_an_actor_without_a_person_is_rejected_and_the_inquiry_stays_sent(): void
+    {
+        $offer = OfferModelFactory::new()->sendable()->status(OfferStatus::Active)->create();
+        $inquiry = InquiryModelFactory::new()->forOffer($offer->id)->create();
+
+        try {
+            app(CommandBus::class)->send(new MarkInquiryReadCommand(Actor::system('test'), $inquiry->id));
+            $this->fail('Expected an authorization failure.');
+        } catch (AuthorizationException) {
+            $this->assertSame(InquiryState::Sent, $inquiry->fresh()->state);
+        }
     }
 }
