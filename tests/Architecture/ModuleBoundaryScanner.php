@@ -63,13 +63,33 @@ final class ModuleBoundaryScanner
 
         $private = [];
         foreach ($matches as [$full, $module, $rest]) {
-            if ($module === $own[1] || $this->isPublicSurface($rest)) {
+            if ($module === $own[1]) {
+                if ($this->isOwnModuleApiImport($path, $rest)) {
+                    $private[$full] = $full;
+                }
+
+                continue;
+            }
+            if ($this->isPublicSurface($rest)) {
                 continue;
             }
             $private[$full] = $full;
         }
 
         return array_values($private);
+    }
+
+    /**
+     * ModuleApi is an Open Host Service for other modules: the module itself must not call it, except its service
+     * providers (registries are wired there) and the ModuleApi classes themselves.
+     */
+    private function isOwnModuleApiImport(string $path, string $classPath): bool
+    {
+        if (! str_starts_with($classPath, 'Application\\ModuleApi\\')) {
+            return false;
+        }
+
+        return ! preg_match('#/Application/ModuleApi/|/Application/Providers/|ServiceProvider\.php$#', $path);
     }
 
     private function isPublicSurface(string $classPath): bool

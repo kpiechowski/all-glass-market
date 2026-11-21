@@ -16,7 +16,10 @@ deptrac:
           must:
             - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/Domain/.*' }
           must_not:
-            - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/Domain/(Policies|Enums)/.*' }
+            - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/Domain/(Policies|Enums|ValueObjects)/.*' }
+    - name: DomainValueObject
+      collectors:
+        - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/Domain/ValueObjects/.*' }
     - name: DomainPolicy
       collectors:
         - { type: directory, value: 'app/(Modules|Integrations)/[^/]+/Domain/Policies/.*' }
@@ -96,16 +99,17 @@ deptrac:
         - { type: classNameRegex, value: '#^Illuminate\\Database\\(Query\\.*|Connection.*)$#' }
 
   ruleset:
-    Domain: &domain [Domain, DomainPolicy, DomainEnum, CoreDomain, FilamentEnumContract]
+    Domain: &domain [Domain, DomainValueObject, DomainPolicy, DomainEnum, CoreDomain, FilamentEnumContract]
+    DomainValueObject: *domain
     DomainPolicy: *domain
     DomainEnum: *domain
-    Application: &application [Application, ApplicationEntry, Domain, DomainPolicy, DomainEnum, CoreDomain]
+    Application: &application [Application, ApplicationEntry, Domain, DomainValueObject, DomainPolicy, DomainEnum, CoreDomain]
     ApplicationEntry: *application
-    Infrastructure: &infrastructure [Infrastructure, InfrastructureRead, Domain, DomainPolicy, DomainEnum, CoreDomain, CoreInfrastructure, FilamentEnumContract, RawQuery, HttpClient]
+    Infrastructure: &infrastructure [Infrastructure, InfrastructureRead, Domain, DomainValueObject, DomainPolicy, DomainEnum, CoreDomain, CoreInfrastructure, FilamentEnumContract, RawQuery, HttpClient]
     InfrastructureRead: *infrastructure
-    UserInterface: [UserInterface, ApplicationEntry, DomainPolicy, DomainEnum, InfrastructureRead, CoreDomain, CoreUserInterface, Filament, FilamentEnumContract, Http]
-    Wiring: [Wiring, Domain, DomainPolicy, DomainEnum, Application, ApplicationEntry, Infrastructure, InfrastructureRead, UserInterface, CoreDomain, CoreInfrastructure, CoreUserInterface, CoreSupport, Filament, FilamentEnumContract, Http, HttpClient, RawQuery]
-    Panel: [Panel, Wiring, Domain, DomainPolicy, DomainEnum, Application, ApplicationEntry, Infrastructure, InfrastructureRead, UserInterface, CoreDomain, CoreInfrastructure, CoreUserInterface, CoreSupport, Filament, FilamentEnumContract, Http, HttpClient, RawQuery]
+    UserInterface: [UserInterface, ApplicationEntry, DomainValueObject, DomainPolicy, DomainEnum, InfrastructureRead, CoreDomain, CoreUserInterface, Filament, FilamentEnumContract, Http]
+    Wiring: [Wiring, Domain, DomainValueObject, DomainPolicy, DomainEnum, Application, ApplicationEntry, Infrastructure, InfrastructureRead, UserInterface, CoreDomain, CoreInfrastructure, CoreUserInterface, CoreSupport, Filament, FilamentEnumContract, Http, HttpClient, RawQuery]
+    Panel: [Panel, Wiring, Domain, DomainValueObject, DomainPolicy, DomainEnum, Application, ApplicationEntry, Infrastructure, InfrastructureRead, UserInterface, CoreDomain, CoreInfrastructure, CoreUserInterface, CoreSupport, Filament, FilamentEnumContract, Http, HttpClient, RawQuery]
     CoreDomain: [CoreDomain]
     CoreInfrastructure: [CoreInfrastructure, CoreDomain, RawQuery, HttpClient]
     CoreUserInterface: [CoreUserInterface, CoreDomain, Filament, FilamentEnumContract, Http]

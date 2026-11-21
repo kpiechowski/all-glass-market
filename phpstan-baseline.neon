@@ -1,0 +1,1777 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Trait App\\Core\\Concerns\\HasQueryBus is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: app/Core/Concerns/HasQueryBus.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Core/Console/CreateDevUserCommand.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: app/Core/Console/DeleteModuleCommand.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Core/Console/DeleteModuleCommand.php
+
+		-
+			message: '#^Method App\\Core\\Infrastructure\\Persistence\\ReadOnlyBuilder\:\:insertGetId\(\) never returns string so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Core/Infrastructure/Persistence/ReadOnlyBuilder.php
+
+		-
+			message: '#^Trait App\\Core\\Providers\\DiscoverModuleFilament is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: app/Core/Providers/DiscoverModuleFilament.php
+
+		-
+			message: '#^Call to an undefined method Filament\\Tables\\Contracts\\HasTable\:\:getTableSearch\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Core/UserInterface/Filament/Tables/TableEmptyState.php
+
+		-
+			message: '#^Call to an undefined method Filament\\Tables\\Contracts\\HasTable\:\:removeTableFilters\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Core/UserInterface/Filament/Tables/TableEmptyState.php
+
+		-
+			message: '#^Anonymous function has invalid return type Filament\\Tables\\Indicator\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Filament/Pages/Styleguide/Tables/StyleguideUsersTableFilters.php
+
+		-
+			message: '#^Call to static method make\(\) on an unknown class Filament\\Tables\\Indicator\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Filament/Pages/Styleguide/Tables/StyleguideUsersTableFilters.php
+
+		-
+			message: '#^Property App\\Modules\\Audit\\Application\\Providers\\AuditEventServiceProvider\:\:\$listen \(array\<string, array\<int, string\>\>\) does not accept default value of type array\<string, list\<list\<string\>\|string\>\>\.$#'
+			identifier: property.defaultValue
+			count: 1
+			path: app/Modules/Audit/Application/Providers/AuditEventServiceProvider.php
+
+		-
+			message: '#^Call to an undefined static method UnitEnum\:\:tryFrom\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/Modules/Audit/Application/Queries/PresentChange/ChangePresenter.php
+
+		-
+			message: '#^Offset ''added'' on array\{added\: list\<int\|string\>, removed\: list\<int\|string\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Modules/Audit/Application/Queries/PresentChange/ChangePresenter.php
+
+		-
+			message: '#^Offset ''removed'' on array\{added\: list\<int\|string\>, removed\: list\<int\|string\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Modules/Audit/Application/Queries/PresentChange/ChangePresenter.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>item" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Audit/Application/Queries/PresentChange/ChangePresenter.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$occurred_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/Infrastructure/Factories/ChangeModelFactory.php
+
+		-
+			message: '#^Property Illuminate\\Database\\Eloquent\\Model\:\:\$changes \(array\<string, mixed\>\) on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.property
+			count: 1
+			path: app/Modules/Audit/Infrastructure/Persistence/EloquentRecordChangeReader.php
+
+		-
+			message: '#^Variable \$model in PHPDoc tag @var does not match assigned variable \$query\.$#'
+			identifier: varTag.differentVariable
+			count: 1
+			path: app/Modules/Audit/Infrastructure/Persistence/EloquentRecordLoader.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$actor_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/Infrastructure/Persistence/Mappers/ChangeMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$actor_reason\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/Infrastructure/Persistence/Mappers/ChangeMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$kind\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/Infrastructure/Persistence/Mappers/ChangeMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$occurred_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/Infrastructure/Persistence/Mappers/ChangeMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$record_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/Infrastructure/Persistence/Mappers/ChangeMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$record_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/Infrastructure/Persistence/Mappers/ChangeMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$restored_from_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/Infrastructure/Persistence/Mappers/ChangeMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$restored_from_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/Infrastructure/Persistence/Mappers/ChangeMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/Infrastructure/Persistence/Mappers/ChangeMapper.php
+
+		-
+			message: '#^Property Illuminate\\Database\\Eloquent\\Model\:\:\$changes \(array\<string, mixed\>\) on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.property
+			count: 1
+			path: app/Modules/Audit/Infrastructure/Persistence/Mappers/ChangeMapper.php
+
+		-
+			message: '#^Method App\\Modules\\Audit\\Infrastructure\\Persistence\\Queries\\ChangeQueries\:\:actorsOf\(\) should return array\<string, string\> but returns array\<int, string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/Audit/Infrastructure/Persistence/Queries/ChangeQueries.php
+
+		-
+			message: '#^Method App\\Modules\\Audit\\Infrastructure\\Persistence\\Queries\\ChangeQueries\:\:allActors\(\) should return array\<string, string\> but returns array\<int, string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/Audit/Infrastructure/Persistence/Queries/ChangeQueries.php
+
+		-
+			message: '#^Called ''env'' outside of the config directory which returns null when the config is cached, use ''config''\.$#'
+			identifier: larastan.noEnvCallsOutsideOfConfig
+			count: 1
+			path: app/Modules/Audit/Infrastructure/config/audit.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between Carbon\\CarbonImmutable\|null and false will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Modules/Audit/UserInterface/Console/CleanUpExpiredChangesConsoleCommand.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$kind\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/UserInterface/Filament/Actions/RestoreChangeAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$record_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/UserInterface/Filament/Actions/RestoreChangeAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$record_type\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Modules/Audit/UserInterface/Filament/Actions/RestoreChangeAction.php
+
+		-
+			message: '#^Property Illuminate\\Database\\Eloquent\\Model\:\:\$changes \(array\<string, mixed\>\) on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.property
+			count: 3
+			path: app/Modules/Audit/UserInterface/Filament/Actions/RestoreChangeAction.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>entries" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Audit/UserInterface/Filament/Pages/HistoryAndLogs/HistoryAndLogs.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>total" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Audit/UserInterface/Filament/Pages/HistoryAndLogs/HistoryAndLogs.php
+
+		-
+			message: '#^Method App\\Modules\\Audit\\UserInterface\\Filament\\RelationManagers\\RecordHistoryRelationManager\:\:getRelationship\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Illuminate\\Database\\Eloquent\\Model, Illuminate\\Database\\Eloquent\\Model\> but returns Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel, Illuminate\\Database\\Eloquent\\Model\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/Audit/UserInterface/Filament/RelationManagers/RecordHistoryRelationManager.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$occurred_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/UserInterface/Filament/Tables/AuditLogTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$record_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Audit/UserInterface/Filament/Tables/AuditLogTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$record_type\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Modules/Audit/UserInterface/Filament/Tables/AuditLogTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$actor_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/UserInterface/Filament/Tables/RecordHistoryTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$actor_reason\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/UserInterface/Filament/Tables/RecordHistoryTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$kind\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/UserInterface/Filament/Tables/RecordHistoryTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$occurred_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/UserInterface/Filament/Tables/RecordHistoryTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$record_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/UserInterface/Filament/Tables/RecordHistoryTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Audit\\Infrastructure\\Persistence\\Models\\ChangeModel\:\:\$restored_from_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/UserInterface/Filament/Tables/RecordHistoryTable.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Audit/UserInterface/Filament/Tables/RecordHistoryTable.php
+
+		-
+			message: '#^Property Illuminate\\Database\\Eloquent\\Model\:\:\$changes \(array\<string, mixed\>\) on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.property
+			count: 1
+			path: app/Modules/Audit/UserInterface/Filament/Tables/RecordHistoryTable.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Audit/UserInterface/Filament/Tables/RecordHistoryTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\DictionaryValueModel\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/CatalogueModuleServiceProvider.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\VehicleModel\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/CatalogueModuleServiceProvider.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>value" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Catalogue/Domain/Policies/ThumbnailDrawingPolicy.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: App\\Modules\\Catalogue\\Domain\\Contracts\\Candidate, Closure\(App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelModel\)\: App\\Modules\\Catalogue\\Domain\\Contracts\\Candidate given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/EloquentCandidateSearch.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\DictionaryValueModel\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/EloquentDictionaryReader.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\DictionaryValueModel\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Modules/Catalogue/Infrastructure/Persistence/EloquentGlassModelFactsReader.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelEurocodeModel\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/EloquentGlassModelFactsReader.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelModel\:\:\$withdrawn\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/EloquentGlassModelFactsReader.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelEurocodeModel\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/EloquentGlassModelRepository.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelEurocodeModel\:\:\$glass_model_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Catalogue/Infrastructure/Persistence/EloquentGlassModelRepository.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelEurocodeModel\:\:\$is_main\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/EloquentGlassModelRepository.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelOemCodeModel\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/EloquentGlassModelRepository.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelOemCodeModel\:\:\$code_key\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/EloquentGlassModelRepository.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Core\\Infrastructure\\Persistence\\ReadOnlyModel\>\:\:map\(\) expects callable\(App\\Core\\Infrastructure\\Persistence\\ReadOnlyModel, int\)\: App\\Modules\\Catalogue\\Domain\\Entities\\ThumbnailMapping, Closure\(App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\ThumbnailMappingModel\)\: App\\Modules\\Catalogue\\Domain\\Entities\\ThumbnailMapping given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/EloquentThumbnailMappingRepository.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\DictionaryValueModel\:\:\$dictionary\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/DictionaryValueMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\DictionaryValueModel\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/DictionaryValueMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\DictionaryValueModel\:\:\$withdrawn\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/DictionaryValueMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelEurocodeModel\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/GlassModelMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelModel\:\:\$colour_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/GlassModelMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelModel\:\:\$position_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/GlassModelMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelModel\:\:\$withdrawn\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/GlassModelMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelOemCodeModel\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/GlassModelMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\ThumbnailMappingModel\:\:\$dictionary\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/ThumbnailMappingMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\ThumbnailMappingModel\:\:\$dictionary_value_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/ThumbnailMappingMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\ThumbnailMappingModel\:\:\$fill\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/ThumbnailMappingMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\ThumbnailMappingModel\:\:\$mirrored\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/ThumbnailMappingMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\ThumbnailMappingModel\:\:\$opacity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/ThumbnailMappingMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\ThumbnailMappingModel\:\:\$pictogram\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/ThumbnailMappingMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\ThumbnailMappingModel\:\:\$shape\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/ThumbnailMappingMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\VehicleModel\:\:\$argic_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/VehicleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\VehicleModel\:\:\$body_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/VehicleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\VehicleModel\:\:\$generation\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/VehicleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\VehicleModel\:\:\$make_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/VehicleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\VehicleModel\:\:\$model\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/VehicleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\VehicleModel\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/VehicleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\VehicleModel\:\:\$year_from\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/VehicleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\VehicleModel\:\:\$year_to\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/Infrastructure/Persistence/Mappers/VehicleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\ThumbnailMappingModel\:\:\$dictionary\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Pages/CatalogueSettings/CatalogueSettings.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\ThumbnailMappingModel\:\:\$dictionary_value_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Pages/CatalogueSettings/CatalogueSettings.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\ThumbnailMappingModel\:\:\$fill\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Pages/CatalogueSettings/CatalogueSettings.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\ThumbnailMappingModel\:\:\$mirrored\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Pages/CatalogueSettings/CatalogueSettings.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\ThumbnailMappingModel\:\:\$opacity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Pages/CatalogueSettings/CatalogueSettings.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\ThumbnailMappingModel\:\:\$pictogram\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Pages/CatalogueSettings/CatalogueSettings.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\ThumbnailMappingModel\:\:\$shape\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Pages/CatalogueSettings/CatalogueSettings.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\DictionaryValueModel\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Pages/CatalogueSettings/Schemas/CatalogueSettingsForm.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>value" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/DictionaryValues/Actions/CreateDictionaryValueAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\DictionaryValueModel\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/DictionaryValues/Actions/RenameDictionaryValueAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\DictionaryValueModel\:\:\$withdrawn\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/DictionaryValues/Actions/RestoreDictionaryValueAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\DictionaryValueModel\:\:\$withdrawn\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/DictionaryValues/Actions/WithdrawDictionaryValueAction.php
+
+		-
+			message: '#^Method App\\Modules\\Catalogue\\UserInterface\\Filament\\Resources\\DictionaryValues\\DictionaryValueResource\:\:getEloquentQuery\(\) should return Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\> but returns Illuminate\\Database\\Eloquent\\Builder\<App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\DictionaryValueModel\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/DictionaryValues/DictionaryValueResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\DictionaryValueModel\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/DictionaryValues/Tables/DictionaryValuesTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\DictionaryValueModel\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/DictionaryValues/Tables/DictionaryValuesTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\DictionaryValueModel\:\:\$withdrawn\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/DictionaryValues/Tables/DictionaryValuesTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelEurocodeModel\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Actions/EurocodeOptions.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelEurocodeModel\:\:\$is_main\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Actions/EurocodeOptions.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelEurocodeModel\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Actions/MoveEurocodeAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelModel\:\:\$withdrawn\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Actions/RestoreGlassModelAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelModel\:\:\$withdrawn\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Actions/WithdrawGlassModelAction.php
+
+		-
+			message: '#^Method App\\Modules\\Catalogue\\UserInterface\\Filament\\Resources\\GlassModels\\GlassModelResource\:\:getEloquentQuery\(\) should return Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\> but returns Illuminate\\Database\\Eloquent\\Builder\<App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelModel\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/GlassModelResource.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Pages/CreateGlassModel.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between array\{''colour_id''\} and null will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Pages/CreateGlassModel.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelEurocodeModel\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Pages/EditGlassModel.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelModel\:\:\$colour_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Schemas/GlassModelForm.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelModel\:\:\$position_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Schemas/GlassModelForm.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelModel\:\:\$colour_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Tables/GlassModelsTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\GlassModelModel\:\:\$position_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Tables/GlassModelsTable.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Pagination\\CursorPaginator\|Illuminate\\Contracts\\Pagination\\Paginator\|Illuminate\\Support\\Collection\:\:modelKeys\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/GlassModels/Tables/GlassModelsTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\DictionaryValueModel\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\DictionaryValueModel\>\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/Vehicles/Schemas/VehicleForm.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\VehicleModel\:\:\$body_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/Vehicles/Schemas/VehicleForm.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\VehicleModel\:\:\$make_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/Vehicles/Schemas/VehicleForm.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\VehicleModel\:\:\$year_from\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/Vehicles/Support/VehicleYears.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\VehicleModel\:\:\$year_to\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/Vehicles/Support/VehicleYears.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\VehicleModel\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/Vehicles/Tables/VehiclesTable.php
+
+		-
+			message: '#^Method App\\Modules\\Catalogue\\UserInterface\\Filament\\Resources\\Vehicles\\VehicleResource\:\:getEloquentQuery\(\) should return Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\> but returns Illuminate\\Database\\Eloquent\\Builder\<App\\Modules\\Catalogue\\Infrastructure\\Persistence\\Models\\VehicleModel\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/Catalogue/UserInterface/Filament/Resources/Vehicles/VehicleResource.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<string\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 2
+			path: app/Modules/Offers/Domain/ValueObjects/OfferPhotos.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Core\\Infrastructure\\Persistence\\ReadOnlyModel\>\:\:map\(\) expects callable\(App\\Core\\Infrastructure\\Persistence\\ReadOnlyModel, int\)\: App\\Modules\\Offers\\Domain\\Entities\\Inquiry, Closure\(App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\InquiryModel\)\: App\\Modules\\Offers\\Domain\\Entities\\Inquiry given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/EloquentInquiryRepository.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$owner_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/EloquentOfferRepository.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$price_grosze\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/EloquentOfferRepository.php
+
+		-
+			message: '#^Method App\\Modules\\Offers\\Infrastructure\\Persistence\\EloquentOfferRepository\:\:candidates\(\) should return Illuminate\\Database\\Eloquent\\Builder\<App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\> but returns Illuminate\\Database\\Eloquent\\Builder\<App\\Core\\Infrastructure\\Persistence\\ReadOnlyModel\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/EloquentOfferRepository.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/EloquentOfferRepository.php
+
+		-
+			message: '#^Parameter \#1 \$query of method App\\Modules\\Offers\\Infrastructure\\Persistence\\EloquentOfferRepository\:\:priced\(\) expects Illuminate\\Database\\Eloquent\\Builder\<App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\>, Illuminate\\Database\\Eloquent\\Builder\<App\\Core\\Infrastructure\\Persistence\\ReadOnlyModel\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Modules/Offers/Infrastructure/Persistence/EloquentOfferRepository.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\InquiryModel\:\:\$answered_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/InquiryMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\InquiryModel\:\:\$channel\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/InquiryMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\InquiryModel\:\:\$note\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/InquiryMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\InquiryModel\:\:\$offer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/InquiryMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\InquiryModel\:\:\$read_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/InquiryMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\InquiryModel\:\:\$sender_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/InquiryMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\InquiryModel\:\:\$sent_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/InquiryMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\InquiryModel\:\:\$state\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/InquiryMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$changed_since_approval\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/OfferMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$condition\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/OfferMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/OfferMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$first_approved_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/OfferMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$glass_model_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/OfferMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$identification_hint\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/OfferMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$last_approved_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/OfferMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$number\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/OfferMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$owner_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/OfferMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$price_grosze\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/OfferMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$private_notes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/OfferMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$producer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/OfferMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$rating\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/OfferMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/OfferMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$trashed_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/OfferMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$year\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/OfferMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\ReservationModel\:\:\$author_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/ReservationMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\ReservationModel\:\:\$ended_as\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/ReservationMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\ReservationModel\:\:\$ended_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/ReservationMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\ReservationModel\:\:\$inquiry_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/ReservationMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\ReservationModel\:\:\$made_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/ReservationMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\ReservationModel\:\:\$made_by_admin\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/ReservationMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\ReservationModel\:\:\$note\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/ReservationMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\ReservationModel\:\:\$offer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/ReservationMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\SaleModel\:\:\$buyers_price_grosze\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/SaleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\SaleModel\:\:\$channel\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/SaleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\SaleModel\:\:\$entered_price_grosze\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/SaleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\SaleModel\:\:\$marked_by_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/SaleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\SaleModel\:\:\$offer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/SaleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\SaleModel\:\:\$return_reason\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/SaleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\SaleModel\:\:\$returned_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/SaleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\SaleModel\:\:\$returned_by_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/SaleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\SaleModel\:\:\$sale_price_grosze\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/SaleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\SaleModel\:\:\$sold_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/SaleMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\SaleModel\:\:\$vat_rate_basis_points\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Mappers/SaleMapper.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\ConnectionInterface\:\:getDriverName\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Modules/Offers/Infrastructure/Persistence/Queries/OfferQueries.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\InquiryModel\:\:\$offer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/OffersModuleServiceProvider.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$number\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Modules/Offers/OffersModuleServiceProvider.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\ReservationModel\:\:\$offer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/OffersModuleServiceProvider.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\SaleModel\:\:\$offer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/OffersModuleServiceProvider.php
+
+		-
+			message: '#^Method App\\Modules\\Offers\\UserInterface\\Filament\\Resources\\Inquiries\\InquiryResource\:\:getEloquentQuery\(\) should return Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\> but returns Illuminate\\Database\\Eloquent\\Builder\<App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\InquiryModel\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Inquiries/InquiryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\InquiryModel\:\:\$state\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Inquiries/Pages/ViewInquiry.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$owner_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Inquiries/Pages/ViewInquiry.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\InquiryModel\:\:\$offer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Inquiries/Schemas/InquiryInfolist.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\InquiryModel\:\:\$state\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Inquiries/Support/InquiryActionVisibility.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$owner_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Inquiries/Support/InquiryActionVisibility.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Inquiries/Support/InquiryActionVisibility.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$trashed_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Inquiries/Support/InquiryActionVisibility.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\InquiryModel\:\:\$note\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Inquiries/Tables/InquiriesTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\InquiryModel\:\:\$sent_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Inquiries/Tables/InquiriesTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\InquiryModel\:\:\$state\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Inquiries/Tables/InquiriesTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$number\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Inquiries/Tables/InquiriesTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Inquiries/Tables/InquiriesTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$identification_hint\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Actions/ApproveOfferWithGlassModelAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$glass_model_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Actions/ChangeGlassModelAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$identification_hint\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Actions/ChangeGlassModelAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$owner_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Actions/SellOfferAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$price_grosze\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Actions/SellOfferAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Actions/SendInquiryAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Actions/SendOfferForApprovalAction.php
+
+		-
+			message: '#^Method App\\Modules\\Offers\\UserInterface\\Filament\\Resources\\Offers\\OfferResource\:\:getEloquentQuery\(\) should return Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\> but returns Illuminate\\Database\\Eloquent\\Builder\<App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/OfferResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$producer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Schemas/OfferForm.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$glass_model_id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Schemas/OfferInfolist.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$last_approved_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Schemas/OfferInfolist.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$owner_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Schemas/OfferInfolist.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$price_grosze\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Schemas/OfferInfolist.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Schemas/OfferInfolist.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$trashed_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Schemas/OfferInfolist.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\SaleModel\:\:\$returned_at\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Schemas/OfferInfolist.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$changed_since_approval\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Support/OfferActionVisibility.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$glass_model_id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Support/OfferActionVisibility.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$last_approved_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Support/OfferActionVisibility.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$owner_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Support/OfferActionVisibility.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 14
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Support/OfferActionVisibility.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$trashed_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Support/OfferActionVisibility.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$made_by_admin\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Support/OfferActionVisibility.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$glass_model_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Support/OfferGlassLabel.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$identification_hint\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Support/OfferGlassLabel.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$glass_model_id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Support/OfferListGlass.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$identification_hint\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Support/OfferListGlass.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$condition\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Support/OfferRating.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$rating\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Support/OfferRating.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$number\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Tables/OffersTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$owner_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Tables/OffersTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$price_grosze\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Tables/OffersTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Tables/OffersTable.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>mainEurocode" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Offers/Tables/OffersTableFilters.php
+
+		-
+			message: '#^Method App\\Modules\\Offers\\UserInterface\\Filament\\Resources\\Reservations\\ReservationResource\:\:getEloquentQuery\(\) should return Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\> but returns Illuminate\\Database\\Eloquent\\Builder\<App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\ReservationModel\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Reservations/ReservationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$number\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Reservations/Tables/ReservationsTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\ReservationModel\:\:\$made_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Reservations/Tables/ReservationsTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\ReservationModel\:\:\$made_by_admin\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Reservations/Tables/ReservationsTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\ReservationModel\:\:\$note\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Reservations/Tables/ReservationsTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\ReservationModel\:\:\$offer_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Reservations/Tables/ReservationsTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Filament/Resources/Reservations/Tables/ReservationsTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Offers\\Infrastructure\\Persistence\\Models\\OfferModel\:\:\$owner_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Offers/UserInterface/Http/Controllers/PrivatePhotoController.php
+
+		-
+			message: '#^PHPDoc type for property App\\Modules\\Preferences\\Infrastructure\\Persistence\\EloquentUserPreferenceRepository\:\:\$mapper with type App\\Core\\Contracts\\Mapper\<App\\Modules\\Preferences\\Domain\\Entities\\UserPreference\> is not subtype of native type App\\Modules\\Preferences\\Infrastructure\\Persistence\\Mappers\\UserPreferenceMapper\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Modules/Preferences/Infrastructure/Persistence/EloquentUserPreferenceRepository.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Auth/LaravelPasswordLinks.php
+
+		-
+			message: '#^Access to an undefined property App\\Core\\Infrastructure\\Persistence\\ReadOnlyModel\:\:\$account_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/EloquentUserRepository.php
+
+		-
+			message: '#^Access to an undefined property App\\Core\\Infrastructure\\Persistence\\ReadOnlyModel\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/EloquentUserRepository.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\JournalEntryModel\:\:\$content\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/JournalEntryMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\JournalEntryModel\:\:\$is_read\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/JournalEntryMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\JournalEntryModel\:\:\$kind\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/JournalEntryMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\JournalEntryModel\:\:\$severity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/JournalEntryMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\JournalEntryModel\:\:\$subject_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/JournalEntryMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\JournalEntryModel\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/JournalEntryMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\JournalEntryModel\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/JournalEntryMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$account_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/UserMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$account_type_changed_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/UserMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$city\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/UserMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$city_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/UserMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$company_address\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/UserMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$company_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/UserMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$company_nip\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/UserMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$deactivated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/UserMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/UserMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/UserMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$password_change_required\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/UserMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$phone\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/UserMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$role\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/UserMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$seller_declaration_accepted_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/UserMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$seller_declaration_version\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/UserMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$shipment_address\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/UserMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$shipping_note\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Mappers/UserMapper.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$deactivated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/Infrastructure/Persistence/Models/UserModel.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$role\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Auth/Login.php
+
+		-
+			message: '#^Call to an undefined method Filament\\Schemas\\Components\\Component\:\:hint\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Auth/Login.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$password_change_required\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Auth/SetNewPassword.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$account_type\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Modules/Users/UserInterface/Filament/Pages/EditProfile/EditProfile.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$shipping_note\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Pages/EditProfile/EditProfile.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$account_type_changed_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Pages/EditProfile/Schemas/ProfileForm.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\JournalEntryModel\:\:\$kind\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Users/UserInterface/Filament/Resources/JournalEntries/Actions/GoToSubjectAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\JournalEntryModel\:\:\$subject_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Users/UserInterface/Filament/Resources/JournalEntries/Actions/GoToSubjectAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\JournalEntryModel\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Resources/JournalEntries/JournalEntryResource.php
+
+		-
+			message: '#^Method App\\Modules\\Users\\UserInterface\\Filament\\Resources\\JournalEntries\\JournalEntryResource\:\:getEloquentQuery\(\) should return Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\> but returns Illuminate\\Database\\Eloquent\\Builder\<App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\JournalEntryModel\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Resources/JournalEntries/JournalEntryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\JournalEntryModel\:\:\$is_read\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Resources/JournalEntries/Pages/ViewJournalEntry.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\JournalEntryModel\:\:\$is_read\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Users/UserInterface/Filament/Resources/JournalEntries/Tables/JournalEntriesTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$password_change_required\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Resources/Users/Actions/SetPasswordChangeRequirementAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$role\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Resources/Users/Schemas/UserForm.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$account_type\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Users/UserInterface/Filament/Resources/Users/Schemas/UserInfolist.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$password_change_required\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Resources/Users/Schemas/UserInfolist.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$phone\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Resources/Users/Schemas/UserInfolist.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$role\.$#'
+			identifier: property.notFound
+			count: 7
+			path: app/Modules/Users/UserInterface/Filament/Resources/Users/Support/RoleDisplay.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$account_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Resources/Users/Tables/UsersTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Resources/Users/Tables/UsersTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Users/UserInterface/Filament/Resources/Users/Tables/UsersTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Resources/Users/Tables/UsersTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$password_change_required\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Resources/Users/Tables/UsersTable.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$role\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Resources/Users/Tables/UsersTable.php
+
+		-
+			message: '#^Method App\\Modules\\Users\\UserInterface\\Filament\\Resources\\Users\\UserResource\:\:getEloquentQuery\(\) should return Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\> but returns Illuminate\\Database\\Eloquent\\Builder\<App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Resources/Users/UserResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$account_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Filament/Widgets/AccountTile.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$role\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Http/Middleware/AuthenticatePanel.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: app/Modules/Users/UserInterface/Http/Middleware/AuthenticatePanel.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 2
+			path: app/Modules/Users/UserInterface/Http/Middleware/AuthenticatePanel.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$password_change_required\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UserInterface/Http/Middleware/RequirePasswordChange.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Users/UserInterface/Livewire/ImpersonationBanner.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Users\\Infrastructure\\Persistence\\Models\\UserModel\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Users/UsersModuleServiceProvider.php

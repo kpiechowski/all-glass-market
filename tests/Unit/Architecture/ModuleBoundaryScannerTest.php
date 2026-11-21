@@ -53,6 +53,24 @@ class ModuleBoundaryScannerTest extends TestCase
         $this->assertSame([], $this->violations());
     }
 
+    public function test_it_reports_a_module_importing_its_own_module_api(): void
+    {
+        $this->write('app/Modules/Shop/UserInterface/Filament/A.php', 'use App\Modules\Shop\Application\ModuleApi\ItemSuggestions;');
+
+        $this->assertSame(
+            ['app/Modules/Shop/UserInterface/Filament/A.php => App\Modules\Shop\Application\ModuleApi\ItemSuggestions'],
+            $this->violations(),
+        );
+    }
+
+    public function test_it_lets_a_module_wire_its_own_module_api_in_its_service_provider(): void
+    {
+        $this->write('app/Modules/Shop/ShopServiceProvider.php', 'use App\Modules\Shop\Application\ModuleApi\ItemRegistry;');
+        $this->write('app/Modules/Shop/Application/ModuleApi/ItemRegistry.php', 'use App\Modules\Shop\Application\ModuleApi\Dto\Item;');
+
+        $this->assertSame([], $this->violations());
+    }
+
     public function test_it_treats_integrations_like_modules_and_catches_inline_names(): void
     {
         $this->write('app/Integrations/Otomoto/Application/A.php', 'new \App\Modules\Shop\Domain\Entities\Item();');

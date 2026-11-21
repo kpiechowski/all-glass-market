@@ -30,3 +30,4 @@ Thumbs.db
 
 # V1 production dump (personal data, never commit)
 .scratch/production_database.sql
+/storage/phpstan

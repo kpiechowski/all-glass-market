@@ -78,9 +78,9 @@ Default to real adapters and the in-memory database. Substitute a fake for an ex
 
 ```bash
 dartisan test --compact --filter=ActivateOffer   # while working: one class or test
-composer check:module offers                     # closes a task: pint + phpunit for the module(s), deptrac + architecture tests for all
+composer check:module offers                     # closes a task: pint + phpstan + phpunit for the module(s), deptrac + architecture tests for all
 composer check:module offers,catalogue           # several modules, comma-separated
-composer check                                   # milestones: pint, deptrac, test presence, full phpunit
+composer check                                   # milestones: pint, deptrac, phpstan, test presence, full phpunit
 ```
 
 **Which check closes the work.** Neither command has a time limit. The full run takes 5–6 minutes; `check:module` takes a fraction of that (Offers: about 1.5 min).
