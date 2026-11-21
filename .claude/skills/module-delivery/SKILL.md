@@ -72,6 +72,9 @@ Run every check yourself; a worker's "green" is a claim, not evidence.
    - every `if` that throws a refusal sits in an entity or a domain policy, also in handlers and `Application/Services/`; every `visible()` condition on record fields calls a domain policy;
    - nothing inside the module imports its own `ModuleApi` except its providers, and `Domain/Contracts/` holds only interfaces another module implements, with their types;
    - every refusal test asserts the translation key, and the Livewire create test covers empty optional fields;
+   - each new class has the tests its row in the `module-testing` table asks for: handlers an unauthorized-actor test, repository and `{X}Queries` methods include and exclude, observers their own test;
+   - each new or changed screen walks the "Before you finish" list of the template file it names (`admin-ui-design`), item by item;
+   - ownership checks go through a policy and the entity guard, and the UI reads the user only through `CurrentActor`;
    - each **Unmapped:** entry follows the nearest pattern of the skills; list it in your review notes for the user, who decides whether it becomes a skill rule;
    - nothing outside the issue's scope was built, and the seams the issue names exist;
    - each logged deviation is justified by the spec or decisions. A deviation that changes behaviour the user decided goes to the user, not to the worker.

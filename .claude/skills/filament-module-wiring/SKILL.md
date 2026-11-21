@@ -39,7 +39,7 @@ DeleteAction::make()
 ```
 
 - `Core\UserInterface\CommandSender::send()` puts the command on the bus. When the handler throws a `DomainException`, it shows the translated message as a danger notification and halts, so the form stays open with its data.
-- `Core\UserInterface\CurrentActor::get()` returns `Actor::user()` for the logged-in user. The UI builds no other actor.
+- `Core\UserInterface\CurrentActor::get()` returns `Actor::user()` for the logged-in user. The UI builds no other actor, and reads the logged-in user only through it: `CurrentActor::get()->id` for an owner check, `CurrentActor::can()` for a permission.
 - **Relations and media are command data.** A `BelongsTo` select puts the FK in `$data`. A many-relation field uses `->options(...)` and its array of ids goes into the command. `->relationship()` is used only to load options or display, never to save. Uploaded files travel as paths in the command.
 
 ## Visibility
@@ -65,6 +65,8 @@ A `visible()` that judges the record's fields (`! $record->withdrawn`, `$record-
 Tables, resources (`getEloquentQuery()`), relation managers, widgets and option lists start from a named `{X}Queries` method; Filament layers its sorting, search and filters on top. Tabs use one `{X}Queries` method each. Fetching the record a page just created (`OfferModel::findOrFail($id)`) needs no query method.
 
 An own module's value object may format or normalise input in the UI (`Eurocode::normalise()`); entities and repositories stay out of it.
+
+A value the UI shows that a domain policy computes (a buyer's price) is a `{X}Queries` select, or the policy called with the model's fields; a setting's current value is a `{X}Queries` read. The module's own `ModuleApi` is for other modules (`module-layout`).
 
 ## Split by structure
 

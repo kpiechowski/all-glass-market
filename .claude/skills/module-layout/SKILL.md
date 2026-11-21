@@ -80,7 +80,7 @@ A module **exposes operations, not data**. Another module may import exactly:
 | `UserInterface/Filament/RelationManagers/*` | yes — a hosting resource lists it in `getRelations()` (Audit's `RecordHistoryRelationManager`); deptrac already lets UserInterface use UserInterface |
 | `UserInterface/Filament/GlassModelPicker/*` | yes — Catalogue's embeddable Glass model picker (`GlassModelPickerSlideOver`, `GlassModelPickerField`); the embedder's command re-checks the chosen id |
 | `UserInterface/Filament/Resources/*/Support/*ViewSections` | yes — Catalogue's `DictionaryValueViewSections` and `GlassModelViewSections`: a registry another module or integration calls from its provider to add a section to the view page |
-| Blade components in `UserInterface/resources/views/components/` that the owner publishes for others | yes — `<x-{module}::…>`, fed with the owner's ModuleApi DTO (example: `<x-catalogue::glass-thumbnail :thumbnail="$summary->thumbnail" />`, fed with Catalogue's `Thumbnail`) |
+| Blade components in `UserInterface/resources/views/components/` that the owner publishes for others | yes — `<x-{module}::…>`, fed with the owner's ModuleApi DTO (example: `<x-catalogue::glass-thumbnail :thumbnail="$summary->thumbnail" />`, fed with Catalogue's `Thumbnail`). Any other view of the owner (`audit::partials.*`) is private: the owner moves it to `components/` first |
 | everything else | private to module B |
 
 A new row in this table is a decision of the user: propose it in the issue log, never add the import first.

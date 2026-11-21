@@ -53,6 +53,7 @@ final class ActivateOfferCommandHandler
 - The command is `final readonly`, carries **primitives plus one `Actor`**, and holds no behaviour. `Actor` is the only object allowed in a command (ADR 0004).
 - The handler has one public `handle` method with `#[CommandHandler]`, depends on **ports** (`OfferRepository`, `Authorizer`), and is auto-discovered by Ecotone.
 - Every command runs inside a DB transaction opened by the Core bus interceptor. Write no `DB::transaction()` in a handler.
+- A side effect the database cannot roll back (deleting a file, a mail, an external call) runs after commit: the adapter wraps it in `DB::afterCommit()`, or a listener implements `ShouldHandleEventsAfterCommit`. A rolled-back command then leaves files and the outside world as they were.
 
 ## The handler's sequence
 
@@ -104,6 +105,8 @@ Filament calls the same method with the model's fields (`filament-module-wiring`
 
 `Core\Contracts\Authorizer` answers "may this actor do this", implemented by the Users module. Modules check **permissions** from their own `{Name}Permission` enum, never roles.
 
+**Ownership is a domain rule, not a permission.** "Is this the actor's own Offer" lives in `{X}DomainPolicy::isOwnedBy($ownerId, $actorId)`; the entity guards it (`$offer->ensureOwnedBy($actorId)`) and Filament's `visible()` calls the same policy method. The Authorizer answers permissions only.
+
 - Handlers call `ensure()`, which throws.
 - Filament calls `actorCan()` from the Core trait to show or hide (`filament-module-wiring`).
 - `Actor::user($id)` represents a person. A job a person started carries that person's actor.
@@ -154,6 +157,7 @@ Entities and models never leave a handler.
 - Every write path you touched ends in a command sent on the bus.
 - Every handler authorizes first and follows the six-step sequence.
 - Every command holds only primitives and one `Actor`.
-- Every rule lives in an entity method or a domain policy, and the handler and its services only gather facts.
+- Every rule lives in an entity method or a domain policy, ownership included, and the handler and its services only gather facts.
+- Every side effect outside the database runs after commit.
 - Every enum built from command input uses `tryFrom()` and refuses with a domain exception.
 - Every handler has a test written before it, covering the happy path and each refusal (`module-testing`).
