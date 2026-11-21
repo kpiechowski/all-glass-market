@@ -8,8 +8,11 @@ use App\Core\UserInterface\CommandSender;
 use App\Core\UserInterface\CurrentActor;
 use App\Modules\Offers\Application\Commands\ChangePriceOfOffers\ChangePriceOfOffersCommand;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
+use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Enums\PriceChangeKind;
+use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\BulkActionResult;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferActionVisibility;
 use Filament\Actions\BulkAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -53,7 +56,8 @@ final class ChangePriceOffersBulkAction
                     ->minValue(fn (Get $get): ?int => $get('kind') === PriceChangeKind::Fixed->value ? 1 : null)
                     ->required(),
             ])
-            ->visible(fn (): bool => CurrentActor::can(OffersPermission::Create))
+            ->visible(fn ($livewire): bool => CurrentActor::can(OffersPermission::Create)
+                && OfferActionVisibility::bulkApplies($livewire->activeTab ?? null, fn (OfferStatus $status): bool => OfferDomainPolicy::priceCanBeChanged($status, false, true)))
             ->deselectRecordsAfterCompletion()
             ->action(function (Collection $records, array $data): void {
                 BulkActionResult::notify('change_price_selected', CommandSender::send(new ChangePriceOfOffersCommand(

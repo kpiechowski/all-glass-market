@@ -8,7 +8,10 @@ use App\Core\UserInterface\CommandSender;
 use App\Core\UserInterface\CurrentActor;
 use App\Modules\Offers\Application\Commands\DeleteOffers\DeleteOffersCommand;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
+use App\Modules\Offers\Domain\Enums\OfferStatus;
+use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\BulkActionResult;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferActionVisibility;
 use Filament\Actions\BulkAction;
 use Illuminate\Support\Collection;
 
@@ -24,7 +27,8 @@ final class DeleteOffersBulkAction
             ->modalHeading(__('offers::resources.offer.actions.delete_selected.heading'))
             ->modalDescription(__('offers::resources.offer.actions.delete_selected.description'))
             ->modalSubmitActionLabel(__('offers::resources.offer.actions.delete_selected.label'))
-            ->visible(fn (): bool => CurrentActor::can(OffersPermission::ManageAll))
+            ->visible(fn ($livewire): bool => CurrentActor::can(OffersPermission::ManageAll)
+                && OfferActionVisibility::bulkApplies($livewire->activeTab ?? null, fn (OfferStatus $status): bool => OfferDomainPolicy::canBeTrashed($status, false)))
             ->deselectRecordsAfterCompletion()
             ->action(function (Collection $records): void {
                 BulkActionResult::notify('delete_selected', CommandSender::send(new DeleteOffersCommand(CurrentActor::get(), BulkActionResult::ids($records))));

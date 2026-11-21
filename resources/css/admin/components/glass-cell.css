@@ -1,0 +1,38 @@
+/*
+ * Glass cell: the glass of an Offer in a list row, a small thumbnail beside the main Eurocode and the
+ * position. Markup: offers::filament.tables.offer-glass-cell.
+ */
+.glass-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--ag-space-3);
+}
+
+.glass-cell__thumbnail {
+    flex: none;
+    width: 3.5rem;
+}
+
+.glass-cell__thumbnail .glass-thumbnail__shape,
+.glass-cell__thumbnail svg {
+    width: 3.5rem;
+    height: auto;
+}
+
+.glass-cell__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.glass-cell__code {
+    font-weight: var(--ag-weight-semibold);
+    color: var(--ag-text);
+    overflow-wrap: anywhere;
+}
+
+.glass-cell__detail {
+    font-size: var(--ag-text-xs);
+    line-height: var(--ag-leading-xs);
+    color: var(--ag-text-muted);
+}

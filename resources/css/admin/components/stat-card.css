@@ -1,0 +1,87 @@
+/*
+ * Stat card: one count with an icon, used above lists (Offers "Moje oferty", template F).
+ * Markup: offers::filament.widgets.offer-stat-cards. Colour marks state: `warning` asks for attention,
+ * `success` is a live state, `gray` needs nothing.
+ */
+.stat-cards {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: var(--ag-space-4);
+}
+
+@media (min-width: 40rem) {
+    .stat-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 64rem) {
+    .stat-cards {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+.stat-card {
+    --stat-bg: var(--ag-soft-gray-bg);
+    --stat-text: var(--ag-soft-gray-text);
+
+    display: flex;
+    align-items: center;
+    gap: var(--ag-space-4);
+    padding: var(--ag-space-4);
+    border-radius: var(--ag-radius-container);
+    background-color: var(--ag-surface);
+    box-shadow: var(--ag-surface-edge);
+    text-decoration: none;
+    color: var(--ag-text);
+}
+
+.stat-card:hover {
+    background-color: var(--ag-surface-hover);
+}
+
+.stat-card__icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--ag-radius-control);
+    background-color: var(--stat-bg);
+    color: var(--stat-text);
+}
+
+.stat-card__glyph {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.stat-card__body {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.stat-card__value {
+    font-size: var(--ag-text-xl);
+    line-height: 1.2;
+    font-weight: var(--ag-weight-semibold);
+    color: var(--ag-text);
+}
+
+.stat-card__label {
+    font-size: var(--ag-text-sm);
+    line-height: var(--ag-leading-sm);
+    color: var(--ag-text-muted);
+}
+
+.stat-card--success {
+    --stat-bg: var(--ag-soft-success-bg);
+    --stat-text: var(--ag-soft-success-text);
+}
+
+.stat-card--warning {
+    --stat-bg: var(--ag-soft-warning-bg);
+    --stat-text: var(--ag-soft-warning-text);
+}

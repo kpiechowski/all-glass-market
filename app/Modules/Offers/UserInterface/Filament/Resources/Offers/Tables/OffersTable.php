@@ -10,6 +10,7 @@ use App\Core\UserInterface\Filament\Tables\TableEmptyState;
 use App\Modules\Offers\Application\ModuleApi\BuyersPrices;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
+use App\Modules\Offers\Infrastructure\Persistence\Queries\OfferQueries;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ApproveOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ApproveOffersBulkAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ApproveOfferWithGlassModelAction;
@@ -31,22 +32,25 @@ use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\SendInqui
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\WithdrawOfferAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\WithdrawOffersBulkAction;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
-use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferGlassLabel;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferListGlass;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferRating;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
-/** Template A (list): list with the approval actions (FR-09, FR-11); filters and stat cards come later. The same table serves "Moje oferty" and "Wszystkie oferty". */
+/** Template A (list): the approval actions (FR-09, FR-11), the filters (FR-31) and the glass and buyer's price columns, the glass read in one batch per page. The same table serves "Moje oferty" and "Wszystkie oferty". */
 class OffersTable
 {
     public static function configure(Table $table): Table
     {
         $table = $table
             ->columns(self::columns())
+            ->filters(OffersTableFilters::make())
             ->recordUrl(fn (OfferModel $record): string => OfferResource::getUrl('view', ['record' => $record]))
             ->recordActions([
                 ActionGroup::make([
@@ -100,7 +104,7 @@ class OffersTable
         return [
             RecordCardColumn::make()
                 ->title(fn (OfferModel $record): string => $record->number)
-                ->subtitle(fn (OfferModel $record): ?string => OfferGlassLabel::of($record))
+                ->subtitle(fn (OfferModel $record): ?string => app(OfferListGlass::class)->label($record))
                 ->status(fn (OfferModel $record) => $record->status)
                 ->meta(fn (OfferModel $record): array => [
                     $record->price_grosze === null ? null : number_format($record->price_grosze / 100, 2, ',', ' ').' zł',
@@ -113,15 +117,16 @@ class OffersTable
                 ->sortable()
                 ->visibleFrom('md'),
 
-            TextColumn::make('glass')
+            ViewColumn::make('glass')
                 ->label(__('offers::resources.offer.fields.glass'))
-                ->state(fn (OfferModel $record): ?string => OfferGlassLabel::of($record))
-                ->placeholder('—')
+                ->state(fn (OfferModel $record) => app(OfferListGlass::class)->of($record))
+                ->view('offers::filament.tables.offer-glass-cell')
                 ->visibleFrom('md'),
 
             TextColumn::make('producer.name')
                 ->label(__('offers::resources.offer.fields.producer'))
                 ->placeholder('—')
+                ->toggleable(isToggledHiddenByDefault: true)
                 ->visibleFrom('md'),
 
             TextColumn::make('condition')
@@ -129,12 +134,14 @@ class OffersTable
                 ->badge()
                 ->color('gray')
                 ->placeholder('—')
+                ->toggleable(isToggledHiddenByDefault: true)
                 ->visibleFrom('md'),
 
             TextColumn::make('rating')
                 ->label(__('offers::resources.offer.fields.rating'))
                 ->state(fn (OfferModel $record): ?string => OfferRating::stars($record))
                 ->placeholder('—')
+                ->toggleable(isToggledHiddenByDefault: true)
                 ->visibleFrom('md'),
 
             TextColumn::make('price_grosze')
@@ -149,6 +156,8 @@ class OffersTable
                 ->label(__('offers::resources.offer.fields.buyers_price'))
                 ->state(fn (OfferModel $record): ?int => app(BuyersPrices::class)->forOffer($record->owner_id, $record->price_grosze))
                 ->money('PLN', divideBy: 100)
+                ->sortable(query: fn (Builder $query, string $direction): Builder => app(OfferQueries::class)
+                    ->orderedByBuyersPrice($query, $direction, app(BuyersPrices::class)->vatRateBasisPoints()))
                 ->alignEnd()
                 ->placeholder('—')
                 ->visibleFrom('md'),

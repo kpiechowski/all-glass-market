@@ -5,7 +5,12 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\Offers\Infrastructure\Persistence\Queries;
 
 use App\Modules\Offers\Domain\Enums\OfferStatus;
+use App\Modules\Offers\Domain\Enums\OwnerAccountType;
+use App\Modules\Offers\Domain\Policies\BuyersPricePolicy;
+use App\Modules\Offers\Domain\ValueObjects\VatRate;
 use App\Modules\Offers\Infrastructure\Factories\OfferModelFactory;
+use App\Modules\Offers\Infrastructure\Factories\SaleModelFactory;
+use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use App\Modules\Offers\Infrastructure\Persistence\Queries\OfferQueries;
 use App\Modules\Users\Infrastructure\Persistence\Models\UserModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -75,5 +80,101 @@ class OfferQueriesTest extends TestCase
             [$pending->id],
             (new OfferQueries)->onlyPending(OfferModelFactory::new()->newModel()->newQuery())->pluck('id')->all(),
         );
+    }
+
+    public function test_the_sql_buyers_price_matches_the_policy_on_edge_values(): void
+    {
+        $private = UserModel::factory()->create(['account_type' => 'private']);
+        $company = UserModel::factory()->create(['account_type' => 'company']);
+        $prices = [1, 2, 3, 49, 50, 99, 100, 101, 1234, 4999, 5000, 12345, 15000, 99999, 1000000];
+        $rates = [0, 1, 50, 800, 2300, 2350, 10000];
+
+        foreach ($prices as $price) {
+            OfferModelFactory::new()->ownedBy($private->id)->create(['price_grosze' => $price]);
+            OfferModelFactory::new()->ownedBy($company->id)->create(['price_grosze' => $price]);
+        }
+
+        foreach ($rates as $rate) {
+            $queries = new OfferQueries;
+            $rows = OfferModel::query()
+                ->selectRaw('offers.*, ('.$queries->buyersPriceSql($rate).') as sql_buyers_price')
+                ->get();
+
+            $this->assertCount(count($prices) * 2, $rows);
+
+            foreach ($rows as $row) {
+                $owner = $row->owner_id === $company->id ? OwnerAccountType::Company : OwnerAccountType::Private;
+
+                $this->assertSame(
+                    BuyersPricePolicy::buyersPriceGrosze($row->price_grosze, $owner, VatRate::fromBasisPoints($rate)),
+                    (int) $row->sql_buyers_price,
+                    "price {$row->price_grosze}, rate {$rate}, {$owner->value}",
+                );
+            }
+        }
+    }
+
+    public function test_offers_are_ordered_and_filtered_by_the_buyers_price(): void
+    {
+        $private = UserModel::factory()->create(['account_type' => 'private']);
+        $company = UserModel::factory()->create(['account_type' => 'company']);
+        $dearPrivate = OfferModelFactory::new()->ownedBy($private->id)->create(['price_grosze' => 20000]); // 24600
+        $cheapPrivate = OfferModelFactory::new()->ownedBy($private->id)->create(['price_grosze' => 10000]); // 12300
+        $midCompany = OfferModelFactory::new()->ownedBy($company->id)->create(['price_grosze' => 20000]); // 20000
+        $unpriced = OfferModelFactory::new()->ownedBy($company->id)->create(['price_grosze' => null]);
+        $queries = new OfferQueries;
+
+        $ascending = $queries->orderedByBuyersPrice(OfferModel::query()->whereNotNull('price_grosze'), 'asc', 2300)->pluck('id')->all();
+        $descending = $queries->orderedByBuyersPrice(OfferModel::query()->whereNotNull('price_grosze'), 'desc', 2300)->pluck('id')->all();
+        $inRange = $queries->withBuyersPriceBetween(OfferModel::query(), 12300, 20000, 2300)->pluck('id')->all();
+        $atLeast = $queries->withBuyersPriceBetween(OfferModel::query(), 20001, null, 2300)->pluck('id')->all();
+        $atMost = $queries->withBuyersPriceBetween(OfferModel::query(), null, 12299, 2300)->pluck('id')->all();
+
+        $this->assertSame([$cheapPrivate->id, $midCompany->id, $dearPrivate->id], $ascending);
+        $this->assertSame([$dearPrivate->id, $midCompany->id, $cheapPrivate->id], $descending);
+        $this->assertEqualsCanonicalizing([$cheapPrivate->id, $midCompany->id], $inRange);
+        $this->assertSame([$dearPrivate->id], $atLeast);
+        $this->assertSame([], $atMost);
+        $this->assertNotContains($unpriced->id, $inRange);
+    }
+
+    public function test_the_stat_counts_cover_own_offers_outside_the_trash(): void
+    {
+        $seller = UserModel::factory()->create();
+        OfferModelFactory::new()->ownedBy($seller->id)->status(OfferStatus::Active)->count(2)->create();
+        OfferModelFactory::new()->ownedBy($seller->id)->pending()->create();
+        OfferModelFactory::new()->ownedBy($seller->id)->status(OfferStatus::Active)->inTrash()->create();
+        OfferModelFactory::new()->status(OfferStatus::Active)->create();
+
+        $counts = (new OfferQueries)->countsByStatusOf($seller->id);
+
+        $this->assertSame(['active' => 2, 'pending' => 1], $counts);
+    }
+
+    public function test_sold_in_month_counts_own_sales_of_that_month_without_returned_ones(): void
+    {
+        $seller = UserModel::factory()->create();
+        $now = now()->setDate(2026, 11, 15)->setTime(12, 0);
+        $own = OfferModelFactory::new()->ownedBy($seller->id)->status(OfferStatus::Sold)->create();
+        $counted = SaleModelFactory::new()->forOffer($own->id)->create(['sold_at' => $now->copy()->startOfMonth()]);
+        SaleModelFactory::new()->forOffer($own->id)->create(['sold_at' => $now->copy()->endOfMonth()]);
+        SaleModelFactory::new()->forOffer($own->id)->create(['sold_at' => $now->copy()->subMonth()->endOfMonth()]);
+        SaleModelFactory::new()->forOffer($own->id)->create(['sold_at' => $now->copy()->addMonth()->startOfMonth()]);
+        SaleModelFactory::new()->forOffer($own->id)->returned($seller->id)->create(['sold_at' => $now]);
+        SaleModelFactory::new()->forOffer(OfferModelFactory::new()->create()->id)->create(['sold_at' => $now]);
+
+        $this->assertNotNull($counted);
+        $this->assertSame(2, (new OfferQueries)->soldInMonthOf($seller->id, $now));
+    }
+
+    public function test_the_displayed_stars_filter_counts_a_new_piece_as_five(): void
+    {
+        $five = OfferModelFactory::new()->used(5)->create();
+        $four = OfferModelFactory::new()->used(4)->create();
+        $new = OfferModelFactory::new()->create(['condition' => 'new', 'rating' => null]);
+        $queries = new OfferQueries;
+
+        $this->assertEqualsCanonicalizing([$five->id, $new->id], $queries->withDisplayedStars(OfferModel::query(), 5)->pluck('id')->all());
+        $this->assertSame([$four->id], $queries->withDisplayedStars(OfferModel::query(), 4)->pluck('id')->all());
     }
 }

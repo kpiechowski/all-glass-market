@@ -10,7 +10,10 @@ use App\Modules\Catalogue\UserInterface\Filament\GlassModelPicker\GlassModelPick
 use App\Modules\Catalogue\UserInterface\Filament\GlassModelPicker\PickerVariant;
 use App\Modules\Offers\Application\Commands\ChangeGlassModelOfOffers\ChangeGlassModelOfOffersCommand;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
+use App\Modules\Offers\Domain\Enums\OfferStatus;
+use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\BulkActionResult;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferActionVisibility;
 use Filament\Actions\BulkAction;
 use Illuminate\Support\Collection;
 
@@ -29,7 +32,8 @@ final class ChangeGlassModelOffersBulkAction
 
         return $action
             ->modalSubmitActionLabel(__('offers::resources.offer.actions.change_glass_model_selected.submit'))
-            ->visible(fn (): bool => CurrentActor::can(OffersPermission::ManageAll))
+            ->visible(fn ($livewire): bool => CurrentActor::can(OffersPermission::ManageAll)
+                && OfferActionVisibility::bulkApplies($livewire->activeTab ?? null, fn (OfferStatus $status): bool => OfferDomainPolicy::glassModelCanBeChanged(false)))
             ->deselectRecordsAfterCompletion()
             ->action(function (Collection $records, array $data): void {
                 BulkActionResult::notify('change_glass_model_selected', CommandSender::send(new ChangeGlassModelOfOffersCommand(

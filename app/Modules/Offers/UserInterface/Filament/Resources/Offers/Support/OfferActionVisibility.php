@@ -127,6 +127,23 @@ final class OfferActionVisibility
         return $offer->status === OfferStatus::Reserved && ! self::reservationIsOpenToMe($offer);
     }
 
+    /**
+     * RULE-14: a bulk action is offered on a tab only when it could act on some Offer there. Nothing in the
+     * Trash can be acted on in bulk; a status tab asks the same rule the handler applies, "all" always offers it.
+     *
+     * @param  callable(OfferStatus): bool  $appliesToStatus
+     */
+    public static function bulkApplies(?string $tab, callable $appliesToStatus): bool
+    {
+        if (OfferListTabs::isTrash($tab)) {
+            return false;
+        }
+
+        $status = OfferListTabs::statusOf($tab);
+
+        return $status === null || $appliesToStatus($status);
+    }
+
     private static function reservationIsOpenToMe(OfferModel $offer): bool
     {
         return OfferDomainPolicy::reservationCanBeHandledBy((bool) $offer->currentReservation?->made_by_admin, self::managesAll());

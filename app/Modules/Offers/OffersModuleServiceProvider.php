@@ -37,6 +37,7 @@ use App\Modules\Offers\Infrastructure\Persistence\Models\ReservationModel;
 use App\Modules\Offers\Infrastructure\Persistence\Models\SaleModel;
 use App\Modules\Offers\Infrastructure\Persistence\StorageOfferPhotoStorage;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
+use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Support\OfferListGlass;
 use App\Modules\Offers\UserInterface\Http\Controllers\PrivatePhotoController;
 use App\Modules\Users\Application\ModuleApi\JournalSubjects;
 use App\Modules\Users\Application\ModuleApi\RoleRegistry;
@@ -68,6 +69,7 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
         parent::register();
 
         $this->app->scoped(BuyersPrices::class);
+        $this->app->scoped(OfferListGlass::class);
     }
 
     public function boot(): void

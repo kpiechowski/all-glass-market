@@ -39,11 +39,11 @@ class ListOffersApprovalTest extends TestCase
         $this->assertEquals(2, $component->instance()->getTabs()['pending']->getBadge());
     }
 
-    public function test_a_seller_has_no_queue(): void
+    public function test_a_seller_has_no_queue_counter(): void
     {
         $this->actingAs(UserModel::factory()->create());
 
-        $this->assertSame([], Livewire::test(ListOffers::class)->instance()->getTabs());
+        $this->assertNull(Livewire::test(ListOffers::class)->instance()->getTabs()['pending']->getBadge());
     }
 
     public function test_an_admin_approves_and_rejects_from_the_row(): void
