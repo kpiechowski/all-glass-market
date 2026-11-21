@@ -9,6 +9,7 @@ return [
     'rating_not_for_new' => 'Oferta nowej szyby nie ma oceny. Usuń ocenę albo zmień stan.',
     'rating_needs_condition' => 'Ocenę można podać dopiero po wybraniu stanu: używana albo outlet.',
     'price_is_invalid' => 'Cena nie może być ujemna.',
+    'vat_rate_is_invalid' => 'Stawka VAT to wartość od 0 do 100 procent.',
     'year_is_invalid' => 'Podaj rok z przedziału od 1900 do przyszłego roku.',
     'number_is_invalid' => 'Numer oferty to AG i osiem cyfr.',
     'condition_is_unknown' => 'Wybierz stan: nowa, używana albo outlet.',

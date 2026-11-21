@@ -70,6 +70,17 @@ final class EloquentUserRepository extends EloquentRepository implements UserRep
         return $model === null ? [] : array_values((array) ($model->extra_permissions ?? []));
     }
 
+    public function accountTypesOf(array $userIds): array
+    {
+        $types = [];
+
+        foreach ($this->query()->whereIn('id', $userIds)->get(['id', 'account_type']) as $user) {
+            $types[(int) $user->id] = $user->account_type->value;
+        }
+
+        return $types;
+    }
+
     public function userIdsWithRoles(array $roleKeys): array
     {
         return $this->query()->whereIn('role', $roleKeys)->whereNull('deactivated_at')->orderBy('id')->pluck('id')->map(fn ($id): int => (int) $id)->all();

@@ -6,6 +6,7 @@ return [
     'offers_permission' => [
         'create' => 'Tworzenie i edycja własnych ofert',
         'manage_all' => 'Zarządzanie ofertami wszystkich sprzedawców',
+        'change_vat_rate' => 'Zmiana stawki VAT w ofertach',
     ],
     'offer_condition' => [
         'new' => 'Nowa',

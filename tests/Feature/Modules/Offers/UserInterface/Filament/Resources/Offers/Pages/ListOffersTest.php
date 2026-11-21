@@ -51,4 +51,15 @@ class ListOffersTest extends TestCase
         $this->actingAs(UserModel::factory()->admin()->create());
         Livewire::test(ListOffers::class)->assertSee('Wszystkie oferty');
     }
+
+    public function test_the_list_shows_the_buyers_price_by_the_owners_account_type(): void
+    {
+        $this->actingAs(UserModel::factory()->admin()->create());
+        $private = OfferModelFactory::new()->ownedBy(UserModel::factory()->create(['account_type' => 'private'])->id)->create(['price_grosze' => 10000]);
+        $company = OfferModelFactory::new()->ownedBy(UserModel::factory()->create(['account_type' => 'company'])->id)->create(['price_grosze' => 20000]);
+
+        Livewire::test(ListOffers::class)
+            ->assertTableColumnStateSet('buyers_price', 12300, $private)
+            ->assertTableColumnStateSet('buyers_price', 20000, $company);
+    }
 }

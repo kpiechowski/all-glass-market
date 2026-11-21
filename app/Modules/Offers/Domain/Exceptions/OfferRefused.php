@@ -34,6 +34,11 @@ final class OfferRefused extends DomainException
         return new self('offers::exceptions.rating_needs_condition');
     }
 
+    public static function vatRateIsInvalid(): self
+    {
+        return new self('offers::exceptions.vat_rate_is_invalid');
+    }
+
     public static function priceIsInvalid(): self
     {
         return new self('offers::exceptions.price_is_invalid');

@@ -10,6 +10,7 @@ use App\Modules\Audit\Application\ModuleApi\AuditableRecordType;
 use App\Modules\Audit\Application\ModuleApi\ValuePresenter;
 use App\Modules\Catalogue\Application\ModuleApi\GlassModelSummaries;
 use App\Modules\Catalogue\Infrastructure\Persistence\Models\DictionaryValueModel;
+use App\Modules\Offers\Application\ModuleApi\BuyersPrices;
 use App\Modules\Offers\Application\Providers\OfferJournalSubject;
 use App\Modules\Offers\Application\Providers\OffersEventServiceProvider;
 use App\Modules\Offers\Application\Services\OwnerJournal;
@@ -17,7 +18,9 @@ use App\Modules\Offers\Domain\Enums\OfferCondition;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Repositories\OfferRepository;
+use App\Modules\Offers\Domain\Repositories\VatRateSetting;
 use App\Modules\Offers\Infrastructure\Persistence\EloquentOfferRepository;
+use App\Modules\Offers\Infrastructure\Persistence\EloquentVatRateSetting;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\OfferResource;
 use App\Modules\Offers\UserInterface\Http\Controllers\PrivatePhotoController;
@@ -39,7 +42,15 @@ class OffersModuleServiceProvider extends ModuleServiceProvider
     /** @var array<class-string, class-string> */
     protected array $containerBindings = [
         OfferRepository::class => EloquentOfferRepository::class,
+        VatRateSetting::class => EloquentVatRateSetting::class,
     ];
+
+    public function register(): void
+    {
+        parent::register();
+
+        $this->app->scoped(BuyersPrices::class);
+    }
 
     public function boot(): void
     {

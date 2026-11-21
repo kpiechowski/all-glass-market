@@ -7,6 +7,7 @@ namespace App\Modules\Offers\UserInterface\Filament\Resources\Offers\Schemas;
 use App\Core\UserInterface\CurrentActor;
 use App\Modules\Audit\Application\ModuleApi\RecordChangesAfter;
 use App\Modules\Catalogue\Application\ModuleApi\GlassModelSummaries;
+use App\Modules\Offers\Application\ModuleApi\BuyersPrices;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
 use App\Modules\Offers\Domain\Enums\OfferStatus;
 use App\Modules\Offers\Domain\Policies\OfferDomainPolicy;
@@ -66,6 +67,11 @@ class OfferInfolist
                 TextEntry::make('owner.name')->label(__('offers::resources.offer.fields.owner')),
                 TextEntry::make('price_grosze')
                     ->label(__('offers::resources.offer.fields.price'))
+                    ->money('PLN', divideBy: 100)
+                    ->placeholder('—'),
+                TextEntry::make('buyers_price')
+                    ->label(__('offers::resources.offer.fields.buyers_price'))
+                    ->state(fn (OfferModel $record): ?int => app(BuyersPrices::class)->forOffer($record->owner_id, $record->price_grosze))
                     ->money('PLN', divideBy: 100)
                     ->placeholder('—'),
                 TextEntry::make('created_at')->label(__('offers::resources.offer.fields.created_at'))->date('d.m.Y'),

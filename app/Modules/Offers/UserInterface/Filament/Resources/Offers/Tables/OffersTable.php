@@ -7,6 +7,7 @@ namespace App\Modules\Offers\UserInterface\Filament\Resources\Offers\Tables;
 use App\Core\UserInterface\CurrentActor;
 use App\Core\UserInterface\Filament\Tables\Columns\RecordCardColumn;
 use App\Core\UserInterface\Filament\Tables\TableEmptyState;
+use App\Modules\Offers\Application\ModuleApi\BuyersPrices;
 use App\Modules\Offers\Domain\Enums\OffersPermission;
 use App\Modules\Offers\Infrastructure\Persistence\Models\OfferModel;
 use App\Modules\Offers\UserInterface\Filament\Resources\Offers\Actions\ApproveOfferAction;
@@ -54,6 +55,13 @@ class OffersTable
         );
     }
 
+    private static function formattedBuyersPrice(OfferModel $record): ?string
+    {
+        $grosze = app(BuyersPrices::class)->forOffer($record->owner_id, $record->price_grosze);
+
+        return $grosze === null ? null : __('offers::resources.offer.buyers_price_meta', ['price' => number_format($grosze / 100, 2, ',', ' ')]);
+    }
+
     /** @return array<mixed> */
     private static function columns(): array
     {
@@ -62,7 +70,10 @@ class OffersTable
                 ->title(fn (OfferModel $record): string => $record->number)
                 ->subtitle(fn (OfferModel $record): ?string => OfferGlassLabel::of($record))
                 ->status(fn (OfferModel $record) => $record->status)
-                ->meta(fn (OfferModel $record): array => [$record->price_grosze === null ? null : number_format($record->price_grosze / 100, 2, ',', ' ').' zł']),
+                ->meta(fn (OfferModel $record): array => [
+                    $record->price_grosze === null ? null : number_format($record->price_grosze / 100, 2, ',', ' ').' zł',
+                    self::formattedBuyersPrice($record),
+                ]),
 
             TextColumn::make('number')
                 ->label(__('offers::resources.offer.fields.number'))
@@ -98,6 +109,14 @@ class OffersTable
                 ->label(__('offers::resources.offer.fields.price'))
                 ->money('PLN', divideBy: 100)
                 ->sortable()
+                ->alignEnd()
+                ->placeholder('—')
+                ->visibleFrom('md'),
+
+            TextColumn::make('buyers_price')
+                ->label(__('offers::resources.offer.fields.buyers_price'))
+                ->state(fn (OfferModel $record): ?int => app(BuyersPrices::class)->forOffer($record->owner_id, $record->price_grosze))
+                ->money('PLN', divideBy: 100)
                 ->alignEnd()
                 ->placeholder('—')
                 ->visibleFrom('md'),

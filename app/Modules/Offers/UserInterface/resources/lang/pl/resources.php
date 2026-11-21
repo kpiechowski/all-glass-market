@@ -10,6 +10,7 @@ return [
     'offer' => [
         'label' => 'Oferta',
         'plural_label' => 'Oferty',
+        'buyers_price_meta' => 'dla kupującego :price zł',
         'mine' => 'Moje oferty',
         'all' => 'Wszystkie oferty',
         'sections' => [
@@ -44,6 +45,7 @@ return [
             'description' => 'Opis dla kupujących',
             'private_notes' => 'Notatki prywatne',
             'price' => 'Cena',
+            'buyers_price' => 'Cena dla kupującego',
             'created_at' => 'Utworzono',
             'main_photo' => 'Główne',
             'glass' => 'Szyba',

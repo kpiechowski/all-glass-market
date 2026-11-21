@@ -36,4 +36,12 @@ interface UserRepository extends Repository
      * @return list<int>
      */
     public function userIdsWithRoles(array $roleKeys): array;
+
+    /**
+     * Account type key ('private' or 'company') by User id; unknown ids are absent.
+     *
+     * @param  list<int>  $userIds
+     * @return array<int, string>
+     */
+    public function accountTypesOf(array $userIds): array;
 }
